@@ -1,0 +1,2 @@
+*** x3d-3D-TriangleSet logs (GPAC version 0.6.2-DEV-revUNKNOWN-HEAD ) - test date 14/05/2017 22:30:04 ***
+

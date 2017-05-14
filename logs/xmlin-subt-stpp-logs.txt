@@ -1,0 +1,62 @@
+*** xmlin-subt-stpp logs (GPAC version 0.6.2-DEV-revUNKNOWN-HEAD ) - test date 14/05/2017 22:30:13 ***
+
+
+*** Subtest "import": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/media/xmlin4/subt-stpp.nhml -new /Users/travis/build/gpac/gpac/tests/results/temp/subt-stpp.mp4" ***
+Saving /Users/travis/build/gpac/gpac/tests/results/temp/subt-stpp.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "info": executing "MP4Box -noprog -for-test  -mem-track -info /Users/travis/build/gpac/gpac/tests/results/temp/subt-stpp.mp4" ***
+* Movie Info *
+	Timescale 600 - 1 track
+	Computed Duration 00:00:30.000 - Indicated Duration 00:00:30.000
+	Fragmented File: no
+	File suitable for progressive download (moov before mdat)
+	File Brand isom - version 1
+		Compatible brands: isom
+	Created: UNKNOWN DATE	Modified: UNKNOWN DATE
+File has no MPEG4 IOD/OD
+
+Track # 1 Info - TrackID 1 - TimeScale 1000
+Media Duration 00:00:30.000 - Indicated Duration 00:00:30.000
+Media Info: Language "Undetermined (und)" - Type "subt:stpp" - 3 samples
+XML Subtitle Stream - namespace http://www.gpac.io/dummy_namespace - schema-location http://example.org/a.xsd
+ Size 0 x 0 - Translation X=0 Y=0 - Layer 0
+	RFC6381 Codec Parameters: stpp
+	All samples are sync
+
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "export-track": executing "MP4Box -noprog -for-test  -mem-track -raw 1 /Users/travis/build/gpac/gpac/tests/results/temp/subt-stpp.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/test.xml " ***
+[33mExtracting XML Subtitle Stream
+[0m[31mXML Subtitles re-assembling is not supported yet.
+[0m
+	Error: Feature Not Supported
+Negative test detected, reverting to success (found "[0m[31mXML Subtitles re-assembling is not supported yet." in stderr)
+
+
+*** Subtest "export-samples": executing "MP4Box -noprog -for-test  -mem-track -raws 1 /Users/travis/build/gpac/gpac/tests/results/temp/subt-stpp.mp4" ***
+[33mExtracting Subtitle XML samples
+[0m[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "export-nhml": executing "MP4Box -noprog -for-test  -mem-track -nhml 1 /Users/travis/build/gpac/gpac/tests/results/temp/subt-stpp.mp4" ***
+[33mExporting NHML for track stpp
+[0m[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "nhml-reimport": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/results/temp/subt-stpp_track1.nhml -new /Users/travis/build/gpac/gpac/tests/results/temp/subt-stpp_track1.mp4" ***
+Saving /Users/travis/build/gpac/gpac/tests/results/temp/subt-stpp_track1.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m

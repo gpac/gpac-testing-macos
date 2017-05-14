@@ -1,0 +1,503 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - odf/oci_codec.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">odf</a> - oci_codec.c<span style="font-size: 80%;"> (source / <a href="oci_codec.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">197</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-05-14 22:31:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">19</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *                      GPAC - Multimedia Framework C SDK
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *                      Authors: Jean Le Feuvre
+<span class="lineNum">       5 </span>            :  *                      Copyright (c) Telecom ParisTech 2000-2012
+<span class="lineNum">       6 </span>            :  *                                      All rights reserved
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  *  This file is part of GPAC / MPEG-4 ObjectDescriptor sub-project
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  *  GPAC is free software; you can redistribute it and/or modify
+<span class="lineNum">      11 </span>            :  *  it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">      12 </span>            :  *  the Free Software Foundation; either version 2, or (at your option)
+<span class="lineNum">      13 </span>            :  *  any later version.
+<span class="lineNum">      14 </span>            :  *
+<span class="lineNum">      15 </span>            :  *  GPAC is distributed in the hope that it will be useful,
+<span class="lineNum">      16 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      17 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      18 </span>            :  *  GNU Lesser General Public License for more details.
+<span class="lineNum">      19 </span>            :  *
+<span class="lineNum">      20 </span>            :  *  You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      21 </span>            :  *  License along with this library; see the file COPYING.  If not, write to
+<span class="lineNum">      22 </span>            :  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+<span class="lineNum">      23 </span>            :  *
+<span class="lineNum">      24 </span>            :  */
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : 
+<span class="lineNum">      27 </span>            : #include &lt;gpac/internal/odf_dev.h&gt;
+<span class="lineNum">      28 </span>            : 
+<span class="lineNum">      29 </span>            : #ifndef GPAC_MINIMAL_ODF
+<span class="lineNum">      30 </span>            : 
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            : //from OD
+<span class="lineNum">      33 </span>            : GF_Err gf_odf_write_descriptor_list(GF_BitStream *bs, GF_List *descList);
+<span class="lineNum">      34 </span>            : GF_Err gf_odf_size_descriptor_list(GF_List *descList, u32 *outSize);
+<span class="lineNum">      35 </span>            : GF_Err gf_odf_delete_descriptor(GF_Descriptor *desc);
+<span class="lineNum">      36 </span>            : GF_Err gf_odf_parse_descriptor(GF_BitStream *bs, GF_Descriptor **desc, u32 *desc_size);
+<span class="lineNum">      37 </span>            : s32 gf_odf_size_field_size(u32 size_desc);
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span>            : 
+<span class="lineNum">      40 </span>            : //max size of an OCI event
+<span class="lineNum">      41 </span>            : #define OCI_MAX_EVENT_SIZE              1&lt;&lt;28 - 1
+<span class="lineNum">      42 </span>            : #define MAX_OCIEVENT_ID         0x7FFF
+<span class="lineNum">      43 </span>            : 
+<span class="lineNum">      44 </span>            : struct __tag_oci_event
+<span class="lineNum">      45 </span>            : {
+<span class="lineNum">      46 </span>            :         u16 EventID;
+<span class="lineNum">      47 </span>            :         u8 AbsoluteTimeFlag;
+<span class="lineNum">      48 </span>            :         char StartingTime[4];
+<span class="lineNum">      49 </span>            :         char duration[4];
+<span class="lineNum">      50 </span>            :         GF_List *OCIDescriptors;
+<span class="lineNum">      51 </span>            : };
+<span class="lineNum">      52 </span>            : 
+<span class="lineNum">      53 </span>            : struct __tag_oci_codec
+<span class="lineNum">      54 </span>            : {
+<span class="lineNum">      55 </span>            :         //events
+<span class="lineNum">      56 </span>            :         GF_List *OCIEvents;
+<span class="lineNum">      57 </span>            :         //version, should always be one
+<span class="lineNum">      58 </span>            :         u8 Version;
+<span class="lineNum">      59 </span>            :         //encoder or decoder
+<span class="lineNum">      60 </span>            :         u8 Mode;
+<span class="lineNum">      61 </span>            : };
+<a name="62"><span class="lineNum">      62 </span>            : </a>
+<span class="lineNum">      63 </span>            : GF_EXPORT
+<span class="lineNum">      64 </span>            : OCIEvent *gf_oci_event_new(u16 EventID)
+<span class="lineNum">      65 </span>            : {
+<span class="lineNum">      66 </span>            :         OCIEvent *tmp;
+<span class="lineNum">      67 </span><span class="lineNoCov">          0 :         if (EventID &gt; MAX_OCIEVENT_ID) return NULL;</span>
+<span class="lineNum">      68 </span><span class="lineNoCov">          0 :         tmp = (OCIEvent *)gf_malloc(sizeof(OCIEvent));</span>
+<span class="lineNum">      69 </span><span class="lineNoCov">          0 :         if (!tmp) return NULL;</span>
+<span class="lineNum">      70 </span><span class="lineNoCov">          0 :         memset(tmp, 0, sizeof(OCIEvent));</span>
+<span class="lineNum">      71 </span><span class="lineNoCov">          0 :         tmp-&gt;EventID = EventID;</span>
+<span class="lineNum">      72 </span><span class="lineNoCov">          0 :         tmp-&gt;OCIDescriptors = gf_list_new();</span>
+<span class="lineNum">      73 </span><span class="lineNoCov">          0 :         return tmp;</span>
+<span class="lineNum">      74 </span><span class="lineNoCov">          0 : }</span>
+<a name="75"><span class="lineNum">      75 </span>            : </a>
+<span class="lineNum">      76 </span>            : GF_EXPORT
+<span class="lineNum">      77 </span>            : void gf_oci_event_del(OCIEvent *event)
+<span class="lineNum">      78 </span>            : {
+<span class="lineNum">      79 </span>            :         GF_Descriptor *desc;
+<span class="lineNum">      80 </span><span class="lineNoCov">          0 :         if (!event) return;</span>
+<span class="lineNum">      81 </span>            : 
+<span class="lineNum">      82 </span><span class="lineNoCov">          0 :         while (gf_list_count(event-&gt;OCIDescriptors)) {</span>
+<span class="lineNum">      83 </span><span class="lineNoCov">          0 :                 desc = (GF_Descriptor *)gf_list_get(event-&gt;OCIDescriptors, 0);</span>
+<span class="lineNum">      84 </span><span class="lineNoCov">          0 :                 gf_list_rem(event-&gt;OCIDescriptors, 0);</span>
+<span class="lineNum">      85 </span><span class="lineNoCov">          0 :                 gf_odf_delete_descriptor(desc);</span>
+<span class="lineNum">      86 </span>            :         }
+<span class="lineNum">      87 </span><span class="lineNoCov">          0 :         gf_list_del(event-&gt;OCIDescriptors);</span>
+<span class="lineNum">      88 </span><span class="lineNoCov">          0 :         gf_free(event);</span>
+<span class="lineNum">      89 </span><span class="lineNoCov">          0 : }</span>
+<a name="90"><span class="lineNum">      90 </span>            : </a>
+<span class="lineNum">      91 </span>            : GF_EXPORT
+<span class="lineNum">      92 </span>            : GF_Err gf_oci_event_set_start_time(OCIEvent *event, u8 Hours, u8 Minutes, u8 Seconds, u8 HundredSeconds, u8 IsAbsoluteTime)
+<span class="lineNum">      93 </span>            : {
+<span class="lineNum">      94 </span><span class="lineNoCov">          0 :         if (!event || (Hours &gt;= 100) || (Minutes &gt;= 100) || (Seconds &gt;= 100) || (HundredSeconds &gt;= 100) )</span>
+<span class="lineNum">      95 </span><span class="lineNoCov">          0 :                 return GF_BAD_PARAM;</span>
+<span class="lineNum">      96 </span>            : 
+<span class="lineNum">      97 </span><span class="lineNoCov">          0 :         event-&gt;AbsoluteTimeFlag = IsAbsoluteTime;</span>
+<span class="lineNum">      98 </span><span class="lineNoCov">          0 :         event-&gt;StartingTime[0] = Hours;</span>
+<span class="lineNum">      99 </span><span class="lineNoCov">          0 :         event-&gt;StartingTime[1] = Minutes;</span>
+<span class="lineNum">     100 </span><span class="lineNoCov">          0 :         event-&gt;StartingTime[2] = Seconds;</span>
+<span class="lineNum">     101 </span><span class="lineNoCov">          0 :         event-&gt;StartingTime[3] = HundredSeconds;</span>
+<span class="lineNum">     102 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">     103 </span><span class="lineNoCov">          0 : }</span>
+<a name="104"><span class="lineNum">     104 </span>            : </a>
+<span class="lineNum">     105 </span>            : GF_EXPORT
+<span class="lineNum">     106 </span>            : GF_Err gf_oci_event_set_duration(OCIEvent *event, u8 Hours, u8 Minutes, u8 Seconds, u8 HundredSeconds)
+<span class="lineNum">     107 </span>            : {
+<span class="lineNum">     108 </span><span class="lineNoCov">          0 :         if (!event || (Hours &gt;= 100) || (Minutes &gt;= 100) || (Seconds &gt;= 100) || (HundredSeconds &gt;= 100) )</span>
+<span class="lineNum">     109 </span><span class="lineNoCov">          0 :                 return GF_BAD_PARAM;</span>
+<span class="lineNum">     110 </span>            : 
+<span class="lineNum">     111 </span><span class="lineNoCov">          0 :         event-&gt;duration[0] = Hours;</span>
+<span class="lineNum">     112 </span><span class="lineNoCov">          0 :         event-&gt;duration[1] = Minutes;</span>
+<span class="lineNum">     113 </span><span class="lineNoCov">          0 :         event-&gt;duration[2] = Seconds;</span>
+<span class="lineNum">     114 </span><span class="lineNoCov">          0 :         event-&gt;duration[3] = HundredSeconds;</span>
+<span class="lineNum">     115 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<a name="116"><span class="lineNum">     116 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     117 </span>            : 
+<span class="lineNum">     118 </span>            : u8 OCI_IsOCIDesc(GF_Descriptor *oci_desc)
+<span class="lineNum">     119 </span>            : {
+<span class="lineNum">     120 </span><span class="lineNoCov">          0 :         if (oci_desc-&gt;tag &lt; GF_ODF_OCI_BEGIN_TAG) return 0;</span>
+<span class="lineNum">     121 </span><span class="lineNoCov">          0 :         if (oci_desc-&gt;tag &gt; GF_ODF_OCI_END_TAG) return 0;</span>
+<span class="lineNum">     122 </span><span class="lineNoCov">          0 :         return 1;</span>
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 : }</span>
+<a name="124"><span class="lineNum">     124 </span>            : </a>
+<span class="lineNum">     125 </span>            : GF_EXPORT
+<span class="lineNum">     126 </span>            : GF_Err gf_oci_event_add_desc(OCIEvent *event, GF_Descriptor *oci_desc)
+<span class="lineNum">     127 </span>            : {
+<span class="lineNum">     128 </span><span class="lineNoCov">          0 :         if (!event || !oci_desc) return GF_BAD_PARAM;</span>
+<span class="lineNum">     129 </span><span class="lineNoCov">          0 :         if (!OCI_IsOCIDesc(oci_desc)) return GF_ODF_INVALID_DESCRIPTOR;</span>
+<span class="lineNum">     130 </span>            : 
+<span class="lineNum">     131 </span><span class="lineNoCov">          0 :         gf_list_add(event-&gt;OCIDescriptors, oci_desc);</span>
+<span class="lineNum">     132 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">     133 </span><span class="lineNoCov">          0 : }</span>
+<a name="134"><span class="lineNum">     134 </span>            : </a>
+<span class="lineNum">     135 </span>            : GF_EXPORT
+<span class="lineNum">     136 </span>            : GF_Err gf_oci_event_get_id(OCIEvent *event, u16 *ID)
+<span class="lineNum">     137 </span>            : {
+<span class="lineNum">     138 </span><span class="lineNoCov">          0 :         if (!event || !ID) return GF_BAD_PARAM;</span>
+<span class="lineNum">     139 </span><span class="lineNoCov">          0 :         *ID = event-&gt;EventID;</span>
+<span class="lineNum">     140 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">     141 </span><span class="lineNoCov">          0 : }</span>
+<a name="142"><span class="lineNum">     142 </span>            : </a>
+<span class="lineNum">     143 </span>            : GF_EXPORT
+<span class="lineNum">     144 </span>            : GF_Err gf_oci_event_get_start_time(OCIEvent *event, u8 *Hours, u8 *Minutes, u8 *Seconds, u8 *HundredSeconds, u8 *IsAbsoluteTime)
+<span class="lineNum">     145 </span>            : {
+<span class="lineNum">     146 </span><span class="lineNoCov">          0 :         if (!event || !Hours || !Minutes || !Seconds || !HundredSeconds || !IsAbsoluteTime)</span>
+<span class="lineNum">     147 </span><span class="lineNoCov">          0 :                 return GF_BAD_PARAM;</span>
+<span class="lineNum">     148 </span>            : 
+<span class="lineNum">     149 </span><span class="lineNoCov">          0 :         *IsAbsoluteTime = event-&gt;AbsoluteTimeFlag;</span>
+<span class="lineNum">     150 </span><span class="lineNoCov">          0 :         *Hours = event-&gt;StartingTime[0];</span>
+<span class="lineNum">     151 </span><span class="lineNoCov">          0 :         *Minutes = event-&gt;StartingTime[1];</span>
+<span class="lineNum">     152 </span><span class="lineNoCov">          0 :         *Seconds = event-&gt;StartingTime[2];</span>
+<span class="lineNum">     153 </span><span class="lineNoCov">          0 :         *HundredSeconds = event-&gt;StartingTime[3];</span>
+<span class="lineNum">     154 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">     155 </span><span class="lineNoCov">          0 : }</span>
+<a name="156"><span class="lineNum">     156 </span>            : </a>
+<span class="lineNum">     157 </span>            : GF_EXPORT
+<span class="lineNum">     158 </span>            : GF_Err gf_oci_event_get_duration(OCIEvent *event, u8 *Hours, u8 *Minutes, u8 *Seconds, u8 *HundredSeconds)
+<span class="lineNum">     159 </span>            : {
+<span class="lineNum">     160 </span><span class="lineNoCov">          0 :         if (!event || !Hours || !Minutes || !Seconds || !HundredSeconds)</span>
+<span class="lineNum">     161 </span><span class="lineNoCov">          0 :                 return GF_BAD_PARAM;</span>
+<span class="lineNum">     162 </span>            : 
+<span class="lineNum">     163 </span><span class="lineNoCov">          0 :         *Hours = event-&gt;duration[0];</span>
+<span class="lineNum">     164 </span><span class="lineNoCov">          0 :         *Minutes = event-&gt;duration[1];</span>
+<span class="lineNum">     165 </span><span class="lineNoCov">          0 :         *Seconds = event-&gt;duration[2];</span>
+<span class="lineNum">     166 </span><span class="lineNoCov">          0 :         *HundredSeconds = event-&gt;duration[3];</span>
+<span class="lineNum">     167 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">     168 </span><span class="lineNoCov">          0 : }</span>
+<a name="169"><span class="lineNum">     169 </span>            : </a>
+<span class="lineNum">     170 </span>            : GF_EXPORT
+<span class="lineNum">     171 </span>            : u32 gf_oci_event_get_desc_count(OCIEvent *event)
+<span class="lineNum">     172 </span>            : {
+<span class="lineNum">     173 </span><span class="lineNoCov">          0 :         if (!event) return 0;</span>
+<span class="lineNum">     174 </span><span class="lineNoCov">          0 :         return gf_list_count(event-&gt;OCIDescriptors);</span>
+<span class="lineNum">     175 </span><span class="lineNoCov">          0 : }</span>
+<a name="176"><span class="lineNum">     176 </span>            : </a>
+<span class="lineNum">     177 </span>            : GF_EXPORT
+<span class="lineNum">     178 </span>            : GF_Descriptor *gf_oci_event_get_desc(OCIEvent *event, u32 DescIndex)
+<span class="lineNum">     179 </span>            : {
+<span class="lineNum">     180 </span><span class="lineNoCov">          0 :         if (!event || DescIndex &gt;= gf_list_count(event-&gt;OCIDescriptors) ) return NULL;</span>
+<span class="lineNum">     181 </span><span class="lineNoCov">          0 :         return (GF_Descriptor *) gf_list_get(event-&gt;OCIDescriptors, DescIndex);</span>
+<span class="lineNum">     182 </span><span class="lineNoCov">          0 : }</span>
+<a name="183"><span class="lineNum">     183 </span>            : </a>
+<span class="lineNum">     184 </span>            : GF_EXPORT
+<span class="lineNum">     185 </span>            : GF_Err gf_oci_event_rem_desc(OCIEvent *event, u32 DescIndex)
+<span class="lineNum">     186 </span>            : {
+<span class="lineNum">     187 </span><span class="lineNoCov">          0 :         if (!event || DescIndex &gt;= gf_list_count(event-&gt;OCIDescriptors) ) return GF_BAD_PARAM;</span>
+<span class="lineNum">     188 </span><span class="lineNoCov">          0 :         return gf_list_rem(event-&gt;OCIDescriptors, DescIndex);</span>
+<span class="lineNum">     189 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     190 </span>            : 
+<span class="lineNum">     191 </span>            : 
+<a name="192"><span class="lineNum">     192 </span>            : //construction / destruction</a>
+<span class="lineNum">     193 </span>            : GF_EXPORT
+<span class="lineNum">     194 </span>            : OCICodec *gf_oci_codec_new(u8 IsEncoder, u8 Version)
+<span class="lineNum">     195 </span>            : {
+<span class="lineNum">     196 </span>            :         OCICodec *tmp;
+<span class="lineNum">     197 </span><span class="lineNoCov">          0 :         if (Version != 0x01) return NULL;</span>
+<span class="lineNum">     198 </span><span class="lineNoCov">          0 :         tmp = (OCICodec *)gf_malloc(sizeof(OCICodec));</span>
+<span class="lineNum">     199 </span><span class="lineNoCov">          0 :         if (!tmp) return NULL;</span>
+<span class="lineNum">     200 </span><span class="lineNoCov">          0 :         tmp-&gt;Mode = IsEncoder ? 1 : 0;</span>
+<span class="lineNum">     201 </span><span class="lineNoCov">          0 :         tmp-&gt;Version = 0x01;</span>
+<span class="lineNum">     202 </span><span class="lineNoCov">          0 :         tmp-&gt;OCIEvents = gf_list_new();</span>
+<span class="lineNum">     203 </span><span class="lineNoCov">          0 :         return tmp;</span>
+<span class="lineNum">     204 </span><span class="lineNoCov">          0 : }</span>
+<a name="205"><span class="lineNum">     205 </span>            : </a>
+<span class="lineNum">     206 </span>            : GF_EXPORT
+<span class="lineNum">     207 </span>            : void gf_oci_codec_del(OCICodec *codec)
+<span class="lineNum">     208 </span>            : {
+<span class="lineNum">     209 </span>            :         OCIEvent *ev;
+<span class="lineNum">     210 </span><span class="lineNoCov">          0 :         if (!codec) return;</span>
+<span class="lineNum">     211 </span>            : 
+<span class="lineNum">     212 </span><span class="lineNoCov">          0 :         while (gf_list_count(codec-&gt;OCIEvents)) {</span>
+<span class="lineNum">     213 </span><span class="lineNoCov">          0 :                 ev = (OCIEvent *)gf_list_get(codec-&gt;OCIEvents, 0);</span>
+<span class="lineNum">     214 </span><span class="lineNoCov">          0 :                 gf_oci_event_del(ev);</span>
+<span class="lineNum">     215 </span><span class="lineNoCov">          0 :                 gf_list_rem(codec-&gt;OCIEvents, 0);</span>
+<span class="lineNum">     216 </span>            :         }
+<span class="lineNum">     217 </span><span class="lineNoCov">          0 :         gf_list_del(codec-&gt;OCIEvents);</span>
+<span class="lineNum">     218 </span><span class="lineNoCov">          0 :         gf_free(codec);</span>
+<span class="lineNum">     219 </span><span class="lineNoCov">          0 : }</span>
+<a name="220"><span class="lineNum">     220 </span>            : </a>
+<span class="lineNum">     221 </span>            : GF_EXPORT
+<span class="lineNum">     222 </span>            : GF_Err gf_oci_codec_add_event(OCICodec *codec, OCIEvent *event)
+<span class="lineNum">     223 </span>            : {
+<span class="lineNum">     224 </span><span class="lineNoCov">          0 :         if (!codec || !codec-&gt;Mode || !event) return GF_BAD_PARAM;</span>
+<span class="lineNum">     225 </span>            : 
+<span class="lineNum">     226 </span><span class="lineNoCov">          0 :         return gf_list_add(codec-&gt;OCIEvents, event);</span>
+<a name="227"><span class="lineNum">     227 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     228 </span>            : 
+<span class="lineNum">     229 </span>            : GF_Err WriteSevenBitLength(GF_BitStream *bs, u32 size)
+<span class="lineNum">     230 </span>            : {
+<span class="lineNum">     231 </span>            :         u32 length;
+<span class="lineNum">     232 </span>            :         unsigned char vals[4];
+<span class="lineNum">     233 </span>            : 
+<span class="lineNum">     234 </span><span class="lineNoCov">          0 :         if (!bs || !size) return GF_BAD_PARAM;</span>
+<span class="lineNum">     235 </span>            : 
+<span class="lineNum">     236 </span>            :         length = size;
+<span class="lineNum">     237 </span><span class="lineNoCov">          0 :         vals[3] = (unsigned char) (length &amp; 0x7f);</span>
+<span class="lineNum">     238 </span><span class="lineNoCov">          0 :         length &gt;&gt;= 7;</span>
+<span class="lineNum">     239 </span><span class="lineNoCov">          0 :         vals[2] = (unsigned char) ((length &amp; 0x7f) | 0x80);</span>
+<span class="lineNum">     240 </span><span class="lineNoCov">          0 :         length &gt;&gt;= 7;</span>
+<span class="lineNum">     241 </span><span class="lineNoCov">          0 :         vals[1] = (unsigned char) ((length &amp; 0x7f) | 0x80);</span>
+<span class="lineNum">     242 </span><span class="lineNoCov">          0 :         length &gt;&gt;= 7;</span>
+<span class="lineNum">     243 </span><span class="lineNoCov">          0 :         vals[0] = (unsigned char) ((length &amp; 0x7f) | 0x80);</span>
+<span class="lineNum">     244 </span>            : 
+<span class="lineNum">     245 </span><span class="lineNoCov">          0 :         if (size &lt; 0x00000080) {</span>
+<span class="lineNum">     246 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, vals[3], 8);</span>
+<span class="lineNum">     247 </span><span class="lineNoCov">          0 :         } else if (size &lt; 0x00004000) {</span>
+<span class="lineNum">     248 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, vals[2], 8);</span>
+<span class="lineNum">     249 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, vals[3], 8);</span>
+<span class="lineNum">     250 </span><span class="lineNoCov">          0 :         } else if (size &lt; 0x00200000) {</span>
+<span class="lineNum">     251 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, vals[1], 8);</span>
+<span class="lineNum">     252 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, vals[2], 8);</span>
+<span class="lineNum">     253 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, vals[3], 8);</span>
+<span class="lineNum">     254 </span><span class="lineNoCov">          0 :         } else if (size &lt; 0x10000000) {</span>
+<span class="lineNum">     255 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, vals[0], 8);</span>
+<span class="lineNum">     256 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, vals[1], 8);</span>
+<span class="lineNum">     257 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, vals[2], 8);</span>
+<span class="lineNum">     258 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, vals[3], 8);</span>
+<span class="lineNum">     259 </span>            :         } else {
+<span class="lineNum">     260 </span><span class="lineNoCov">          0 :                 return GF_ODF_INVALID_DESCRIPTOR;</span>
+<span class="lineNum">     261 </span>            :         }
+<span class="lineNum">     262 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">     263 </span><span class="lineNoCov">          0 : }</span>
+<a name="264"><span class="lineNum">     264 </span>            : </a>
+<span class="lineNum">     265 </span>            : GF_EXPORT
+<span class="lineNum">     266 </span>            : GF_Err gf_oci_codec_encode(OCICodec *codec, char **outAU, u32 *au_length)
+<span class="lineNum">     267 </span>            : {
+<span class="lineNum">     268 </span>            :         GF_BitStream *bs;
+<span class="lineNum">     269 </span><span class="lineNoCov">          0 :         u32 i, size, desc_size;</span>
+<span class="lineNum">     270 </span>            :         GF_Err e;
+<span class="lineNum">     271 </span>            :         OCIEvent *ev;
+<span class="lineNum">     272 </span>            : 
+<span class="lineNum">     273 </span><span class="lineNoCov">          0 :         if (!codec || !codec-&gt;Mode || *outAU) return GF_BAD_PARAM;</span>
+<span class="lineNum">     274 </span>            : 
+<span class="lineNum">     275 </span>            :         bs = NULL;
+<span class="lineNum">     276 </span>            :         size = 0;
+<span class="lineNum">     277 </span>            : 
+<span class="lineNum">     278 </span>            :         //get the size of each event
+<span class="lineNum">     279 </span><span class="lineNoCov">          0 :         i=0;</span>
+<span class="lineNum">     280 </span><span class="lineNoCov">          0 :         while ((ev = (OCIEvent *)gf_list_enum(codec-&gt;OCIEvents, &amp;i))) {</span>
+<span class="lineNum">     281 </span>            :                 //fixed size header
+<span class="lineNum">     282 </span><span class="lineNoCov">          0 :                 size += 10;</span>
+<span class="lineNum">     283 </span><span class="lineNoCov">          0 :                 e = gf_odf_size_descriptor_list(codec-&gt;OCIEvents, &amp;desc_size);</span>
+<span class="lineNum">     284 </span><span class="lineNoCov">          0 :                 if (e) goto err_exit;</span>
+<span class="lineNum">     285 </span><span class="lineNoCov">          0 :                 size += desc_size;</span>
+<span class="lineNum">     286 </span>            :         }
+<span class="lineNum">     287 </span>            : 
+<span class="lineNum">     288 </span>            :         //encode
+<span class="lineNum">     289 </span><span class="lineNoCov">          0 :         bs = gf_bs_new(NULL, 0, GF_BITSTREAM_WRITE);</span>
+<span class="lineNum">     290 </span>            : 
+<span class="lineNum">     291 </span><span class="lineNoCov">          0 :         e = WriteSevenBitLength(bs, size);</span>
+<span class="lineNum">     292 </span><span class="lineNoCov">          0 :         if (e) goto err_exit;</span>
+<span class="lineNum">     293 </span>            : 
+<span class="lineNum">     294 </span>            :         //get one event, write it and delete it
+<span class="lineNum">     295 </span><span class="lineNoCov">          0 :         while (gf_list_count(codec-&gt;OCIEvents)) {</span>
+<span class="lineNum">     296 </span><span class="lineNoCov">          0 :                 ev = (OCIEvent *)gf_list_get(codec-&gt;OCIEvents, 0);</span>
+<span class="lineNum">     297 </span><span class="lineNoCov">          0 :                 gf_list_rem(codec-&gt;OCIEvents, 0);</span>
+<span class="lineNum">     298 </span>            : 
+<span class="lineNum">     299 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, ev-&gt;EventID, 15);</span>
+<span class="lineNum">     300 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, ev-&gt;AbsoluteTimeFlag, 1);</span>
+<span class="lineNum">     301 </span><span class="lineNoCov">          0 :                 gf_bs_write_data(bs, ev-&gt;StartingTime, 4);</span>
+<span class="lineNum">     302 </span><span class="lineNoCov">          0 :                 gf_bs_write_data(bs, ev-&gt;duration, 4);</span>
+<span class="lineNum">     303 </span>            : 
+<span class="lineNum">     304 </span><span class="lineNoCov">          0 :                 e = gf_odf_write_descriptor_list(bs, ev-&gt;OCIDescriptors);</span>
+<span class="lineNum">     305 </span><span class="lineNoCov">          0 :                 gf_oci_event_del(ev);</span>
+<span class="lineNum">     306 </span><span class="lineNoCov">          0 :                 if (e) goto err_exit;</span>
+<span class="lineNum">     307 </span>            :                 //OCI Event is aligned
+<span class="lineNum">     308 </span><span class="lineNoCov">          0 :                 gf_bs_align(bs);</span>
+<span class="lineNum">     309 </span>            :         }
+<span class="lineNum">     310 </span><span class="lineNoCov">          0 :         gf_bs_get_content(bs, outAU, au_length);</span>
+<span class="lineNum">     311 </span><span class="lineNoCov">          0 :         gf_bs_del(bs);</span>
+<span class="lineNum">     312 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">     313 </span>            : 
+<span class="lineNum">     314 </span>            : 
+<span class="lineNum">     315 </span>            : err_exit:
+<span class="lineNum">     316 </span><span class="lineNoCov">          0 :         if (bs) gf_bs_del(bs);</span>
+<span class="lineNum">     317 </span>            :         //delete everything
+<span class="lineNum">     318 </span><span class="lineNoCov">          0 :         while (gf_list_count(codec-&gt;OCIEvents)) {</span>
+<span class="lineNum">     319 </span><span class="lineNoCov">          0 :                 ev = (OCIEvent *)gf_list_get(codec-&gt;OCIEvents, 0);</span>
+<span class="lineNum">     320 </span><span class="lineNoCov">          0 :                 gf_list_rem(codec-&gt;OCIEvents, 0);</span>
+<span class="lineNum">     321 </span><span class="lineNoCov">          0 :                 gf_oci_event_del(ev);</span>
+<span class="lineNum">     322 </span>            :         }
+<span class="lineNum">     323 </span><span class="lineNoCov">          0 :         return e;</span>
+<span class="lineNum">     324 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     325 </span>            : 
+<a name="326"><span class="lineNum">     326 </span>            : </a>
+<span class="lineNum">     327 </span>            : GF_EXPORT
+<span class="lineNum">     328 </span>            : GF_Err gf_oci_codec_decode(OCICodec *codec, char *au, u32 au_length)
+<span class="lineNum">     329 </span>            : {
+<span class="lineNum">     330 </span>            :         OCIEvent *ev;
+<span class="lineNum">     331 </span>            :         GF_BitStream *bs;
+<span class="lineNum">     332 </span><span class="lineNoCov">          0 :         u32 size, hdrS, desc_size, tot_size, tmp_size, val;</span>
+<span class="lineNum">     333 </span><span class="lineNoCov">          0 :         GF_Descriptor *tmp;</span>
+<span class="lineNum">     334 </span>            :         GF_Err e;
+<span class="lineNum">     335 </span>            : 
+<span class="lineNum">     336 </span>            :         //must be decoder
+<span class="lineNum">     337 </span><span class="lineNoCov">          0 :         if (!codec || codec-&gt;Mode || !au) return GF_BAD_PARAM;</span>
+<span class="lineNum">     338 </span>            : 
+<span class="lineNum">     339 </span><span class="lineNoCov">          0 :         bs = gf_bs_new(au, au_length, GF_BITSTREAM_READ);</span>
+<span class="lineNum">     340 </span>            :         ev = 0;
+<span class="lineNum">     341 </span>            :         tot_size = 0;
+<span class="lineNum">     342 </span><span class="lineNoCov">          0 :         while (tot_size &lt; au_length) {</span>
+<span class="lineNum">     343 </span>            :                 //create an event
+<span class="lineNum">     344 </span><span class="lineNoCov">          0 :                 ev = gf_oci_event_new(0);</span>
+<span class="lineNum">     345 </span><span class="lineNoCov">          0 :                 if (!ev) {</span>
+<span class="lineNum">     346 </span>            :                         e = GF_OUT_OF_MEM;
+<span class="lineNum">     347 </span><span class="lineNoCov">          0 :                         goto err_exit;</span>
+<span class="lineNum">     348 </span>            :                 }
+<span class="lineNum">     349 </span>            : 
+<span class="lineNum">     350 </span>            : 
+<span class="lineNum">     351 </span>            :                 //FIX IM1
+<span class="lineNum">     352 </span><span class="lineNoCov">          0 :                 gf_bs_read_int(bs, 8);</span>
+<span class="lineNum">     353 </span>            :                 size = 0;
+<span class="lineNum">     354 </span>            :                 //get its size
+<span class="lineNum">     355 </span>            :                 hdrS = 0;
+<span class="lineNum">     356 </span><span class="lineNoCov">          0 :                 do {</span>
+<span class="lineNum">     357 </span><span class="lineNoCov">          0 :                         val = gf_bs_read_int(bs, 8);</span>
+<span class="lineNum">     358 </span><span class="lineNoCov">          0 :                         hdrS += 1;</span>
+<span class="lineNum">     359 </span><span class="lineNoCov">          0 :                         size &lt;&lt;= 7;</span>
+<span class="lineNum">     360 </span><span class="lineNoCov">          0 :                         size |= val &amp; 0x7F;</span>
+<span class="lineNum">     361 </span><span class="lineNoCov">          0 :                 } while ( val &amp; 0x80 );</span>
+<span class="lineNum">     362 </span>            : 
+<span class="lineNum">     363 </span>            :                 //parse event vars
+<span class="lineNum">     364 </span><span class="lineNoCov">          0 :                 ev-&gt;EventID = gf_bs_read_int(bs, 15);</span>
+<span class="lineNum">     365 </span><span class="lineNoCov">          0 :                 ev-&gt;AbsoluteTimeFlag = gf_bs_read_int(bs, 1);</span>
+<span class="lineNum">     366 </span><span class="lineNoCov">          0 :                 gf_bs_read_data(bs, ev-&gt;StartingTime, 4);</span>
+<span class="lineNum">     367 </span><span class="lineNoCov">          0 :                 gf_bs_read_data(bs, ev-&gt;duration, 4);</span>
+<span class="lineNum">     368 </span>            :                 desc_size = 0;
+<span class="lineNum">     369 </span>            : 
+<span class="lineNum">     370 </span>            :                 //parse descriptor list
+<span class="lineNum">     371 </span><span class="lineNoCov">          0 :                 while (desc_size &lt; size - 10) {</span>
+<span class="lineNum">     372 </span><span class="lineNoCov">          0 :                         e = gf_odf_parse_descriptor(bs, &amp;tmp, &amp;tmp_size);</span>
+<span class="lineNum">     373 </span>            :                         //RE-FIX IM1
+<span class="lineNum">     374 </span><span class="lineNoCov">          0 :                         if (e || !tmp) goto err_exit;</span>
+<span class="lineNum">     375 </span><span class="lineNoCov">          0 :                         if (!OCI_IsOCIDesc(tmp)) {</span>
+<span class="lineNum">     376 </span><span class="lineNoCov">          0 :                                 gf_odf_delete_descriptor(tmp);</span>
+<span class="lineNum">     377 </span>            :                                 e = GF_ODF_INVALID_DESCRIPTOR;
+<span class="lineNum">     378 </span><span class="lineNoCov">          0 :                                 goto err_exit;</span>
+<span class="lineNum">     379 </span>            :                         }
+<span class="lineNum">     380 </span><span class="lineNoCov">          0 :                         gf_list_add(ev-&gt;OCIDescriptors, tmp);</span>
+<span class="lineNum">     381 </span><span class="lineNoCov">          0 :                         desc_size += tmp_size + gf_odf_size_field_size(tmp_size);</span>
+<span class="lineNum">     382 </span>            :                 }
+<span class="lineNum">     383 </span>            : 
+<span class="lineNum">     384 </span><span class="lineNoCov">          0 :                 if (desc_size != size - 10) {</span>
+<span class="lineNum">     385 </span>            :                         e = GF_CORRUPTED_DATA;
+<span class="lineNum">     386 </span><span class="lineNoCov">          0 :                         goto err_exit;</span>
+<span class="lineNum">     387 </span>            :                 }
+<span class="lineNum">     388 </span>            : 
+<span class="lineNum">     389 </span><span class="lineNoCov">          0 :                 gf_list_add(codec-&gt;OCIEvents, ev);</span>
+<span class="lineNum">     390 </span>            :                 //FIX IM1
+<span class="lineNum">     391 </span><span class="lineNoCov">          0 :                 size += 1;</span>
+<span class="lineNum">     392 </span><span class="lineNoCov">          0 :                 tot_size += size + hdrS;</span>
+<span class="lineNum">     393 </span>            :                 ev = NULL;
+<span class="lineNum">     394 </span>            :         }
+<span class="lineNum">     395 </span>            : 
+<span class="lineNum">     396 </span><span class="lineNoCov">          0 :         if (tot_size != au_length) {</span>
+<span class="lineNum">     397 </span>            :                 e = GF_CORRUPTED_DATA;
+<span class="lineNum">     398 </span><span class="lineNoCov">          0 :                 goto err_exit;</span>
+<span class="lineNum">     399 </span>            :         }
+<span class="lineNum">     400 </span>            : 
+<span class="lineNum">     401 </span><span class="lineNoCov">          0 :         gf_bs_del(bs);</span>
+<span class="lineNum">     402 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">     403 </span>            : 
+<span class="lineNum">     404 </span>            : err_exit:
+<span class="lineNum">     405 </span><span class="lineNoCov">          0 :         gf_bs_del(bs);</span>
+<span class="lineNum">     406 </span><span class="lineNoCov">          0 :         if (ev) gf_oci_event_del(ev);</span>
+<span class="lineNum">     407 </span>            :         //delete everything
+<span class="lineNum">     408 </span><span class="lineNoCov">          0 :         while (gf_list_count(codec-&gt;OCIEvents)) {</span>
+<span class="lineNum">     409 </span><span class="lineNoCov">          0 :                 ev = (OCIEvent *)gf_list_get(codec-&gt;OCIEvents, 0);</span>
+<span class="lineNum">     410 </span><span class="lineNoCov">          0 :                 gf_list_rem(codec-&gt;OCIEvents, 0);</span>
+<span class="lineNum">     411 </span><span class="lineNoCov">          0 :                 gf_oci_event_del(ev);</span>
+<span class="lineNum">     412 </span>            :         }
+<span class="lineNum">     413 </span><span class="lineNoCov">          0 :         return e;</span>
+<span class="lineNum">     414 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     415 </span>            : 
+<a name="416"><span class="lineNum">     416 </span>            : </a>
+<span class="lineNum">     417 </span>            : GF_EXPORT
+<span class="lineNum">     418 </span>            : OCIEvent *gf_oci_codec_get_event(OCICodec *codec)
+<span class="lineNum">     419 </span>            : {
+<span class="lineNum">     420 </span>            :         OCIEvent *ev;
+<span class="lineNum">     421 </span><span class="lineNoCov">          0 :         if (!codec ||codec-&gt;Mode) return NULL;</span>
+<span class="lineNum">     422 </span><span class="lineNoCov">          0 :         ev = (OCIEvent *)gf_list_get(codec-&gt;OCIEvents, 0);</span>
+<span class="lineNum">     423 </span><span class="lineNoCov">          0 :         gf_list_rem(codec-&gt;OCIEvents, 0);</span>
+<span class="lineNum">     424 </span><span class="lineNoCov">          0 :         return ev;</span>
+<span class="lineNum">     425 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     426 </span>            : 
+<span class="lineNum">     427 </span>            : #endif /*GPAC_MINIMAL_ODF*/
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

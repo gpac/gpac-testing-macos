@@ -1,0 +1,9 @@
+ <test name="mp4box-rtp-mpeg4p2-mp3" result="OK" date="14/05/2017 22:28:51">
+
+  <stat subtest="streamer-init" execution_status="OK" return_status="0" mem_total_avg="0" mem_resident_avg="0" mem_resident_max="51429376" cpu_percent="32%" cpu_elapsed_time="0:00.16" cpu_user_time="0.01" cpu_kernel_time="0.03" page_faults="0" file_inputs="0" socket_msg_rec="4" socket_msg_sent="6" return_value="0">
+   <command_line>MP4Box -noprog -for-test  -mem-track -rtp -run-for=0 -sdp=/Users/travis/build/gpac/gpac/tests/results/temp/session.sdp  -ifce=127.0.0.1 /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4</command_line>
+  </stat>
+  <stat subtest="streamer-run" execution_status="OK" return_status="0" mem_total_avg="0" mem_resident_avg="0" mem_resident_max="52592640" cpu_percent="2%" cpu_elapsed_time="0:06.28" cpu_user_time="0.05" cpu_kernel_time="0.10" page_faults="0" file_inputs="0" socket_msg_rec="4" socket_msg_sent="398" return_value="0">
+   <command_line>MP4Box -noprog -for-test  -mem-track -rtp -run-for=6 -sdp=/Users/travis/build/gpac/gpac/tests/results/temp/session.sdp  -ifce=127.0.0.1 /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4</command_line>
+  </stat>
+ </test>

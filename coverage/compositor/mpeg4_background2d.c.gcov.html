@@ -1,0 +1,590 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - compositor/mpeg4_background2d.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">compositor</a> - mpeg4_background2d.c<span style="font-size: 80%;"> (source / <a href="mpeg4_background2d.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">41</td>
+            <td class="headerCovTableEntry">269</td>
+            <td class="headerCovTableEntryLo">15.2 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-05-14 22:31:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntry">14</td>
+            <td class="headerCovTableEntryLo">35.7 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *                      GPAC - Multimedia Framework C SDK
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *                      Authors: Jean Le Feuvre
+<span class="lineNum">       5 </span>            :  *                      Copyright (c) Telecom ParisTech 2000-2012
+<span class="lineNum">       6 </span>            :  *                                      All rights reserved
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  *  This file is part of GPAC / Scene Compositor sub-project
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  *  GPAC is free software; you can redistribute it and/or modify
+<span class="lineNum">      11 </span>            :  *  it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">      12 </span>            :  *  the Free Software Foundation; either version 2, or (at your option)
+<span class="lineNum">      13 </span>            :  *  any later version.
+<span class="lineNum">      14 </span>            :  *
+<span class="lineNum">      15 </span>            :  *  GPAC is distributed in the hope that it will be useful,
+<span class="lineNum">      16 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      17 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      18 </span>            :  *  GNU Lesser General Public License for more details.
+<span class="lineNum">      19 </span>            :  *
+<span class="lineNum">      20 </span>            :  *  You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      21 </span>            :  *  License along with this library; see the file COPYING.  If not, write to
+<span class="lineNum">      22 </span>            :  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+<span class="lineNum">      23 </span>            :  *
+<span class="lineNum">      24 </span>            :  */
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : 
+<span class="lineNum">      27 </span>            : #include &quot;mpeg4_grouping.h&quot;
+<span class="lineNum">      28 </span>            : #include &quot;visual_manager.h&quot;
+<span class="lineNum">      29 </span>            : #include &quot;texturing.h&quot;
+<span class="lineNum">      30 </span>            : #include &quot;nodes_stacks.h&quot;
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            : #ifndef GPAC_DISABLE_VRML
+<span class="lineNum">      33 </span>            : 
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span>            : #define B2D_PLANE_HSIZE         FLT2FIX(0.5025f)
+<span class="lineNum">      36 </span>            : 
+<span class="lineNum">      37 </span>            : typedef struct
+<span class="lineNum">      38 </span>            : {
+<span class="lineNum">      39 </span>            :         DrawableContext ctx;
+<span class="lineNum">      40 </span>            :         BoundInfo bi;
+<a name="41"><span class="lineNum">      41 </span>            : } BackgroundStatus;</a>
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            : static void DestroyBackground2D(GF_Node *node)
+<span class="lineNum">      44 </span>            : {
+<span class="lineNum">      45 </span><span class="lineCov">          2 :         Background2DStack *stack = (Background2DStack *) gf_node_get_private(node);</span>
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span><span class="lineCov">          1 :         PreDestroyBindable(node, stack-&gt;reg_stacks);</span>
+<span class="lineNum">      48 </span><span class="lineCov">          1 :         gf_list_del(stack-&gt;reg_stacks);</span>
+<span class="lineNum">      49 </span>            : 
+<span class="lineNum">      50 </span><span class="lineCov">          2 :         while (gf_list_count(stack-&gt;status_stack)) {</span>
+<span class="lineNum">      51 </span><span class="lineNoCov">          0 :                 BackgroundStatus *status = (BackgroundStatus *)gf_list_get(stack-&gt;status_stack, 0);</span>
+<span class="lineNum">      52 </span><span class="lineNoCov">          0 :                 gf_list_rem(stack-&gt;status_stack, 0);</span>
+<span class="lineNum">      53 </span><span class="lineNoCov">          0 :                 gf_free(status);</span>
+<span class="lineNum">      54 </span>            :         }
+<span class="lineNum">      55 </span><span class="lineCov">          1 :         gf_list_del(stack-&gt;status_stack);</span>
+<span class="lineNum">      56 </span>            : 
+<span class="lineNum">      57 </span><span class="lineCov">          1 :         drawable_del(stack-&gt;drawable);</span>
+<span class="lineNum">      58 </span><span class="lineCov">          1 :         gf_sc_texture_destroy(&amp;stack-&gt;txh);</span>
+<span class="lineNum">      59 </span>            : #ifndef GPAC_DISABLE_3D
+<span class="lineNum">      60 </span><span class="lineCov">          1 :         if (stack-&gt;mesh) mesh_free(stack-&gt;mesh);</span>
+<span class="lineNum">      61 </span>            : #endif
+<span class="lineNum">      62 </span><span class="lineCov">          1 :         gf_free(stack);</span>
+<a name="63"><span class="lineNum">      63 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">      64 </span>            : 
+<span class="lineNum">      65 </span>            : static void b2D_new_status(Background2DStack *bck, M_Background2D*back)
+<span class="lineNum">      66 </span>            : {
+<span class="lineNum">      67 </span>            :         BackgroundStatus *status;
+<span class="lineNum">      68 </span>            : 
+<span class="lineNum">      69 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(status, BackgroundStatus);</span>
+<span class="lineNum">      70 </span><span class="lineNoCov">          0 :         if (!status) {</span>
+<span class="lineNum">      71 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_COMPOSE, (&quot;[Compositor] Failed to allocate background2D status\n&quot;));</span>
+<span class="lineNum">      72 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">      73 </span>            :         }
+<span class="lineNum">      74 </span><span class="lineNoCov">          0 :         gf_mx2d_init(status-&gt;ctx.transform);</span>
+<span class="lineNum">      75 </span><span class="lineNoCov">          0 :         status-&gt;ctx.drawable = bck-&gt;drawable;</span>
+<span class="lineNum">      76 </span><span class="lineNoCov">          0 :         status-&gt;ctx.flags = CTX_IS_BACKGROUND;</span>
+<span class="lineNum">      77 </span><span class="lineNoCov">          0 :         status-&gt;ctx.bi = &amp;status-&gt;bi;</span>
+<span class="lineNum">      78 </span><span class="lineNoCov">          0 :         status-&gt;ctx.aspect.fill_color = GF_COL_ARGB_FIXED(FIX_ONE, back-&gt;backColor.red, back-&gt;backColor.green, back-&gt;backColor.blue);</span>
+<span class="lineNum">      79 </span><span class="lineNoCov">          0 :         status-&gt;ctx.aspect.fill_texture = &amp;bck-&gt;txh;</span>
+<span class="lineNum">      80 </span><span class="lineNoCov">          0 :         gf_list_add(bck-&gt;status_stack, status);</span>
+<a name="81"><span class="lineNum">      81 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      82 </span>            : 
+<span class="lineNum">      83 </span>            : static BackgroundStatus *b2d_get_status(Background2DStack *stack, GF_List *background_stack)
+<span class="lineNum">      84 </span>            : {
+<span class="lineNum">      85 </span>            :         u32 i, count;
+<span class="lineNum">      86 </span><span class="lineNoCov">          0 :         if (!background_stack) return NULL;</span>
+<span class="lineNum">      87 </span>            : 
+<span class="lineNum">      88 </span><span class="lineNoCov">          0 :         count = gf_list_count(stack-&gt;reg_stacks);</span>
+<span class="lineNum">      89 </span><span class="lineNoCov">          0 :         for (i=0; i&lt;count; i++) {</span>
+<span class="lineNum">      90 </span><span class="lineNoCov">          0 :                 GF_List *bind_stack = (GF_List *)gf_list_get(stack-&gt;reg_stacks, i);</span>
+<span class="lineNum">      91 </span><span class="lineNoCov">          0 :                 if (bind_stack == background_stack) {</span>
+<span class="lineNum">      92 </span><span class="lineNoCov">          0 :                         return gf_list_get(stack-&gt;status_stack, i);</span>
+<span class="lineNum">      93 </span>            :                 }
+<span class="lineNum">      94 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">      95 </span><span class="lineNoCov">          0 :         return NULL;</span>
+<span class="lineNum">      96 </span><span class="lineNoCov">          0 : }</span>
+<a name="97"><span class="lineNum">      97 </span>            : </a>
+<span class="lineNum">      98 </span>            : 
+<span class="lineNum">      99 </span>            : static Bool back_use_texture(M_Background2D *bck)
+<span class="lineNum">     100 </span>            : {
+<span class="lineNum">     101 </span><span class="lineNoCov">          0 :         if (!bck-&gt;url.count) return 0;</span>
+<span class="lineNum">     102 </span><span class="lineNoCov">          0 :         if (bck-&gt;url.vals[0].OD_ID &gt; 0) return 1;</span>
+<span class="lineNum">     103 </span><span class="lineNoCov">          0 :         if (bck-&gt;url.vals[0].url &amp;&amp; strlen(bck-&gt;url.vals[0].url)) return 1;</span>
+<span class="lineNum">     104 </span><span class="lineNoCov">          0 :         return 0;</span>
+<a name="105"><span class="lineNum">     105 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     106 </span>            : 
+<span class="lineNum">     107 </span>            : static void DrawBackground2D_2D(DrawableContext *ctx, GF_TraverseState *tr_state)
+<span class="lineNum">     108 </span>            : {
+<span class="lineNum">     109 </span>            :         Bool clear_all = GF_TRUE;
+<span class="lineNum">     110 </span>            :         u32 color;
+<span class="lineNum">     111 </span>            :         Bool use_texture;
+<span class="lineNum">     112 </span>            :         Bool is_offscreen = GF_FALSE;
+<span class="lineNum">     113 </span>            :         Background2DStack *stack;
+<span class="lineNum">     114 </span><span class="lineNoCov">          0 :         if (!ctx || !ctx-&gt;drawable || !ctx-&gt;drawable-&gt;node) return;</span>
+<span class="lineNum">     115 </span><span class="lineNoCov">          0 :         stack = (Background2DStack *) gf_node_get_private(ctx-&gt;drawable-&gt;node);</span>
+<span class="lineNum">     116 </span>            : 
+<span class="lineNum">     117 </span><span class="lineNoCov">          0 :         if (!ctx-&gt;bi-&gt;clip.width || !ctx-&gt;bi-&gt;clip.height) return;</span>
+<span class="lineNum">     118 </span>            : 
+<span class="lineNum">     119 </span><span class="lineNoCov">          0 :         stack-&gt;flags &amp;= ~CTX_PATH_FILLED;</span>
+<span class="lineNum">     120 </span><span class="lineNoCov">          0 :         color = ctx-&gt;aspect.fill_color;</span>
+<span class="lineNum">     121 </span>            : 
+<span class="lineNum">     122 </span><span class="lineNoCov">          0 :         use_texture = back_use_texture((M_Background2D *)ctx-&gt;drawable-&gt;node);</span>
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 :         if (!use_texture &amp;&amp; !tr_state-&gt;visual-&gt;is_attached) {</span>
+<span class="lineNum">     124 </span>            :                 use_texture = 1;
+<span class="lineNum">     125 </span><span class="lineNoCov">          0 :                 stack-&gt;txh.data = stack-&gt;col_tx;</span>
+<span class="lineNum">     126 </span><span class="lineNoCov">          0 :                 stack-&gt;txh.width = 2;</span>
+<span class="lineNum">     127 </span><span class="lineNoCov">          0 :                 stack-&gt;txh.height = 2;</span>
+<span class="lineNum">     128 </span><span class="lineNoCov">          0 :                 stack-&gt;txh.stride = 6;</span>
+<span class="lineNum">     129 </span><span class="lineNoCov">          0 :                 stack-&gt;txh.pixelformat = GF_PIXEL_RGB_24;</span>
+<span class="lineNum">     130 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     131 </span>            : 
+<span class="lineNum">     132 </span><span class="lineNoCov">          0 :         if (use_texture) {</span>
+<span class="lineNum">     133 </span>            : 
+<span class="lineNum">     134 </span><span class="lineNoCov">          0 :                 if (!tr_state-&gt;visual-&gt;DrawBitmap(tr_state-&gt;visual, tr_state, ctx)) {</span>
+<span class="lineNum">     135 </span>            :                         /*set target rect*/
+<span class="lineNum">     136 </span><span class="lineNoCov">          0 :                         gf_path_reset(stack-&gt;drawable-&gt;path);</span>
+<span class="lineNum">     137 </span><span class="lineNoCov">          0 :                         gf_path_add_rect_center(stack-&gt;drawable-&gt;path,</span>
+<span class="lineNum">     138 </span><span class="lineNoCov">          0 :                                                 ctx-&gt;bi-&gt;unclip.x + ctx-&gt;bi-&gt;unclip.width/2,</span>
+<span class="lineNum">     139 </span><span class="lineNoCov">          0 :                                                 ctx-&gt;bi-&gt;unclip.y - ctx-&gt;bi-&gt;unclip.height/2,</span>
+<span class="lineNum">     140 </span>            :                                                 ctx-&gt;bi-&gt;unclip.width, ctx-&gt;bi-&gt;unclip.height);
+<span class="lineNum">     141 </span>            : 
+<span class="lineNum">     142 </span>            :                         /*draw texture*/
+<span class="lineNum">     143 </span><span class="lineNoCov">          0 :                         visual_2d_texture_path(tr_state-&gt;visual, stack-&gt;drawable-&gt;path, ctx, tr_state);</span>
+<span class="lineNum">     144 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     145 </span>            :                 //a quick hack, if texture not ready return (we don't have direct notification of this through the above functions
+<span class="lineNum">     146 </span>            : #ifndef GPAC_DISABLE_3D
+<span class="lineNum">     147 </span><span class="lineNoCov">          0 :                 if (tr_state-&gt;visual-&gt;compositor-&gt;hybrid_opengl &amp;&amp; !stack-&gt;txh.tx_io)</span>
+<span class="lineNum">     148 </span><span class="lineNoCov">          0 :                         return;</span>
+<span class="lineNum">     149 </span>            : #endif
+<span class="lineNum">     150 </span>            : 
+<span class="lineNum">     151 </span><span class="lineNoCov">          0 :                 stack-&gt;flags &amp;= ~(CTX_APP_DIRTY | CTX_TEXTURE_DIRTY);</span>
+<span class="lineNum">     152 </span><span class="lineNoCov">          0 :                 tr_state-&gt;visual-&gt;has_modif = 1;</span>
+<span class="lineNum">     153 </span>            : #ifndef GPAC_DISABLE_3D
+<span class="lineNum">     154 </span>            :                 //in opengl auto mode we still have to clear the canvas
+<span class="lineNum">     155 </span><span class="lineNoCov">          0 :                 if (!tr_state-&gt;immediate_draw &amp;&amp; !tr_state-&gt;visual-&gt;offscreen &amp;&amp; tr_state-&gt;visual-&gt;compositor-&gt;hybrid_opengl) {</span>
+<span class="lineNum">     156 </span>            :                         clear_all = GF_FALSE;
+<span class="lineNum">     157 </span>            :                         is_offscreen = GF_TRUE;
+<span class="lineNum">     158 </span><span class="lineNoCov">          0 :                         color &amp;= 0x00FFFFFF;</span>
+<span class="lineNum">     159 </span>            :                 } else
+<span class="lineNum">     160 </span>            : #endif
+<span class="lineNum">     161 </span><span class="lineNoCov">          0 :                         return;</span>
+<span class="lineNum">     162 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     163 </span>            : 
+<span class="lineNum">     164 </span>            : 
+<span class="lineNum">     165 </span>            : #ifndef GPAC_DISABLE_3D
+<span class="lineNum">     166 </span><span class="lineNoCov">          0 :         if (ctx-&gt;flags &amp; CTX_BACKROUND_NOT_LAYER) {</span>
+<span class="lineNum">     167 </span><span class="lineNoCov">          0 :                 if (clear_all &amp;&amp; !tr_state-&gt;visual-&gt;offscreen &amp;&amp; tr_state-&gt;visual-&gt;compositor-&gt;hybrid_opengl) {</span>
+<span class="lineNum">     168 </span><span class="lineNoCov">          0 :                         compositor_2d_hybgl_clear_surface(tr_state-&gt;visual, NULL, color, GF_FALSE);</span>
+<span class="lineNum">     169 </span>            :                         is_offscreen = GF_TRUE;
+<span class="lineNum">     170 </span><span class="lineNoCov">          0 :                         color &amp;= 0x00FFFFFF;</span>
+<span class="lineNum">     171 </span>            :                         //we may need to clear the canvas for immediate mode
+<span class="lineNum">     172 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     173 </span>            :         } else {
+<span class="lineNum">     174 </span>            :                 is_offscreen = GF_TRUE;
+<span class="lineNum">     175 </span>            :         }
+<span class="lineNum">     176 </span><span class="lineNoCov">          0 :         if (ctx-&gt;flags &amp; CTX_BACKROUND_NO_CLEAR) {</span>
+<span class="lineNum">     177 </span><span class="lineNoCov">          0 :                 stack-&gt;flags &amp;= ~(CTX_APP_DIRTY | CTX_TEXTURE_DIRTY);</span>
+<span class="lineNum">     178 </span><span class="lineNoCov">          0 :                 tr_state-&gt;visual-&gt;has_modif = 1;</span>
+<span class="lineNum">     179 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     180 </span>            :         }
+<span class="lineNum">     181 </span>            : #endif
+<span class="lineNum">     182 </span>            : 
+<span class="lineNum">     183 </span>            :         /*direct drawing, draw without clippers */
+<span class="lineNum">     184 </span><span class="lineNoCov">          0 :         if (tr_state-&gt;immediate_draw</span>
+<span class="lineNum">     185 </span>            :            ) {
+<span class="lineNum">     186 </span>            :                 /*directly clear with specified color*/
+<span class="lineNum">     187 </span><span class="lineNoCov">          0 :                 if (clear_all)</span>
+<span class="lineNum">     188 </span><span class="lineNoCov">          0 :                         tr_state-&gt;visual-&gt;ClearSurface(tr_state-&gt;visual, &amp;ctx-&gt;bi-&gt;clip, color, is_offscreen);</span>
+<span class="lineNum">     189 </span>            :         } else {
+<span class="lineNum">     190 </span>            :                 u32 i;
+<span class="lineNum">     191 </span><span class="lineNoCov">          0 :                 GF_IRect clip;</span>
+<span class="lineNum">     192 </span><span class="lineNoCov">          0 :                 for (i=0; i&lt;tr_state-&gt;visual-&gt;to_redraw.count; i++) {</span>
+<span class="lineNum">     193 </span>            :                         /*there's an opaque region above, don't draw*/
+<span class="lineNum">     194 </span>            : #ifdef TRACK_OPAQUE_REGIONS
+<span class="lineNum">     195 </span>            :                         if (tr_state-&gt;visual-&gt;draw_node_index &lt; tr_state-&gt;visual-&gt;to_redraw.list[i].opaque_node_index) continue;
+<span class="lineNum">     196 </span>            : #endif
+<span class="lineNum">     197 </span><span class="lineNoCov">          0 :                         clip = ctx-&gt;bi-&gt;clip;</span>
+<span class="lineNum">     198 </span><span class="lineNoCov">          0 :                         gf_irect_intersect(&amp;clip, &amp;tr_state-&gt;visual-&gt;to_redraw.list[i].rect);</span>
+<span class="lineNum">     199 </span><span class="lineNoCov">          0 :                         if (clip.width &amp;&amp; clip.height) {</span>
+<span class="lineNum">     200 </span><span class="lineNoCov">          0 :                                 tr_state-&gt;visual-&gt;ClearSurface(tr_state-&gt;visual, &amp;clip, color, is_offscreen ? 2 : 0);</span>
+<span class="lineNum">     201 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     202 </span>            :                 }
+<span class="lineNum">     203 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     204 </span><span class="lineNoCov">          0 :         stack-&gt;flags &amp;= ~(CTX_APP_DIRTY | CTX_TEXTURE_DIRTY);</span>
+<span class="lineNum">     205 </span><span class="lineNoCov">          0 :         tr_state-&gt;visual-&gt;has_modif = 1;</span>
+<span class="lineNum">     206 </span><span class="lineNoCov">          0 : }</span>
+<a name="207"><span class="lineNum">     207 </span>            : </a>
+<span class="lineNum">     208 </span>            : #ifndef GPAC_DISABLE_3D
+<span class="lineNum">     209 </span>            : static Bool back_texture_enabled(M_Background2D *bck, GF_TextureHandler *txh)
+<span class="lineNum">     210 </span>            : {
+<span class="lineNum">     211 </span><span class="lineNoCov">          0 :         Bool use_texture = back_use_texture(bck);</span>
+<span class="lineNum">     212 </span><span class="lineNoCov">          0 :         if (use_texture) {</span>
+<span class="lineNum">     213 </span>            :                 /*texture not ready*/
+<span class="lineNum">     214 </span><span class="lineNoCov">          0 :                 if (!txh-&gt;tx_io) {</span>
+<span class="lineNum">     215 </span>            :                         use_texture = 0;
+<span class="lineNum">     216 </span><span class="lineNoCov">          0 :                         gf_sc_invalidate(txh-&gt;compositor, NULL);</span>
+<span class="lineNum">     217 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     218 </span><span class="lineNoCov">          0 :                 gf_sc_texture_set_blend_mode(txh, gf_sc_texture_is_transparent(txh) ? TX_REPLACE : TX_DECAL);</span>
+<span class="lineNum">     219 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     220 </span><span class="lineNoCov">          0 :         return use_texture;</span>
+<a name="221"><span class="lineNum">     221 </span>            : }</a>
+<span class="lineNum">     222 </span>            : 
+<span class="lineNum">     223 </span>            : static void DrawBackground2D_3D(M_Background2D *bck, Background2DStack *st, GF_TraverseState *tr_state)
+<span class="lineNum">     224 </span>            : {
+<span class="lineNum">     225 </span><span class="lineNoCov">          0 :         GF_Matrix mx, bck_mx, bck_mx_cam;</span>
+<span class="lineNum">     226 </span>            :         Bool use_texture;
+<span class="lineNum">     227 </span>            : 
+<span class="lineNum">     228 </span><span class="lineNoCov">          0 :         use_texture = back_texture_enabled(bck, &amp;st-&gt;txh);</span>
+<span class="lineNum">     229 </span>            : 
+<span class="lineNum">     230 </span><span class="lineNoCov">          0 :         visual_3d_set_background_state(tr_state-&gt;visual, 1);</span>
+<span class="lineNum">     231 </span>            : 
+<span class="lineNum">     232 </span><span class="lineNoCov">          0 :         gf_mx_copy(bck_mx_cam, tr_state-&gt;camera-&gt;modelview);</span>
+<span class="lineNum">     233 </span><span class="lineNoCov">          0 :         gf_mx_copy(bck_mx, tr_state-&gt;model_matrix);</span>
+<span class="lineNum">     234 </span>            : 
+<span class="lineNum">     235 </span>            :         /*little opt: if we clear the main visual clear it entirely */
+<span class="lineNum">     236 </span><span class="lineNoCov">          0 :         if (! tr_state-&gt;is_layer) {</span>
+<span class="lineNum">     237 </span><span class="lineNoCov">          0 :                 visual_3d_clear(tr_state-&gt;visual, bck-&gt;backColor, FIX_ONE);</span>
+<span class="lineNum">     238 </span><span class="lineNoCov">          0 :                 if (!use_texture) {</span>
+<span class="lineNum">     239 </span><span class="lineNoCov">          0 :                         visual_3d_set_background_state(tr_state-&gt;visual, 0);</span>
+<span class="lineNum">     240 </span><span class="lineNoCov">          0 :                         return;</span>
+<span class="lineNum">     241 </span>            :                 }
+<span class="lineNum">     242 </span>            :                 /*we need a hack here because main vp is always traversed before main background, and in the case of a
+<span class="lineNum">     243 </span>            :                 2D viewport it modifies the modelview matrix, which we don't want ...*/
+<span class="lineNum">     244 </span><span class="lineNoCov">          0 :                 gf_mx_init(tr_state-&gt;model_matrix);</span>
+<span class="lineNum">     245 </span><span class="lineNoCov">          0 :                 gf_mx_init(tr_state-&gt;camera-&gt;modelview);</span>
+<span class="lineNum">     246 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     247 </span><span class="lineNoCov">          0 :         if (!use_texture || (!tr_state-&gt;is_layer &amp;&amp; st-&gt;txh.transparent) ) visual_3d_set_material_2d(tr_state-&gt;visual, bck-&gt;backColor, FIX_ONE);</span>
+<span class="lineNum">     248 </span><span class="lineNoCov">          0 :         if (use_texture) {</span>
+<span class="lineNum">     249 </span><span class="lineNoCov">          0 :                 visual_3d_set_state(tr_state-&gt;visual, V3D_STATE_COLOR, ! tr_state-&gt;is_layer);</span>
+<span class="lineNum">     250 </span><span class="lineNoCov">          0 :                 tr_state-&gt;mesh_num_textures = gf_sc_texture_enable(&amp;st-&gt;txh, NULL);</span>
+<span class="lineNum">     251 </span><span class="lineNoCov">          0 :                 if (!tr_state-&gt;mesh_num_textures) visual_3d_set_material_2d(tr_state-&gt;visual, bck-&gt;backColor, FIX_ONE);</span>
+<span class="lineNum">     252 </span>            :         }
+<span class="lineNum">     253 </span>            : 
+<span class="lineNum">     254 </span>            :         /*create mesh object if needed*/
+<span class="lineNum">     255 </span><span class="lineNoCov">          0 :         if (!st-&gt;mesh) {</span>
+<span class="lineNum">     256 </span><span class="lineNoCov">          0 :                 st-&gt;mesh = new_mesh();</span>
+<span class="lineNum">     257 </span><span class="lineNoCov">          0 :                 mesh_set_vertex(st-&gt;mesh, -B2D_PLANE_HSIZE, -B2D_PLANE_HSIZE, 0,  0,  0,  FIX_ONE, 0, 0);</span>
+<span class="lineNum">     258 </span><span class="lineNoCov">          0 :                 mesh_set_vertex(st-&gt;mesh,  B2D_PLANE_HSIZE, -B2D_PLANE_HSIZE, 0,  0,  0,  FIX_ONE, FIX_ONE, 0);</span>
+<span class="lineNum">     259 </span><span class="lineNoCov">          0 :                 mesh_set_vertex(st-&gt;mesh,  B2D_PLANE_HSIZE,  B2D_PLANE_HSIZE, 0,  0,  0,  FIX_ONE, FIX_ONE, FIX_ONE);</span>
+<span class="lineNum">     260 </span><span class="lineNoCov">          0 :                 mesh_set_vertex(st-&gt;mesh, -B2D_PLANE_HSIZE,  B2D_PLANE_HSIZE, 0,  0,  0,  FIX_ONE, 0, FIX_ONE);</span>
+<span class="lineNum">     261 </span><span class="lineNoCov">          0 :                 mesh_set_triangle(st-&gt;mesh, 0, 1, 2);</span>
+<span class="lineNum">     262 </span><span class="lineNoCov">          0 :                 mesh_set_triangle(st-&gt;mesh, 0, 2, 3);</span>
+<span class="lineNum">     263 </span><span class="lineNoCov">          0 :                 st-&gt;mesh-&gt;flags |= MESH_IS_2D;</span>
+<span class="lineNum">     264 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     265 </span>            : 
+<span class="lineNum">     266 </span><span class="lineNoCov">          0 :         gf_mx_init(mx);</span>
+<span class="lineNum">     267 </span><span class="lineNoCov">          0 :         if (tr_state-&gt;camera-&gt;is_3D) {</span>
+<span class="lineNum">     268 </span>            :                 Fixed sx, sy;
+<span class="lineNum">     269 </span>            :                 /*reset matrix*/
+<span class="lineNum">     270 </span><span class="lineNoCov">          0 :                 gf_mx_init(tr_state-&gt;model_matrix);</span>
+<span class="lineNum">     271 </span><span class="lineNoCov">          0 :                 sx = sy = 2 * gf_mulfix(gf_tan(tr_state-&gt;camera-&gt;fieldOfView/2), tr_state-&gt;camera-&gt;z_far);</span>
+<span class="lineNum">     272 </span><span class="lineNoCov">          0 :                 if (tr_state-&gt;camera-&gt;width &gt; tr_state-&gt;camera-&gt;height) {</span>
+<span class="lineNum">     273 </span><span class="lineNoCov">          0 :                         sx = gf_muldiv(sx, tr_state-&gt;camera-&gt;width, tr_state-&gt;camera-&gt;height);</span>
+<span class="lineNum">     274 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     275 </span><span class="lineNoCov">          0 :                         sy = gf_muldiv(sy, tr_state-&gt;camera-&gt;height, tr_state-&gt;camera-&gt;width);</span>
+<span class="lineNum">     276 </span>            :                 }
+<span class="lineNum">     277 </span><span class="lineNoCov">          0 :                 gf_mx_add_scale(&amp;mx, sx, sy, FIX_ONE);</span>
+<span class="lineNum">     278 </span>            : #ifdef GPAC_FIXED_POINT
+<span class="lineNum">     279 </span>            :                 gf_mx_add_translation(&amp;mx, 0, 0, - (tr_state-&gt;camera-&gt;z_far/100)*99);
+<span class="lineNum">     280 </span>            : #else
+<span class="lineNum">     281 </span><span class="lineNoCov">          0 :                 gf_mx_add_translation(&amp;mx, 0, 0, -0.995f*tr_state-&gt;camera-&gt;z_far);</span>
+<span class="lineNum">     282 </span>            : #endif
+<span class="lineNum">     283 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     284 </span><span class="lineNoCov">          0 :                 gf_mx_add_scale(&amp;mx, tr_state-&gt;bbox.max_edge.x - tr_state-&gt;bbox.min_edge.x,</span>
+<span class="lineNum">     285 </span><span class="lineNoCov">          0 :                                 tr_state-&gt;bbox.max_edge.y - tr_state-&gt;bbox.min_edge.y,</span>
+<span class="lineNum">     286 </span>            :                                 FIX_ONE);
+<span class="lineNum">     287 </span>            :                 /*when in layer2D, DON'T MOVE BACKGROUND TO ZFAR*/
+<span class="lineNum">     288 </span><span class="lineNoCov">          0 :                 if (!tr_state-&gt;is_layer) {</span>
+<span class="lineNum">     289 </span>            :                         Fixed tr;
+<span class="lineNum">     290 </span>            : #ifdef GPAC_FIXED_POINT
+<span class="lineNum">     291 </span>            :                         tr = -(tr_state-&gt;camera-&gt;z_far/100)*99;
+<span class="lineNum">     292 </span>            : #else
+<span class="lineNum">     293 </span><span class="lineNoCov">          0 :                         tr = -0.999f*tr_state-&gt;camera-&gt;z_far;</span>
+<span class="lineNum">     294 </span>            : #endif
+<span class="lineNum">     295 </span><span class="lineNoCov">          0 :                         if (!tr_state-&gt;camera-&gt;is_3D) tr = -tr;</span>
+<span class="lineNum">     296 </span><span class="lineNoCov">          0 :                         gf_mx_add_translation(&amp;mx, 0, 0, tr);</span>
+<span class="lineNum">     297 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     298 </span>            :         }
+<span class="lineNum">     299 </span><span class="lineNoCov">          0 :         gf_mx_add_matrix(&amp;tr_state-&gt;model_matrix, &amp;mx);</span>
+<span class="lineNum">     300 </span><span class="lineNoCov">          0 :         visual_3d_mesh_paint(tr_state, st-&gt;mesh);</span>
+<span class="lineNum">     301 </span><span class="lineNoCov">          0 :         if (tr_state-&gt;mesh_num_textures) {</span>
+<span class="lineNum">     302 </span><span class="lineNoCov">          0 :                 gf_sc_texture_disable(&amp;st-&gt;txh);</span>
+<span class="lineNum">     303 </span><span class="lineNoCov">          0 :                 tr_state-&gt;mesh_num_textures = 0;</span>
+<span class="lineNum">     304 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     305 </span>            : 
+<span class="lineNum">     306 </span><span class="lineNoCov">          0 :         gf_mx_copy(tr_state-&gt;model_matrix, bck_mx);</span>
+<span class="lineNum">     307 </span><span class="lineNoCov">          0 :         gf_mx_copy(tr_state-&gt;camera-&gt;modelview, bck_mx_cam);</span>
+<span class="lineNum">     308 </span>            : 
+<span class="lineNum">     309 </span><span class="lineNoCov">          0 :         visual_3d_set_background_state(tr_state-&gt;visual, 0);</span>
+<span class="lineNum">     310 </span><span class="lineNoCov">          0 : }</span>
+<a name="311"><span class="lineNum">     311 </span>            : #endif</a>
+<span class="lineNum">     312 </span>            : 
+<span class="lineNum">     313 </span>            : static void TraverseBackground2D(GF_Node *node, void *rs, Bool is_destroy)
+<span class="lineNum">     314 </span>            : {
+<span class="lineNum">     315 </span>            :         u32 col;
+<span class="lineNum">     316 </span>            :         BackgroundStatus *status;
+<span class="lineNum">     317 </span>            :         M_Background2D *bck;
+<span class="lineNum">     318 </span><span class="lineCov">          2 :         Background2DStack *stack = (Background2DStack *) gf_node_get_private(node);</span>
+<span class="lineNum">     319 </span><span class="lineCov">          1 :         GF_TraverseState *tr_state = (GF_TraverseState *)rs;</span>
+<span class="lineNum">     320 </span>            : 
+<span class="lineNum">     321 </span><span class="lineCov">          1 :         if (is_destroy) {</span>
+<span class="lineNum">     322 </span><span class="lineCov">          1 :                 DestroyBackground2D(node);</span>
+<span class="lineNum">     323 </span><span class="lineCov">          1 :                 return;</span>
+<span class="lineNum">     324 </span>            :         }
+<span class="lineNum">     325 </span>            : 
+<span class="lineNum">     326 </span><span class="lineNoCov">          0 :         bck = (M_Background2D *)node;</span>
+<span class="lineNum">     327 </span>            : 
+<span class="lineNum">     328 </span>            :         /*special case for background in Layer2D: the background is seen as a regular drawable, so
+<span class="lineNum">     329 </span>            :         RENDER_BINDABLE is not used*/
+<span class="lineNum">     330 </span><span class="lineNoCov">          0 :         switch (tr_state-&gt;traversing_mode) {</span>
+<span class="lineNum">     331 </span>            :         case TRAVERSE_DRAW_2D:
+<span class="lineNum">     332 </span><span class="lineNoCov">          0 :                 DrawBackground2D_2D(tr_state-&gt;ctx, tr_state);</span>
+<span class="lineNum">     333 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     334 </span>            :         case  TRAVERSE_PICK:
+<span class="lineNum">     335 </span>            :         case TRAVERSE_GET_BOUNDS:
+<span class="lineNum">     336 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     337 </span>            :         }
+<span class="lineNum">     338 </span>            : 
+<span class="lineNum">     339 </span>            :         /*first traverse, bound if needed*/
+<span class="lineNum">     340 </span><span class="lineNoCov">          0 :         if (gf_list_find(tr_state-&gt;backgrounds, node) &lt; 0) {</span>
+<span class="lineNum">     341 </span>            :                 M_Background2D *top_bck = (M_Background2D *)node;
+<span class="lineNum">     342 </span><span class="lineNoCov">          0 :                 gf_list_add(tr_state-&gt;backgrounds, node);</span>
+<span class="lineNum">     343 </span>            :                 assert(gf_list_find(stack-&gt;reg_stacks, tr_state-&gt;backgrounds)==-1);
+<span class="lineNum">     344 </span><span class="lineNoCov">          0 :                 gf_list_add(stack-&gt;reg_stacks, tr_state-&gt;backgrounds);</span>
+<span class="lineNum">     345 </span><span class="lineNoCov">          0 :                 b2D_new_status(stack, bck);</span>
+<span class="lineNum">     346 </span>            : 
+<span class="lineNum">     347 </span>            :                 /*only bound if we're on top*/
+<span class="lineNum">     348 </span><span class="lineNoCov">          0 :                 top_bck = gf_list_get(tr_state-&gt;backgrounds, 0);</span>
+<span class="lineNum">     349 </span><span class="lineNoCov">          0 :                 if (!bck-&gt;isBound) {</span>
+<span class="lineNum">     350 </span><span class="lineNoCov">          0 :                         if (top_bck== bck) {</span>
+<span class="lineNum">     351 </span><span class="lineNoCov">          0 :                                 Bindable_SetIsBound(node, 1);</span>
+<span class="lineNum">     352 </span><span class="lineNoCov">          0 :                         } else if (!top_bck-&gt;isBound) {</span>
+<span class="lineNum">     353 </span><span class="lineNoCov">          0 :                                 bck-&gt;set_bind = 1;</span>
+<span class="lineNum">     354 </span><span class="lineNoCov">          0 :                                 bck-&gt;on_set_bind(node, NULL);</span>
+<span class="lineNum">     355 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     356 </span>            :                 }
+<span class="lineNum">     357 </span>            :                 /*open the stream if any*/
+<span class="lineNum">     358 </span><span class="lineNoCov">          0 :                 if (back_use_texture(bck) &amp;&amp; !stack-&gt;txh.is_open) gf_sc_texture_play(&amp;stack-&gt;txh, &amp;bck-&gt;url);</span>
+<span class="lineNum">     359 </span>            :                 /*in any case don't draw the first time (since the background could have been declared last)*/
+<span class="lineNum">     360 </span><span class="lineNoCov">          0 :                 gf_sc_invalidate(stack-&gt;txh.compositor, NULL);</span>
+<span class="lineNum">     361 </span>            :                 return;
+<span class="lineNum">     362 </span>            :         }
+<span class="lineNum">     363 </span><span class="lineNoCov">          0 :         if (!bck-&gt;isBound) return;</span>
+<span class="lineNum">     364 </span>            : 
+<span class="lineNum">     365 </span><span class="lineNoCov">          0 :         status = b2d_get_status(stack, tr_state-&gt;backgrounds);</span>
+<span class="lineNum">     366 </span><span class="lineNoCov">          0 :         if (!status) return;</span>
+<span class="lineNum">     367 </span>            : 
+<span class="lineNum">     368 </span><span class="lineNoCov">          0 :         if (gf_node_dirty_get(node)) {</span>
+<span class="lineNum">     369 </span>            :                 u32 i;
+<span class="lineNum">     370 </span>            : 
+<span class="lineNum">     371 </span><span class="lineNoCov">          0 :                 stack-&gt;flags |= CTX_APP_DIRTY;</span>
+<span class="lineNum">     372 </span><span class="lineNoCov">          0 :                 gf_node_dirty_clear(node, 0);</span>
+<span class="lineNum">     373 </span>            : 
+<span class="lineNum">     374 </span>            : 
+<span class="lineNum">     375 </span><span class="lineNoCov">          0 :                 col = GF_COL_ARGB_FIXED(FIX_ONE, bck-&gt;backColor.red, bck-&gt;backColor.green, bck-&gt;backColor.blue);</span>
+<span class="lineNum">     376 </span><span class="lineNoCov">          0 :                 if (col != status-&gt;ctx.aspect.fill_color) {</span>
+<span class="lineNum">     377 </span><span class="lineNoCov">          0 :                         status-&gt;ctx.aspect.fill_color = col;</span>
+<span class="lineNum">     378 </span><span class="lineNoCov">          0 :                         stack-&gt;flags |= CTX_APP_DIRTY;</span>
+<span class="lineNum">     379 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     380 </span><span class="lineNoCov">          0 :                 for (i=0; i&lt;4; i++) {</span>
+<span class="lineNum">     381 </span><span class="lineNoCov">          0 :                         stack-&gt;col_tx[3*i] = FIX2INT(255 * bck-&gt;backColor.red);</span>
+<span class="lineNum">     382 </span><span class="lineNoCov">          0 :                         stack-&gt;col_tx[3*i+1] = FIX2INT(255 * bck-&gt;backColor.green);</span>
+<span class="lineNum">     383 </span><span class="lineNoCov">          0 :                         stack-&gt;col_tx[3*i+2] = FIX2INT(255 * bck-&gt;backColor.blue);</span>
+<span class="lineNum">     384 </span>            :                 }
+<span class="lineNum">     385 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     386 </span>            : 
+<span class="lineNum">     387 </span><span class="lineNoCov">          0 :         if (back_use_texture(bck) ) {</span>
+<span class="lineNum">     388 </span>            : #ifndef GPAC_DISABLE_3D
+<span class="lineNum">     389 </span><span class="lineNoCov">          0 :                 if (stack-&gt;txh.compositor-&gt;hybrid_opengl &amp;&amp; !tr_state-&gt;visual-&gt;offscreen &amp;&amp; stack-&gt;hybgl_init) {</span>
+<span class="lineNum">     390 </span><span class="lineNoCov">          0 :                         stack-&gt;flags |= CTX_HYBOGL_NO_CLEAR;</span>
+<span class="lineNum">     391 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     392 </span><span class="lineNoCov">          0 :                 stack-&gt;hybgl_init = 1;</span>
+<span class="lineNum">     393 </span>            : #endif
+<span class="lineNum">     394 </span><span class="lineNoCov">          0 :                 if (stack-&gt;txh.tx_io &amp;&amp; !(status-&gt;ctx.flags &amp; CTX_APP_DIRTY) &amp;&amp; stack-&gt;txh.needs_refresh) {</span>
+<span class="lineNum">     395 </span><span class="lineNoCov">          0 :                         stack-&gt;flags |= CTX_TEXTURE_DIRTY;</span>
+<span class="lineNum">     396 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     397 </span>            :         }
+<span class="lineNum">     398 </span><span class="lineNoCov">          0 :         if (status-&gt;ctx.flags &amp; CTX_BACKROUND_NOT_LAYER) {</span>
+<span class="lineNum">     399 </span><span class="lineNoCov">          0 :                 status-&gt;ctx.flags = stack-&gt;flags | CTX_BACKROUND_NOT_LAYER;</span>
+<span class="lineNum">     400 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     401 </span><span class="lineNoCov">          0 :                 status-&gt;ctx.flags = stack-&gt;flags;</span>
+<span class="lineNum">     402 </span><span class="lineNoCov">          0 :                 if (tr_state-&gt;is_layer)</span>
+<span class="lineNum">     403 </span><span class="lineNoCov">          0 :                         status-&gt;ctx.flags &amp;= ~CTX_BACKROUND_NOT_LAYER;</span>
+<span class="lineNum">     404 </span>            :         }
+<span class="lineNum">     405 </span>            : 
+<span class="lineNum">     406 </span>            : 
+<span class="lineNum">     407 </span><span class="lineNoCov">          0 :         if (tr_state-&gt;traversing_mode != TRAVERSE_BINDABLE) return;</span>
+<span class="lineNum">     408 </span>            : 
+<span class="lineNum">     409 </span>            :         /*3D mode*/
+<span class="lineNum">     410 </span>            : #ifndef GPAC_DISABLE_3D
+<span class="lineNum">     411 </span><span class="lineNoCov">          0 :         if (tr_state-&gt;visual-&gt;type_3d) {</span>
+<span class="lineNum">     412 </span><span class="lineNoCov">          0 :                 DrawBackground2D_3D(bck, stack, tr_state);</span>
+<span class="lineNum">     413 </span><span class="lineNoCov">          0 :         } else</span>
+<span class="lineNum">     414 </span>            : #endif
+<span class="lineNum">     415 </span><span class="lineNoCov">          0 :                 DrawBackground2D_2D(&amp;status-&gt;ctx, tr_state);</span>
+<span class="lineNum">     416 </span><span class="lineCov">          1 : }</span>
+<a name="417"><span class="lineNum">     417 </span>            : </a>
+<span class="lineNum">     418 </span>            : 
+<span class="lineNum">     419 </span>            : static void b2D_set_bind(GF_Node *node, GF_Route *route)
+<span class="lineNum">     420 </span>            : {
+<span class="lineNum">     421 </span><span class="lineNoCov">          0 :         Background2DStack *stack = (Background2DStack *)gf_node_get_private(node);</span>
+<span class="lineNum">     422 </span><span class="lineNoCov">          0 :         Bindable_OnSetBind(node, stack-&gt;reg_stacks, NULL);</span>
+<span class="lineNum">     423 </span>            : 
+<span class="lineNum">     424 </span><span class="lineNoCov">          0 :         if (stack-&gt;drawable-&gt;flags &amp; DRAWABLE_IS_OVERLAY) {</span>
+<span class="lineNum">     425 </span><span class="lineNoCov">          0 :                 stack-&gt;txh.compositor-&gt;video_out-&gt;Blit(stack-&gt;txh.compositor-&gt;video_out, NULL, NULL, NULL, 1);</span>
+<span class="lineNum">     426 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     427 </span><span class="lineNoCov">          0 :         stack-&gt;flags |= CTX_APP_DIRTY;</span>
+<span class="lineNum">     428 </span>            : 
+<a name="429"><span class="lineNum">     429 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     430 </span>            : 
+<span class="lineNum">     431 </span>            : DrawableContext *b2d_get_context(M_Background2D *node, GF_List *from_stack)
+<span class="lineNum">     432 </span>            : {
+<span class="lineNum">     433 </span><span class="lineNoCov">          0 :         Background2DStack *stack = (Background2DStack *)gf_node_get_private((GF_Node *)node);</span>
+<span class="lineNum">     434 </span><span class="lineNoCov">          0 :         BackgroundStatus *status = b2d_get_status(stack, from_stack);</span>
+<span class="lineNum">     435 </span><span class="lineNoCov">          0 :         if (status) {</span>
+<span class="lineNum">     436 </span><span class="lineNoCov">          0 :                 status-&gt;ctx.bi = &amp;status-&gt;bi;</span>
+<span class="lineNum">     437 </span><span class="lineNoCov">          0 :                 return &amp;status-&gt;ctx;</span>
+<span class="lineNum">     438 </span>            :         }
+<span class="lineNum">     439 </span><span class="lineNoCov">          0 :         return NULL;</span>
+<span class="lineNum">     440 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     441 </span>            : 
+<a name="442"><span class="lineNum">     442 </span>            : </a>
+<span class="lineNum">     443 </span>            : 
+<span class="lineNum">     444 </span>            : static void UpdateBackgroundTexture(GF_TextureHandler *txh)
+<span class="lineNum">     445 </span>            : {
+<span class="lineNum">     446 </span><span class="lineCov">          2 :         gf_sc_texture_update_frame(txh, 0);</span>
+<span class="lineNum">     447 </span>            :         /*restart texture if needed (movie background controled by MediaControl)*/
+<span class="lineNum">     448 </span><span class="lineCov">          1 :         if (txh-&gt;stream_finished &amp;&amp; gf_mo_get_loop(txh-&gt;stream, 0))</span>
+<span class="lineNum">     449 </span><span class="lineNoCov">          0 :                 gf_sc_texture_restart(txh);</span>
+<a name="450"><span class="lineNum">     450 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     451 </span>            : 
+<span class="lineNum">     452 </span>            : void compositor_init_background2d(GF_Compositor *compositor, GF_Node *node)
+<span class="lineNum">     453 </span>            : {
+<span class="lineNum">     454 </span>            :         Background2DStack *ptr;
+<span class="lineNum">     455 </span><span class="lineCov">          3 :         GF_SAFEALLOC(ptr, Background2DStack);</span>
+<span class="lineNum">     456 </span><span class="lineCov">          1 :         if (!ptr) {</span>
+<span class="lineNum">     457 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_COMPOSE, (&quot;[Compositor] Failed to allocate background2D stack\n&quot;));</span>
+<span class="lineNum">     458 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     459 </span>            :         }
+<span class="lineNum">     460 </span>            : 
+<span class="lineNum">     461 </span><span class="lineCov">          1 :         ptr-&gt;status_stack = gf_list_new();</span>
+<span class="lineNum">     462 </span><span class="lineCov">          1 :         ptr-&gt;reg_stacks = gf_list_new();</span>
+<span class="lineNum">     463 </span>            :         /*setup drawable object for background*/
+<span class="lineNum">     464 </span><span class="lineCov">          1 :         ptr-&gt;drawable = drawable_stack_new(compositor, node);</span>
+<span class="lineNum">     465 </span><span class="lineCov">          1 :         ptr-&gt;drawable-&gt;flags = DRAWABLE_USE_TRAVERSE_DRAW;</span>
+<span class="lineNum">     466 </span><span class="lineCov">          1 :         ((M_Background2D *)node)-&gt;on_set_bind = b2D_set_bind;</span>
+<span class="lineNum">     467 </span>            : 
+<span class="lineNum">     468 </span>            : 
+<span class="lineNum">     469 </span><span class="lineCov">          1 :         gf_sc_texture_setup(&amp;ptr-&gt;txh, compositor, node);</span>
+<span class="lineNum">     470 </span><span class="lineCov">          1 :         ptr-&gt;txh.update_texture_fcnt = UpdateBackgroundTexture;</span>
+<span class="lineNum">     471 </span><span class="lineCov">          1 :         ptr-&gt;txh.flags = GF_SR_TEXTURE_REPEAT_S | GF_SR_TEXTURE_REPEAT_T;</span>
+<span class="lineNum">     472 </span><span class="lineCov">          1 :         ptr-&gt;flags = CTX_IS_BACKGROUND;</span>
+<span class="lineNum">     473 </span>            : 
+<span class="lineNum">     474 </span><span class="lineCov">          1 :         gf_node_set_private(node, ptr);</span>
+<span class="lineNum">     475 </span><span class="lineCov">          1 :         gf_node_set_callback_function(node, TraverseBackground2D);</span>
+<a name="476"><span class="lineNum">     476 </span><span class="lineCov">          2 : }</span></a>
+<span class="lineNum">     477 </span>            : 
+<span class="lineNum">     478 </span>            : void compositor_background2d_modified(GF_Node *node)
+<span class="lineNum">     479 </span>            : {
+<span class="lineNum">     480 </span><span class="lineCov">          4 :         M_Background2D *bck = (M_Background2D *)node;</span>
+<span class="lineNum">     481 </span><span class="lineCov">          2 :         Background2DStack *st = (Background2DStack *) gf_node_get_private(node);</span>
+<span class="lineNum">     482 </span><span class="lineCov">          2 :         if (!st) return;</span>
+<span class="lineNum">     483 </span>            : 
+<span class="lineNum">     484 </span>            :         /*dirty node and parents in order to trigger parent visual redraw*/
+<span class="lineNum">     485 </span><span class="lineCov">          2 :         gf_node_dirty_set(node, 0, 1);</span>
+<span class="lineNum">     486 </span>            : 
+<span class="lineNum">     487 </span>            :         /*if open and changed, stop and play*/
+<span class="lineNum">     488 </span><span class="lineCov">          2 :         if (st-&gt;txh.is_open) {</span>
+<span class="lineNum">     489 </span><span class="lineNoCov">          0 :                 if (! gf_sc_texture_check_url_change(&amp;st-&gt;txh, &amp;bck-&gt;url)) return;</span>
+<span class="lineNum">     490 </span><span class="lineNoCov">          0 :                 gf_sc_texture_stop(&amp;st-&gt;txh);</span>
+<span class="lineNum">     491 </span><span class="lineNoCov">          0 :                 gf_sc_texture_play(&amp;st-&gt;txh, &amp;bck-&gt;url);</span>
+<span class="lineNum">     492 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     493 </span>            :         }
+<span class="lineNum">     494 </span>            :         /*if not open and changed play*/
+<span class="lineNum">     495 </span><span class="lineCov">          2 :         if (bck-&gt;url.count)</span>
+<span class="lineNum">     496 </span><span class="lineNoCov">          0 :                 gf_sc_texture_play(&amp;st-&gt;txh, &amp;bck-&gt;url);</span>
+<span class="lineNum">     497 </span><span class="lineCov">          2 :         gf_sc_invalidate(st-&gt;txh.compositor, NULL);</span>
+<a name="498"><span class="lineNum">     498 </span><span class="lineCov">          4 : }</span></a>
+<span class="lineNum">     499 </span>            : 
+<span class="lineNum">     500 </span>            : Bool compositor_background_transparent(GF_Node *node)
+<span class="lineNum">     501 </span>            : {
+<span class="lineNum">     502 </span><span class="lineNoCov">          0 :         if (node &amp;&amp; (gf_node_get_tag(node) == TAG_MPEG4_Background2D)) {</span>
+<span class="lineNum">     503 </span>            :                 Background2DStack *st;
+<span class="lineNum">     504 </span><span class="lineNoCov">          0 :                 if (!((M_Background2D *)node)-&gt;isBound) return 1;</span>
+<span class="lineNum">     505 </span>            : 
+<span class="lineNum">     506 </span><span class="lineNoCov">          0 :                 st = (Background2DStack *) gf_node_get_private(node);</span>
+<span class="lineNum">     507 </span><span class="lineNoCov">          0 :                 if (st-&gt;txh.transparent) return 1;</span>
+<span class="lineNum">     508 </span><span class="lineNoCov">          0 :                 return 0;</span>
+<span class="lineNum">     509 </span>            :         }
+<span class="lineNum">     510 </span>            :         /*consider all other background nodes transparent*/
+<span class="lineNum">     511 </span><span class="lineNoCov">          0 :         return 1;</span>
+<span class="lineNum">     512 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     513 </span>            : 
+<span class="lineNum">     514 </span>            : #endif /*GPAC_DISABLE_VRML*/
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,33 @@
+*** svc logs (GPAC version 0.6.2-DEV-revUNKNOWN-HEAD ) - test date 14/05/2017 22:29:28 ***
+
+
+*** Subtest "Split": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/external_media/scalable/svc.264:svcmode=split -new /Users/travis/build/gpac/gpac/tests/results/temp/svc-split.mp4" ***
+[32mAVC-H264 import - frame size 176 x 144 at 25.000 FPS
+[0m[32mSVC Detected - SSPS ID 0 - frame size 352 x 288
+[0m[32mSVC Detected - SSPS ID 1 - frame size 704 x 576
+[0m[32mAVC Import results: 500 samples (2070 NALUs) - Slices: 20 I 60 P 420 B - 9 SEI - 10 IDR
+[0m[32mSVC (SSPS ID 0) Import results: Slices: 20 I 60 P 420 B
+[0m[32mSVC (SSPS ID 1) Import results: Slices: 20 I 60 P 420 B
+[0m[32mStream uses forward prediction - stream CTS offset: 3 frames
+[0mSaving /Users/travis/build/gpac/gpac/tests/results/temp/svc-split.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "Merge": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/results/temp/svc-split.mp4:svcmode=merge -new /Users/travis/build/gpac/gpac/tests/results/temp/svc-merge.mp4" ***
+[32mIsoMedia import svc-split.mp4 - track ID 1 - Video (size 176 x 144)
+[0m[32mIsoMedia import svc-split.mp4 - track ID 2 - Video (size 352 x 288)
+[0m[32mIsoMedia import svc-split.mp4 - track ID 3 - Video (size 704 x 576)
+[0mSaving /Users/travis/build/gpac/gpac/tests/results/temp/svc-merge.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+Same Hash for /Users/travis/build/gpac/gpac/tests/results/temp/svc.mp4 and /Users/travis/build/gpac/gpac/tests/results/temp/svc-merge.mp4
+
+*** Subtest "dash": executing "MP4Box -noprog -for-test  -mem-track -dash 1000 /Users/travis/build/gpac/gpac/tests/results/temp/svc-split.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/svc.mpd" ***
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m

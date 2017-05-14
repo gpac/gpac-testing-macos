@@ -1,0 +1,10 @@
+*** swf logs (GPAC version 0.6.2-DEV-revUNKNOWN-HEAD ) - test date 14/05/2017 22:29:32 ***
+
+
+*** Subtest "mp4box-import": executing "MP4Box -noprog -for-test  -mem-track -mp4 /Users/travis/build/gpac/gpac/tests/media/swf/cuisine.swf -out /Users/travis/build/gpac/gpac/tests/results/temp/cuisine.mp4" ***
+[32mSWF Import - Scene Size 550x400 - 490 frames @ 24 FPS
+[0mSaving to /Users/travis/build/gpac/gpac/tests/results/temp/cuisine.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m

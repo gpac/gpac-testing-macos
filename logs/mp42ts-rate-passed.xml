@@ -1,0 +1,6 @@
+ <test name="mp42ts-rate" result="OK" date="14/05/2017 22:26:33">
+
+  <stat subtest="file" execution_status="OK" return_status="0" mem_total_avg="0" mem_resident_avg="0" mem_resident_max="53510144" cpu_percent="60%" cpu_elapsed_time="0:01.25" cpu_user_time="0.21" cpu_kernel_time="0.54" page_faults="0" file_inputs="0" socket_msg_rec="0" socket_msg_sent="0" return_value="0">
+   <command_line>MP42TS  -mem-track -src /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4 -dst-file=/Users/travis/build/gpac/gpac/tests/results/temp/test.ts -rate 10000</command_line>
+  </stat>
+ </test>

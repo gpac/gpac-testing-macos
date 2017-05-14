@@ -1,0 +1,578 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - utils/configfile.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">utils</a> - configfile.c<span style="font-size: 80%;"> (source / <a href="configfile.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">186</td>
+            <td class="headerCovTableEntry">260</td>
+            <td class="headerCovTableEntryLo">71.5 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-05-14 22:31:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">16</td>
+            <td class="headerCovTableEntry">21</td>
+            <td class="headerCovTableEntryMed">76.2 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *                      GPAC - Multimedia Framework C SDK
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *                      Authors: Jean Le Feuvre
+<span class="lineNum">       5 </span>            :  *                      Copyright (c) Telecom ParisTech 2000-2012
+<span class="lineNum">       6 </span>            :  *                                      All rights reserved
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  *  This file is part of GPAC / common tools sub-project
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  *  GPAC is free software; you can redistribute it and/or modify
+<span class="lineNum">      11 </span>            :  *  it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">      12 </span>            :  *  the Free Software Foundation; either version 2, or (at your option)
+<span class="lineNum">      13 </span>            :  *  any later version.
+<span class="lineNum">      14 </span>            :  *
+<span class="lineNum">      15 </span>            :  *  GPAC is distributed in the hope that it will be useful,
+<span class="lineNum">      16 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      17 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      18 </span>            :  *  GNU Lesser General Public License for more details.
+<span class="lineNum">      19 </span>            :  *
+<span class="lineNum">      20 </span>            :  *  You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      21 </span>            :  *  License along with this library; see the file COPYING.  If not, write to
+<span class="lineNum">      22 </span>            :  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+<span class="lineNum">      23 </span>            :  *
+<span class="lineNum">      24 </span>            :  */
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : #include &lt;gpac/config_file.h&gt;
+<span class="lineNum">      27 </span>            : #include &lt;gpac/list.h&gt;
+<span class="lineNum">      28 </span>            : 
+<span class="lineNum">      29 </span>            : #define MAX_INI_LINE                    2046
+<span class="lineNum">      30 </span>            : 
+<span class="lineNum">      31 </span>            : typedef struct
+<span class="lineNum">      32 </span>            : {
+<span class="lineNum">      33 </span>            :         char *name;
+<span class="lineNum">      34 </span>            :         char *value;
+<span class="lineNum">      35 </span>            : } IniKey;
+<span class="lineNum">      36 </span>            : 
+<span class="lineNum">      37 </span>            : typedef struct
+<span class="lineNum">      38 </span>            : {
+<span class="lineNum">      39 </span>            :         char *section_name;
+<span class="lineNum">      40 </span>            :         GF_List *keys;
+<span class="lineNum">      41 </span>            : } IniSection;
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            : struct __tag_config
+<span class="lineNum">      44 </span>            : {
+<span class="lineNum">      45 </span>            :         char *fileName;
+<span class="lineNum">      46 </span>            :         GF_List *sections;
+<span class="lineNum">      47 </span>            :         Bool hasChanged, skip_changes;
+<span class="lineNum">      48 </span>            : };
+<a name="49"><span class="lineNum">      49 </span>            : </a>
+<span class="lineNum">      50 </span>            : 
+<span class="lineNum">      51 </span>            : static void DelSection(IniSection *ptr)
+<span class="lineNum">      52 </span>            : {
+<span class="lineNum">      53 </span>            :         IniKey *k;
+<span class="lineNum">      54 </span><span class="lineCov">         42 :         if (!ptr) return;</span>
+<span class="lineNum">      55 </span><span class="lineCov">         21 :         if (ptr-&gt;keys) {</span>
+<span class="lineNum">      56 </span><span class="lineCov">       1827 :                 while (gf_list_count(ptr-&gt;keys)) {</span>
+<span class="lineNum">      57 </span><span class="lineCov">       1211 :                         k = (IniKey *) gf_list_get(ptr-&gt;keys, 0);</span>
+<span class="lineNum">      58 </span><span class="lineCov">       1190 :                         if (k-&gt;value) gf_free(k-&gt;value);</span>
+<span class="lineNum">      59 </span><span class="lineCov">       1190 :                         if (k-&gt;name) gf_free(k-&gt;name);</span>
+<span class="lineNum">      60 </span><span class="lineCov">        595 :                         gf_free(k);</span>
+<span class="lineNum">      61 </span><span class="lineCov">        595 :                         gf_list_rem(ptr-&gt;keys, 0);</span>
+<span class="lineNum">      62 </span>            :                 }
+<span class="lineNum">      63 </span><span class="lineCov">         21 :                 gf_list_del(ptr-&gt;keys);</span>
+<span class="lineNum">      64 </span><span class="lineCov">         21 :         }</span>
+<span class="lineNum">      65 </span><span class="lineCov">         42 :         if (ptr-&gt;section_name) gf_free(ptr-&gt;section_name);</span>
+<span class="lineNum">      66 </span><span class="lineCov">         21 :         gf_free(ptr);</span>
+<span class="lineNum">      67 </span><span class="lineCov">         42 : }</span>
+<span class="lineNum">      68 </span>            : 
+<span class="lineNum">      69 </span>            : /*!
+<span class="lineNum">      70 </span>            :  * \brief Clear the structure
+<a name="71"><span class="lineNum">      71 </span>            :  * \param iniFile The structure to clear</a>
+<span class="lineNum">      72 </span>            :  */
+<span class="lineNum">      73 </span>            : static void gf_cfg_clear(GF_Config * iniFile) {
+<span class="lineNum">      74 </span>            :         IniSection *p;
+<span class="lineNum">      75 </span><span class="lineCov">         22 :         if (!iniFile) return;</span>
+<span class="lineNum">      76 </span><span class="lineCov">         11 :         if (iniFile-&gt;sections) {</span>
+<span class="lineNum">      77 </span><span class="lineCov">         73 :                 while (gf_list_count(iniFile-&gt;sections)) {</span>
+<span class="lineNum">      78 </span><span class="lineCov">         47 :                         p = (IniSection *) gf_list_get(iniFile-&gt;sections, 0);</span>
+<span class="lineNum">      79 </span><span class="lineCov">         21 :                         DelSection(p);</span>
+<span class="lineNum">      80 </span><span class="lineCov">         21 :                         gf_list_rem(iniFile-&gt;sections, 0);</span>
+<span class="lineNum">      81 </span>            :                 }
+<span class="lineNum">      82 </span><span class="lineCov">          5 :                 gf_list_del(iniFile-&gt;sections);</span>
+<span class="lineNum">      83 </span><span class="lineCov">          5 :         }</span>
+<span class="lineNum">      84 </span><span class="lineCov">         11 :         if (iniFile-&gt;fileName)</span>
+<span class="lineNum">      85 </span><span class="lineCov">          5 :                 gf_free(iniFile-&gt;fileName);</span>
+<span class="lineNum">      86 </span><span class="lineCov">         11 :         memset((void *)iniFile, 0, sizeof(GF_Config));</span>
+<span class="lineNum">      87 </span><span class="lineCov">         22 : }</span>
+<span class="lineNum">      88 </span>            : 
+<span class="lineNum">      89 </span>            : /*!
+<a name="90"><span class="lineNum">      90 </span>            :  * \brief Parses the config file if any and clears the existing structure</a>
+<span class="lineNum">      91 </span>            :  */
+<span class="lineNum">      92 </span>            : GF_Err gf_cfg_parse_config_file(GF_Config * tmp, const char * filePath, const char * file_name)
+<span class="lineNum">      93 </span>            : {
+<span class="lineNum">      94 </span>            :         IniSection *p;
+<span class="lineNum">      95 </span>            :         IniKey *k;
+<span class="lineNum">      96 </span>            :         FILE *file;
+<span class="lineNum">      97 </span>            :         char *ret;
+<span class="lineNum">      98 </span>            :         char *line;
+<span class="lineNum">      99 </span>            :         u32 line_alloc = MAX_INI_LINE;
+<span class="lineNum">     100 </span><span class="lineCov">         12 :         char fileName[GF_MAX_PATH];</span>
+<span class="lineNum">     101 </span>            : 
+<span class="lineNum">     102 </span><span class="lineCov">          6 :         gf_cfg_clear(tmp);</span>
+<span class="lineNum">     103 </span>            : 
+<span class="lineNum">     104 </span><span class="lineCov">         16 :         if (filePath &amp;&amp; ((filePath[strlen(filePath)-1] == '/') || (filePath[strlen(filePath)-1] == '\\')) ) {</span>
+<span class="lineNum">     105 </span><span class="lineNoCov">          0 :                 strcpy(fileName, filePath);</span>
+<span class="lineNum">     106 </span><span class="lineNoCov">          0 :                 strcat(fileName, file_name);</span>
+<span class="lineNum">     107 </span><span class="lineCov">          6 :         } else if (filePath) {</span>
+<span class="lineNum">     108 </span><span class="lineCov">         11 :                 sprintf(fileName, &quot;%s%c%s&quot;, filePath, GF_PATH_SEPARATOR, file_name);</span>
+<span class="lineNum">     109 </span><span class="lineCov">          5 :         } else {</span>
+<span class="lineNum">     110 </span><span class="lineCov">          1 :                 strcpy(fileName, file_name);</span>
+<span class="lineNum">     111 </span>            :         }
+<span class="lineNum">     112 </span>            : 
+<span class="lineNum">     113 </span><span class="lineCov">          6 :         tmp-&gt;fileName = gf_strdup(fileName);</span>
+<span class="lineNum">     114 </span><span class="lineCov">          6 :         tmp-&gt;sections = gf_list_new();</span>
+<span class="lineNum">     115 </span><span class="lineCov">          6 :         file = gf_fopen(fileName, &quot;rt&quot;);</span>
+<span class="lineNum">     116 </span><span class="lineCov">          6 :         if (!file)</span>
+<span class="lineNum">     117 </span><span class="lineCov">          4 :                 return GF_IO_ERR;</span>
+<span class="lineNum">     118 </span>            :         /* load the file */
+<span class="lineNum">     119 </span>            :         p = NULL;
+<span class="lineNum">     120 </span><span class="lineCov">          2 :         line = (char*)gf_malloc(sizeof(char)*line_alloc);</span>
+<span class="lineNum">     121 </span><span class="lineCov">          2 :         memset(line, 0, sizeof(char)*line_alloc);</span>
+<span class="lineNum">     122 </span>            : 
+<span class="lineNum">     123 </span><span class="lineCov">         46 :         while (!feof(file)) {</span>
+<span class="lineNum">     124 </span>            :                 u32 read, nb_pass;
+<span class="lineNum">     125 </span><span class="lineCov">         42 :                 ret = fgets(line, line_alloc, file);</span>
+<span class="lineNum">     126 </span><span class="lineCov">         42 :                 read = (u32) strlen(line);</span>
+<span class="lineNum">     127 </span>            :                 nb_pass = 1;
+<span class="lineNum">     128 </span><span class="lineCov">         84 :                 while (read + nb_pass == line_alloc) {</span>
+<span class="lineNum">     129 </span><span class="lineNoCov">          0 :                         line_alloc += MAX_INI_LINE;</span>
+<span class="lineNum">     130 </span><span class="lineNoCov">          0 :                         line = (char*)gf_realloc(line, sizeof(char)*line_alloc);</span>
+<span class="lineNum">     131 </span><span class="lineNoCov">          0 :                         ret = fgets(line+read, MAX_INI_LINE, file);</span>
+<span class="lineNum">     132 </span><span class="lineNoCov">          0 :                         read = (u32) strlen(line);</span>
+<span class="lineNum">     133 </span><span class="lineNoCov">          0 :                         nb_pass++;</span>
+<span class="lineNum">     134 </span>            :                 }
+<span class="lineNum">     135 </span><span class="lineCov">         44 :                 if (!ret) continue;</span>
+<span class="lineNum">     136 </span>            : 
+<span class="lineNum">     137 </span>            :                 /* get rid of the end of line stuff */
+<span class="lineNum">     138 </span>            :                 while (1) {
+<span class="lineNum">     139 </span><span class="lineCov">         80 :                         u32 len = (u32) strlen(line);</span>
+<span class="lineNum">     140 </span><span class="lineCov">         87 :                         if (!len) break;</span>
+<span class="lineNum">     141 </span><span class="lineCov">        139 :                         if ((line[len-1] != '\n') &amp;&amp; (line[len-1] != '\r')) break;</span>
+<span class="lineNum">     142 </span><span class="lineCov">         40 :                         line[len-1] = 0;</span>
+<span class="lineNum">     143 </span><span class="lineCov">         40 :                 }</span>
+<span class="lineNum">     144 </span><span class="lineCov">         47 :                 if (!strlen(line)) continue;</span>
+<span class="lineNum">     145 </span><span class="lineCov">         33 :                 if (line[0] == '#') continue;</span>
+<span class="lineNum">     146 </span>            : 
+<span class="lineNum">     147 </span>            : 
+<span class="lineNum">     148 </span>            :                 /* new section */
+<span class="lineNum">     149 </span><span class="lineCov">         33 :                 if (line[0] == '[') {</span>
+<span class="lineNum">     150 </span><span class="lineCov">          7 :                         p = (IniSection *) gf_malloc(sizeof(IniSection));</span>
+<span class="lineNum">     151 </span><span class="lineCov">          7 :                         p-&gt;keys = gf_list_new();</span>
+<span class="lineNum">     152 </span><span class="lineCov">          7 :                         p-&gt;section_name = gf_strdup(line + 1);</span>
+<span class="lineNum">     153 </span><span class="lineCov">          7 :                         p-&gt;section_name[strlen(line) - 2] = 0;</span>
+<span class="lineNum">     154 </span><span class="lineCov">         21 :                         while (p-&gt;section_name[strlen(p-&gt;section_name) - 1] == ']' || p-&gt;section_name[strlen(p-&gt;section_name) - 1] == ' ') p-&gt;section_name[strlen(p-&gt;section_name) - 1] = 0;</span>
+<span class="lineNum">     155 </span><span class="lineCov">          7 :                         gf_list_add(tmp-&gt;sections, p);</span>
+<span class="lineNum">     156 </span><span class="lineCov">          7 :                 }</span>
+<span class="lineNum">     157 </span><span class="lineCov">         52 :                 else if (strlen(line) &amp;&amp; (strchr(line, '=') != NULL) ) {</span>
+<span class="lineNum">     158 </span><span class="lineCov">         26 :                         if (!p) {</span>
+<span class="lineNum">     159 </span><span class="lineNoCov">          0 :                                 gf_list_del(tmp-&gt;sections);</span>
+<span class="lineNum">     160 </span><span class="lineNoCov">          0 :                                 gf_free(tmp-&gt;fileName);</span>
+<span class="lineNum">     161 </span><span class="lineNoCov">          0 :                                 gf_free(tmp);</span>
+<span class="lineNum">     162 </span><span class="lineNoCov">          0 :                                 gf_fclose(file);</span>
+<span class="lineNum">     163 </span><span class="lineNoCov">          0 :                                 gf_free(line);</span>
+<span class="lineNum">     164 </span><span class="lineNoCov">          0 :                                 return GF_IO_ERR;</span>
+<span class="lineNum">     165 </span>            :                         }
+<span class="lineNum">     166 </span>            : 
+<span class="lineNum">     167 </span><span class="lineCov">         26 :                         k = (IniKey *) gf_malloc(sizeof(IniKey));</span>
+<span class="lineNum">     168 </span><span class="lineCov">         26 :                         memset((void *)k, 0, sizeof(IniKey));</span>
+<span class="lineNum">     169 </span><span class="lineCov">         26 :                         ret = strchr(line, '=');</span>
+<span class="lineNum">     170 </span><span class="lineCov">         26 :                         if (ret) {</span>
+<span class="lineNum">     171 </span><span class="lineCov">         26 :                                 ret[0] = 0;</span>
+<span class="lineNum">     172 </span><span class="lineCov">         26 :                                 k-&gt;name = gf_strdup(line);</span>
+<span class="lineNum">     173 </span><span class="lineCov">         52 :                                 while (k-&gt;name[strlen(k-&gt;name) - 1] == ' ') k-&gt;name[strlen(k-&gt;name) - 1] = 0;</span>
+<span class="lineNum">     174 </span><span class="lineCov">         26 :                                 ret[0] = '=';</span>
+<span class="lineNum">     175 </span><span class="lineCov">         26 :                                 ret += 1;</span>
+<span class="lineNum">     176 </span><span class="lineCov">         52 :                                 while (ret[0] == ' ') ret++;</span>
+<span class="lineNum">     177 </span><span class="lineCov">         26 :                                 if ( ret[0] != 0) {</span>
+<span class="lineNum">     178 </span><span class="lineCov">         26 :                                         k-&gt;value = gf_strdup(ret);</span>
+<span class="lineNum">     179 </span><span class="lineCov">         52 :                                         while (k-&gt;value[strlen(k-&gt;value) - 1] == ' ') k-&gt;value[strlen(k-&gt;value) - 1] = 0;</span>
+<span class="lineNum">     180 </span>            :                                 } else {
+<span class="lineNum">     181 </span><span class="lineNoCov">          0 :                                         k-&gt;value = gf_strdup(&quot;&quot;);</span>
+<span class="lineNum">     182 </span>            :                                 }
+<span class="lineNum">     183 </span>            :                         }
+<span class="lineNum">     184 </span><span class="lineCov">         26 :                         gf_list_add(p-&gt;keys, k);</span>
+<span class="lineNum">     185 </span><span class="lineCov">         26 :                 }</span>
+<span class="lineNum">     186 </span><span class="lineCov">         33 :         }</span>
+<span class="lineNum">     187 </span><span class="lineCov">          2 :         gf_free(line);</span>
+<span class="lineNum">     188 </span><span class="lineCov">          2 :         gf_fclose(file);</span>
+<span class="lineNum">     189 </span><span class="lineCov">          2 :         return GF_OK;</span>
+<span class="lineNum">     190 </span><span class="lineCov">          6 : }</span>
+<a name="191"><span class="lineNum">     191 </span>            : </a>
+<span class="lineNum">     192 </span>            : GF_EXPORT
+<span class="lineNum">     193 </span>            : GF_Config *gf_cfg_force_new(const char *filePath, const char* file_name) {
+<span class="lineNum">     194 </span><span class="lineCov">          6 :         GF_Config *tmp = (GF_Config *)gf_malloc(sizeof(GF_Config));</span>
+<span class="lineNum">     195 </span><span class="lineCov">          3 :         memset((void *)tmp, 0, sizeof(GF_Config));</span>
+<span class="lineNum">     196 </span><span class="lineCov">          3 :         gf_cfg_parse_config_file(tmp, filePath, file_name);</span>
+<span class="lineNum">     197 </span><span class="lineCov">          3 :         return tmp;</span>
+<span class="lineNum">     198 </span>            : }
+<span class="lineNum">     199 </span>            : 
+<a name="200"><span class="lineNum">     200 </span>            : </a>
+<span class="lineNum">     201 </span>            : GF_EXPORT
+<span class="lineNum">     202 </span>            : GF_Config *gf_cfg_new(const char *filePath, const char* file_name)
+<span class="lineNum">     203 </span>            : {
+<span class="lineNum">     204 </span><span class="lineCov">          6 :         GF_Config *tmp = (GF_Config *)gf_malloc(sizeof(GF_Config));</span>
+<span class="lineNum">     205 </span><span class="lineCov">          3 :         memset((void *)tmp, 0, sizeof(GF_Config));</span>
+<span class="lineNum">     206 </span><span class="lineCov">          3 :         if (!filePath &amp;&amp; !file_name) {</span>
+<span class="lineNum">     207 </span><span class="lineNoCov">          0 :                 tmp-&gt;sections = gf_list_new();</span>
+<span class="lineNum">     208 </span><span class="lineNoCov">          0 :                 return tmp;</span>
+<span class="lineNum">     209 </span>            :         }
+<span class="lineNum">     210 </span>            : 
+<span class="lineNum">     211 </span><span class="lineCov">          3 :         if (gf_cfg_parse_config_file(tmp, filePath, file_name)) {</span>
+<span class="lineNum">     212 </span><span class="lineCov">          1 :                 gf_cfg_clear(tmp);</span>
+<span class="lineNum">     213 </span><span class="lineCov">          1 :                 gf_free(tmp);</span>
+<span class="lineNum">     214 </span>            :                 tmp = NULL;
+<span class="lineNum">     215 </span><span class="lineCov">          1 :         }</span>
+<span class="lineNum">     216 </span><span class="lineCov">          3 :         return tmp;</span>
+<span class="lineNum">     217 </span><span class="lineCov">          3 : }</span>
+<a name="218"><span class="lineNum">     218 </span>            : </a>
+<span class="lineNum">     219 </span>            : GF_EXPORT
+<span class="lineNum">     220 </span>            : char * gf_cfg_get_filename(GF_Config *iniFile)
+<span class="lineNum">     221 </span>            : {
+<span class="lineNum">     222 </span><span class="lineCov">          2 :         if (!iniFile)</span>
+<span class="lineNum">     223 </span><span class="lineNoCov">          0 :                 return NULL;</span>
+<span class="lineNum">     224 </span><span class="lineCov">          3 :         return iniFile-&gt;fileName ? gf_strdup(iniFile-&gt;fileName) : NULL;</span>
+<span class="lineNum">     225 </span><span class="lineCov">          1 : }</span>
+<a name="226"><span class="lineNum">     226 </span>            : </a>
+<span class="lineNum">     227 </span>            : GF_EXPORT
+<span class="lineNum">     228 </span>            : GF_Err gf_cfg_save(GF_Config *iniFile)
+<span class="lineNum">     229 </span>            : {
+<span class="lineNum">     230 </span><span class="lineCov">         22 :         u32 i, j;</span>
+<span class="lineNum">     231 </span>            :         IniSection *sec;
+<span class="lineNum">     232 </span>            :         IniKey *key;
+<span class="lineNum">     233 </span>            :         FILE *file;
+<span class="lineNum">     234 </span>            : 
+<span class="lineNum">     235 </span><span class="lineCov">         11 :         if (!iniFile-&gt;hasChanged) return GF_OK;</span>
+<span class="lineNum">     236 </span><span class="lineCov">         13 :         if (iniFile-&gt;skip_changes) return GF_OK;</span>
+<span class="lineNum">     237 </span><span class="lineCov">          9 :         if (!iniFile-&gt;fileName) return GF_OK;</span>
+<span class="lineNum">     238 </span>            : 
+<span class="lineNum">     239 </span><span class="lineCov">          9 :         file = gf_fopen(iniFile-&gt;fileName, &quot;wt&quot;);</span>
+<span class="lineNum">     240 </span><span class="lineCov">          9 :         if (!file) return GF_IO_ERR;</span>
+<span class="lineNum">     241 </span>            : 
+<span class="lineNum">     242 </span><span class="lineCov">          9 :         i=0;</span>
+<span class="lineNum">     243 </span><span class="lineCov">         80 :         while ( (sec = (IniSection *) gf_list_enum(iniFile-&gt;sections, &amp;i)) ) {</span>
+<span class="lineNum">     244 </span>            :                 /*Temporary sections are not saved*/
+<span class="lineNum">     245 </span><span class="lineCov">         31 :                 if (!strnicmp(sec-&gt;section_name, &quot;Temp&quot;, 4)) continue;</span>
+<span class="lineNum">     246 </span>            : 
+<span class="lineNum">     247 </span><span class="lineCov">         31 :                 fprintf(file, &quot;[%s]\n&quot;, sec-&gt;section_name);</span>
+<span class="lineNum">     248 </span><span class="lineCov">         31 :                 j=0;</span>
+<span class="lineNum">     249 </span><span class="lineCov">       1266 :                 while ( (key = (IniKey *) gf_list_enum(sec-&gt;keys, &amp;j)) ) {</span>
+<span class="lineNum">     250 </span><span class="lineCov">        602 :                         fprintf(file, &quot;%s=%s\n&quot;, key-&gt;name, key-&gt;value);</span>
+<span class="lineNum">     251 </span>            :                 }
+<span class="lineNum">     252 </span>            :                 /* end of section */
+<span class="lineNum">     253 </span><span class="lineCov">         31 :                 fprintf(file, &quot;\n&quot;);</span>
+<span class="lineNum">     254 </span>            :         }
+<span class="lineNum">     255 </span><span class="lineCov">          9 :         gf_fclose(file);</span>
+<span class="lineNum">     256 </span><span class="lineCov">          9 :         return GF_OK;</span>
+<span class="lineNum">     257 </span><span class="lineCov">         11 : }</span>
+<a name="258"><span class="lineNum">     258 </span>            : </a>
+<span class="lineNum">     259 </span>            : GF_EXPORT
+<span class="lineNum">     260 </span>            : GF_Err gf_cfg_discard_changes(GF_Config *iniFile)
+<span class="lineNum">     261 </span>            : {
+<span class="lineNum">     262 </span><span class="lineCov">          4 :         if (!iniFile) return GF_BAD_PARAM;</span>
+<span class="lineNum">     263 </span><span class="lineCov">          2 :         iniFile-&gt;skip_changes = GF_TRUE;</span>
+<span class="lineNum">     264 </span><span class="lineCov">          2 :         return GF_OK;</span>
+<span class="lineNum">     265 </span><span class="lineCov">          2 : }</span>
+<a name="266"><span class="lineNum">     266 </span>            : </a>
+<span class="lineNum">     267 </span>            : GF_EXPORT
+<span class="lineNum">     268 </span>            : void gf_cfg_del(GF_Config *iniFile)
+<span class="lineNum">     269 </span>            : {
+<span class="lineNum">     270 </span><span class="lineCov">          8 :         if (!iniFile) return;</span>
+<span class="lineNum">     271 </span><span class="lineCov">          4 :         gf_cfg_save(iniFile);</span>
+<span class="lineNum">     272 </span><span class="lineCov">          4 :         gf_cfg_clear(iniFile);</span>
+<span class="lineNum">     273 </span><span class="lineCov">          4 :         gf_free(iniFile);</span>
+<a name="274"><span class="lineNum">     274 </span><span class="lineCov">          8 : }</span></a>
+<span class="lineNum">     275 </span>            : 
+<span class="lineNum">     276 </span>            : void gf_cfg_remove(GF_Config *iniFile)
+<span class="lineNum">     277 </span>            : {
+<span class="lineNum">     278 </span><span class="lineNoCov">          0 :         if (!iniFile) return;</span>
+<span class="lineNum">     279 </span><span class="lineNoCov">          0 :         gf_delete_file(iniFile-&gt;fileName);</span>
+<span class="lineNum">     280 </span><span class="lineNoCov">          0 :         gf_cfg_clear(iniFile);</span>
+<span class="lineNum">     281 </span><span class="lineNoCov">          0 :         gf_free(iniFile);</span>
+<span class="lineNum">     282 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     283 </span>            : 
+<a name="284"><span class="lineNum">     284 </span>            : </a>
+<span class="lineNum">     285 </span>            : GF_EXPORT
+<span class="lineNum">     286 </span>            : const char *gf_cfg_get_key(GF_Config *iniFile, const char *secName, const char *keyName)
+<span class="lineNum">     287 </span>            : {
+<span class="lineNum">     288 </span><span class="lineCov">       2152 :         u32 i;</span>
+<span class="lineNum">     289 </span>            :         IniSection *sec;
+<span class="lineNum">     290 </span>            :         IniKey *key;
+<span class="lineNum">     291 </span>            : 
+<span class="lineNum">     292 </span><span class="lineCov">       1076 :         i=0;</span>
+<span class="lineNum">     293 </span><span class="lineCov">       6460 :         while ( (sec = (IniSection *) gf_list_enum(iniFile-&gt;sections, &amp;i)) ) {</span>
+<span class="lineNum">     294 </span><span class="lineCov">       5374 :                 if (!strcmp(secName, sec-&gt;section_name)) goto get_key;</span>
+<span class="lineNum">     295 </span>            :         }
+<span class="lineNum">     296 </span><span class="lineCov">         10 :         return NULL;</span>
+<span class="lineNum">     297 </span>            : 
+<span class="lineNum">     298 </span>            : get_key:
+<span class="lineNum">     299 </span><span class="lineCov">       1066 :         i=0;</span>
+<span class="lineNum">     300 </span><span class="lineCov">     176044 :         while ( (key = (IniKey *) gf_list_enum(sec-&gt;keys, &amp;i)) ) {</span>
+<span class="lineNum">     301 </span><span class="lineCov">     175390 :                 if (!strcmp(key-&gt;name, keyName)) return key-&gt;value;</span>
+<span class="lineNum">     302 </span>            :         }
+<span class="lineNum">     303 </span><span class="lineCov">        327 :         return NULL;</span>
+<span class="lineNum">     304 </span><span class="lineCov">       1076 : }</span>
+<a name="305"><span class="lineNum">     305 </span>            : </a>
+<span class="lineNum">     306 </span>            : GF_EXPORT
+<span class="lineNum">     307 </span>            : const char *gf_cfg_get_ikey(GF_Config *iniFile, const char *secName, const char *keyName)
+<span class="lineNum">     308 </span>            : {
+<span class="lineNum">     309 </span><span class="lineCov">         32 :         u32 i;</span>
+<span class="lineNum">     310 </span>            :         IniSection *sec;
+<span class="lineNum">     311 </span>            :         IniKey *key;
+<span class="lineNum">     312 </span>            : 
+<span class="lineNum">     313 </span><span class="lineCov">         16 :         i=0;</span>
+<span class="lineNum">     314 </span><span class="lineCov">         91 :         while ( (sec = (IniSection *) gf_list_enum(iniFile-&gt;sections, &amp;i)) ) {</span>
+<span class="lineNum">     315 </span><span class="lineCov">         73 :                 if (!stricmp(secName, sec-&gt;section_name)) goto get_key;</span>
+<span class="lineNum">     316 </span>            :         }
+<span class="lineNum">     317 </span><span class="lineCov">          2 :         return NULL;</span>
+<span class="lineNum">     318 </span>            : 
+<span class="lineNum">     319 </span>            : get_key:
+<span class="lineNum">     320 </span><span class="lineCov">         14 :         i=0;</span>
+<span class="lineNum">     321 </span><span class="lineCov">       1983 :         while ( (key = (IniKey *) gf_list_enum(sec-&gt;keys, &amp;i)) ) {</span>
+<span class="lineNum">     322 </span><span class="lineCov">       1979 :                 if (!stricmp(key-&gt;name, keyName)) return key-&gt;value;</span>
+<span class="lineNum">     323 </span>            :         }
+<span class="lineNum">     324 </span><span class="lineCov">          2 :         return NULL;</span>
+<span class="lineNum">     325 </span><span class="lineCov">         16 : }</span>
+<span class="lineNum">     326 </span>            : 
+<a name="327"><span class="lineNum">     327 </span>            : </a>
+<span class="lineNum">     328 </span>            : GF_EXPORT
+<span class="lineNum">     329 </span>            : GF_Err gf_cfg_set_key(GF_Config *iniFile, const char *secName, const char *keyName, const char *keyValue)
+<span class="lineNum">     330 </span>            : {
+<span class="lineNum">     331 </span><span class="lineCov">       1160 :         u32 i;</span>
+<span class="lineNum">     332 </span>            :         Bool has_changed = GF_TRUE;
+<span class="lineNum">     333 </span>            :         IniSection *sec;
+<span class="lineNum">     334 </span>            :         IniKey *key;
+<span class="lineNum">     335 </span>            : 
+<span class="lineNum">     336 </span><span class="lineCov">        580 :         if (!iniFile || !secName || !keyName) return GF_BAD_PARAM;</span>
+<span class="lineNum">     337 </span>            : 
+<span class="lineNum">     338 </span><span class="lineCov">        580 :         if (!strnicmp(secName, &quot;temp&quot;, 4)) has_changed = GF_FALSE;</span>
+<span class="lineNum">     339 </span>            : 
+<span class="lineNum">     340 </span><span class="lineCov">        580 :         i=0;</span>
+<span class="lineNum">     341 </span><span class="lineCov">       3509 :         while ((sec = (IniSection *) gf_list_enum(iniFile-&gt;sections, &amp;i)) ) {</span>
+<span class="lineNum">     342 </span><span class="lineCov">       2915 :                 if (!strcmp(secName, sec-&gt;section_name)) goto get_key;</span>
+<span class="lineNum">     343 </span>            :         }
+<span class="lineNum">     344 </span>            :         /* need a new key */
+<span class="lineNum">     345 </span><span class="lineCov">         14 :         sec = (IniSection *) gf_malloc(sizeof(IniSection));</span>
+<span class="lineNum">     346 </span><span class="lineCov">         14 :         sec-&gt;section_name = gf_strdup(secName);</span>
+<span class="lineNum">     347 </span><span class="lineCov">         14 :         sec-&gt;keys = gf_list_new();</span>
+<span class="lineNum">     348 </span><span class="lineCov">         28 :         if (has_changed) iniFile-&gt;hasChanged = GF_TRUE;</span>
+<span class="lineNum">     349 </span><span class="lineCov">         14 :         gf_list_add(iniFile-&gt;sections, sec);</span>
+<span class="lineNum">     350 </span>            : 
+<span class="lineNum">     351 </span>            : get_key:
+<span class="lineNum">     352 </span><span class="lineCov">        580 :         i=0;</span>
+<span class="lineNum">     353 </span><span class="lineCov">      82570 :         while ( (key = (IniKey *) gf_list_enum(sec-&gt;keys, &amp;i) ) ) {</span>
+<span class="lineNum">     354 </span><span class="lineCov">      81413 :                 if (!strcmp(key-&gt;name, keyName)) goto set_value;</span>
+<span class="lineNum">     355 </span>            :         }
+<span class="lineNum">     356 </span><span class="lineCov">        585 :         if (!keyValue) return GF_OK;</span>
+<span class="lineNum">     357 </span>            :         /* need a new key */
+<span class="lineNum">     358 </span><span class="lineCov">        569 :         key = (IniKey *) gf_malloc(sizeof(IniKey));</span>
+<span class="lineNum">     359 </span><span class="lineCov">        569 :         key-&gt;name = gf_strdup(keyName);</span>
+<span class="lineNum">     360 </span><span class="lineCov">        569 :         key-&gt;value = gf_strdup(&quot;&quot;);</span>
+<span class="lineNum">     361 </span><span class="lineCov">       1138 :         if (has_changed) iniFile-&gt;hasChanged = GF_TRUE;</span>
+<span class="lineNum">     362 </span><span class="lineCov">        569 :         gf_list_add(sec-&gt;keys, key);</span>
+<span class="lineNum">     363 </span>            : 
+<span class="lineNum">     364 </span>            : set_value:
+<span class="lineNum">     365 </span><span class="lineCov">        572 :         if (!keyValue) {</span>
+<span class="lineNum">     366 </span><span class="lineNoCov">          0 :                 gf_list_del_item(sec-&gt;keys, key);</span>
+<span class="lineNum">     367 </span><span class="lineNoCov">          0 :                 if (key-&gt;name) gf_free(key-&gt;name);</span>
+<span class="lineNum">     368 </span><span class="lineNoCov">          0 :                 if (key-&gt;value) gf_free(key-&gt;value);</span>
+<span class="lineNum">     369 </span><span class="lineNoCov">          0 :                 gf_free(key);</span>
+<span class="lineNum">     370 </span><span class="lineNoCov">          0 :                 if (has_changed) iniFile-&gt;hasChanged = GF_TRUE;</span>
+<span class="lineNum">     371 </span><span class="lineNoCov">          0 :                 return GF_OK;</span>
+<span class="lineNum">     372 </span>            :         }
+<span class="lineNum">     373 </span>            :         /* same value, don't update */
+<span class="lineNum">     374 </span><span class="lineCov">        573 :         if (!strcmp(key-&gt;value, keyValue)) return GF_OK;</span>
+<span class="lineNum">     375 </span>            : 
+<span class="lineNum">     376 </span><span class="lineCov">       1142 :         if (key-&gt;value) gf_free(key-&gt;value);</span>
+<span class="lineNum">     377 </span><span class="lineCov">        571 :         key-&gt;value = gf_strdup(keyValue);</span>
+<span class="lineNum">     378 </span><span class="lineCov">       1142 :         if (has_changed) iniFile-&gt;hasChanged = GF_TRUE;</span>
+<span class="lineNum">     379 </span><span class="lineCov">        571 :         return GF_OK;</span>
+<span class="lineNum">     380 </span><span class="lineCov">        580 : }</span>
+<a name="381"><span class="lineNum">     381 </span>            : </a>
+<span class="lineNum">     382 </span>            : GF_EXPORT
+<span class="lineNum">     383 </span>            : u32 gf_cfg_get_section_count(GF_Config *iniFile)
+<span class="lineNum">     384 </span>            : {
+<span class="lineNum">     385 </span><span class="lineCov">          2 :         return gf_list_count(iniFile-&gt;sections);</span>
+<span class="lineNum">     386 </span>            : }
+<a name="387"><span class="lineNum">     387 </span>            : </a>
+<span class="lineNum">     388 </span>            : GF_EXPORT
+<span class="lineNum">     389 </span>            : const char *gf_cfg_get_section_name(GF_Config *iniFile, u32 secIndex)
+<span class="lineNum">     390 </span>            : {
+<span class="lineNum">     391 </span><span class="lineCov">         20 :         IniSection *is = (IniSection *) gf_list_get(iniFile-&gt;sections, secIndex);</span>
+<span class="lineNum">     392 </span><span class="lineCov">         10 :         if (!is) return NULL;</span>
+<span class="lineNum">     393 </span><span class="lineCov">         10 :         return is-&gt;section_name;</span>
+<span class="lineNum">     394 </span><span class="lineCov">         10 : }</span>
+<a name="395"><span class="lineNum">     395 </span>            : </a>
+<span class="lineNum">     396 </span>            : GF_EXPORT
+<span class="lineNum">     397 </span>            : u32 gf_cfg_get_key_count(GF_Config *iniFile, const char *secName)
+<span class="lineNum">     398 </span>            : {
+<span class="lineNum">     399 </span><span class="lineCov">         10 :         u32 i = 0;</span>
+<span class="lineNum">     400 </span>            :         IniSection *sec;
+<span class="lineNum">     401 </span><span class="lineCov">         43 :         while ( (sec = (IniSection *) gf_list_enum(iniFile-&gt;sections, &amp;i)) ) {</span>
+<span class="lineNum">     402 </span><span class="lineCov">         39 :                 if (!strcmp(secName, sec-&gt;section_name)) return gf_list_count(sec-&gt;keys);</span>
+<span class="lineNum">     403 </span>            :         }
+<span class="lineNum">     404 </span><span class="lineCov">          2 :         return 0;</span>
+<span class="lineNum">     405 </span><span class="lineCov">          5 : }</span>
+<a name="406"><span class="lineNum">     406 </span>            : </a>
+<span class="lineNum">     407 </span>            : GF_EXPORT
+<span class="lineNum">     408 </span>            : const char *gf_cfg_get_key_name(GF_Config *iniFile, const char *secName, u32 keyIndex)
+<span class="lineNum">     409 </span>            : {
+<span class="lineNum">     410 </span><span class="lineCov">        802 :         u32 i = 0;</span>
+<span class="lineNum">     411 </span>            :         IniSection *sec;
+<span class="lineNum">     412 </span><span class="lineCov">       2065 :         while ( (sec = (IniSection *) gf_list_enum(iniFile-&gt;sections, &amp;i) ) ) {</span>
+<span class="lineNum">     413 </span><span class="lineCov">       1664 :                 if (!strcmp(secName, sec-&gt;section_name)) {</span>
+<span class="lineNum">     414 </span><span class="lineCov">        401 :                         IniKey *key = (IniKey *) gf_list_get(sec-&gt;keys, keyIndex);</span>
+<span class="lineNum">     415 </span><span class="lineCov">       1203 :                         return key ? key-&gt;name : NULL;</span>
+<span class="lineNum">     416 </span>            :                 }
+<span class="lineNum">     417 </span>            :         }
+<span class="lineNum">     418 </span><span class="lineNoCov">          0 :         return NULL;</span>
+<span class="lineNum">     419 </span><span class="lineCov">        401 : }</span>
+<a name="420"><span class="lineNum">     420 </span>            : </a>
+<span class="lineNum">     421 </span>            : GF_EXPORT
+<span class="lineNum">     422 </span>            : void gf_cfg_del_section(GF_Config *iniFile, const char *secName)
+<span class="lineNum">     423 </span>            : {
+<span class="lineNum">     424 </span><span class="lineNoCov">          0 :         u32 i;</span>
+<span class="lineNum">     425 </span>            :         IniSection *p;
+<span class="lineNum">     426 </span><span class="lineNoCov">          0 :         if (!iniFile) return;</span>
+<span class="lineNum">     427 </span>            : 
+<span class="lineNum">     428 </span><span class="lineNoCov">          0 :         i = 0;</span>
+<span class="lineNum">     429 </span><span class="lineNoCov">          0 :         while ((p = (IniSection*)gf_list_enum(iniFile-&gt;sections, &amp;i))) {</span>
+<span class="lineNum">     430 </span><span class="lineNoCov">          0 :                 if (!strcmp(secName, p-&gt;section_name)) {</span>
+<span class="lineNum">     431 </span><span class="lineNoCov">          0 :                         DelSection(p);</span>
+<span class="lineNum">     432 </span><span class="lineNoCov">          0 :                         gf_list_rem(iniFile-&gt;sections, i-1);</span>
+<span class="lineNum">     433 </span><span class="lineNoCov">          0 :                         iniFile-&gt;hasChanged = GF_TRUE;</span>
+<span class="lineNum">     434 </span><span class="lineNoCov">          0 :                         return;</span>
+<span class="lineNum">     435 </span>            :                 }
+<span class="lineNum">     436 </span>            :         }
+<span class="lineNum">     437 </span><span class="lineNoCov">          0 : }</span>
+<a name="438"><span class="lineNum">     438 </span>            : </a>
+<span class="lineNum">     439 </span>            : GF_EXPORT
+<span class="lineNum">     440 </span>            : GF_Err gf_cfg_insert_key(GF_Config *iniFile, const char *secName, const char *keyName, const char *keyValue, u32 index)
+<span class="lineNum">     441 </span>            : {
+<span class="lineNum">     442 </span><span class="lineNoCov">          0 :         u32 i;</span>
+<span class="lineNum">     443 </span>            :         IniSection *sec;
+<span class="lineNum">     444 </span>            :         IniKey *key;
+<span class="lineNum">     445 </span>            : 
+<span class="lineNum">     446 </span><span class="lineNoCov">          0 :         if (!iniFile || !secName || !keyName|| !keyValue) return GF_BAD_PARAM;</span>
+<span class="lineNum">     447 </span>            : 
+<span class="lineNum">     448 </span><span class="lineNoCov">          0 :         i=0;</span>
+<span class="lineNum">     449 </span><span class="lineNoCov">          0 :         while ( (sec = (IniSection *) gf_list_enum(iniFile-&gt;sections, &amp;i) ) ) {</span>
+<span class="lineNum">     450 </span><span class="lineNoCov">          0 :                 if (!strcmp(secName, sec-&gt;section_name)) break;</span>
+<span class="lineNum">     451 </span>            :         }
+<span class="lineNum">     452 </span><span class="lineNoCov">          0 :         if (!sec) return GF_BAD_PARAM;</span>
+<span class="lineNum">     453 </span>            : 
+<span class="lineNum">     454 </span><span class="lineNoCov">          0 :         i=0;</span>
+<span class="lineNum">     455 </span><span class="lineNoCov">          0 :         while ( (key = (IniKey *) gf_list_enum(sec-&gt;keys, &amp;i) ) ) {</span>
+<span class="lineNum">     456 </span><span class="lineNoCov">          0 :                 if (!strcmp(key-&gt;name, keyName)) return GF_BAD_PARAM;</span>
+<span class="lineNum">     457 </span>            :         }
+<span class="lineNum">     458 </span>            : 
+<span class="lineNum">     459 </span><span class="lineNoCov">          0 :         key = (IniKey *) gf_malloc(sizeof(IniKey));</span>
+<span class="lineNum">     460 </span><span class="lineNoCov">          0 :         key-&gt;name = gf_strdup(keyName);</span>
+<span class="lineNum">     461 </span><span class="lineNoCov">          0 :         key-&gt;value = gf_strdup(keyValue);</span>
+<span class="lineNum">     462 </span><span class="lineNoCov">          0 :         gf_list_insert(sec-&gt;keys, key, index);</span>
+<span class="lineNum">     463 </span><span class="lineNoCov">          0 :         iniFile-&gt;hasChanged = GF_TRUE;</span>
+<span class="lineNum">     464 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">     465 </span><span class="lineNoCov">          0 : }</span>
+<a name="466"><span class="lineNum">     466 </span>            : </a>
+<span class="lineNum">     467 </span>            : GF_EXPORT
+<span class="lineNum">     468 </span>            : const char *gf_cfg_get_sub_key(GF_Config *iniFile, const char *secName, const char *keyName, u32 sub_index)
+<span class="lineNum">     469 </span>            : {
+<span class="lineNum">     470 </span>            :         u32 j;
+<span class="lineNum">     471 </span>            :         char *subKeyValue, *returnKey;
+<span class="lineNum">     472 </span>            :         char *keyValue;
+<span class="lineNum">     473 </span>            : 
+<span class="lineNum">     474 </span>            : 
+<span class="lineNum">     475 </span><span class="lineNoCov">          0 :         keyValue = gf_strdup(gf_cfg_get_key(iniFile, secName, keyName));</span>
+<span class="lineNum">     476 </span><span class="lineNoCov">          0 :         if (!keyValue) {</span>
+<span class="lineNum">     477 </span><span class="lineNoCov">          0 :                 return NULL;</span>
+<span class="lineNum">     478 </span>            :         }
+<span class="lineNum">     479 </span>            : 
+<span class="lineNum">     480 </span>            :         j = 0;
+<span class="lineNum">     481 </span><span class="lineNoCov">          0 :         subKeyValue = strtok((char*)keyValue,&quot;;&quot;);</span>
+<span class="lineNum">     482 </span><span class="lineNoCov">          0 :         while (subKeyValue!=NULL) {</span>
+<span class="lineNum">     483 </span><span class="lineNoCov">          0 :                 if (j==sub_index) {</span>
+<span class="lineNum">     484 </span><span class="lineNoCov">          0 :                         returnKey = gf_strdup(subKeyValue);</span>
+<span class="lineNum">     485 </span><span class="lineNoCov">          0 :                         gf_free(keyValue);</span>
+<span class="lineNum">     486 </span><span class="lineNoCov">          0 :                         return returnKey;</span>
+<span class="lineNum">     487 </span>            :                 }
+<span class="lineNum">     488 </span><span class="lineNoCov">          0 :                 j++;</span>
+<span class="lineNum">     489 </span><span class="lineNoCov">          0 :                 subKeyValue = strtok (NULL, &quot;;&quot;);</span>
+<span class="lineNum">     490 </span>            :         }
+<span class="lineNum">     491 </span><span class="lineNoCov">          0 :         gf_free(keyValue);</span>
+<span class="lineNum">     492 </span><span class="lineNoCov">          0 :         return NULL;</span>
+<span class="lineNum">     493 </span><span class="lineNoCov">          0 : }</span>
+<a name="494"><span class="lineNum">     494 </span>            : </a>
+<span class="lineNum">     495 </span>            : GF_EXPORT
+<span class="lineNum">     496 </span>            : GF_Err gf_cfg_set_filename(GF_Config *iniFile, const char * fileName)
+<span class="lineNum">     497 </span>            : {
+<span class="lineNum">     498 </span><span class="lineNoCov">          0 :         if (!fileName) return GF_OK;</span>
+<span class="lineNum">     499 </span><span class="lineNoCov">          0 :         if (iniFile-&gt;fileName) gf_free(iniFile-&gt;fileName);</span>
+<span class="lineNum">     500 </span><span class="lineNoCov">          0 :         iniFile-&gt;fileName = gf_strdup(fileName);</span>
+<span class="lineNum">     501 </span><span class="lineNoCov">          0 :         return iniFile-&gt;fileName ? GF_OK : GF_OUT_OF_MEM;</span>
+<span class="lineNum">     502 </span><span class="lineNoCov">          0 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

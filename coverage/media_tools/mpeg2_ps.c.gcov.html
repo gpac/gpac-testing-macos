@@ -1,0 +1,1874 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - media_tools/mpeg2_ps.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">media_tools</a> - mpeg2_ps.c<span style="font-size: 80%;"> (source / <a href="mpeg2_ps.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">581</td>
+            <td class="headerCovTableEntry">843</td>
+            <td class="headerCovTableEntryLo">68.9 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-05-14 22:31:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">53</td>
+            <td class="headerCovTableEntry">61</td>
+            <td class="headerCovTableEntryMed">86.9 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  * The contents of this file are subject to the Mozilla Public
+<span class="lineNum">       3 </span>            :  * License Version 1.1 (the &quot;License&quot;); you may not use this file
+<span class="lineNum">       4 </span>            :  * except in compliance with the License. You may obtain a copy of
+<span class="lineNum">       5 </span>            :  * the License at http://www.mozilla.org/MPL/
+<span class="lineNum">       6 </span>            :  *
+<span class="lineNum">       7 </span>            :  * Software distributed under the License is distributed on an &quot;AS
+<span class="lineNum">       8 </span>            :  * IS&quot; basis, WITHOUT WARRANTY OF ANY KIND, either express or
+<span class="lineNum">       9 </span>            :  * implied. See the License for the specific language governing
+<span class="lineNum">      10 </span>            :  * rights and limitations under the License.
+<span class="lineNum">      11 </span>            :  *
+<span class="lineNum">      12 </span>            :  * The Original Code is MPEG4IP.
+<span class="lineNum">      13 </span>            :  *
+<span class="lineNum">      14 </span>            :  * The Initial Developer of the Original Code is Cisco Systems Inc.
+<span class="lineNum">      15 </span>            :  * Portions created by Cisco Systems Inc. are
+<span class="lineNum">      16 </span>            :  * Copyright (C) Cisco Systems Inc. 2004.  All Rights Reserved.
+<span class="lineNum">      17 </span>            :  *
+<span class="lineNum">      18 </span>            :  * Contributor(s):
+<span class="lineNum">      19 </span>            :  *              Bill May wmay@cisco.com
+<span class="lineNum">      20 </span>            :  */
+<span class="lineNum">      21 </span>            : 
+<span class="lineNum">      22 </span>            : /*
+<span class="lineNum">      23 </span>            :  * mpeg2ps.c - parse program stream and vob files
+<span class="lineNum">      24 </span>            :  */
+<span class="lineNum">      25 </span>            : #include &quot;mpeg2_ps.h&quot;
+<span class="lineNum">      26 </span>            : 
+<span class="lineNum">      27 </span>            : #ifndef GPAC_DISABLE_MPEG2PS
+<a name="28"><span class="lineNum">      28 </span>            : </a>
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : static GFINLINE u16 convert16 (u8 *p)
+<span class="lineNum">      31 </span>            : {
+<span class="lineNum">      32 </span>            : #ifdef GPAC_BIG_ENDIAN
+<span class="lineNum">      33 </span>            :         return *(u16 *)p;
+<span class="lineNum">      34 </span>            : #else
+<span class="lineNum">      35 </span><span class="lineCov">      14416 :         u16 val = p[0];</span>
+<span class="lineNum">      36 </span><span class="lineCov">       7208 :         val &lt;&lt;= 8;</span>
+<span class="lineNum">      37 </span><span class="lineCov">       7208 :         return (val | p[1]);</span>
+<span class="lineNum">      38 </span>            : #endif
+<a name="39"><span class="lineNum">      39 </span>            : }</a>
+<span class="lineNum">      40 </span>            : 
+<span class="lineNum">      41 </span>            : static GFINLINE u32 convert32 (u8 *p)
+<span class="lineNum">      42 </span>            : {
+<span class="lineNum">      43 </span>            : #ifdef GPAC_BIG_ENDIAN
+<span class="lineNum">      44 </span>            :         return *(u32 *)p;
+<span class="lineNum">      45 </span>            : #else
+<span class="lineNum">      46 </span>            :         u32 val;
+<span class="lineNum">      47 </span><span class="lineCov">      16412 :         val = p[0];</span>
+<span class="lineNum">      48 </span><span class="lineCov">       8206 :         val &lt;&lt;= 8;</span>
+<span class="lineNum">      49 </span><span class="lineCov">       8206 :         val |= p[1];</span>
+<span class="lineNum">      50 </span><span class="lineCov">       8206 :         val &lt;&lt;= 8;</span>
+<span class="lineNum">      51 </span><span class="lineCov">       8206 :         val |= p[2];</span>
+<span class="lineNum">      52 </span><span class="lineCov">       8206 :         val &lt;&lt;= 8;</span>
+<span class="lineNum">      53 </span><span class="lineCov">       8206 :         val |= p[3];</span>
+<span class="lineNum">      54 </span><span class="lineCov">       8206 :         return val;</span>
+<span class="lineNum">      55 </span>            : #endif
+<span class="lineNum">      56 </span>            : }
+<span class="lineNum">      57 </span>            : 
+<span class="lineNum">      58 </span>            : #define FDNULL 0
+<span class="lineNum">      59 </span>            : 
+<span class="lineNum">      60 </span>            : /*
+<span class="lineNum">      61 </span>            :  * structure for passing timestamps around
+<span class="lineNum">      62 </span>            :  */
+<span class="lineNum">      63 </span>            : typedef struct mpeg2ps_ts_t
+<span class="lineNum">      64 </span>            : {
+<span class="lineNum">      65 </span>            :         Bool have_pts;
+<span class="lineNum">      66 </span>            :         Bool have_dts;
+<span class="lineNum">      67 </span>            :         u64 pts;
+<span class="lineNum">      68 </span>            :         u64 dts;
+<span class="lineNum">      69 </span>            : } mpeg2ps_ts_t;
+<span class="lineNum">      70 </span>            : 
+<span class="lineNum">      71 </span>            : typedef struct mpeg2ps_record_pes_t
+<span class="lineNum">      72 </span>            : {
+<span class="lineNum">      73 </span>            :         struct mpeg2ps_record_pes_t *next_rec;
+<span class="lineNum">      74 </span>            :         u64 dts;
+<span class="lineNum">      75 </span>            :         u64 location;
+<span class="lineNum">      76 </span>            : } mpeg2ps_record_pes_t;
+<span class="lineNum">      77 </span>            : 
+<span class="lineNum">      78 </span>            : /*
+<span class="lineNum">      79 </span>            :  * information about reading a stream
+<span class="lineNum">      80 </span>            :  */
+<span class="lineNum">      81 </span>            : typedef struct mpeg2ps_stream_t
+<span class="lineNum">      82 </span>            : {
+<span class="lineNum">      83 </span>            :         mpeg2ps_record_pes_t *record_first, *record_last;
+<span class="lineNum">      84 </span>            :         FILE *m_fd;
+<span class="lineNum">      85 </span>            :         Bool is_video;
+<span class="lineNum">      86 </span>            :         u8 m_stream_id;    // program stream id
+<span class="lineNum">      87 </span>            :         u8 m_substream_id; // substream, for program stream id == 0xbd
+<span class="lineNum">      88 </span>            : 
+<span class="lineNum">      89 </span>            :         mpeg2ps_ts_t next_pes_ts, frame_ts;
+<span class="lineNum">      90 </span>            :         u32 frames_since_last_ts;
+<span class="lineNum">      91 </span>            :         u64 last_ts;
+<span class="lineNum">      92 </span>            : 
+<span class="lineNum">      93 </span>            :         Bool have_frame_loaded;
+<span class="lineNum">      94 </span>            :         /*
+<span class="lineNum">      95 </span>            :          * pes_buffer processing.  this contains the raw elementary stream data
+<span class="lineNum">      96 </span>            :          */
+<span class="lineNum">      97 </span>            :         u8 *pes_buffer;
+<span class="lineNum">      98 </span>            :         u32 pes_buffer_size;
+<span class="lineNum">      99 </span>            :         u32 pes_buffer_size_max;
+<span class="lineNum">     100 </span>            :         u32 pes_buffer_on;
+<span class="lineNum">     101 </span>            :         u32 frame_len;
+<span class="lineNum">     102 </span>            :         u32 pict_header_offset; // for mpeg video
+<span class="lineNum">     103 </span>            : 
+<span class="lineNum">     104 </span>            :         // timing information and locations.
+<span class="lineNum">     105 </span>            :         s64 first_pes_loc;
+<span class="lineNum">     106 </span>            :         u64 start_dts;
+<span class="lineNum">     107 </span>            :         Bool first_pes_has_dts;
+<span class="lineNum">     108 </span>            :         s64    end_dts_loc;
+<span class="lineNum">     109 </span>            :         u64 end_dts;
+<span class="lineNum">     110 </span>            :         // audio stuff
+<span class="lineNum">     111 </span>            :         u32 freq;
+<span class="lineNum">     112 </span>            :         u32 channels;
+<span class="lineNum">     113 </span>            :         u32 bitrate;
+<span class="lineNum">     114 </span>            :         u32 samples_per_frame;
+<span class="lineNum">     115 </span>            :         u32 layer;
+<span class="lineNum">     116 </span>            :         // video stuff
+<span class="lineNum">     117 </span>            :         u32 h, w, par;
+<span class="lineNum">     118 </span>            :         Double frame_rate;
+<span class="lineNum">     119 </span>            :         s32 have_mpeg2;
+<span class="lineNum">     120 </span>            :         Double bit_rate;
+<span class="lineNum">     121 </span>            :         u64 ticks_per_frame;
+<span class="lineNum">     122 </span>            : 
+<span class="lineNum">     123 </span>            : } mpeg2ps_stream_t;
+<span class="lineNum">     124 </span>            : 
+<span class="lineNum">     125 </span>            : /*
+<span class="lineNum">     126 </span>            :  * main interface structure - contains stream pointers and other
+<span class="lineNum">     127 </span>            :  * information
+<span class="lineNum">     128 </span>            :  */
+<span class="lineNum">     129 </span>            : struct mpeg2ps_ {
+<span class="lineNum">     130 </span>            :         mpeg2ps_stream_t *video_streams[16];
+<span class="lineNum">     131 </span>            :         mpeg2ps_stream_t *audio_streams[32];
+<span class="lineNum">     132 </span>            :         char *filename;
+<span class="lineNum">     133 </span>            :         FILE *fd;
+<span class="lineNum">     134 </span>            :         u64 first_dts;
+<span class="lineNum">     135 </span>            :         u32 audio_cnt, video_cnt;
+<span class="lineNum">     136 </span>            :         s64 end_loc;
+<span class="lineNum">     137 </span>            :         u64 max_dts;
+<span class="lineNum">     138 </span>            :         u64 max_time;  // time is in msec.
+<span class="lineNum">     139 </span>            : };
+<span class="lineNum">     140 </span>            : 
+<span class="lineNum">     141 </span>            : /*************************************************************************
+<a name="142"><span class="lineNum">     142 </span>            :  * File access routines.  Could all be inlined</a>
+<span class="lineNum">     143 </span>            :  *************************************************************************/
+<span class="lineNum">     144 </span>            : static FILE *file_open (const char *name)
+<span class="lineNum">     145 </span>            : {
+<span class="lineNum">     146 </span><span class="lineCov">         16 :         return gf_fopen(name, &quot;rb&quot;);</span>
+<a name="147"><span class="lineNum">     147 </span>            : }</a>
+<span class="lineNum">     148 </span>            : 
+<span class="lineNum">     149 </span>            : static Bool file_okay (FILE *fd)
+<span class="lineNum">     150 </span>            : {
+<span class="lineNum">     151 </span><span class="lineCov">         12 :         return (fd!=NULL) ? 1 : 0;</span>
+<a name="152"><span class="lineNum">     152 </span>            : }</a>
+<span class="lineNum">     153 </span>            : 
+<span class="lineNum">     154 </span>            : static void file_close (FILE *fd)
+<span class="lineNum">     155 </span>            : {
+<span class="lineNum">     156 </span><span class="lineCov">         16 :         gf_fclose(fd);</span>
+<a name="157"><span class="lineNum">     157 </span><span class="lineCov">          8 : }</span></a>
+<span class="lineNum">     158 </span>            : 
+<span class="lineNum">     159 </span>            : static Bool file_read_bytes(FILE *fd,
+<span class="lineNum">     160 </span>            :                             u8 *buffer,
+<span class="lineNum">     161 </span>            :                             u32 len)
+<span class="lineNum">     162 </span>            : {
+<span class="lineNum">     163 </span><span class="lineCov">      55556 :         u32 readval = (u32) fread(buffer, 1, len, fd);</span>
+<span class="lineNum">     164 </span><span class="lineCov">      27778 :         return readval == len;</span>
+<span class="lineNum">     165 </span>            : }
+<a name="166"><span class="lineNum">     166 </span>            : </a>
+<span class="lineNum">     167 </span>            : // note: len could be negative.
+<span class="lineNum">     168 </span>            : static void file_skip_bytes (FILE *fd, s32 len)
+<span class="lineNum">     169 </span>            : {
+<span class="lineNum">     170 </span><span class="lineCov">      17396 :         gf_fseek(fd, len, SEEK_CUR);</span>
+<span class="lineNum">     171 </span><span class="lineCov">       8698 : }</span>
+<span class="lineNum">     172 </span>            : 
+<span class="lineNum">     173 </span>            : #define file_location(__f) gf_ftell(__f)
+<a name="174"><span class="lineNum">     174 </span>            : #define file_seek_to(__f, __off) gf_fseek(__f, __off, SEEK_SET)</a>
+<span class="lineNum">     175 </span>            : 
+<span class="lineNum">     176 </span>            : static u64 file_size(FILE *fd)
+<span class="lineNum">     177 </span>            : {
+<span class="lineNum">     178 </span>            :         u64 ret;
+<span class="lineNum">     179 </span><span class="lineCov">         16 :         gf_fseek(fd, 0, SEEK_END);</span>
+<span class="lineNum">     180 </span><span class="lineCov">          8 :         ret = gf_ftell(fd);</span>
+<span class="lineNum">     181 </span><span class="lineCov">          8 :         gf_fseek(fd, 0, SEEK_SET);</span>
+<span class="lineNum">     182 </span><span class="lineCov">          8 :         return ret;</span>
+<a name="183"><span class="lineNum">     183 </span>            : }</a>
+<span class="lineNum">     184 </span>            : 
+<span class="lineNum">     185 </span>            : static mpeg2ps_record_pes_t *create_record (s64 loc, u64 ts)
+<span class="lineNum">     186 </span>            : {
+<span class="lineNum">     187 </span>            :         mpeg2ps_record_pes_t *ret;
+<span class="lineNum">     188 </span><span class="lineCov">         96 :         GF_SAFEALLOC(ret, mpeg2ps_record_pes_t);</span>
+<span class="lineNum">     189 </span><span class="lineCov">         32 :         if (!ret) return NULL;</span>
+<span class="lineNum">     190 </span><span class="lineCov">         32 :         ret-&gt;next_rec = NULL;</span>
+<span class="lineNum">     191 </span><span class="lineCov">         32 :         ret-&gt;dts = ts;</span>
+<span class="lineNum">     192 </span><span class="lineCov">         32 :         ret-&gt;location = loc;</span>
+<span class="lineNum">     193 </span><span class="lineCov">         32 :         return ret;</span>
+<span class="lineNum">     194 </span><span class="lineCov">         32 : }</span>
+<a name="195"><span class="lineNum">     195 </span>            : </a>
+<span class="lineNum">     196 </span>            : #define MPEG2PS_RECORD_TIME ((u64) (5 * 90000))
+<span class="lineNum">     197 </span>            : void mpeg2ps_record_pts (mpeg2ps_stream_t *sptr, s64 location, mpeg2ps_ts_t *pTs)
+<span class="lineNum">     198 </span>            : {
+<span class="lineNum">     199 </span>            :         u64 ts;
+<span class="lineNum">     200 </span>            :         mpeg2ps_record_pes_t *p, *q;
+<span class="lineNum">     201 </span><span class="lineCov">       3342 :         if (sptr-&gt;is_video) {</span>
+<span class="lineNum">     202 </span><span class="lineCov">       2625 :                 if (pTs-&gt;have_dts == 0) return;</span>
+<span class="lineNum">     203 </span><span class="lineCov">        209 :                 ts = pTs-&gt;dts;</span>
+<span class="lineNum">     204 </span><span class="lineCov">        209 :         } else {</span>
+<span class="lineNum">     205 </span><span class="lineCov">        254 :                 if (pTs-&gt;have_pts == 0) return;</span>
+<span class="lineNum">     206 </span><span class="lineCov">        254 :                 ts = pTs-&gt;pts;</span>
+<span class="lineNum">     207 </span>            :         }
+<span class="lineNum">     208 </span>            : 
+<span class="lineNum">     209 </span><span class="lineCov">        463 :         if (sptr-&gt;record_first == NULL) {</span>
+<span class="lineNum">     210 </span><span class="lineCov">         12 :                 sptr-&gt;record_first = sptr-&gt;record_last = create_record(location, ts);</span>
+<span class="lineNum">     211 </span><span class="lineCov">         12 :                 return;</span>
+<span class="lineNum">     212 </span>            :         }
+<span class="lineNum">     213 </span><span class="lineCov">        451 :         if (ts &gt; sptr-&gt;record_last-&gt;dts) {</span>
+<span class="lineNum">     214 </span><span class="lineCov">        403 :                 if (ts &lt; MPEG2PS_RECORD_TIME + sptr-&gt;record_last-&gt;dts) return;</span>
+<span class="lineNum">     215 </span><span class="lineCov">         13 :                 sptr-&gt;record_last-&gt;next_rec = create_record(location, ts);</span>
+<span class="lineNum">     216 </span><span class="lineCov">         13 :                 sptr-&gt;record_last = sptr-&gt;record_last-&gt;next_rec;</span>
+<span class="lineNum">     217 </span><span class="lineCov">         13 :                 return;</span>
+<span class="lineNum">     218 </span>            :         }
+<span class="lineNum">     219 </span><span class="lineCov">        243 :         if (ts &lt; sptr-&gt;record_first-&gt;dts) {</span>
+<span class="lineNum">     220 </span><span class="lineCov">          2 :                 if (ts &lt; MPEG2PS_RECORD_TIME + sptr-&gt;record_first-&gt;dts) return;</span>
+<span class="lineNum">     221 </span><span class="lineNoCov">          0 :                 p = create_record(location, ts);</span>
+<span class="lineNum">     222 </span><span class="lineNoCov">          0 :                 p-&gt;next_rec = sptr-&gt;record_first;</span>
+<span class="lineNum">     223 </span><span class="lineNoCov">          0 :                 sptr-&gt;record_first = p;</span>
+<span class="lineNum">     224 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     225 </span>            :         }
+<span class="lineNum">     226 </span>            :         p = sptr-&gt;record_first;
+<span class="lineNum">     227 </span><span class="lineCov">        242 :         q = p-&gt;next_rec;</span>
+<span class="lineNum">     228 </span>            : 
+<span class="lineNum">     229 </span><span class="lineCov">       4327 :         while (q != NULL &amp;&amp; q-&gt;dts &lt; ts) {</span>
+<span class="lineNum">     230 </span>            :                 p = q;
+<span class="lineNum">     231 </span><span class="lineCov">        840 :                 q = q-&gt;next_rec;</span>
+<span class="lineNum">     232 </span>            :         }
+<span class="lineNum">     233 </span><span class="lineCov">        242 :         if (q) {</span>
+<span class="lineNum">     234 </span><span class="lineCov">        249 :                 if (p-&gt;dts + MPEG2PS_RECORD_TIME &lt;= ts &amp;&amp;</span>
+<span class="lineNum">     235 </span><span class="lineCov">          8 :                                 ts + MPEG2PS_RECORD_TIME &lt;= q-&gt;dts) {</span>
+<span class="lineNum">     236 </span><span class="lineCov">          7 :                         p-&gt;next_rec = create_record(location, ts);</span>
+<span class="lineNum">     237 </span><span class="lineCov">          7 :                         p-&gt;next_rec-&gt;next_rec = q;</span>
+<span class="lineNum">     238 </span><span class="lineCov">          7 :                 }</span>
+<span class="lineNum">     239 </span>            :         }
+<span class="lineNum">     240 </span><span class="lineCov">       1913 : }</span>
+<span class="lineNum">     241 </span>            : static Double mpeg12_frame_rate_table[16] =
+<span class="lineNum">     242 </span>            : {
+<span class="lineNum">     243 </span>            :         0.0,   /* Pad */
+<span class="lineNum">     244 </span>            :         24000.0/1001.0,       /* Official frame rates */
+<span class="lineNum">     245 </span>            :         24.0,
+<span class="lineNum">     246 </span>            :         25.0,
+<span class="lineNum">     247 </span>            :         30000.0/1001.0,
+<span class="lineNum">     248 </span>            :         30.0,
+<span class="lineNum">     249 </span>            :         50.0,
+<span class="lineNum">     250 </span>            :         ((60.0*1000.0)/1001.0),
+<span class="lineNum">     251 </span>            :         60.0,
+<span class="lineNum">     252 </span>            : 
+<span class="lineNum">     253 </span>            :         1,                    /* Unofficial economy rates */
+<span class="lineNum">     254 </span>            :         5,
+<span class="lineNum">     255 </span>            :         10,
+<span class="lineNum">     256 </span>            :         12,
+<span class="lineNum">     257 </span>            :         15,
+<span class="lineNum">     258 </span>            :         0,
+<span class="lineNum">     259 </span>            :         0,
+<span class="lineNum">     260 </span>            : };
+<a name="261"><span class="lineNum">     261 </span>            : </a>
+<span class="lineNum">     262 </span>            : #define SEQ_ID 1
+<span class="lineNum">     263 </span>            : int MPEG12_ParseSeqHdr(unsigned char *pbuffer, u32 buflen, s32 *have_mpeg2, u32 *height, u32 *width,
+<span class="lineNum">     264 </span>            :                        Double *frame_rate, Double *bitrate, u32 *aspect_ratio)
+<span class="lineNum">     265 </span>            : {
+<span class="lineNum">     266 </span>            :         u32 aspect_code;
+<span class="lineNum">     267 </span>            :         u32 framerate_code;
+<span class="lineNum">     268 </span>            :         u32 bitrate_int;
+<span class="lineNum">     269 </span>            :         u32 bitrate_ext;
+<span class="lineNum">     270 </span>            :         u32 scode, ix;
+<span class="lineNum">     271 </span>            :         s32 found = -1;
+<span class="lineNum">     272 </span><span class="lineCov">         12 :         *have_mpeg2 = 0;</span>
+<span class="lineNum">     273 </span><span class="lineCov">          6 :         buflen -= 6;</span>
+<span class="lineNum">     274 </span>            :         bitrate_int = 0;
+<span class="lineNum">     275 </span><span class="lineCov">       1932 :         for (ix = 0; ix &lt; buflen; ix++, pbuffer++) {</span>
+<span class="lineNum">     276 </span><span class="lineCov">       1932 :                 scode = (pbuffer[0] &lt;&lt; 24) | (pbuffer[1] &lt;&lt; 16) | (pbuffer[2] &lt;&lt; 8) |</span>
+<span class="lineNum">     277 </span><span class="lineCov">        966 :                         pbuffer[3];</span>
+<span class="lineNum">     278 </span>            : 
+<span class="lineNum">     279 </span><span class="lineCov">        966 :                 if (scode == MPEG12_SEQUENCE_START_CODE) {</span>
+<span class="lineNum">     280 </span><span class="lineCov">          6 :                         pbuffer += sizeof(u32);</span>
+<span class="lineNum">     281 </span><span class="lineCov">          6 :                         *width = (pbuffer[0]);</span>
+<span class="lineNum">     282 </span><span class="lineCov">          6 :                         *width &lt;&lt;= 4;</span>
+<span class="lineNum">     283 </span><span class="lineCov">          6 :                         *width |= ((pbuffer[1] &gt;&gt; 4) &amp;0xf);</span>
+<span class="lineNum">     284 </span><span class="lineCov">          6 :                         *height = (pbuffer[1] &amp; 0xf);</span>
+<span class="lineNum">     285 </span><span class="lineCov">          6 :                         *height &lt;&lt;= 8;</span>
+<span class="lineNum">     286 </span><span class="lineCov">          6 :                         *height |= pbuffer[2];</span>
+<span class="lineNum">     287 </span><span class="lineCov">          6 :                         aspect_code = (pbuffer[3] &gt;&gt; 4) &amp; 0xf;</span>
+<span class="lineNum">     288 </span><span class="lineCov">          6 :                         if (aspect_ratio != NULL) {</span>
+<span class="lineNum">     289 </span>            :                                 u32 par = 0;
+<span class="lineNum">     290 </span><span class="lineCov">          6 :                                 switch (aspect_code) {</span>
+<span class="lineNum">     291 </span>            :                                 default:
+<span class="lineNum">     292 </span><span class="lineCov">          6 :                                         *aspect_ratio = 0;</span>
+<span class="lineNum">     293 </span><span class="lineCov">          6 :                                         break;</span>
+<span class="lineNum">     294 </span>            :                                 case 2:
+<span class="lineNum">     295 </span>            :                                         par = 4;
+<span class="lineNum">     296 </span>            :                                         par&lt;&lt;=16;
+<span class="lineNum">     297 </span>            :                                         par |= 3;
+<span class="lineNum">     298 </span><span class="lineNoCov">          0 :                                         break;</span>
+<span class="lineNum">     299 </span>            :                                 case 3:
+<span class="lineNum">     300 </span>            :                                         par = 16;
+<span class="lineNum">     301 </span>            :                                         par&lt;&lt;=16;
+<span class="lineNum">     302 </span>            :                                         par |= 9;
+<span class="lineNum">     303 </span><span class="lineNoCov">          0 :                                         break;</span>
+<span class="lineNum">     304 </span>            :                                 case 4:
+<span class="lineNum">     305 </span>            :                                         par = 2;
+<span class="lineNum">     306 </span>            :                                         par&lt;&lt;=16;
+<span class="lineNum">     307 </span>            :                                         par |= 21;
+<span class="lineNum">     308 </span><span class="lineNoCov">          0 :                                         break;</span>
+<span class="lineNum">     309 </span>            :                                 }
+<span class="lineNum">     310 </span><span class="lineCov">          6 :                                 *aspect_ratio = par;</span>
+<span class="lineNum">     311 </span><span class="lineCov">          6 :                         }</span>
+<span class="lineNum">     312 </span>            : 
+<span class="lineNum">     313 </span>            : 
+<span class="lineNum">     314 </span><span class="lineCov">          6 :                         framerate_code = pbuffer[3] &amp; 0xf;</span>
+<span class="lineNum">     315 </span><span class="lineCov">          6 :                         *frame_rate = mpeg12_frame_rate_table[framerate_code];</span>
+<span class="lineNum">     316 </span>            :                         // 18 bits
+<span class="lineNum">     317 </span><span class="lineCov">         12 :                         bitrate_int = (pbuffer[4] &lt;&lt; 10) |</span>
+<span class="lineNum">     318 </span><span class="lineCov">         12 :                                       (pbuffer[5] &lt;&lt; 2) |</span>
+<span class="lineNum">     319 </span><span class="lineCov">          6 :                                       ((pbuffer[6] &gt;&gt; 6) &amp; 0x3);</span>
+<span class="lineNum">     320 </span><span class="lineCov">          6 :                         *bitrate = bitrate_int;</span>
+<span class="lineNum">     321 </span><span class="lineCov">          6 :                         *bitrate *= 400.0;</span>
+<span class="lineNum">     322 </span><span class="lineCov">          6 :                         ix += sizeof(u32) + 7;</span>
+<span class="lineNum">     323 </span><span class="lineCov">          6 :                         pbuffer += 7;</span>
+<span class="lineNum">     324 </span>            :                         found = 0;
+<span class="lineNum">     325 </span><span class="lineCov">        966 :                 } else if (found == 0) {</span>
+<span class="lineNum">     326 </span><span class="lineCov">        960 :                         if (scode == MPEG12_EXT_START_CODE) {</span>
+<span class="lineNum">     327 </span><span class="lineNoCov">          0 :                                 pbuffer += sizeof(u32);</span>
+<span class="lineNum">     328 </span><span class="lineNoCov">          0 :                                 ix += sizeof(u32);</span>
+<span class="lineNum">     329 </span><span class="lineNoCov">          0 :                                 switch ((pbuffer[0] &gt;&gt; 4) &amp; 0xf) {</span>
+<span class="lineNum">     330 </span>            :                                 case SEQ_ID:
+<span class="lineNum">     331 </span><span class="lineNoCov">          0 :                                         *have_mpeg2 = 1;</span>
+<span class="lineNum">     332 </span><span class="lineNoCov">          0 :                                         *height = ((pbuffer[1] &amp; 0x1) &lt;&lt; 13) |</span>
+<span class="lineNum">     333 </span><span class="lineNoCov">          0 :                                                   ((pbuffer[2] &amp; 0x80) &lt;&lt; 5) |</span>
+<span class="lineNum">     334 </span><span class="lineNoCov">          0 :                                                   (*height &amp; 0x0fff);</span>
+<span class="lineNum">     335 </span><span class="lineNoCov">          0 :                                         *width = (((pbuffer[2] &gt;&gt; 5) &amp; 0x3) &lt;&lt; 12) | (*width &amp; 0x0fff);</span>
+<span class="lineNum">     336 </span><span class="lineNoCov">          0 :                                         bitrate_ext = (pbuffer[2] &amp; 0x1f) &lt;&lt; 7;</span>
+<span class="lineNum">     337 </span><span class="lineNoCov">          0 :                                         bitrate_ext |= (pbuffer[3] &gt;&gt; 1) &amp; 0x7f;</span>
+<span class="lineNum">     338 </span><span class="lineNoCov">          0 :                                         bitrate_int |= (bitrate_ext &lt;&lt; 18);</span>
+<span class="lineNum">     339 </span><span class="lineNoCov">          0 :                                         *bitrate = bitrate_int;</span>
+<span class="lineNum">     340 </span><span class="lineNoCov">          0 :                                         *bitrate *= 400.0;</span>
+<span class="lineNum">     341 </span><span class="lineNoCov">          0 :                                         break;</span>
+<span class="lineNum">     342 </span>            :                                 default:
+<span class="lineNum">     343 </span>            :                                         break;
+<span class="lineNum">     344 </span>            :                                 }
+<span class="lineNum">     345 </span><span class="lineNoCov">          0 :                                 pbuffer++;</span>
+<span class="lineNum">     346 </span><span class="lineNoCov">          0 :                                 ix++;</span>
+<span class="lineNum">     347 </span><span class="lineCov">        960 :                         } else if (scode == MPEG12_PICTURE_START_CODE) {</span>
+<span class="lineNum">     348 </span><span class="lineCov">          6 :                                 return found;</span>
+<span class="lineNum">     349 </span>            :                         }
+<span class="lineNum">     350 </span>            :                 }
+<span class="lineNum">     351 </span>            :         }
+<span class="lineNum">     352 </span><span class="lineNoCov">          0 :         return found;</span>
+<span class="lineNum">     353 </span><span class="lineCov">          6 : }</span>
+<a name="354"><span class="lineNum">     354 </span>            : </a>
+<span class="lineNum">     355 </span>            : 
+<span class="lineNum">     356 </span>            : s32 MPEG12_PictHdrType (unsigned char *pbuffer)
+<span class="lineNum">     357 </span>            : {
+<span class="lineNum">     358 </span><span class="lineCov">       2034 :         pbuffer += sizeof(u32);</span>
+<span class="lineNum">     359 </span><span class="lineCov">       1017 :         return ((pbuffer[1] &gt;&gt; 3) &amp; 0x7);</span>
+<a name="360"><span class="lineNum">     360 </span>            : }</a>
+<span class="lineNum">     361 </span>            : 
+<span class="lineNum">     362 </span>            : u16 MPEG12_PictHdrTempRef(unsigned char *pbuffer)
+<span class="lineNum">     363 </span>            : {
+<span class="lineNum">     364 </span><span class="lineNoCov">          0 :         pbuffer += sizeof(u32);</span>
+<span class="lineNum">     365 </span><span class="lineNoCov">          0 :         return ((pbuffer[0] &lt;&lt; 2) | ((pbuffer[1] &gt;&gt; 6) &amp; 0x3));</span>
+<span class="lineNum">     366 </span>            : }
+<a name="367"><span class="lineNum">     367 </span>            : </a>
+<span class="lineNum">     368 </span>            : 
+<span class="lineNum">     369 </span>            : static u64 read_pts (u8 *pak)
+<span class="lineNum">     370 </span>            : {
+<span class="lineNum">     371 </span>            :         u64 pts;
+<span class="lineNum">     372 </span>            :         u16 temp;
+<span class="lineNum">     373 </span>            : 
+<span class="lineNum">     374 </span><span class="lineCov">       3108 :         pts = ((pak[0] &gt;&gt; 1) &amp; 0x7);</span>
+<span class="lineNum">     375 </span><span class="lineCov">       1554 :         pts &lt;&lt;= 15;</span>
+<span class="lineNum">     376 </span><span class="lineCov">       1554 :         temp = convert16(&amp;pak[1]) &gt;&gt; 1;</span>
+<span class="lineNum">     377 </span><span class="lineCov">       1554 :         pts |= temp;</span>
+<span class="lineNum">     378 </span><span class="lineCov">       1554 :         pts &lt;&lt;= 15;</span>
+<span class="lineNum">     379 </span><span class="lineCov">       1554 :         temp = convert16(&amp;pak[3]) &gt;&gt; 1;</span>
+<span class="lineNum">     380 </span><span class="lineCov">       1554 :         pts |= temp;</span>
+<span class="lineNum">     381 </span><span class="lineCov">       1554 :         return pts;</span>
+<span class="lineNum">     382 </span>            : }
+<a name="383"><span class="lineNum">     383 </span>            : </a>
+<span class="lineNum">     384 </span>            : 
+<span class="lineNum">     385 </span>            : static mpeg2ps_stream_t *mpeg2ps_stream_create (u8 stream_id,
+<span class="lineNum">     386 </span>            :         u8 substream)
+<span class="lineNum">     387 </span>            : {
+<span class="lineNum">     388 </span>            :         mpeg2ps_stream_t *ptr;
+<span class="lineNum">     389 </span><span class="lineCov">         36 :         GF_SAFEALLOC(ptr, mpeg2ps_stream_t);</span>
+<span class="lineNum">     390 </span><span class="lineCov">         12 :         if (!ptr) return NULL;</span>
+<span class="lineNum">     391 </span><span class="lineCov">         12 :         ptr-&gt;m_stream_id = stream_id;</span>
+<span class="lineNum">     392 </span><span class="lineCov">         12 :         ptr-&gt;m_substream_id = substream;</span>
+<span class="lineNum">     393 </span><span class="lineCov">         12 :         ptr-&gt;is_video = stream_id &gt;= 0xe0;</span>
+<span class="lineNum">     394 </span><span class="lineCov">         12 :         ptr-&gt;pes_buffer = (u8 *)gf_malloc(4*4096);</span>
+<span class="lineNum">     395 </span><span class="lineCov">         12 :         ptr-&gt;pes_buffer_size_max = 4 * 4096;</span>
+<span class="lineNum">     396 </span><span class="lineCov">         12 :         return ptr;</span>
+<a name="397"><span class="lineNum">     397 </span><span class="lineCov">         12 : }</span></a>
+<span class="lineNum">     398 </span>            : 
+<span class="lineNum">     399 </span>            : static void mpeg2ps_stream_destroy (mpeg2ps_stream_t *sptr)
+<span class="lineNum">     400 </span>            : {
+<span class="lineNum">     401 </span>            :         mpeg2ps_record_pes_t *p;
+<span class="lineNum">     402 </span><span class="lineCov">        100 :         while (sptr-&gt;record_first != NULL) {</span>
+<span class="lineNum">     403 </span>            :                 p = sptr-&gt;record_first;
+<span class="lineNum">     404 </span><span class="lineCov">         32 :                 sptr-&gt;record_first = p-&gt;next_rec;</span>
+<span class="lineNum">     405 </span><span class="lineCov">         32 :                 gf_free(p);</span>
+<span class="lineNum">     406 </span>            :         }
+<span class="lineNum">     407 </span><span class="lineCov">         12 :         if (sptr-&gt;m_fd != FDNULL) {</span>
+<span class="lineNum">     408 </span><span class="lineCov">          2 :                 file_close(sptr-&gt;m_fd);</span>
+<span class="lineNum">     409 </span><span class="lineCov">          2 :                 sptr-&gt;m_fd = FDNULL;</span>
+<span class="lineNum">     410 </span><span class="lineCov">          2 :         }</span>
+<span class="lineNum">     411 </span><span class="lineCov">         24 :         if (sptr-&gt;pes_buffer) gf_free(sptr-&gt;pes_buffer);</span>
+<span class="lineNum">     412 </span><span class="lineCov">         12 :         gf_free(sptr);</span>
+<span class="lineNum">     413 </span><span class="lineCov">         12 : }</span>
+<span class="lineNum">     414 </span>            : 
+<span class="lineNum">     415 </span>            : 
+<span class="lineNum">     416 </span>            : /*
+<span class="lineNum">     417 </span>            :  * adv_past_pack_hdr - read the pack header, advance past it
+<a name="418"><span class="lineNum">     418 </span>            :  * we don't do anything with the data</a>
+<span class="lineNum">     419 </span>            :  */
+<span class="lineNum">     420 </span>            : static void adv_past_pack_hdr (FILE *fd,
+<span class="lineNum">     421 </span>            :                                u8 *pak,
+<span class="lineNum">     422 </span>            :                                u32 read_from_start)
+<span class="lineNum">     423 </span>            : {
+<span class="lineNum">     424 </span>            :         u8 stuffed;
+<span class="lineNum">     425 </span><span class="lineCov">       8080 :         u8 readbyte;</span>
+<span class="lineNum">     426 </span>            :         u8 val;
+<span class="lineNum">     427 </span><span class="lineCov">       4040 :         if (read_from_start &lt; 5) {</span>
+<span class="lineNum">     428 </span><span class="lineNoCov">          0 :                 file_skip_bytes(fd, 5 - read_from_start);</span>
+<span class="lineNum">     429 </span><span class="lineNoCov">          0 :                 file_read_bytes(fd, &amp;readbyte, 1);</span>
+<span class="lineNum">     430 </span><span class="lineNoCov">          0 :                 val = readbyte;</span>
+<span class="lineNum">     431 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     432 </span><span class="lineCov">       4040 :                 val = pak[4];</span>
+<span class="lineNum">     433 </span>            :         }
+<span class="lineNum">     434 </span>            : 
+<span class="lineNum">     435 </span>            :         // we've read 6 bytes
+<span class="lineNum">     436 </span><span class="lineCov">       4040 :         if ((val &amp; 0xc0) != 0x40) {</span>
+<span class="lineNum">     437 </span>            :                 // mpeg1
+<span class="lineNum">     438 </span><span class="lineCov">       4040 :                 file_skip_bytes(fd, 12 - read_from_start); // skip 6 more bytes</span>
+<span class="lineNum">     439 </span><span class="lineCov">       4040 :                 return;</span>
+<span class="lineNum">     440 </span>            :         }
+<span class="lineNum">     441 </span><span class="lineNoCov">          0 :         file_skip_bytes(fd, 13 - read_from_start);</span>
+<span class="lineNum">     442 </span><span class="lineNoCov">          0 :         file_read_bytes(fd, &amp;readbyte, 1);</span>
+<span class="lineNum">     443 </span><span class="lineNoCov">          0 :         stuffed = readbyte &amp; 0x7;</span>
+<span class="lineNum">     444 </span><span class="lineNoCov">          0 :         file_skip_bytes(fd, stuffed);</span>
+<span class="lineNum">     445 </span><span class="lineCov">       4040 : }</span>
+<span class="lineNum">     446 </span>            : 
+<span class="lineNum">     447 </span>            : /*
+<span class="lineNum">     448 </span>            :  * find_pack_start
+<span class="lineNum">     449 </span>            :  * look for the pack start code in the file - read 512 bytes at a time,
+<span class="lineNum">     450 </span>            :  * searching for that code.
+<a name="451"><span class="lineNum">     451 </span>            :  * Note: we may also be okay looking for &gt;= 00 00 01 bb</a>
+<span class="lineNum">     452 </span>            :  */
+<span class="lineNum">     453 </span>            : static Bool find_pack_start (FILE *fd,
+<span class="lineNum">     454 </span>            :                              u8 *saved,
+<span class="lineNum">     455 </span>            :                              u32 len)
+<span class="lineNum">     456 </span>            : {
+<span class="lineNum">     457 </span><span class="lineCov">        132 :         u8 buffer[512];</span>
+<span class="lineNum">     458 </span><span class="lineCov">         66 :         u32 buffer_on = 0, new_offset, scode;</span>
+<span class="lineNum">     459 </span><span class="lineCov">         66 :         memcpy(buffer, saved, len);</span>
+<span class="lineNum">     460 </span><span class="lineCov">         66 :         if (file_read_bytes(fd, buffer + len, sizeof(buffer) - len) == 0) {</span>
+<span class="lineNum">     461 </span><span class="lineNoCov">          0 :                 return 0;</span>
+<span class="lineNum">     462 </span>            :         }
+<span class="lineNum">     463 </span>            :         while (1) {
+<span class="lineNum">     464 </span><span class="lineCov">        846 :                 if (gf_mv12_next_start_code(buffer + buffer_on,</span>
+<span class="lineNum">     465 </span><span class="lineCov">        282 :                                             sizeof(buffer) - buffer_on,</span>
+<span class="lineNum">     466 </span>            :                                             &amp;new_offset,
+<span class="lineNum">     467 </span><span class="lineCov">        282 :                                             &amp;scode) &gt;= 0) {</span>
+<span class="lineNum">     468 </span><span class="lineCov">         90 :                         buffer_on += new_offset;</span>
+<span class="lineNum">     469 </span><span class="lineCov">         90 :                         if (scode == MPEG2_PS_PACKSTART) {</span>
+<span class="lineNum">     470 </span><span class="lineCov">         60 :                                 file_skip_bytes(fd, buffer_on - 512); // go back to header</span>
+<span class="lineNum">     471 </span><span class="lineCov">         60 :                                 return 1;</span>
+<span class="lineNum">     472 </span>            :                         }
+<span class="lineNum">     473 </span><span class="lineCov">         30 :                         buffer_on += 1;</span>
+<span class="lineNum">     474 </span><span class="lineCov">         30 :                 } else {</span>
+<span class="lineNum">     475 </span>            :                         len = 0;
+<span class="lineNum">     476 </span><span class="lineCov">        192 :                         if (buffer[sizeof(buffer) - 3] == 0 &amp;&amp;</span>
+<span class="lineNum">     477 </span><span class="lineNoCov">          0 :                                 buffer[sizeof(buffer) - 2] == 0 &amp;&amp;</span>
+<span class="lineNum">     478 </span><span class="lineNoCov">          0 :                                 buffer[sizeof(buffer) - 1] == 1) {</span>
+<span class="lineNum">     479 </span><span class="lineNoCov">          0 :                                 buffer[0] = 0;</span>
+<span class="lineNum">     480 </span><span class="lineNoCov">          0 :                                 buffer[1] = 0;</span>
+<span class="lineNum">     481 </span><span class="lineNoCov">          0 :                                 buffer[2] = 1;</span>
+<span class="lineNum">     482 </span>            :                                 len = 3;
+<span class="lineNum">     483 </span><span class="lineCov">        192 :                         } else if (*(u16 *)(buffer + sizeof(buffer) - 2) == 0) {</span>
+<span class="lineNum">     484 </span><span class="lineNoCov">          0 :                                 buffer[0] = 0;</span>
+<span class="lineNum">     485 </span><span class="lineNoCov">          0 :                                 buffer[1] = 0;</span>
+<span class="lineNum">     486 </span>            :                                 len = 2;
+<span class="lineNum">     487 </span><span class="lineCov">        192 :                         } else if (buffer[sizeof(buffer) - 1] == 0) {</span>
+<span class="lineNum">     488 </span><span class="lineNoCov">          0 :                                 buffer[0] = 0;</span>
+<span class="lineNum">     489 </span>            :                                 len = 1;
+<span class="lineNum">     490 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     491 </span><span class="lineCov">        192 :                         if (file_read_bytes(fd, buffer + len, sizeof(buffer) - len) == 0) {</span>
+<span class="lineNum">     492 </span><span class="lineCov">          6 :                                 return 0;</span>
+<span class="lineNum">     493 </span>            :                         }
+<span class="lineNum">     494 </span>            :                         buffer_on = 0;
+<span class="lineNum">     495 </span>            :                 }
+<span class="lineNum">     496 </span>            :         }
+<span class="lineNum">     497 </span>            :         return 0;
+<span class="lineNum">     498 </span><span class="lineCov">         66 : }</span>
+<span class="lineNum">     499 </span>            : 
+<span class="lineNum">     500 </span>            : /*
+<span class="lineNum">     501 </span>            :  * copy_bytes_to_pes_buffer - read pes_len bytes into the buffer,
+<a name="502"><span class="lineNum">     502 </span>            :  * adjusting it if we need it</a>
+<span class="lineNum">     503 </span>            :  */
+<span class="lineNum">     504 </span>            : static void copy_bytes_to_pes_buffer (mpeg2ps_stream_t *sptr,
+<span class="lineNum">     505 </span>            :                                       u16 pes_len)
+<span class="lineNum">     506 </span>            : {
+<span class="lineNum">     507 </span>            :         u32 to_move;
+<span class="lineNum">     508 </span>            : 
+<span class="lineNum">     509 </span><span class="lineCov">       3342 :         if (sptr-&gt;pes_buffer_size + pes_len &gt; sptr-&gt;pes_buffer_size_max) {</span>
+<span class="lineNum">     510 </span>            :                 // if no room in the buffer, we'll move it - otherwise, just fill
+<span class="lineNum">     511 </span>            :                 // note - we might want a better strategy about moving the buffer -
+<span class="lineNum">     512 </span>            :                 // right now, we might be moving a number of bytes if we have a large
+<span class="lineNum">     513 </span>            :                 // followed by large frame.
+<span class="lineNum">     514 </span><span class="lineCov">        185 :                 to_move = sptr-&gt;pes_buffer_size - sptr-&gt;pes_buffer_on;</span>
+<span class="lineNum">     515 </span><span class="lineCov">        185 :                 memmove(sptr-&gt;pes_buffer,</span>
+<span class="lineNum">     516 </span>            :                         sptr-&gt;pes_buffer + sptr-&gt;pes_buffer_on,
+<span class="lineNum">     517 </span>            :                         to_move);
+<span class="lineNum">     518 </span><span class="lineCov">        185 :                 sptr-&gt;pes_buffer_size = to_move;</span>
+<span class="lineNum">     519 </span><span class="lineCov">        185 :                 sptr-&gt;pes_buffer_on = 0;</span>
+<span class="lineNum">     520 </span>            :                 //fprintf(stderr, &quot;moving %d bytes\n&quot;, to_move);
+<span class="lineNum">     521 </span><span class="lineCov">        185 :                 if (to_move + pes_len &gt; sptr-&gt;pes_buffer_size_max) {</span>
+<span class="lineNum">     522 </span><span class="lineCov">          2 :                         sptr-&gt;pes_buffer = (u8 *)gf_realloc(sptr-&gt;pes_buffer,</span>
+<span class="lineNum">     523 </span>            :                                                             to_move + pes_len + 2048);
+<span class="lineNum">     524 </span><span class="lineCov">          2 :                         sptr-&gt;pes_buffer_size_max = to_move + pes_len + 2048;</span>
+<span class="lineNum">     525 </span><span class="lineCov">          2 :                 }</span>
+<span class="lineNum">     526 </span>            :         }
+<span class="lineNum">     527 </span><span class="lineCov">       1671 :         file_read_bytes(sptr-&gt;m_fd, sptr-&gt;pes_buffer + sptr-&gt;pes_buffer_size, pes_len);</span>
+<span class="lineNum">     528 </span><span class="lineCov">       1671 :         sptr-&gt;pes_buffer_size += pes_len;</span>
+<span class="lineNum">     529 </span>            : #if 0
+<span class="lineNum">     530 </span>            :         fprintf(stderr, &quot;copying %u bytes - on %u size %u\n&quot;,
+<span class="lineNum">     531 </span>            :                 pes_len, sptr-&gt;pes_buffer_on, sptr-&gt;pes_buffer_size);
+<span class="lineNum">     532 </span>            : #endif
+<span class="lineNum">     533 </span><span class="lineCov">       1671 : }</span>
+<span class="lineNum">     534 </span>            : 
+<span class="lineNum">     535 </span>            : /*
+<span class="lineNum">     536 </span>            :  * read_to_next_pes_header - read the file, look for the next valid
+<span class="lineNum">     537 </span>            :  * pes header.  We will skip over PACK headers, but not over any of the
+<span class="lineNum">     538 </span>            :  * headers listed in 13818-1, table 2-18 - basically, anything with the
+<span class="lineNum">     539 </span>            :  * 00 00 01 and the next byte &gt; 0xbb.
+<a name="540"><span class="lineNum">     540 </span>            :  * We return the pes len to read, and the &quot;next byte&quot;</a>
+<span class="lineNum">     541 </span>            :  */
+<span class="lineNum">     542 </span>            : static Bool read_to_next_pes_header (FILE *fd,
+<span class="lineNum">     543 </span>            :                                      u8 *stream_id,
+<span class="lineNum">     544 </span>            :                                      u16 *pes_len)
+<span class="lineNum">     545 </span>            : {
+<span class="lineNum">     546 </span>            :         u32 hdr;
+<span class="lineNum">     547 </span><span class="lineCov">       8240 :         u8 local[6];</span>
+<span class="lineNum">     548 </span>            : 
+<span class="lineNum">     549 </span><span class="lineCov">       4120 :         while (1) {</span>
+<span class="lineNum">     550 </span>            :                 // read the pes header
+<span class="lineNum">     551 </span><span class="lineCov">       8220 :                 if (file_read_bytes(fd, local, 6) == 0) {</span>
+<span class="lineNum">     552 </span><span class="lineCov">         14 :                         return 0;</span>
+<span class="lineNum">     553 </span>            :                 }
+<span class="lineNum">     554 </span>            : 
+<span class="lineNum">     555 </span><span class="lineCov">       8206 :                 hdr = convert32(local);</span>
+<span class="lineNum">     556 </span>            :                 // if we're not a 00 00 01, read until we get the next pack start
+<span class="lineNum">     557 </span>            :                 // we might want to also read until next PES - look into that.
+<span class="lineNum">     558 </span><span class="lineCov">      16412 :                 if (((hdr &amp; MPEG2_PS_START_MASK) != MPEG2_PS_START) ||</span>
+<span class="lineNum">     559 </span><span class="lineCov">       8206 :                         (hdr &lt; MPEG2_PS_END)) {</span>
+<span class="lineNum">     560 </span><span class="lineCov">         66 :                         if (find_pack_start(fd, local, 6) == 0) {</span>
+<span class="lineNum">     561 </span><span class="lineCov">          6 :                                 return 0;</span>
+<span class="lineNum">     562 </span>            :                         }
+<span class="lineNum">     563 </span>            :                         continue;
+<span class="lineNum">     564 </span>            :                 }
+<span class="lineNum">     565 </span><span class="lineCov">       8140 :                 if (hdr == MPEG2_PS_PACKSTART) {</span>
+<span class="lineNum">     566 </span>            :                         // pack start code - we can skip down
+<span class="lineNum">     567 </span><span class="lineCov">       4040 :                         adv_past_pack_hdr(fd, local, 6);</span>
+<span class="lineNum">     568 </span><span class="lineCov">       4040 :                         continue;</span>
+<span class="lineNum">     569 </span>            :                 }
+<span class="lineNum">     570 </span><span class="lineCov">       4100 :                 if (hdr == MPEG2_PS_END) {</span>
+<span class="lineNum">     571 </span><span class="lineNoCov">          0 :                         file_skip_bytes(fd, -2);</span>
+<span class="lineNum">     572 </span><span class="lineNoCov">          0 :                         continue;</span>
+<span class="lineNum">     573 </span>            :                 }
+<span class="lineNum">     574 </span>            : 
+<span class="lineNum">     575 </span>            :                 // we should have a valid stream and pes_len here...
+<span class="lineNum">     576 </span><span class="lineCov">       4100 :                 *stream_id = hdr &amp; 0xff;</span>
+<span class="lineNum">     577 </span><span class="lineCov">       4100 :                 *pes_len = convert16(local + 4);</span>
+<span class="lineNum">     578 </span>            : #if 0
+<span class="lineNum">     579 </span>            :                 fprintf(stderr, &quot;loc: &quot;X64&quot; %x len %u\n&quot;, file_location(fd) - 6,
+<span class="lineNum">     580 </span>            :                         local[3],
+<span class="lineNum">     581 </span>            :                         *pes_len);
+<span class="lineNum">     582 </span>            : #endif
+<span class="lineNum">     583 </span><span class="lineCov">       4100 :                 return 1;</span>
+<span class="lineNum">     584 </span>            :         }
+<span class="lineNum">     585 </span>            :         return 0;
+<span class="lineNum">     586 </span><span class="lineCov">       4120 : }</span>
+<span class="lineNum">     587 </span>            : 
+<span class="lineNum">     588 </span>            : /*
+<span class="lineNum">     589 </span>            :  * read_pes_header_data
+<span class="lineNum">     590 </span>            :  * this should read past the pes header for the audio and video streams
+<a name="591"><span class="lineNum">     591 </span>            :  * it will store the timestamps if it reads them</a>
+<span class="lineNum">     592 </span>            :  */
+<span class="lineNum">     593 </span>            : static Bool read_pes_header_data (FILE *fd,
+<span class="lineNum">     594 </span>            :                                   u16 orig_pes_len,
+<span class="lineNum">     595 </span>            :                                   u16 *pes_left,
+<span class="lineNum">     596 </span>            :                                   Bool *have_ts,
+<span class="lineNum">     597 </span>            :                                   mpeg2ps_ts_t *ts)
+<span class="lineNum">     598 </span>            : {
+<span class="lineNum">     599 </span>            :         u16 pes_len = orig_pes_len;
+<span class="lineNum">     600 </span><span class="lineCov">       4482 :         u8 local[10];</span>
+<span class="lineNum">     601 </span>            :         u32 hdr_len;
+<span class="lineNum">     602 </span>            : 
+<span class="lineNum">     603 </span><span class="lineCov">       2241 :         ts-&gt;have_pts = 0;</span>
+<span class="lineNum">     604 </span><span class="lineCov">       2241 :         ts-&gt;have_dts = 0;</span>
+<span class="lineNum">     605 </span><span class="lineCov">       2241 :         *have_ts = 0;</span>
+<span class="lineNum">     606 </span><span class="lineCov">       2241 :         if (file_read_bytes(fd, local, 1) == 0) {</span>
+<span class="lineNum">     607 </span><span class="lineNoCov">          0 :                 return 0;</span>
+<span class="lineNum">     608 </span>            :         }
+<span class="lineNum">     609 </span><span class="lineCov">       2241 :         pes_len--; // remove this first byte from length</span>
+<span class="lineNum">     610 </span><span class="lineCov">      16356 :         while (*local == 0xff) {</span>
+<span class="lineNum">     611 </span><span class="lineCov">      11874 :                 if (file_read_bytes(fd, local, 1) == 0) {</span>
+<span class="lineNum">     612 </span><span class="lineNoCov">          0 :                         return 0;</span>
+<span class="lineNum">     613 </span>            :                 }
+<span class="lineNum">     614 </span><span class="lineCov">      11874 :                 pes_len--;</span>
+<span class="lineNum">     615 </span><span class="lineCov">      11874 :                 if (pes_len == 0) {</span>
+<span class="lineNum">     616 </span><span class="lineNoCov">          0 :                         *pes_left = 0;</span>
+<span class="lineNum">     617 </span><span class="lineNoCov">          0 :                         return 1;</span>
+<span class="lineNum">     618 </span>            :                 }
+<span class="lineNum">     619 </span>            :         }
+<span class="lineNum">     620 </span><span class="lineCov">       2241 :         if ((*local &amp; 0xc0) == 0x40) {</span>
+<span class="lineNum">     621 </span>            :                 // buffer scale &amp; size
+<span class="lineNum">     622 </span><span class="lineCov">       2235 :                 file_skip_bytes(fd, 1);</span>
+<span class="lineNum">     623 </span><span class="lineCov">       2235 :                 if (file_read_bytes(fd, local, 1) == 0) {</span>
+<span class="lineNum">     624 </span><span class="lineNoCov">          0 :                         return 0;</span>
+<span class="lineNum">     625 </span>            :                 }
+<span class="lineNum">     626 </span><span class="lineCov">       2235 :                 pes_len -= 2;</span>
+<span class="lineNum">     627 </span><span class="lineCov">       2235 :         }</span>
+<span class="lineNum">     628 </span>            : 
+<span class="lineNum">     629 </span><span class="lineCov">       2241 :         if ((*local &amp; 0xf0) == 0x20) {</span>
+<span class="lineNum">     630 </span>            :                 // mpeg-1 with pts
+<span class="lineNum">     631 </span><span class="lineCov">       1004 :                 if (file_read_bytes(fd, local + 1, 4) == 0) {</span>
+<span class="lineNum">     632 </span><span class="lineNoCov">          0 :                         return 0;</span>
+<span class="lineNum">     633 </span>            :                 }
+<span class="lineNum">     634 </span><span class="lineCov">       1004 :                 ts-&gt;have_pts = 1;</span>
+<span class="lineNum">     635 </span><span class="lineCov">       1004 :                 ts-&gt;pts = ts-&gt;dts = read_pts(local);</span>
+<span class="lineNum">     636 </span>            :                 //fprintf(stderr, &quot;mpeg1 pts &quot;U64&quot;\n&quot;, ts-&gt;pts);
+<span class="lineNum">     637 </span><span class="lineCov">       1004 :                 *have_ts = 1;</span>
+<span class="lineNum">     638 </span><span class="lineCov">       1004 :                 pes_len -= 4;</span>
+<span class="lineNum">     639 </span><span class="lineCov">       2241 :         } else if ((*local &amp; 0xf0) == 0x30) {</span>
+<span class="lineNum">     640 </span>            :                 // have mpeg 1 pts and dts
+<span class="lineNum">     641 </span><span class="lineCov">        275 :                 if (file_read_bytes(fd, local + 1, 9) == 0) {</span>
+<span class="lineNum">     642 </span><span class="lineNoCov">          0 :                         return 0;</span>
+<span class="lineNum">     643 </span>            :                 }
+<span class="lineNum">     644 </span><span class="lineCov">        275 :                 ts-&gt;have_pts = 1;</span>
+<span class="lineNum">     645 </span><span class="lineCov">        275 :                 ts-&gt;have_dts = 1;</span>
+<span class="lineNum">     646 </span><span class="lineCov">        275 :                 *have_ts = 1;</span>
+<span class="lineNum">     647 </span><span class="lineCov">        275 :                 ts-&gt;pts = read_pts(local);</span>
+<span class="lineNum">     648 </span><span class="lineCov">        275 :                 ts-&gt;dts = read_pts(local + 5);</span>
+<span class="lineNum">     649 </span><span class="lineCov">        275 :                 pes_len -= 9;</span>
+<span class="lineNum">     650 </span><span class="lineCov">       1237 :         } else if ((*local &amp; 0xc0) == 0x80) {</span>
+<span class="lineNum">     651 </span>            :                 // mpeg2 pes header  - we're pointing at the flags field now
+<span class="lineNum">     652 </span><span class="lineNoCov">          0 :                 if (file_read_bytes(fd, local + 1, 2) == 0) {</span>
+<span class="lineNum">     653 </span><span class="lineNoCov">          0 :                         return 0;</span>
+<span class="lineNum">     654 </span>            :                 }
+<span class="lineNum">     655 </span><span class="lineNoCov">          0 :                 hdr_len = local[2];</span>
+<span class="lineNum">     656 </span><span class="lineNoCov">          0 :                 pes_len -= hdr_len + 2; // first byte removed already</span>
+<span class="lineNum">     657 </span><span class="lineNoCov">          0 :                 if ((local[1] &amp; 0xc0) == 0x80) {</span>
+<span class="lineNum">     658 </span>            :                         // just pts
+<span class="lineNum">     659 </span><span class="lineNoCov">          0 :                         ts-&gt;have_pts = 1;</span>
+<span class="lineNum">     660 </span><span class="lineNoCov">          0 :                         file_read_bytes(fd, local, 5);</span>
+<span class="lineNum">     661 </span><span class="lineNoCov">          0 :                         ts-&gt;pts = ts-&gt;dts = read_pts(local);</span>
+<span class="lineNum">     662 </span><span class="lineNoCov">          0 :                         *have_ts = 1;</span>
+<span class="lineNum">     663 </span><span class="lineNoCov">          0 :                         hdr_len -= 5;</span>
+<span class="lineNum">     664 </span><span class="lineNoCov">          0 :                 } else if ((local[1] &amp; 0xc0) == 0xc0) {</span>
+<span class="lineNum">     665 </span>            :                         // pts and dts
+<span class="lineNum">     666 </span><span class="lineNoCov">          0 :                         ts-&gt;have_pts = 1;</span>
+<span class="lineNum">     667 </span><span class="lineNoCov">          0 :                         ts-&gt;have_dts = 1;</span>
+<span class="lineNum">     668 </span><span class="lineNoCov">          0 :                         *have_ts = 1;</span>
+<span class="lineNum">     669 </span><span class="lineNoCov">          0 :                         file_read_bytes(fd, local, 10);</span>
+<span class="lineNum">     670 </span><span class="lineNoCov">          0 :                         ts-&gt;pts = read_pts(local);</span>
+<span class="lineNum">     671 </span><span class="lineNoCov">          0 :                         ts-&gt;dts = read_pts(local  + 5);</span>
+<span class="lineNum">     672 </span><span class="lineNoCov">          0 :                         hdr_len -= 10;</span>
+<span class="lineNum">     673 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     674 </span><span class="lineNoCov">          0 :                 file_skip_bytes(fd, hdr_len);</span>
+<span class="lineNum">     675 </span><span class="lineCov">        962 :         } else if (*local != 0xf) {</span>
+<span class="lineNum">     676 </span><span class="lineNoCov">          0 :                 file_skip_bytes(fd, pes_len);</span>
+<span class="lineNum">     677 </span>            :                 pes_len = 0;
+<span class="lineNum">     678 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     679 </span><span class="lineCov">       2241 :         *pes_left = pes_len;</span>
+<span class="lineNum">     680 </span><span class="lineCov">       2241 :         return 1;</span>
+<a name="681"><span class="lineNum">     681 </span><span class="lineCov">       2241 : }</span></a>
+<span class="lineNum">     682 </span>            : 
+<span class="lineNum">     683 </span>            : static Bool search_for_next_pes_header (mpeg2ps_stream_t *sptr,
+<span class="lineNum">     684 </span>            :                                         u16 *pes_len,
+<span class="lineNum">     685 </span>            :                                         Bool *have_ts,
+<span class="lineNum">     686 </span>            :                                         s64 *found_loc)
+<span class="lineNum">     687 </span>            : {
+<span class="lineNum">     688 </span><span class="lineCov">       3370 :         u8 stream_id;</span>
+<span class="lineNum">     689 </span><span class="lineCov">       1685 :         u8 local;</span>
+<span class="lineNum">     690 </span>            :         s64 loc;
+<span class="lineNum">     691 </span><span class="lineCov">       1685 :         while (1) {</span>
+<span class="lineNum">     692 </span>            :                 // this will read until we find the next pes.  We don't know if the
+<span class="lineNum">     693 </span>            :                 // stream matches - this will read over pack headers
+<span class="lineNum">     694 </span><span class="lineCov">       3472 :                 if (read_to_next_pes_header(sptr-&gt;m_fd, &amp;stream_id, pes_len) == 0) {</span>
+<span class="lineNum">     695 </span><span class="lineCov">         14 :                         return 0;</span>
+<span class="lineNum">     696 </span>            :                 }
+<span class="lineNum">     697 </span>            : 
+<span class="lineNum">     698 </span><span class="lineCov">       6916 :                 if (stream_id != sptr-&gt;m_stream_id) {</span>
+<span class="lineNum">     699 </span><span class="lineCov">       5245 :                         file_skip_bytes(sptr-&gt;m_fd, *pes_len);</span>
+<span class="lineNum">     700 </span><span class="lineCov">       1787 :                         continue;</span>
+<span class="lineNum">     701 </span>            :                 }
+<span class="lineNum">     702 </span><span class="lineCov">       1671 :                 loc = file_location(sptr-&gt;m_fd) - 6;</span>
+<span class="lineNum">     703 </span>            :                 // advance past header, reading pts
+<span class="lineNum">     704 </span><span class="lineCov">       5013 :                 if (read_pes_header_data(sptr-&gt;m_fd,</span>
+<span class="lineNum">     705 </span><span class="lineCov">       1671 :                                          *pes_len,</span>
+<span class="lineNum">     706 </span>            :                                          pes_len,
+<span class="lineNum">     707 </span>            :                                          have_ts,
+<span class="lineNum">     708 </span><span class="lineCov">       3342 :                                          &amp;sptr-&gt;next_pes_ts) == 0) {</span>
+<span class="lineNum">     709 </span><span class="lineNoCov">          0 :                         return 0;</span>
+<span class="lineNum">     710 </span>            :                 }
+<span class="lineNum">     711 </span>            : 
+<span class="lineNum">     712 </span>            :                 // If we're looking at a private stream, make sure that the sub-stream
+<span class="lineNum">     713 </span>            :                 // matches.
+<span class="lineNum">     714 </span><span class="lineCov">       1671 :                 if (sptr-&gt;m_stream_id == 0xbd) {</span>
+<span class="lineNum">     715 </span>            :                         // ac3 or pcm
+<span class="lineNum">     716 </span><span class="lineNoCov">          0 :                         file_read_bytes(sptr-&gt;m_fd, &amp;local, 1);</span>
+<span class="lineNum">     717 </span><span class="lineNoCov">          0 :                         *pes_len -= 1;</span>
+<span class="lineNum">     718 </span><span class="lineNoCov">          0 :                         if (local != sptr-&gt;m_substream_id) {</span>
+<span class="lineNum">     719 </span><span class="lineNoCov">          0 :                                 file_skip_bytes(sptr-&gt;m_fd, *pes_len);</span>
+<span class="lineNum">     720 </span><span class="lineNoCov">          0 :                                 continue; // skip to the next one</span>
+<span class="lineNum">     721 </span>            :                         }
+<span class="lineNum">     722 </span><span class="lineNoCov">          0 :                         *pes_len -= 3;</span>
+<span class="lineNum">     723 </span><span class="lineNoCov">          0 :                         file_skip_bytes(sptr-&gt;m_fd, 3); // 4 bytes - we don't need now...</span>
+<span class="lineNum">     724 </span>            :                         // we need more here...
+<span class="lineNum">     725 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     726 </span><span class="lineCov">       1671 :                 if (have_ts) {</span>
+<span class="lineNum">     727 </span><span class="lineCov">       1671 :                         mpeg2ps_record_pts(sptr, loc, &amp;sptr-&gt;next_pes_ts);</span>
+<span class="lineNum">     728 </span><span class="lineCov">       1671 :                 }</span>
+<span class="lineNum">     729 </span><span class="lineCov">       1671 :                 if (found_loc != NULL) *found_loc = loc;</span>
+<span class="lineNum">     730 </span><span class="lineCov">       1671 :                 return 1;</span>
+<span class="lineNum">     731 </span>            :         }
+<span class="lineNum">     732 </span>            :         return 0;
+<span class="lineNum">     733 </span><span class="lineCov">       1685 : }</span>
+<span class="lineNum">     734 </span>            : 
+<span class="lineNum">     735 </span>            : /*
+<span class="lineNum">     736 </span>            :  * mpeg2ps_stream_read_next_pes_buffer - for the given stream,
+<span class="lineNum">     737 </span>            :  * go forward in the file until the next PES for the stream is read.  Read
+<a name="738"><span class="lineNum">     738 </span>            :  * the header (pts, dts), and read the data into the pes_buffer pointer</a>
+<span class="lineNum">     739 </span>            :  */
+<span class="lineNum">     740 </span>            : static Bool mpeg2ps_stream_read_next_pes_buffer (mpeg2ps_stream_t *sptr)
+<span class="lineNum">     741 </span>            : {
+<span class="lineNum">     742 </span><span class="lineCov">       3370 :         u16 pes_len;</span>
+<span class="lineNum">     743 </span><span class="lineCov">       1685 :         Bool have_ts;</span>
+<span class="lineNum">     744 </span>            : 
+<span class="lineNum">     745 </span><span class="lineCov">       1685 :         if (search_for_next_pes_header(sptr, &amp;pes_len, &amp;have_ts, NULL) == 0) {</span>
+<span class="lineNum">     746 </span><span class="lineCov">         14 :                 return 0;</span>
+<span class="lineNum">     747 </span>            :         }
+<span class="lineNum">     748 </span>            : 
+<span class="lineNum">     749 </span><span class="lineCov">       1671 :         copy_bytes_to_pes_buffer(sptr, pes_len);</span>
+<span class="lineNum">     750 </span>            : 
+<span class="lineNum">     751 </span><span class="lineCov">       1671 :         return 1;</span>
+<span class="lineNum">     752 </span><span class="lineCov">       1685 : }</span>
+<span class="lineNum">     753 </span>            : 
+<span class="lineNum">     754 </span>            : 
+<span class="lineNum">     755 </span>            : /***************************************************************************
+<span class="lineNum">     756 </span>            :  * Frame reading routine.  For each stream, the fd's should be different.
+<span class="lineNum">     757 </span>            :  * we will read from the pes stream, and save it in the stream's pes buffer.
+<span class="lineNum">     758 </span>            :  * This will give us raw data that we can search through for frame headers,
+<span class="lineNum">     759 </span>            :  * and the like.  We shouldn't read more than we need - when we need to read,
+<span class="lineNum">     760 </span>            :  * we'll put the whole next pes buffer in the buffer
+<span class="lineNum">     761 </span>            :  *
+<span class="lineNum">     762 </span>            :  * Audio routines are of the format:
+<span class="lineNum">     763 </span>            :  *   look for header
+<span class="lineNum">     764 </span>            :  *   determine length
+<span class="lineNum">     765 </span>            :  *   make sure length is in buffer
+<span class="lineNum">     766 </span>            :  *
+<span class="lineNum">     767 </span>            :  * Video routines
+<span class="lineNum">     768 </span>            :  *   look for start header (GOP, SEQ, Picture)
+<span class="lineNum">     769 </span>            :  *   look for pict header
+<span class="lineNum">     770 </span>            :  *   look for next start (END, GOP, SEQ, Picture)
+<span class="lineNum">     771 </span>            :  *
+<span class="lineNum">     772 </span>            :  ***************************************************************************/
+<span class="lineNum">     773 </span>            : #define IS_MPEG_START(a) ((a) == 0xb3 || (a) == 0x00 || (a) == 0xb8)
+<a name="774"><span class="lineNum">     774 </span>            : </a>
+<span class="lineNum">     775 </span>            : static Bool
+<span class="lineNum">     776 </span>            : mpeg2ps_stream_find_mpeg_video_frame (mpeg2ps_stream_t *sptr)
+<span class="lineNum">     777 </span>            : {
+<span class="lineNum">     778 </span><span class="lineCov">       2072 :         u32 offset, scode;</span>
+<span class="lineNum">     779 </span>            :         Bool have_pict;
+<span class="lineNum">     780 </span>            :         Bool started_new_pes = 0;
+<span class="lineNum">     781 </span>            :         u32 start;
+<span class="lineNum">     782 </span>            :         /*
+<span class="lineNum">     783 </span>            :          * First thing - determine if we have enough bytes to read the header.
+<span class="lineNum">     784 </span>            :          * if we do, we have the correct timestamp.  If not, we read the new
+<span class="lineNum">     785 </span>            :          * pes, so we'd want to use the timestamp we read.
+<span class="lineNum">     786 </span>            :          */
+<span class="lineNum">     787 </span><span class="lineCov">       1036 :         sptr-&gt;frame_ts = sptr-&gt;next_pes_ts;</span>
+<span class="lineNum">     788 </span><span class="lineCov">       1036 :         if (sptr-&gt;pes_buffer_size &lt;= sptr-&gt;pes_buffer_on + 4) {</span>
+<span class="lineNum">     789 </span><span class="lineCov">         20 :                 if (sptr-&gt;pes_buffer_size != sptr-&gt;pes_buffer_on)</span>
+<span class="lineNum">     790 </span><span class="lineCov">          7 :                         started_new_pes = 1;</span>
+<span class="lineNum">     791 </span><span class="lineCov">         20 :                 if (mpeg2ps_stream_read_next_pes_buffer(sptr) == 0) {</span>
+<span class="lineNum">     792 </span><span class="lineCov">          7 :                         return 0;</span>
+<span class="lineNum">     793 </span>            :                 }
+<span class="lineNum">     794 </span>            :         }
+<span class="lineNum">     795 </span><span class="lineCov">       3087 :         while (gf_mv12_next_start_code(sptr-&gt;pes_buffer + sptr-&gt;pes_buffer_on,</span>
+<span class="lineNum">     796 </span><span class="lineCov">       1029 :                                        sptr-&gt;pes_buffer_size - sptr-&gt;pes_buffer_on,</span>
+<span class="lineNum">     797 </span>            :                                        &amp;offset,
+<span class="lineNum">     798 </span><span class="lineCov">       1029 :                                        &amp;scode) &lt; 0 ||</span>
+<span class="lineNum">     799 </span><span class="lineCov">       3148 :                 (!IS_MPEG_START(scode &amp; 0xff))) {</span>
+<span class="lineNum">     800 </span><span class="lineNoCov">          0 :                 if (sptr-&gt;pes_buffer_size &gt; 3)</span>
+<span class="lineNum">     801 </span><span class="lineNoCov">          0 :                         sptr-&gt;pes_buffer_on = sptr-&gt;pes_buffer_size - 3;</span>
+<span class="lineNum">     802 </span>            :                 else {
+<span class="lineNum">     803 </span><span class="lineNoCov">          0 :                         sptr-&gt;pes_buffer_on = sptr-&gt;pes_buffer_size;</span>
+<span class="lineNum">     804 </span>            :                         started_new_pes = 1;
+<span class="lineNum">     805 </span>            :                 }
+<span class="lineNum">     806 </span><span class="lineNoCov">          0 :                 if (mpeg2ps_stream_read_next_pes_buffer(sptr) == 0) {</span>
+<span class="lineNum">     807 </span><span class="lineNoCov">          0 :                         return 0;</span>
+<span class="lineNum">     808 </span>            :                 }
+<span class="lineNum">     809 </span>            :         }
+<span class="lineNum">     810 </span><span class="lineCov">       1029 :         sptr-&gt;pes_buffer_on += offset;</span>
+<span class="lineNum">     811 </span><span class="lineCov">       1029 :         if (offset == 0 &amp;&amp; started_new_pes) {</span>
+<span class="lineNum">     812 </span>            :                 // nothing...  we've copied the timestamp already.
+<span class="lineNum">     813 </span>            :         } else {
+<span class="lineNum">     814 </span>            :                 // we found the new start, but we pulled in a new pes header before
+<span class="lineNum">     815 </span>            :                 // starting.  So, we want to use the header that we read.
+<span class="lineNum">     816 </span><span class="lineCov">       1029 :                 sptr-&gt;frame_ts = sptr-&gt;next_pes_ts; // set timestamp after searching</span>
+<span class="lineNum">     817 </span>            :                 // clear timestamp indication
+<span class="lineNum">     818 </span><span class="lineCov">       1029 :                 sptr-&gt;next_pes_ts.have_pts = sptr-&gt;next_pes_ts.have_dts = 0;</span>
+<span class="lineNum">     819 </span>            :         }
+<span class="lineNum">     820 </span>            : #if 0
+<span class="lineNum">     821 </span>            :         fprintf(stderr, &quot;header %x at %d\n&quot;, scode, sptr-&gt;pes_buffer_on);
+<span class="lineNum">     822 </span>            : #endif
+<span class="lineNum">     823 </span>            : 
+<span class="lineNum">     824 </span><span class="lineCov">       1029 :         if (scode == MPEG12_PICTURE_START_CODE) {</span>
+<span class="lineNum">     825 </span><span class="lineCov">        954 :                 sptr-&gt;pict_header_offset = sptr-&gt;pes_buffer_on;</span>
+<span class="lineNum">     826 </span>            :                 have_pict = 1;
+<span class="lineNum">     827 </span><span class="lineCov">        954 :         } else have_pict = 0;</span>
+<span class="lineNum">     828 </span>            : 
+<span class="lineNum">     829 </span><span class="lineCov">       1029 :         start = 4 + sptr-&gt;pes_buffer_on;</span>
+<span class="lineNum">     830 </span><span class="lineCov">       1029 :         while (1) {</span>
+<span class="lineNum">     831 </span>            : 
+<span class="lineNum">     832 </span><span class="lineCov">      10653 :                 if (gf_mv12_next_start_code(sptr-&gt;pes_buffer + start,</span>
+<span class="lineNum">     833 </span><span class="lineCov">       3551 :                                             sptr-&gt;pes_buffer_size - start,</span>
+<span class="lineNum">     834 </span>            :                                             &amp;offset,
+<span class="lineNum">     835 </span><span class="lineCov">       3551 :                                             &amp;scode) &lt; 0) {</span>
+<span class="lineNum">     836 </span><span class="lineCov">       1404 :                         start = sptr-&gt;pes_buffer_size - 3;</span>
+<span class="lineNum">     837 </span><span class="lineCov">       1404 :                         start -= sptr-&gt;pes_buffer_on;</span>
+<span class="lineNum">     838 </span><span class="lineCov">       1404 :                         sptr-&gt;pict_header_offset -= sptr-&gt;pes_buffer_on;</span>
+<span class="lineNum">     839 </span><span class="lineCov">       1404 :                         if (mpeg2ps_stream_read_next_pes_buffer(sptr) == 0) {</span>
+<span class="lineNum">     840 </span><span class="lineNoCov">          0 :                                 return 0;</span>
+<span class="lineNum">     841 </span>            :                         }
+<span class="lineNum">     842 </span><span class="lineCov">       1404 :                         start += sptr-&gt;pes_buffer_on;</span>
+<span class="lineNum">     843 </span><span class="lineCov">       1404 :                         sptr-&gt;pict_header_offset += sptr-&gt;pes_buffer_on;</span>
+<span class="lineNum">     844 </span><span class="lineCov">       1404 :                 } else {</span>
+<span class="lineNum">     845 </span>            : #if 0
+<span class="lineNum">     846 </span>            :                         fprintf(stderr, &quot;2header %x at %d\n&quot;, scode, start);
+<span class="lineNum">     847 </span>            : #endif
+<span class="lineNum">     848 </span>            : 
+<span class="lineNum">     849 </span><span class="lineCov">       2147 :                         start += offset;</span>
+<span class="lineNum">     850 </span><span class="lineCov">       4294 :                         if (have_pict == 0) {</span>
+<span class="lineNum">     851 </span><span class="lineCov">       2236 :                                 if (scode == MPEG12_PICTURE_START_CODE) {</span>
+<span class="lineNum">     852 </span>            :                                         have_pict = 1;
+<span class="lineNum">     853 </span><span class="lineCov">         75 :                                         sptr-&gt;pict_header_offset = start;</span>
+<span class="lineNum">     854 </span><span class="lineCov">         75 :                                 }</span>
+<span class="lineNum">     855 </span>            :                         } else {
+<span class="lineNum">     856 </span><span class="lineCov">       6324 :                                 if (IS_MPEG_START(scode &amp; 0xff) ||</span>
+<span class="lineNum">     857 </span><span class="lineCov">       1104 :                                         scode == MPEG12_SEQUENCE_END_START_CODE) {</span>
+<span class="lineNum">     858 </span><span class="lineCov">       1029 :                                         sptr-&gt;frame_len = start - sptr-&gt;pes_buffer_on;</span>
+<span class="lineNum">     859 </span><span class="lineCov">       1029 :                                         sptr-&gt;have_frame_loaded = 1;</span>
+<span class="lineNum">     860 </span><span class="lineCov">       1029 :                                         return 1;</span>
+<span class="lineNum">     861 </span>            :                                 }
+<span class="lineNum">     862 </span>            :                         }
+<span class="lineNum">     863 </span><span class="lineCov">       1118 :                         start += 4;</span>
+<span class="lineNum">     864 </span>            :                 }
+<span class="lineNum">     865 </span>            :         }
+<span class="lineNum">     866 </span>            :         return 0;
+<a name="867"><span class="lineNum">     867 </span><span class="lineCov">       1036 : }</span></a>
+<span class="lineNum">     868 </span>            : 
+<span class="lineNum">     869 </span>            : static Bool mpeg2ps_stream_find_ac3_frame (mpeg2ps_stream_t *sptr)
+<span class="lineNum">     870 </span>            : {
+<span class="lineNum">     871 </span><span class="lineNoCov">          0 :         u32 diff;</span>
+<span class="lineNum">     872 </span>            :         Bool started_new_pes = 0;
+<span class="lineNum">     873 </span><span class="lineNoCov">          0 :         GF_AC3Header hdr;</span>
+<span class="lineNum">     874 </span><span class="lineNoCov">          0 :         memset(&amp;hdr, 0, sizeof(GF_AC3Header));</span>
+<span class="lineNum">     875 </span><span class="lineNoCov">          0 :         sptr-&gt;frame_ts = sptr-&gt;next_pes_ts; // set timestamp after searching</span>
+<span class="lineNum">     876 </span><span class="lineNoCov">          0 :         if (sptr-&gt;pes_buffer_size &lt;= sptr-&gt;pes_buffer_on + 6) {</span>
+<span class="lineNum">     877 </span><span class="lineNoCov">          0 :                 if (sptr-&gt;pes_buffer_size != sptr-&gt;pes_buffer_on)</span>
+<span class="lineNum">     878 </span><span class="lineNoCov">          0 :                         started_new_pes = 1;</span>
+<span class="lineNum">     879 </span><span class="lineNoCov">          0 :                 if (mpeg2ps_stream_read_next_pes_buffer(sptr) == 0) {</span>
+<span class="lineNum">     880 </span><span class="lineNoCov">          0 :                         return 0;</span>
+<span class="lineNum">     881 </span>            :                 }
+<span class="lineNum">     882 </span>            :         }
+<span class="lineNum">     883 </span><span class="lineNoCov">          0 :         while (gf_ac3_parser(sptr-&gt;pes_buffer + sptr-&gt;pes_buffer_on,</span>
+<span class="lineNum">     884 </span><span class="lineNoCov">          0 :                              sptr-&gt;pes_buffer_size - sptr-&gt;pes_buffer_on,</span>
+<span class="lineNum">     885 </span>            :                              &amp;diff,
+<span class="lineNum">     886 </span><span class="lineNoCov">          0 :                              &amp;hdr, 0) &lt;= 0) {</span>
+<span class="lineNum">     887 </span>            :                 // don't have frame
+<span class="lineNum">     888 </span><span class="lineNoCov">          0 :                 if (sptr-&gt;pes_buffer_size &gt; 6) {</span>
+<span class="lineNum">     889 </span><span class="lineNoCov">          0 :                         sptr-&gt;pes_buffer_on = sptr-&gt;pes_buffer_size - 6;</span>
+<span class="lineNum">     890 </span>            :                         started_new_pes = 1;
+<span class="lineNum">     891 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     892 </span><span class="lineNoCov">          0 :                         sptr-&gt;pes_buffer_on = sptr-&gt;pes_buffer_size;</span>
+<span class="lineNum">     893 </span>            :                 }
+<span class="lineNum">     894 </span><span class="lineNoCov">          0 :                 if (mpeg2ps_stream_read_next_pes_buffer(sptr) == 0) {</span>
+<span class="lineNum">     895 </span><span class="lineNoCov">          0 :                         return 0;</span>
+<span class="lineNum">     896 </span>            :                 }
+<span class="lineNum">     897 </span>            :         }
+<span class="lineNum">     898 </span><span class="lineNoCov">          0 :         sptr-&gt;frame_len = hdr.framesize;</span>
+<span class="lineNum">     899 </span><span class="lineNoCov">          0 :         sptr-&gt;pes_buffer_on += diff;</span>
+<span class="lineNum">     900 </span><span class="lineNoCov">          0 :         if (diff == 0 &amp;&amp; started_new_pes) {</span>
+<span class="lineNum">     901 </span>            :                 // we might have a new PTS - but it's not here
+<span class="lineNum">     902 </span>            :         } else {
+<span class="lineNum">     903 </span><span class="lineNoCov">          0 :                 sptr-&gt;frame_ts = sptr-&gt;next_pes_ts;</span>
+<span class="lineNum">     904 </span><span class="lineNoCov">          0 :                 sptr-&gt;next_pes_ts.have_dts = sptr-&gt;next_pes_ts.have_pts = 0;</span>
+<span class="lineNum">     905 </span>            :         }
+<span class="lineNum">     906 </span><span class="lineNoCov">          0 :         while (sptr-&gt;pes_buffer_size - sptr-&gt;pes_buffer_on &lt; sptr-&gt;frame_len) {</span>
+<span class="lineNum">     907 </span>            : #if 0
+<span class="lineNum">     908 </span>            :                 fprintf(stderr, &quot;don't have enough - on %u size %u %u %u\n&quot;, sptr-&gt;pes_buffer_on,
+<span class="lineNum">     909 </span>            :                         sptr-&gt;pes_buffer_size,
+<span class="lineNum">     910 </span>            :                         sptr-&gt;pes_buffer_size - sptr-&gt;pes_buffer_on,
+<span class="lineNum">     911 </span>            :                         sptr-&gt;frame_len);
+<span class="lineNum">     912 </span>            : #endif
+<span class="lineNum">     913 </span><span class="lineNoCov">          0 :                 if (mpeg2ps_stream_read_next_pes_buffer(sptr) == 0) {</span>
+<span class="lineNum">     914 </span><span class="lineNoCov">          0 :                         return 0;</span>
+<span class="lineNum">     915 </span>            :                 }
+<span class="lineNum">     916 </span>            :         }
+<span class="lineNum">     917 </span><span class="lineNoCov">          0 :         sptr-&gt;have_frame_loaded = 1;</span>
+<span class="lineNum">     918 </span><span class="lineNoCov">          0 :         return 1;</span>
+<a name="919"><span class="lineNum">     919 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     920 </span>            : 
+<span class="lineNum">     921 </span>            : static Bool mpeg2ps_stream_find_mp3_frame (mpeg2ps_stream_t *sptr)
+<span class="lineNum">     922 </span>            : {
+<span class="lineNum">     923 </span><span class="lineCov">       3166 :         u32 diff, hdr;</span>
+<span class="lineNum">     924 </span>            :         Bool started_new_pes = 0;
+<span class="lineNum">     925 </span>            : 
+<span class="lineNum">     926 </span><span class="lineCov">       1583 :         sptr-&gt;frame_ts = sptr-&gt;next_pes_ts;</span>
+<span class="lineNum">     927 </span><span class="lineCov">       1583 :         if (sptr-&gt;pes_buffer_size &lt;= sptr-&gt;pes_buffer_on + 4) {</span>
+<span class="lineNum">     928 </span><span class="lineCov">         22 :                 if (sptr-&gt;pes_buffer_size != sptr-&gt;pes_buffer_on)</span>
+<span class="lineNum">     929 </span><span class="lineCov">          2 :                         started_new_pes = 1;</span>
+<span class="lineNum">     930 </span><span class="lineCov">         22 :                 if (mpeg2ps_stream_read_next_pes_buffer(sptr) == 0) {</span>
+<span class="lineNum">     931 </span><span class="lineCov">          7 :                         return 0;</span>
+<span class="lineNum">     932 </span>            :                 }
+<span class="lineNum">     933 </span>            :         }
+<span class="lineNum">     934 </span><span class="lineCov">       4728 :         while ((hdr=gf_mp3_get_next_header_mem((char*)sptr-&gt;pes_buffer + sptr-&gt;pes_buffer_on,</span>
+<span class="lineNum">     935 </span><span class="lineCov">       1576 :                                                sptr-&gt;pes_buffer_size - sptr-&gt;pes_buffer_on,</span>
+<span class="lineNum">     936 </span><span class="lineCov">       1576 :                                                &amp;diff) ) == 0) {</span>
+<span class="lineNum">     937 </span>            :                 // don't have frame
+<span class="lineNum">     938 </span><span class="lineNoCov">          0 :                 if (sptr-&gt;pes_buffer_size &gt; 3) {</span>
+<span class="lineNum">     939 </span><span class="lineNoCov">          0 :                         if (sptr-&gt;pes_buffer_on != sptr-&gt;pes_buffer_size) {</span>
+<span class="lineNum">     940 </span><span class="lineNoCov">          0 :                                 sptr-&gt;pes_buffer_on = sptr-&gt;pes_buffer_size - 3;</span>
+<span class="lineNum">     941 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     942 </span>            :                         started_new_pes = 1; // we have left over bytes...
+<span class="lineNum">     943 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     944 </span><span class="lineNoCov">          0 :                         sptr-&gt;pes_buffer_on = sptr-&gt;pes_buffer_size;</span>
+<span class="lineNum">     945 </span>            :                 }
+<span class="lineNum">     946 </span><span class="lineNoCov">          0 :                 if (mpeg2ps_stream_read_next_pes_buffer(sptr) == 0) {</span>
+<span class="lineNum">     947 </span><span class="lineNoCov">          0 :                         return 0;</span>
+<span class="lineNum">     948 </span>            :                 }
+<span class="lineNum">     949 </span>            :         }
+<span class="lineNum">     950 </span>            :         // have frame.
+<span class="lineNum">     951 </span><span class="lineCov">       1576 :         sptr-&gt;frame_len = gf_mp3_frame_size(hdr);</span>
+<span class="lineNum">     952 </span><span class="lineCov">       1576 :         sptr-&gt;pes_buffer_on += diff;</span>
+<span class="lineNum">     953 </span><span class="lineCov">       1576 :         if (diff == 0 &amp;&amp; started_new_pes) {</span>
+<span class="lineNum">     954 </span>            : 
+<span class="lineNum">     955 </span>            :         } else {
+<span class="lineNum">     956 </span><span class="lineCov">       1574 :                 sptr-&gt;frame_ts = sptr-&gt;next_pes_ts;</span>
+<span class="lineNum">     957 </span><span class="lineCov">       1574 :                 sptr-&gt;next_pes_ts.have_dts = sptr-&gt;next_pes_ts.have_pts = 0;</span>
+<span class="lineNum">     958 </span>            :         }
+<span class="lineNum">     959 </span><span class="lineCov">       1815 :         while (sptr-&gt;pes_buffer_size - sptr-&gt;pes_buffer_on &lt; sptr-&gt;frame_len) {</span>
+<span class="lineNum">     960 </span>            : #if 0
+<span class="lineNum">     961 </span>            :                 fprintf(stderr, &quot;don't have enough - on %u size %u %u %u\n&quot;, sptr-&gt;pes_buffer_on,
+<span class="lineNum">     962 </span>            :                         sptr-&gt;pes_buffer_size,
+<span class="lineNum">     963 </span>            :                         sptr-&gt;pes_buffer_size - sptr-&gt;pes_buffer_on,
+<span class="lineNum">     964 </span>            :                         sptr-&gt;frame_len);
+<span class="lineNum">     965 </span>            : #endif
+<span class="lineNum">     966 </span><span class="lineCov">        239 :                 if (mpeg2ps_stream_read_next_pes_buffer(sptr) == 0) {</span>
+<span class="lineNum">     967 </span><span class="lineNoCov">          0 :                         return 0;</span>
+<span class="lineNum">     968 </span>            :                 }
+<span class="lineNum">     969 </span>            :         }
+<span class="lineNum">     970 </span><span class="lineCov">       1576 :         sptr-&gt;have_frame_loaded = 1;</span>
+<span class="lineNum">     971 </span><span class="lineCov">       1576 :         return 1;</span>
+<span class="lineNum">     972 </span><span class="lineCov">       1583 : }</span>
+<span class="lineNum">     973 </span>            : 
+<span class="lineNum">     974 </span>            : /*
+<span class="lineNum">     975 </span>            :  * mpeg2ps_stream_read_frame.  read the correct frame based on stream type.
+<a name="976"><span class="lineNum">     976 </span>            :  * advance_pointers is 0 when we want to use the data</a>
+<span class="lineNum">     977 </span>            :  */
+<span class="lineNum">     978 </span>            : static Bool mpeg2ps_stream_read_frame (mpeg2ps_stream_t *sptr,
+<span class="lineNum">     979 </span>            :                                        u8 **buffer,
+<span class="lineNum">     980 </span>            :                                        u32 *buflen,
+<span class="lineNum">     981 </span>            :                                        Bool advance_pointers)
+<span class="lineNum">     982 </span>            : {
+<span class="lineNum">     983 </span>            :         //  Bool done = 0;
+<span class="lineNum">     984 </span><span class="lineCov">       3202 :         if (sptr-&gt;is_video) {</span>
+<span class="lineNum">     985 </span><span class="lineCov">         18 :                 if (mpeg2ps_stream_find_mpeg_video_frame(sptr)) {</span>
+<span class="lineNum">     986 </span><span class="lineCov">         12 :                         *buffer = sptr-&gt;pes_buffer + sptr-&gt;pes_buffer_on;</span>
+<span class="lineNum">     987 </span><span class="lineCov">         12 :                         *buflen = sptr-&gt;frame_len;</span>
+<span class="lineNum">     988 </span><span class="lineCov">         12 :                         if (advance_pointers) {</span>
+<span class="lineNum">     989 </span><span class="lineCov">          6 :                                 sptr-&gt;pes_buffer_on += sptr-&gt;frame_len;</span>
+<span class="lineNum">     990 </span><span class="lineCov">          6 :                         }</span>
+<span class="lineNum">     991 </span><span class="lineCov">         12 :                         return 1;</span>
+<span class="lineNum">     992 </span>            :                 }
+<span class="lineNum">     993 </span><span class="lineCov">          6 :                 return 0;</span>
+<span class="lineNum">     994 </span><span class="lineCov">       1583 :         } else if (sptr-&gt;m_stream_id == 0xbd) {</span>
+<span class="lineNum">     995 </span>            :                 // would need to handle LPCM here
+<span class="lineNum">     996 </span><span class="lineNoCov">          0 :                 if (mpeg2ps_stream_find_ac3_frame(sptr)) {</span>
+<span class="lineNum">     997 </span><span class="lineNoCov">          0 :                         *buffer = sptr-&gt;pes_buffer + sptr-&gt;pes_buffer_on;</span>
+<span class="lineNum">     998 </span><span class="lineNoCov">          0 :                         *buflen = sptr-&gt;frame_len;</span>
+<span class="lineNum">     999 </span><span class="lineNoCov">          0 :                         if (advance_pointers)</span>
+<span class="lineNum">    1000 </span><span class="lineNoCov">          0 :                                 sptr-&gt;pes_buffer_on += sptr-&gt;frame_len;</span>
+<span class="lineNum">    1001 </span><span class="lineNoCov">          0 :                         return 1;</span>
+<span class="lineNum">    1002 </span>            :                 }
+<span class="lineNum">    1003 </span><span class="lineNoCov">          0 :                 return 0;</span>
+<span class="lineNum">    1004 </span><span class="lineCov">       1583 :         } else if (mpeg2ps_stream_find_mp3_frame(sptr)) {</span>
+<span class="lineNum">    1005 </span><span class="lineCov">       1576 :                 *buffer = sptr-&gt;pes_buffer + sptr-&gt;pes_buffer_on;</span>
+<span class="lineNum">    1006 </span><span class="lineCov">       1576 :                 *buflen = sptr-&gt;frame_len;</span>
+<span class="lineNum">    1007 </span><span class="lineCov">       1576 :                 if (advance_pointers)</span>
+<span class="lineNum">    1008 </span><span class="lineCov">         12 :                         sptr-&gt;pes_buffer_on += sptr-&gt;frame_len;</span>
+<span class="lineNum">    1009 </span><span class="lineCov">       1576 :                 return 1;</span>
+<span class="lineNum">    1010 </span>            :         }
+<span class="lineNum">    1011 </span><span class="lineCov">          7 :         return 0;</span>
+<span class="lineNum">    1012 </span><span class="lineCov">       1601 : }</span>
+<span class="lineNum">    1013 </span>            : 
+<span class="lineNum">    1014 </span>            : /*
+<a name="1015"><span class="lineNum">    1015 </span>            :  * get_info_from_frame - we have a frame, get the info from it.</a>
+<span class="lineNum">    1016 </span>            :  */
+<span class="lineNum">    1017 </span>            : static void get_info_from_frame (mpeg2ps_stream_t *sptr,
+<span class="lineNum">    1018 </span>            :                                  u8 *buffer,
+<span class="lineNum">    1019 </span>            :                                  u32 buflen)
+<span class="lineNum">    1020 </span>            : {
+<span class="lineNum">    1021 </span><span class="lineCov">         24 :         if (sptr-&gt;is_video) {</span>
+<span class="lineNum">    1022 </span><span class="lineCov">         12 :                 if (MPEG12_ParseSeqHdr(buffer, buflen,</span>
+<span class="lineNum">    1023 </span><span class="lineCov">          6 :                                        &amp;sptr-&gt;have_mpeg2,</span>
+<span class="lineNum">    1024 </span><span class="lineCov">          6 :                                        &amp;sptr-&gt;h,</span>
+<span class="lineNum">    1025 </span><span class="lineCov">          6 :                                        &amp;sptr-&gt;w,</span>
+<span class="lineNum">    1026 </span><span class="lineCov">          6 :                                        &amp;sptr-&gt;frame_rate,</span>
+<span class="lineNum">    1027 </span><span class="lineCov">          6 :                                        &amp;sptr-&gt;bit_rate,</span>
+<span class="lineNum">    1028 </span><span class="lineCov">         12 :                                        &amp;sptr-&gt;par) &lt; 0) {</span>
+<span class="lineNum">    1029 </span><span class="lineNoCov">          0 :                         sptr-&gt;m_stream_id = 0;</span>
+<span class="lineNum">    1030 </span><span class="lineNoCov">          0 :                         sptr-&gt;m_fd = FDNULL;</span>
+<span class="lineNum">    1031 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">    1032 </span><span class="lineCov">          6 :                 sptr-&gt;ticks_per_frame = (u64)(90000.0 / sptr-&gt;frame_rate);</span>
+<span class="lineNum">    1033 </span><span class="lineCov">          6 :                 return;</span>
+<span class="lineNum">    1034 </span>            :         }
+<span class="lineNum">    1035 </span>            : 
+<span class="lineNum">    1036 </span><span class="lineCov">          6 :         if (sptr-&gt;m_stream_id &gt;= 0xc0) {</span>
+<span class="lineNum">    1037 </span>            :                 // mpeg audio
+<span class="lineNum">    1038 </span><span class="lineCov">          6 :                 u32 hdr = GF_4CC(buffer[0],buffer[1],buffer[2],buffer[3]);</span>
+<span class="lineNum">    1039 </span>            : 
+<span class="lineNum">    1040 </span><span class="lineCov">          6 :                 sptr-&gt;channels = gf_mp3_num_channels(hdr);</span>
+<span class="lineNum">    1041 </span><span class="lineCov">          6 :                 sptr-&gt;freq = gf_mp3_sampling_rate(hdr);</span>
+<span class="lineNum">    1042 </span><span class="lineCov">          6 :                 sptr-&gt;samples_per_frame = gf_mp3_window_size(hdr);</span>
+<span class="lineNum">    1043 </span><span class="lineCov">          6 :                 sptr-&gt;bitrate = gf_mp3_bit_rate(hdr) * 1000; // give bps, not kbps</span>
+<span class="lineNum">    1044 </span><span class="lineCov">          6 :                 sptr-&gt;layer = gf_mp3_layer(hdr);</span>
+<span class="lineNum">    1045 </span><span class="lineCov">          6 :         } else if (sptr-&gt;m_stream_id == 0xbd) {</span>
+<span class="lineNum">    1046 </span><span class="lineNoCov">          0 :                 if (sptr-&gt;m_substream_id &gt;= 0xa0) {</span>
+<span class="lineNum">    1047 </span>            :                         // PCM - ???
+<span class="lineNum">    1048 </span><span class="lineNoCov">          0 :                 } else if (sptr-&gt;m_substream_id &gt;= 0x80) {</span>
+<span class="lineNum">    1049 </span><span class="lineNoCov">          0 :                         u32 pos;</span>
+<span class="lineNum">    1050 </span><span class="lineNoCov">          0 :                         GF_AC3Header hdr;</span>
+<span class="lineNum">    1051 </span><span class="lineNoCov">          0 :                         memset(&amp;hdr, 0, sizeof(GF_AC3Header));</span>
+<span class="lineNum">    1052 </span><span class="lineNoCov">          0 :                         gf_ac3_parser(buffer, buflen, &amp;pos, &amp;hdr, 0);</span>
+<span class="lineNum">    1053 </span><span class="lineNoCov">          0 :                         sptr-&gt;bitrate = hdr.bitrate;</span>
+<span class="lineNum">    1054 </span><span class="lineNoCov">          0 :                         sptr-&gt;freq = hdr.sample_rate;</span>
+<span class="lineNum">    1055 </span><span class="lineNoCov">          0 :                         sptr-&gt;channels = hdr.channels;</span>
+<span class="lineNum">    1056 </span><span class="lineNoCov">          0 :                         sptr-&gt;samples_per_frame = 256 * 6;</span>
+<span class="lineNum">    1057 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">    1058 </span>            :                         return;
+<span class="lineNum">    1059 </span>            :                 }
+<span class="lineNum">    1060 </span>            :         } else {
+<span class="lineNum">    1061 </span>            :                 return;
+<span class="lineNum">    1062 </span>            :         }
+<span class="lineNum">    1063 </span><span class="lineCov">         12 : }</span>
+<span class="lineNum">    1064 </span>            : 
+<span class="lineNum">    1065 </span>            : /*
+<span class="lineNum">    1066 </span>            :  * clear_stream_buffer - called when we seek to clear out any data in
+<a name="1067"><span class="lineNum">    1067 </span>            :  * the buffers</a>
+<span class="lineNum">    1068 </span>            :  */
+<span class="lineNum">    1069 </span>            : static void clear_stream_buffer (mpeg2ps_stream_t *sptr)
+<span class="lineNum">    1070 </span>            : {
+<span class="lineNum">    1071 </span><span class="lineCov">         96 :         sptr-&gt;pes_buffer_on = sptr-&gt;pes_buffer_size = 0;</span>
+<span class="lineNum">    1072 </span><span class="lineCov">         48 :         sptr-&gt;frame_len = 0;</span>
+<span class="lineNum">    1073 </span><span class="lineCov">         48 :         sptr-&gt;have_frame_loaded = 0;</span>
+<span class="lineNum">    1074 </span><span class="lineCov">         48 :         sptr-&gt;next_pes_ts.have_dts = sptr-&gt;next_pes_ts.have_pts = 0;</span>
+<span class="lineNum">    1075 </span><span class="lineCov">         48 :         sptr-&gt;frame_ts.have_dts = sptr-&gt;frame_ts.have_pts = 0;</span>
+<span class="lineNum">    1076 </span><span class="lineCov">         48 : }</span>
+<span class="lineNum">    1077 </span>            : 
+<span class="lineNum">    1078 </span>            : /*
+<span class="lineNum">    1079 </span>            :  * convert_to_msec - convert ts (at 90000) to msec, based on base_ts and
+<a name="1080"><span class="lineNum">    1080 </span>            :  * frames_since_last_ts.</a>
+<span class="lineNum">    1081 </span>            :  */
+<span class="lineNum">    1082 </span>            : static u64 convert_ts (mpeg2ps_stream_t *sptr,
+<span class="lineNum">    1083 </span>            :                        mpeg2ps_ts_type_t ts_type,
+<span class="lineNum">    1084 </span>            :                        u64 ts,
+<span class="lineNum">    1085 </span>            :                        u64 base_ts,
+<span class="lineNum">    1086 </span>            :                        u32 frames_since_ts)
+<span class="lineNum">    1087 </span>            : {
+<span class="lineNum">    1088 </span>            :         u64 ret, calc;
+<span class="lineNum">    1089 </span><span class="lineCov">         48 :         ret = ts - base_ts;</span>
+<span class="lineNum">    1090 </span><span class="lineCov">         24 :         if (sptr-&gt;is_video) {</span>
+<span class="lineNum">    1091 </span>            :                 // video
+<span class="lineNum">    1092 </span><span class="lineCov">         12 :                 ret += frames_since_ts * sptr-&gt;ticks_per_frame;</span>
+<span class="lineNum">    1093 </span><span class="lineCov">         12 :         } else {</span>
+<span class="lineNum">    1094 </span>            :                 // audio
+<span class="lineNum">    1095 </span><span class="lineCov">         12 :                 calc = (frames_since_ts * 90000 * sptr-&gt;samples_per_frame) / sptr-&gt;freq;</span>
+<span class="lineNum">    1096 </span><span class="lineCov">         12 :                 ret += calc;</span>
+<span class="lineNum">    1097 </span>            :         }
+<span class="lineNum">    1098 </span><span class="lineCov">         24 :         if (ts_type == TS_MSEC)</span>
+<span class="lineNum">    1099 </span><span class="lineCov">         24 :                 ret /= (u64) (90); // * 1000 / 90000</span>
+<span class="lineNum">    1100 </span>            : 
+<span class="lineNum">    1101 </span><span class="lineCov">         24 :         return ret;</span>
+<span class="lineNum">    1102 </span>            : }
+<span class="lineNum">    1103 </span>            : 
+<span class="lineNum">    1104 </span>            : /*
+<span class="lineNum">    1105 </span>            :  * find_stream_from_id - given the stream, get the sptr.
+<span class="lineNum">    1106 </span>            :  * only used in inital set up, really.  APIs use index into
+<a name="1107"><span class="lineNum">    1107 </span>            :  * video_streams and audio_streams arrays.</a>
+<span class="lineNum">    1108 </span>            :  */
+<span class="lineNum">    1109 </span>            : static mpeg2ps_stream_t *find_stream_from_id (mpeg2ps_t *ps,
+<span class="lineNum">    1110 </span>            :         u8 stream_id,
+<span class="lineNum">    1111 </span>            :         u8 substream)
+<span class="lineNum">    1112 </span>            : {
+<span class="lineNum">    1113 </span>            :         u8 ix;
+<span class="lineNum">    1114 </span><span class="lineCov">       1128 :         if (stream_id &gt;= 0xe0) {</span>
+<span class="lineNum">    1115 </span><span class="lineCov">        468 :                 for (ix = 0; ix &lt; ps-&gt;video_cnt; ix++) {</span>
+<span class="lineNum">    1116 </span><span class="lineCov">        462 :                         if (ps-&gt;video_streams[ix]-&gt;m_stream_id == stream_id) {</span>
+<span class="lineNum">    1117 </span><span class="lineCov">        462 :                                 return ps-&gt;video_streams[ix];</span>
+<span class="lineNum">    1118 </span>            :                         }
+<span class="lineNum">    1119 </span>            :                 }
+<span class="lineNum">    1120 </span>            :         } else {
+<span class="lineNum">    1121 </span><span class="lineCov">         96 :                 for (ix = 0; ix &lt; ps-&gt;audio_cnt; ix++) {</span>
+<span class="lineNum">    1122 </span><span class="lineCov">         90 :                         if (ps-&gt;audio_streams[ix]-&gt;m_stream_id == stream_id &amp;&amp;</span>
+<span class="lineNum">    1123 </span><span class="lineCov">         90 :                                 (stream_id != 0xbd ||</span>
+<span class="lineNum">    1124 </span><span class="lineNoCov">          0 :                                  substream == ps-&gt;audio_streams[ix]-&gt;m_substream_id)) {</span>
+<span class="lineNum">    1125 </span><span class="lineCov">         90 :                                 return ps-&gt;audio_streams[ix];</span>
+<span class="lineNum">    1126 </span>            :                         }
+<span class="lineNum">    1127 </span>            :                 }
+<span class="lineNum">    1128 </span>            :         }
+<span class="lineNum">    1129 </span><span class="lineCov">         12 :         return NULL;</span>
+<span class="lineNum">    1130 </span><span class="lineCov">        564 : }</span>
+<span class="lineNum">    1131 </span>            : 
+<span class="lineNum">    1132 </span>            : /*
+<a name="1133"><span class="lineNum">    1133 </span>            :  * add_stream - add a new stream</a>
+<span class="lineNum">    1134 </span>            :  */
+<span class="lineNum">    1135 </span>            : static Bool add_stream (mpeg2ps_t *ps,
+<span class="lineNum">    1136 </span>            :                         u8 stream_id,
+<span class="lineNum">    1137 </span>            :                         u8 substream,
+<span class="lineNum">    1138 </span>            :                         s64 first_loc,
+<span class="lineNum">    1139 </span>            :                         mpeg2ps_ts_t *ts)
+<span class="lineNum">    1140 </span>            : {
+<span class="lineNum">    1141 </span>            :         mpeg2ps_stream_t *sptr;
+<span class="lineNum">    1142 </span>            : 
+<span class="lineNum">    1143 </span><span class="lineCov">         36 :         sptr = find_stream_from_id(ps, stream_id, substream);</span>
+<span class="lineNum">    1144 </span><span class="lineCov">         24 :         if (sptr != NULL) return 0;</span>
+<span class="lineNum">    1145 </span>            : 
+<span class="lineNum">    1146 </span>            :         // need to add
+<span class="lineNum">    1147 </span>            : 
+<span class="lineNum">    1148 </span><span class="lineCov">         12 :         sptr = mpeg2ps_stream_create(stream_id, substream);</span>
+<span class="lineNum">    1149 </span><span class="lineCov">         12 :         sptr-&gt;first_pes_loc = first_loc;</span>
+<span class="lineNum">    1150 </span><span class="lineCov">         18 :         if (ts == NULL ||</span>
+<span class="lineNum">    1151 </span><span class="lineCov">         18 :                 (ts-&gt;have_dts == 0 &amp;&amp; ts-&gt;have_pts == 0)) {</span>
+<span class="lineNum">    1152 </span><span class="lineNoCov">          0 :                 sptr-&gt;first_pes_has_dts = 0;</span>
+<span class="lineNum">    1153 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">    1154 </span><span class="lineCov">         36 :                 sptr-&gt;start_dts = ts-&gt;have_dts ? ts-&gt;dts : ts-&gt;pts;</span>
+<span class="lineNum">    1155 </span><span class="lineCov">         12 :                 sptr-&gt;first_pes_has_dts = 1;</span>
+<span class="lineNum">    1156 </span>            :         }
+<span class="lineNum">    1157 </span><span class="lineCov">         12 :         if (sptr-&gt;is_video) {</span>
+<span class="lineNum">    1158 </span>            :                 // can't be more than 16 - e0 to ef...
+<span class="lineNum">    1159 </span><span class="lineCov">          6 :                 ps-&gt;video_streams[ps-&gt;video_cnt] = sptr;</span>
+<span class="lineNum">    1160 </span><span class="lineCov">          6 :                 ps-&gt;video_cnt++;</span>
+<span class="lineNum">    1161 </span><span class="lineCov">          6 :         } else {</span>
+<span class="lineNum">    1162 </span><span class="lineCov">          6 :                 if (ps-&gt;audio_cnt &gt;= 32) {</span>
+<span class="lineNum">    1163 </span><span class="lineNoCov">          0 :                         mpeg2ps_stream_destroy(sptr);</span>
+<span class="lineNum">    1164 </span><span class="lineNoCov">          0 :                         return 0;</span>
+<span class="lineNum">    1165 </span>            :                 }
+<span class="lineNum">    1166 </span><span class="lineCov">          6 :                 ps-&gt;audio_streams[ps-&gt;audio_cnt] = sptr;</span>
+<span class="lineNum">    1167 </span><span class="lineCov">          6 :                 ps-&gt;audio_cnt++;</span>
+<span class="lineNum">    1168 </span>            :         }
+<span class="lineNum">    1169 </span><span class="lineCov">         12 :         return 1;</span>
+<a name="1170"><span class="lineNum">    1170 </span><span class="lineCov">         18 : }</span></a>
+<span class="lineNum">    1171 </span>            : 
+<span class="lineNum">    1172 </span>            : static void check_fd_for_stream (mpeg2ps_t *ps,
+<span class="lineNum">    1173 </span>            :                                  mpeg2ps_stream_t *sptr)
+<span class="lineNum">    1174 </span>            : {
+<span class="lineNum">    1175 </span><span class="lineCov">       5154 :         if (sptr-&gt;m_fd != FDNULL) return;</span>
+<span class="lineNum">    1176 </span>            : 
+<span class="lineNum">    1177 </span><span class="lineCov">          2 :         sptr-&gt;m_fd = file_open(ps-&gt;filename);</span>
+<span class="lineNum">    1178 </span><span class="lineCov">       2579 : }</span>
+<span class="lineNum">    1179 </span>            : 
+<span class="lineNum">    1180 </span>            : /*
+<span class="lineNum">    1181 </span>            :  * advance_frame - when we're reading frames, this indicates that we're
+<span class="lineNum">    1182 </span>            :  * done.  We will call this when we read a frame, but not when we
+<span class="lineNum">    1183 </span>            :  * seek.  It allows us to leave the last frame we're seeking in the
+<a name="1184"><span class="lineNum">    1184 </span>            :  * buffer</a>
+<span class="lineNum">    1185 </span>            :  */
+<span class="lineNum">    1186 </span>            : static void advance_frame (mpeg2ps_stream_t *sptr)
+<span class="lineNum">    1187 </span>            : {
+<span class="lineNum">    1188 </span><span class="lineCov">       5150 :         sptr-&gt;pes_buffer_on += sptr-&gt;frame_len;</span>
+<span class="lineNum">    1189 </span><span class="lineCov">       2575 :         sptr-&gt;have_frame_loaded = 0;</span>
+<span class="lineNum">    1190 </span><span class="lineCov">       4953 :         if (sptr-&gt;frame_ts.have_dts || sptr-&gt;frame_ts.have_pts) {</span>
+<span class="lineNum">    1191 </span><span class="lineCov">        925 :                 if (sptr-&gt;frame_ts.have_dts)</span>
+<span class="lineNum">    1192 </span><span class="lineCov">        197 :                         sptr-&gt;last_ts = sptr-&gt;frame_ts.dts;</span>
+<span class="lineNum">    1193 </span>            :                 else
+<span class="lineNum">    1194 </span><span class="lineCov">        728 :                         sptr-&gt;last_ts = sptr-&gt;frame_ts.pts;</span>
+<span class="lineNum">    1195 </span><span class="lineCov">        925 :                 sptr-&gt;frames_since_last_ts = 0;</span>
+<span class="lineNum">    1196 </span><span class="lineCov">        925 :         } else {</span>
+<span class="lineNum">    1197 </span><span class="lineCov">       1650 :                 sptr-&gt;frames_since_last_ts++;</span>
+<span class="lineNum">    1198 </span>            :         }
+<span class="lineNum">    1199 </span><span class="lineCov">       2575 : }</span>
+<span class="lineNum">    1200 </span>            : /*
+<span class="lineNum">    1201 </span>            :  * get_info_for_all_streams - loop through found streams - read an
+<a name="1202"><span class="lineNum">    1202 </span>            :  * figure out the info</a>
+<span class="lineNum">    1203 </span>            :  */
+<span class="lineNum">    1204 </span>            : static void get_info_for_all_streams (mpeg2ps_t *ps)
+<span class="lineNum">    1205 </span>            : {
+<span class="lineNum">    1206 </span>            :         u8 stream_ix, max_ix, av;
+<span class="lineNum">    1207 </span>            :         mpeg2ps_stream_t *sptr;
+<span class="lineNum">    1208 </span><span class="lineCov">         12 :         u8 *buffer;</span>
+<span class="lineNum">    1209 </span><span class="lineCov">          6 :         u32 buflen;</span>
+<span class="lineNum">    1210 </span>            : 
+<span class="lineNum">    1211 </span><span class="lineCov">          6 :         file_seek_to(ps-&gt;fd, 0);</span>
+<span class="lineNum">    1212 </span>            : 
+<span class="lineNum">    1213 </span>            :         // av will be 0 for video streams, 1 for audio streams
+<span class="lineNum">    1214 </span>            :         // av is just so I don't have to dup a lot of code that does the
+<span class="lineNum">    1215 </span>            :         // same thing.
+<span class="lineNum">    1216 </span><span class="lineCov">         36 :         for (av = 0; av &lt; 2; av++) {</span>
+<span class="lineNum">    1217 </span><span class="lineCov">         18 :                 if (av == 0) max_ix = ps-&gt;video_cnt;</span>
+<span class="lineNum">    1218 </span><span class="lineCov">          6 :                 else max_ix = ps-&gt;audio_cnt;</span>
+<span class="lineNum">    1219 </span><span class="lineCov">         48 :                 for (stream_ix = 0; stream_ix &lt; max_ix; stream_ix++) {</span>
+<span class="lineNum">    1220 </span><span class="lineCov">         18 :                         if (av == 0) sptr = ps-&gt;video_streams[stream_ix];</span>
+<span class="lineNum">    1221 </span><span class="lineCov">          6 :                         else sptr = ps-&gt;audio_streams[stream_ix];</span>
+<span class="lineNum">    1222 </span>            : 
+<span class="lineNum">    1223 </span>            :                         // we don't open a seperate file descriptor yet (only when they
+<span class="lineNum">    1224 </span>            :                         // start reading or seeking).  Use the one from the ps.
+<span class="lineNum">    1225 </span><span class="lineCov">         12 :                         sptr-&gt;m_fd = ps-&gt;fd; // for now</span>
+<span class="lineNum">    1226 </span><span class="lineCov">         12 :                         clear_stream_buffer(sptr);</span>
+<span class="lineNum">    1227 </span><span class="lineCov">         24 :                         if (mpeg2ps_stream_read_frame(sptr,</span>
+<span class="lineNum">    1228 </span>            :                                                       &amp;buffer,
+<span class="lineNum">    1229 </span>            :                                                       &amp;buflen,
+<span class="lineNum">    1230 </span><span class="lineCov">         12 :                                                       0) == 0) {</span>
+<span class="lineNum">    1231 </span><span class="lineNoCov">          0 :                                 sptr-&gt;m_stream_id = 0;</span>
+<span class="lineNum">    1232 </span><span class="lineNoCov">          0 :                                 sptr-&gt;m_fd = FDNULL;</span>
+<span class="lineNum">    1233 </span><span class="lineNoCov">          0 :                                 continue;</span>
+<span class="lineNum">    1234 </span>            :                         }
+<span class="lineNum">    1235 </span><span class="lineCov">         12 :                         get_info_from_frame(sptr, buffer, buflen);</span>
+<span class="lineNum">    1236 </span>            :                         // here - if (sptr-&gt;first_pes_has_dts == 0) should be processed
+<span class="lineNum">    1237 </span><span class="lineCov">         12 :                         if (sptr-&gt;first_pes_has_dts == 0) {</span>
+<span class="lineNum">    1238 </span>            :                                 u32 frames_from_beg = 0;
+<span class="lineNum">    1239 </span>            :                                 Bool have_frame;
+<span class="lineNum">    1240 </span><span class="lineNoCov">          0 :                                 do {</span>
+<span class="lineNum">    1241 </span><span class="lineNoCov">          0 :                                         advance_frame(sptr);</span>
+<span class="lineNum">    1242 </span>            :                                         have_frame =
+<span class="lineNum">    1243 </span><span class="lineNoCov">          0 :                                             mpeg2ps_stream_read_frame(sptr, &amp;buffer, &amp;buflen, 0);</span>
+<span class="lineNum">    1244 </span><span class="lineNoCov">          0 :                                         frames_from_beg++;</span>
+<span class="lineNum">    1245 </span><span class="lineNoCov">          0 :                                 } while (have_frame &amp;&amp;</span>
+<span class="lineNum">    1246 </span><span class="lineNoCov">          0 :                                          sptr-&gt;frame_ts.have_dts == 0 &amp;&amp;</span>
+<span class="lineNum">    1247 </span><span class="lineNoCov">          0 :                                          sptr-&gt;frame_ts.have_pts == 0 &amp;&amp;</span>
+<span class="lineNum">    1248 </span><span class="lineNoCov">          0 :                                          frames_from_beg &lt; 1000);</span>
+<span class="lineNum">    1249 </span><span class="lineNoCov">          0 :                                 if (have_frame == 0 ||</span>
+<span class="lineNum">    1250 </span><span class="lineNoCov">          0 :                                         (sptr-&gt;frame_ts.have_dts == 0 &amp;&amp;</span>
+<span class="lineNum">    1251 </span><span class="lineNoCov">          0 :                                          sptr-&gt;frame_ts.have_pts == 0)) {</span>
+<span class="lineNum">    1252 </span>            :                                 } else {
+<span class="lineNum">    1253 </span><span class="lineNoCov">          0 :                                         sptr-&gt;start_dts = sptr-&gt;frame_ts.have_dts ? sptr-&gt;frame_ts.dts :</span>
+<span class="lineNum">    1254 </span><span class="lineNoCov">          0 :                                                           sptr-&gt;frame_ts.pts;</span>
+<span class="lineNum">    1255 </span><span class="lineNoCov">          0 :                                         if (sptr-&gt;is_video) {</span>
+<span class="lineNum">    1256 </span><span class="lineNoCov">          0 :                                                 sptr-&gt;start_dts -= frames_from_beg * sptr-&gt;ticks_per_frame;</span>
+<span class="lineNum">    1257 </span><span class="lineNoCov">          0 :                                         } else {</span>
+<span class="lineNum">    1258 </span>            :                                                 u64 conv;
+<span class="lineNum">    1259 </span><span class="lineNoCov">          0 :                                                 conv = sptr-&gt;samples_per_frame * 90000;</span>
+<span class="lineNum">    1260 </span><span class="lineNoCov">          0 :                                                 conv /= (u64)sptr-&gt;freq;</span>
+<span class="lineNum">    1261 </span><span class="lineNoCov">          0 :                                                 sptr-&gt;start_dts -= conv;</span>
+<span class="lineNum">    1262 </span>            :                                         }
+<span class="lineNum">    1263 </span>            :                                 }
+<span class="lineNum">    1264 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">    1265 </span><span class="lineCov">         12 :                         clear_stream_buffer(sptr);</span>
+<span class="lineNum">    1266 </span><span class="lineCov">         12 :                         sptr-&gt;m_fd = FDNULL;</span>
+<span class="lineNum">    1267 </span><span class="lineCov">         12 :                 }</span>
+<span class="lineNum">    1268 </span>            :         }
+<span class="lineNum">    1269 </span><span class="lineCov">          6 : }</span>
+<span class="lineNum">    1270 </span>            : 
+<span class="lineNum">    1271 </span>            : /*
+<span class="lineNum">    1272 </span>            :  * mpeg2ps_scan_file - read file, grabbing all the information that
+<a name="1273"><span class="lineNum">    1273 </span>            :  * we can out of it (what streams exist, timing, etc).</a>
+<span class="lineNum">    1274 </span>            :  */
+<span class="lineNum">    1275 </span>            : static void mpeg2ps_scan_file (mpeg2ps_t *ps)
+<span class="lineNum">    1276 </span>            : {
+<span class="lineNum">    1277 </span><span class="lineCov">         12 :         u8 stream_id, stream_ix, substream, av_ix, max_cnt;</span>
+<span class="lineNum">    1278 </span><span class="lineCov">          6 :         u16 pes_len, pes_left;</span>
+<span class="lineNum">    1279 </span><span class="lineCov">          6 :         mpeg2ps_ts_t ts;</span>
+<span class="lineNum">    1280 </span>            :         s64 loc, first_video_loc = 0, first_audio_loc = 0;
+<span class="lineNum">    1281 </span>            :         s64 check, orig_check;
+<span class="lineNum">    1282 </span>            :         mpeg2ps_stream_t *sptr;
+<span class="lineNum">    1283 </span>            :         Bool valid_stream;
+<span class="lineNum">    1284 </span><span class="lineCov">          6 :         u8 *buffer;</span>
+<span class="lineNum">    1285 </span><span class="lineCov">          6 :         u32 buflen;</span>
+<span class="lineNum">    1286 </span><span class="lineCov">          6 :         Bool have_ts;</span>
+<span class="lineNum">    1287 </span>            : 
+<span class="lineNum">    1288 </span><span class="lineCov">          6 :         ps-&gt;end_loc = file_size(ps-&gt;fd);</span>
+<span class="lineNum">    1289 </span><span class="lineCov">         12 :         orig_check = check = MAX(ps-&gt;end_loc / 50, 200 * 1024);</span>
+<span class="lineNum">    1290 </span>            : 
+<span class="lineNum">    1291 </span>            :         /*
+<span class="lineNum">    1292 </span>            :          * This part reads and finds the streams.  We check up until we
+<span class="lineNum">    1293 </span>            :          * find audio and video plus a little, with a max of either 200K or
+<span class="lineNum">    1294 </span>            :          * the file size / 50
+<span class="lineNum">    1295 </span>            :          */
+<span class="lineNum">    1296 </span>            :         loc = 0;
+<span class="lineNum">    1297 </span><span class="lineCov">        108 :         while (read_to_next_pes_header(ps-&gt;fd, &amp;stream_id, &amp;pes_len) &amp;&amp;</span>
+<span class="lineNum">    1298 </span><span class="lineCov">         36 :                 loc &lt; check) {</span>
+<span class="lineNum">    1299 </span><span class="lineCov">         30 :                 pes_left = pes_len;</span>
+<span class="lineNum">    1300 </span><span class="lineCov">         54 :                 if (stream_id &gt;= 0xbd &amp;&amp; stream_id &lt; 0xf0) {</span>
+<span class="lineNum">    1301 </span><span class="lineCov">         24 :                         loc = file_location(ps-&gt;fd) - 6;</span>
+<span class="lineNum">    1302 </span><span class="lineCov">         72 :                         if (read_pes_header_data(ps-&gt;fd,</span>
+<span class="lineNum">    1303 </span><span class="lineCov">         24 :                                                  pes_len,</span>
+<span class="lineNum">    1304 </span>            :                                                  &amp;pes_left,
+<span class="lineNum">    1305 </span>            :                                                  &amp;have_ts,
+<span class="lineNum">    1306 </span><span class="lineCov">         24 :                                                  &amp;ts) == 0) {</span>
+<span class="lineNum">    1307 </span><span class="lineNoCov">          0 :                                 return;</span>
+<span class="lineNum">    1308 </span>            :                         }
+<span class="lineNum">    1309 </span>            :                         valid_stream = 0;
+<span class="lineNum">    1310 </span><span class="lineCov">         24 :                         substream = 0;</span>
+<span class="lineNum">    1311 </span><span class="lineCov">         24 :                         if (stream_id == 0xbd) {</span>
+<span class="lineNum">    1312 </span><span class="lineNoCov">          0 :                                 if (file_read_bytes(ps-&gt;fd, &amp;substream, 1) == 0) {</span>
+<span class="lineNum">    1313 </span><span class="lineNoCov">          0 :                                         return;</span>
+<span class="lineNum">    1314 </span>            :                                 }
+<span class="lineNum">    1315 </span><span class="lineNoCov">          0 :                                 pes_left--; // remove byte we just read</span>
+<span class="lineNum">    1316 </span><span class="lineNoCov">          0 :                                 if ((substream &gt;= 0x80 &amp;&amp; substream &lt; 0x90) ||</span>
+<span class="lineNum">    1317 </span><span class="lineNoCov">          0 :                                         (substream &gt;= 0xa0 &amp;&amp; substream &lt; 0xb0)) {</span>
+<span class="lineNum">    1318 </span>            :                                         valid_stream = 1;
+<span class="lineNum">    1319 </span><span class="lineNoCov">          0 :                                 }</span>
+<span class="lineNum">    1320 </span><span class="lineCov">         42 :                         } else if (stream_id &gt;= 0xc0 &amp;&amp;</span>
+<span class="lineNum">    1321 </span><span class="lineCov">         18 :                                    stream_id &lt;= 0xef) {</span>
+<span class="lineNum">    1322 </span>            :                                 // audio and video
+<span class="lineNum">    1323 </span>            :                                 valid_stream = 1;
+<span class="lineNum">    1324 </span><span class="lineCov">         18 :                         }</span>
+<span class="lineNum">    1325 </span><span class="lineCov">         24 :                         if (valid_stream) {</span>
+<span class="lineNum">    1326 </span><span class="lineCov">         18 :                                 if (add_stream(ps, stream_id, substream, loc, &amp;ts)) {</span>
+<span class="lineNum">    1327 </span>            :                                         // added
+<span class="lineNum">    1328 </span><span class="lineCov">         12 :                                         if (stream_id &gt;= 0xe0) {</span>
+<span class="lineNum">    1329 </span><span class="lineCov">          6 :                                                 if (ps-&gt;video_cnt == 1) {</span>
+<span class="lineNum">    1330 </span>            :                                                         first_video_loc = loc;
+<span class="lineNum">    1331 </span><span class="lineCov">          6 :                                                 }</span>
+<span class="lineNum">    1332 </span><span class="lineCov">          6 :                                         } else if (ps-&gt;audio_cnt == 1) {</span>
+<span class="lineNum">    1333 </span>            :                                                 first_audio_loc = loc;
+<span class="lineNum">    1334 </span><span class="lineCov">          6 :                                         }</span>
+<span class="lineNum">    1335 </span><span class="lineCov">         18 :                                         if (ps-&gt;audio_cnt &gt; 0 &amp;&amp; ps-&gt;video_cnt &gt; 0) {</span>
+<span class="lineNum">    1336 </span>            :                                                 s64 diff;
+<span class="lineNum">    1337 </span><span class="lineCov">          6 :                                                 if (first_audio_loc &gt; first_video_loc)</span>
+<span class="lineNum">    1338 </span><span class="lineCov">          6 :                                                         diff = first_audio_loc - first_video_loc;</span>
+<span class="lineNum">    1339 </span>            :                                                 else
+<span class="lineNum">    1340 </span><span class="lineNoCov">          0 :                                                         diff = first_video_loc - first_audio_loc;</span>
+<span class="lineNum">    1341 </span><span class="lineCov">          6 :                                                 diff *= 2;</span>
+<span class="lineNum">    1342 </span><span class="lineCov">          6 :                                                 diff += first_video_loc;</span>
+<span class="lineNum">    1343 </span><span class="lineCov">          6 :                                                 if (diff &lt; check) {</span>
+<span class="lineNum">    1344 </span>            :                                                         check = diff;
+<span class="lineNum">    1345 </span><span class="lineCov">          6 :                                                 }</span>
+<span class="lineNum">    1346 </span><span class="lineCov">          6 :                                         }</span>
+<span class="lineNum">    1347 </span>            :                                 }
+<span class="lineNum">    1348 </span>            :                         }
+<span class="lineNum">    1349 </span>            :                 }
+<span class="lineNum">    1350 </span><span class="lineCov">         30 :                 file_skip_bytes(ps-&gt;fd, pes_left);</span>
+<span class="lineNum">    1351 </span>            :         }
+<span class="lineNum">    1352 </span><span class="lineCov">          6 :         if (ps-&gt;video_cnt == 0 &amp;&amp; ps-&gt;audio_cnt == 0) {</span>
+<span class="lineNum">    1353 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">    1354 </span>            :         }
+<span class="lineNum">    1355 </span>            :         /*
+<span class="lineNum">    1356 </span>            :          * Now, we go to close to the end, and try to find the last
+<span class="lineNum">    1357 </span>            :          * dts that we can
+<span class="lineNum">    1358 </span>            :          */
+<span class="lineNum">    1359 </span>            :         //  fprintf(stderr, &quot;to end &quot;X64&quot;\n&quot;, end - orig_check);
+<span class="lineNum">    1360 </span><span class="lineCov">          6 :         file_seek_to(ps-&gt;fd, ps-&gt;end_loc - orig_check);</span>
+<span class="lineNum">    1361 </span>            : 
+<span class="lineNum">    1362 </span><span class="lineCov">        618 :         while (read_to_next_pes_header(ps-&gt;fd, &amp;stream_id, &amp;pes_len)) {</span>
+<span class="lineNum">    1363 </span><span class="lineCov">        606 :                 loc = file_location(ps-&gt;fd) - 6;</span>
+<span class="lineNum">    1364 </span><span class="lineCov">       1758 :                 if (stream_id == 0xbd || (stream_id &gt;= 0xc0 &amp;&amp; stream_id &lt; 0xf0)) {</span>
+<span class="lineNum">    1365 </span><span class="lineCov">       1638 :                         if (read_pes_header_data(ps-&gt;fd,</span>
+<span class="lineNum">    1366 </span><span class="lineCov">        546 :                                                  pes_len,</span>
+<span class="lineNum">    1367 </span>            :                                                  &amp;pes_left,
+<span class="lineNum">    1368 </span>            :                                                  &amp;have_ts,
+<span class="lineNum">    1369 </span><span class="lineCov">        546 :                                                  &amp;ts) == 0) {</span>
+<span class="lineNum">    1370 </span><span class="lineNoCov">          0 :                                 return;</span>
+<span class="lineNum">    1371 </span>            :                         }
+<span class="lineNum">    1372 </span><span class="lineCov">        546 :                         if (stream_id == 0xbd) {</span>
+<span class="lineNum">    1373 </span><span class="lineNoCov">          0 :                                 if (file_read_bytes(ps-&gt;fd, &amp;substream, 1) == 0) {</span>
+<span class="lineNum">    1374 </span><span class="lineNoCov">          0 :                                         return;</span>
+<span class="lineNum">    1375 </span>            :                                 }
+<span class="lineNum">    1376 </span><span class="lineNoCov">          0 :                                 pes_left--; // remove byte we just read</span>
+<span class="lineNum">    1377 </span><span class="lineNoCov">          0 :                                 if (!((substream &gt;= 0x80 &amp;&amp; substream &lt; 0x90) ||</span>
+<span class="lineNum">    1378 </span><span class="lineNoCov">          0 :                                         (substream &gt;= 0xa0 &amp;&amp; substream &lt; 0xb0))) {</span>
+<span class="lineNum">    1379 </span><span class="lineNoCov">          0 :                                         file_skip_bytes(ps-&gt;fd, pes_left);</span>
+<span class="lineNum">    1380 </span><span class="lineNoCov">          0 :                                         continue;</span>
+<span class="lineNum">    1381 </span>            :                                 }
+<span class="lineNum">    1382 </span>            :                         } else {
+<span class="lineNum">    1383 </span><span class="lineCov">        546 :                                 substream = 0;</span>
+<span class="lineNum">    1384 </span>            :                         }
+<span class="lineNum">    1385 </span><span class="lineCov">        546 :                         sptr = find_stream_from_id(ps, stream_id, substream);</span>
+<span class="lineNum">    1386 </span><span class="lineCov">        546 :                         if (sptr == NULL) {</span>
+<span class="lineNum">    1387 </span><span class="lineNoCov">          0 :                                 add_stream(ps, stream_id, substream, 0, NULL);</span>
+<span class="lineNum">    1388 </span><span class="lineNoCov">          0 :                                 sptr = find_stream_from_id(ps, stream_id, substream);</span>
+<span class="lineNum">    1389 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">    1390 </span><span class="lineCov">        546 :                         if (sptr != NULL &amp;&amp; have_ts) {</span>
+<span class="lineNum">    1391 </span><span class="lineCov">        312 :                                 sptr-&gt;end_dts = ts.have_dts ? ts.dts : ts.pts;</span>
+<span class="lineNum">    1392 </span><span class="lineCov">        312 :                                 sptr-&gt;end_dts_loc = loc;</span>
+<span class="lineNum">    1393 </span><span class="lineCov">        312 :                         }</span>
+<span class="lineNum">    1394 </span>            : #if 0
+<span class="lineNum">    1395 </span>            :                         fprintf(stderr, &quot;loc &quot;X64&quot; stream %x %x&quot;, loc, stream_id, substream);
+<span class="lineNum">    1396 </span>            :                         if (ts.have_pts) fprintf(stderr, &quot; pts &quot;U64, ts.pts);
+<span class="lineNum">    1397 </span>            :                         if (ts.have_dts) fprintf(stderr, &quot; dts &quot;U64, ts.dts);
+<span class="lineNum">    1398 </span>            :                         fprintf(stderr, &quot;\n&quot;);
+<span class="lineNum">    1399 </span>            : #endif
+<span class="lineNum">    1400 </span><span class="lineCov">        546 :                         file_skip_bytes(ps-&gt;fd, pes_left);</span>
+<span class="lineNum">    1401 </span><span class="lineCov">        546 :                 }</span>
+<span class="lineNum">    1402 </span>            :         }
+<span class="lineNum">    1403 </span>            : 
+<span class="lineNum">    1404 </span>            :         /*
+<span class="lineNum">    1405 </span>            :          * Now, get the info for all streams, so we can use it again
+<span class="lineNum">    1406 </span>            :          * we could do this before the above, I suppose
+<span class="lineNum">    1407 </span>            :          */
+<span class="lineNum">    1408 </span><span class="lineCov">          6 :         get_info_for_all_streams(ps);</span>
+<span class="lineNum">    1409 </span>            : 
+<span class="lineNum">    1410 </span><span class="lineCov">          6 :         ps-&gt;first_dts = (u64) -1;</span>
+<span class="lineNum">    1411 </span>            : 
+<span class="lineNum">    1412 </span>            :         /*
+<span class="lineNum">    1413 </span>            :          * we need to find the earliest start pts - we use that to calc
+<span class="lineNum">    1414 </span>            :          * the rest of the timing, so we're 0 based.
+<span class="lineNum">    1415 </span>            :          */
+<span class="lineNum">    1416 </span><span class="lineCov">         36 :         for (av_ix = 0; av_ix &lt; 2; av_ix++) {</span>
+<span class="lineNum">    1417 </span><span class="lineCov">         18 :                 if (av_ix == 0) max_cnt = ps-&gt;video_cnt;</span>
+<span class="lineNum">    1418 </span><span class="lineCov">          6 :                 else max_cnt = ps-&gt;audio_cnt;</span>
+<span class="lineNum">    1419 </span>            : 
+<span class="lineNum">    1420 </span><span class="lineCov">         48 :                 for (stream_ix = 0; stream_ix &lt; max_cnt; stream_ix++) {</span>
+<span class="lineNum">    1421 </span><span class="lineCov">         36 :                         sptr = av_ix == 0 ? ps-&gt;video_streams[stream_ix] :</span>
+<span class="lineNum">    1422 </span><span class="lineCov">          6 :                                ps-&gt;audio_streams[stream_ix];</span>
+<span class="lineNum">    1423 </span><span class="lineCov">         24 :                         if (sptr != NULL &amp;&amp; sptr-&gt;start_dts &lt; ps-&gt;first_dts) {</span>
+<span class="lineNum">    1424 </span><span class="lineCov">          6 :                                 ps-&gt;first_dts = sptr-&gt;start_dts;</span>
+<span class="lineNum">    1425 </span><span class="lineCov">          6 :                         }</span>
+<span class="lineNum">    1426 </span>            :                 }
+<span class="lineNum">    1427 </span>            :         }
+<span class="lineNum">    1428 </span>            : 
+<span class="lineNum">    1429 </span>            :         /*
+<span class="lineNum">    1430 </span>            :          * Now, for each thread, we'll start at the last pts location, and
+<span class="lineNum">    1431 </span>            :          * read the number of frames.  This will give us a max time
+<span class="lineNum">    1432 </span>            :          */
+<span class="lineNum">    1433 </span><span class="lineCov">         36 :         for (av_ix = 0; av_ix &lt; 2; av_ix++) {</span>
+<span class="lineNum">    1434 </span><span class="lineCov">         18 :                 if (av_ix == 0) max_cnt = ps-&gt;video_cnt;</span>
+<span class="lineNum">    1435 </span><span class="lineCov">          6 :                 else max_cnt = ps-&gt;audio_cnt;</span>
+<span class="lineNum">    1436 </span><span class="lineCov">         48 :                 for (stream_ix = 0; stream_ix &lt; max_cnt; stream_ix++) {</span>
+<span class="lineNum">    1437 </span>            :                         u32 frame_cnt_since_last;
+<span class="lineNum">    1438 </span><span class="lineCov">         36 :                         sptr = av_ix == 0 ? ps-&gt;video_streams[stream_ix] :</span>
+<span class="lineNum">    1439 </span><span class="lineCov">          6 :                                ps-&gt;audio_streams[stream_ix];</span>
+<span class="lineNum">    1440 </span>            : 
+<span class="lineNum">    1441 </span>            :                         // pick up here - find the final time...
+<span class="lineNum">    1442 </span><span class="lineCov">         12 :                         if (sptr-&gt;end_dts_loc != 0) {</span>
+<span class="lineNum">    1443 </span><span class="lineCov">         12 :                                 file_seek_to(ps-&gt;fd, sptr-&gt;end_dts_loc);</span>
+<span class="lineNum">    1444 </span><span class="lineCov">         12 :                                 sptr-&gt;m_fd = ps-&gt;fd;</span>
+<span class="lineNum">    1445 </span>            :                                 frame_cnt_since_last = 0;
+<span class="lineNum">    1446 </span><span class="lineCov">         12 :                                 clear_stream_buffer(sptr);</span>
+<span class="lineNum">    1447 </span><span class="lineCov">         60 :                                 while (mpeg2ps_stream_read_frame(sptr,</span>
+<span class="lineNum">    1448 </span>            :                                                                  &amp;buffer,
+<span class="lineNum">    1449 </span>            :                                                                  &amp;buflen,
+<span class="lineNum">    1450 </span>            :                                                                  1)) {
+<span class="lineNum">    1451 </span><span class="lineCov">         18 :                                         frame_cnt_since_last++;</span>
+<span class="lineNum">    1452 </span>            :                                 }
+<span class="lineNum">    1453 </span><span class="lineCov">         12 :                                 sptr-&gt;m_fd = FDNULL;</span>
+<span class="lineNum">    1454 </span><span class="lineCov">         12 :                                 clear_stream_buffer(sptr);</span>
+<span class="lineNum">    1455 </span><span class="lineCov">         36 :                                 ps-&gt;max_time = MAX(ps-&gt;max_time,</span>
+<span class="lineNum">    1456 </span>            :                                                    convert_ts(sptr,
+<span class="lineNum">    1457 </span>            :                                                               TS_MSEC,
+<span class="lineNum">    1458 </span>            :                                                               sptr-&gt;end_dts,
+<span class="lineNum">    1459 </span>            :                                                               ps-&gt;first_dts,
+<span class="lineNum">    1460 </span>            :                                                               frame_cnt_since_last));
+<span class="lineNum">    1461 </span><span class="lineCov">         12 :                         }</span>
+<span class="lineNum">    1462 </span>            :                 }
+<span class="lineNum">    1463 </span>            :         }
+<span class="lineNum">    1464 </span>            : 
+<span class="lineNum">    1465 </span><span class="lineCov">          6 :         ps-&gt;max_dts = (ps-&gt;max_time * 90) + ps-&gt;first_dts;</span>
+<span class="lineNum">    1466 </span><span class="lineCov">          6 :         file_seek_to(ps-&gt;fd, 0);</span>
+<span class="lineNum">    1467 </span><span class="lineCov">         12 : }</span>
+<span class="lineNum">    1468 </span>            : 
+<span class="lineNum">    1469 </span>            : /*************************************************************************
+<a name="1470"><span class="lineNum">    1470 </span>            :  * API routines</a>
+<span class="lineNum">    1471 </span>            :  *************************************************************************/
+<span class="lineNum">    1472 </span>            : u64 mpeg2ps_get_max_time_msec (mpeg2ps_t *ps)
+<span class="lineNum">    1473 </span>            : {
+<span class="lineNum">    1474 </span><span class="lineNoCov">          0 :         return ps-&gt;max_time;</span>
+<a name="1475"><span class="lineNum">    1475 </span>            : }</a>
+<span class="lineNum">    1476 </span>            : 
+<span class="lineNum">    1477 </span>            : u32 mpeg2ps_get_video_stream_count (mpeg2ps_t *ps)
+<span class="lineNum">    1478 </span>            : {
+<span class="lineNum">    1479 </span><span class="lineCov">         12 :         return ps-&gt;video_cnt;</span>
+<span class="lineNum">    1480 </span>            : }
+<span class="lineNum">    1481 </span>            : 
+<span class="lineNum">    1482 </span>            : #define NUM_ELEMENTS_IN_ARRAY(name) ((sizeof((name))) / (sizeof(*(name))))
+<a name="1483"><span class="lineNum">    1483 </span>            : </a>
+<span class="lineNum">    1484 </span>            : // routine to check stream number passed.
+<span class="lineNum">    1485 </span>            : static Bool invalid_video_streamno (mpeg2ps_t *ps, u32 streamno)
+<span class="lineNum">    1486 </span>            : {
+<span class="lineNum">    1487 </span><span class="lineCov">       4100 :         if (streamno &gt;= NUM_ELEMENTS_IN_ARRAY(ps-&gt;video_streams)) return 1;</span>
+<span class="lineNum">    1488 </span><span class="lineCov">       2050 :         if (ps-&gt;video_streams[streamno] == NULL) return 1;</span>
+<span class="lineNum">    1489 </span><span class="lineCov">       2050 :         return 0;</span>
+<a name="1490"><span class="lineNum">    1490 </span><span class="lineCov">       2050 : }</span></a>
+<span class="lineNum">    1491 </span>            : 
+<span class="lineNum">    1492 </span>            : const char *mpeg2ps_get_video_stream_name (mpeg2ps_t *ps, u32 streamno)
+<span class="lineNum">    1493 </span>            : {
+<span class="lineNum">    1494 </span><span class="lineNoCov">          0 :         if (invalid_video_streamno(ps, streamno)) {</span>
+<span class="lineNum">    1495 </span><span class="lineNoCov">          0 :                 return 0;</span>
+<span class="lineNum">    1496 </span>            :         }
+<span class="lineNum">    1497 </span><span class="lineNoCov">          0 :         if (ps-&gt;video_streams[streamno]-&gt;have_mpeg2) {</span>
+<span class="lineNum">    1498 </span><span class="lineNoCov">          0 :                 return &quot;Mpeg-2&quot;;</span>
+<span class="lineNum">    1499 </span>            :         }
+<span class="lineNum">    1500 </span><span class="lineNoCov">          0 :         return &quot;Mpeg-1&quot;;</span>
+<a name="1501"><span class="lineNum">    1501 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">    1502 </span>            : 
+<span class="lineNum">    1503 </span>            : mpeg2ps_video_type_t mpeg2ps_get_video_stream_type (mpeg2ps_t *ps,
+<span class="lineNum">    1504 </span>            :         u32 streamno)
+<span class="lineNum">    1505 </span>            : {
+<span class="lineNum">    1506 </span><span class="lineCov">          6 :         if (invalid_video_streamno(ps, streamno)) {</span>
+<span class="lineNum">    1507 </span><span class="lineNoCov">          0 :                 return MPEG_VIDEO_UNKNOWN;</span>
+<span class="lineNum">    1508 </span>            :         }
+<span class="lineNum">    1509 </span><span class="lineCov">          3 :         return ps-&gt;video_streams[streamno]-&gt;have_mpeg2 ? MPEG_VIDEO_MPEG2 : MPEG_VIDEO_MPEG1;</span>
+<a name="1510"><span class="lineNum">    1510 </span><span class="lineCov">          3 : }</span></a>
+<span class="lineNum">    1511 </span>            : 
+<span class="lineNum">    1512 </span>            : u32 mpeg2ps_get_video_stream_width (mpeg2ps_t *ps, u32 streamno)
+<span class="lineNum">    1513 </span>            : {
+<span class="lineNum">    1514 </span><span class="lineCov">          6 :         if (invalid_video_streamno(ps, streamno)) {</span>
+<span class="lineNum">    1515 </span><span class="lineNoCov">          0 :                 return 0;</span>
+<span class="lineNum">    1516 </span>            :         }
+<span class="lineNum">    1517 </span><span class="lineCov">          3 :         return ps-&gt;video_streams[streamno]-&gt;w;</span>
+<a name="1518"><span class="lineNum">    1518 </span><span class="lineCov">          3 : }</span></a>
+<span class="lineNum">    1519 </span>            : 
+<span class="lineNum">    1520 </span>            : u32 mpeg2ps_get_video_stream_height (mpeg2ps_t *ps, u32 streamno)
+<span class="lineNum">    1521 </span>            : {
+<span class="lineNum">    1522 </span><span class="lineCov">          6 :         if (invalid_video_streamno(ps, streamno)) {</span>
+<span class="lineNum">    1523 </span><span class="lineNoCov">          0 :                 return 0;</span>
+<span class="lineNum">    1524 </span>            :         }
+<span class="lineNum">    1525 </span><span class="lineCov">          3 :         return ps-&gt;video_streams[streamno]-&gt;h;</span>
+<a name="1526"><span class="lineNum">    1526 </span><span class="lineCov">          3 : }</span></a>
+<span class="lineNum">    1527 </span>            : 
+<span class="lineNum">    1528 </span>            : u32 mpeg2ps_get_video_stream_aspect_ratio (mpeg2ps_t *ps, u32 streamno)
+<span class="lineNum">    1529 </span>            : {
+<span class="lineNum">    1530 </span><span class="lineCov">          6 :         if (invalid_video_streamno(ps, streamno)) {</span>
+<span class="lineNum">    1531 </span><span class="lineNoCov">          0 :                 return 0;</span>
+<span class="lineNum">    1532 </span>            :         }
+<span class="lineNum">    1533 </span><span class="lineCov">          3 :         return ps-&gt;video_streams[streamno]-&gt;par;</span>
+<a name="1534"><span class="lineNum">    1534 </span><span class="lineCov">          3 : }</span></a>
+<span class="lineNum">    1535 </span>            : 
+<span class="lineNum">    1536 </span>            : Double mpeg2ps_get_video_stream_bitrate (mpeg2ps_t *ps, u32 streamno)
+<span class="lineNum">    1537 </span>            : {
+<span class="lineNum">    1538 </span><span class="lineNoCov">          0 :         if (invalid_video_streamno(ps, streamno)) {</span>
+<span class="lineNum">    1539 </span><span class="lineNoCov">          0 :                 return 0;</span>
+<span class="lineNum">    1540 </span>            :         }
+<span class="lineNum">    1541 </span><span class="lineNoCov">          0 :         return ps-&gt;video_streams[streamno]-&gt;bit_rate;</span>
+<a name="1542"><span class="lineNum">    1542 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">    1543 </span>            : 
+<span class="lineNum">    1544 </span>            : Double mpeg2ps_get_video_stream_framerate (mpeg2ps_t *ps, u32 streamno)
+<span class="lineNum">    1545 </span>            : {
+<span class="lineNum">    1546 </span><span class="lineCov">          6 :         if (invalid_video_streamno(ps, streamno)) {</span>
+<span class="lineNum">    1547 </span><span class="lineNoCov">          0 :                 return 0;</span>
+<span class="lineNum">    1548 </span>            :         }
+<span class="lineNum">    1549 </span><span class="lineCov">          3 :         return ps-&gt;video_streams[streamno]-&gt;frame_rate;</span>
+<a name="1550"><span class="lineNum">    1550 </span><span class="lineCov">          3 : }</span></a>
+<span class="lineNum">    1551 </span>            : 
+<span class="lineNum">    1552 </span>            : static Bool invalid_audio_streamno (mpeg2ps_t *ps, u32 streamno)
+<span class="lineNum">    1553 </span>            : {
+<span class="lineNum">    1554 </span><span class="lineCov">       6248 :         if (streamno &gt;= NUM_ELEMENTS_IN_ARRAY(ps-&gt;audio_streams)) return 1;</span>
+<span class="lineNum">    1555 </span><span class="lineCov">       3124 :         if (ps-&gt;audio_streams[streamno] == NULL) return 1;</span>
+<span class="lineNum">    1556 </span><span class="lineCov">       3124 :         return 0;</span>
+<a name="1557"><span class="lineNum">    1557 </span><span class="lineCov">       3124 : }</span></a>
+<span class="lineNum">    1558 </span>            : 
+<span class="lineNum">    1559 </span>            : u32 mpeg2ps_get_audio_stream_count (mpeg2ps_t *ps)
+<span class="lineNum">    1560 </span>            : {
+<span class="lineNum">    1561 </span><span class="lineCov">          8 :         return ps-&gt;audio_cnt;</span>
+<a name="1562"><span class="lineNum">    1562 </span>            : }</a>
+<span class="lineNum">    1563 </span>            : 
+<span class="lineNum">    1564 </span>            : const char *mpeg2ps_get_audio_stream_name (mpeg2ps_t *ps,
+<span class="lineNum">    1565 </span>            :         u32 streamno)
+<span class="lineNum">    1566 </span>            : {
+<span class="lineNum">    1567 </span><span class="lineNoCov">          0 :         if (invalid_audio_streamno(ps, streamno)) {</span>
+<span class="lineNum">    1568 </span><span class="lineNoCov">          0 :                 return &quot;none&quot;;</span>
+<span class="lineNum">    1569 </span>            :         }
+<span class="lineNum">    1570 </span><span class="lineNoCov">          0 :         if (ps-&gt;audio_streams[streamno]-&gt;m_stream_id &gt;= 0xc0) {</span>
+<span class="lineNum">    1571 </span><span class="lineNoCov">          0 :                 switch (ps-&gt;audio_streams[streamno]-&gt;layer) {</span>
+<span class="lineNum">    1572 </span>            :                 case 1:
+<span class="lineNum">    1573 </span><span class="lineNoCov">          0 :                         return &quot;MP1&quot;;</span>
+<span class="lineNum">    1574 </span>            :                 case 2:
+<span class="lineNum">    1575 </span><span class="lineNoCov">          0 :                         return &quot;MP2&quot;;</span>
+<span class="lineNum">    1576 </span>            :                 case 3:
+<span class="lineNum">    1577 </span><span class="lineNoCov">          0 :                         return &quot;MP3&quot;;</span>
+<span class="lineNum">    1578 </span>            :                 }
+<span class="lineNum">    1579 </span><span class="lineNoCov">          0 :                 return &quot;unknown mpeg layer&quot;;</span>
+<span class="lineNum">    1580 </span>            :         }
+<span class="lineNum">    1581 </span><span class="lineNoCov">          0 :         if (ps-&gt;audio_streams[streamno]-&gt;m_substream_id &gt;= 0x80 &amp;&amp;</span>
+<span class="lineNum">    1582 </span><span class="lineNoCov">          0 :                 ps-&gt;audio_streams[streamno]-&gt;m_substream_id &lt; 0x90)</span>
+<span class="lineNum">    1583 </span><span class="lineNoCov">          0 :                 return &quot;AC3&quot;;</span>
+<span class="lineNum">    1584 </span>            : 
+<span class="lineNum">    1585 </span><span class="lineNoCov">          0 :         return &quot;LPCM&quot;;</span>
+<a name="1586"><span class="lineNum">    1586 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">    1587 </span>            : 
+<span class="lineNum">    1588 </span>            : mpeg2ps_audio_type_t mpeg2ps_get_audio_stream_type (mpeg2ps_t *ps,
+<span class="lineNum">    1589 </span>            :         u32 streamno)
+<span class="lineNum">    1590 </span>            : {
+<span class="lineNum">    1591 </span><span class="lineCov">          6 :         if (invalid_audio_streamno(ps, streamno)) {</span>
+<span class="lineNum">    1592 </span><span class="lineNoCov">          0 :                 return MPEG_AUDIO_UNKNOWN;</span>
+<span class="lineNum">    1593 </span>            :         }
+<span class="lineNum">    1594 </span><span class="lineCov">          3 :         if (ps-&gt;audio_streams[streamno]-&gt;m_stream_id &gt;= 0xc0) {</span>
+<span class="lineNum">    1595 </span><span class="lineCov">          3 :                 return MPEG_AUDIO_MPEG;</span>
+<span class="lineNum">    1596 </span>            :         }
+<span class="lineNum">    1597 </span><span class="lineNoCov">          0 :         if (ps-&gt;audio_streams[streamno]-&gt;m_substream_id &gt;= 0x80 &amp;&amp;</span>
+<span class="lineNum">    1598 </span><span class="lineNoCov">          0 :                 ps-&gt;audio_streams[streamno]-&gt;m_substream_id &lt; 0x90)</span>
+<span class="lineNum">    1599 </span><span class="lineNoCov">          0 :                 return MPEG_AUDIO_AC3;</span>
+<span class="lineNum">    1600 </span>            : 
+<span class="lineNum">    1601 </span><span class="lineNoCov">          0 :         return MPEG_AUDIO_LPCM;</span>
+<a name="1602"><span class="lineNum">    1602 </span><span class="lineCov">          3 : }</span></a>
+<span class="lineNum">    1603 </span>            : 
+<span class="lineNum">    1604 </span>            : u32 mpeg2ps_get_audio_stream_sample_freq (mpeg2ps_t *ps, u32 streamno)
+<span class="lineNum">    1605 </span>            : {
+<span class="lineNum">    1606 </span><span class="lineCov">          4 :         if (invalid_audio_streamno(ps, streamno)) {</span>
+<span class="lineNum">    1607 </span><span class="lineNoCov">          0 :                 return 0;</span>
+<span class="lineNum">    1608 </span>            :         }
+<span class="lineNum">    1609 </span><span class="lineCov">          2 :         return ps-&gt;audio_streams[streamno]-&gt;freq;</span>
+<a name="1610"><span class="lineNum">    1610 </span><span class="lineCov">          2 : }</span></a>
+<span class="lineNum">    1611 </span>            : 
+<span class="lineNum">    1612 </span>            : u32 mpeg2ps_get_audio_stream_channels (mpeg2ps_t *ps, u32 streamno)
+<span class="lineNum">    1613 </span>            : {
+<span class="lineNum">    1614 </span><span class="lineCov">          4 :         if (invalid_audio_streamno(ps, streamno)) {</span>
+<span class="lineNum">    1615 </span><span class="lineNoCov">          0 :                 return 0;</span>
+<span class="lineNum">    1616 </span>            :         }
+<span class="lineNum">    1617 </span><span class="lineCov">          2 :         return ps-&gt;audio_streams[streamno]-&gt;channels;</span>
+<a name="1618"><span class="lineNum">    1618 </span><span class="lineCov">          2 : }</span></a>
+<span class="lineNum">    1619 </span>            : 
+<span class="lineNum">    1620 </span>            : u32 mpeg2ps_get_audio_stream_bitrate (mpeg2ps_t *ps, u32 streamno)
+<span class="lineNum">    1621 </span>            : {
+<span class="lineNum">    1622 </span><span class="lineNoCov">          0 :         if (invalid_audio_streamno(ps, streamno)) {</span>
+<span class="lineNum">    1623 </span><span class="lineNoCov">          0 :                 return 0;</span>
+<span class="lineNum">    1624 </span>            :         }
+<span class="lineNum">    1625 </span><span class="lineNoCov">          0 :         return ps-&gt;audio_streams[streamno]-&gt;bitrate;</span>
+<a name="1626"><span class="lineNum">    1626 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">    1627 </span>            : 
+<span class="lineNum">    1628 </span>            : mpeg2ps_t *mpeg2ps_init (const char *filename)
+<span class="lineNum">    1629 </span>            : {
+<span class="lineNum">    1630 </span>            :         mpeg2ps_t *ps;
+<span class="lineNum">    1631 </span><span class="lineCov">         18 :         GF_SAFEALLOC(ps, mpeg2ps_t);</span>
+<span class="lineNum">    1632 </span>            : 
+<span class="lineNum">    1633 </span><span class="lineCov">          6 :         if (ps == NULL) {</span>
+<span class="lineNum">    1634 </span><span class="lineNoCov">          0 :                 return NULL;</span>
+<span class="lineNum">    1635 </span>            :         }
+<span class="lineNum">    1636 </span><span class="lineCov">          6 :         memset(ps, 0, sizeof(*ps));</span>
+<span class="lineNum">    1637 </span><span class="lineCov">          6 :         ps-&gt;fd = file_open(filename);</span>
+<span class="lineNum">    1638 </span><span class="lineCov">          6 :         if (file_okay(ps-&gt;fd) == 0) {</span>
+<span class="lineNum">    1639 </span><span class="lineNoCov">          0 :                 gf_free(ps);</span>
+<span class="lineNum">    1640 </span><span class="lineNoCov">          0 :                 return NULL;</span>
+<span class="lineNum">    1641 </span>            :         }
+<span class="lineNum">    1642 </span>            : 
+<span class="lineNum">    1643 </span><span class="lineCov">          6 :         ps-&gt;filename = gf_strdup(filename);</span>
+<span class="lineNum">    1644 </span><span class="lineCov">          6 :         mpeg2ps_scan_file(ps);</span>
+<span class="lineNum">    1645 </span><span class="lineCov">          6 :         if (ps-&gt;video_cnt == 0 &amp;&amp; ps-&gt;audio_cnt == 0) {</span>
+<span class="lineNum">    1646 </span><span class="lineNoCov">          0 :                 mpeg2ps_close(ps);</span>
+<span class="lineNum">    1647 </span><span class="lineNoCov">          0 :                 return NULL;</span>
+<span class="lineNum">    1648 </span>            :         }
+<span class="lineNum">    1649 </span><span class="lineCov">          6 :         return ps;</span>
+<a name="1650"><span class="lineNum">    1650 </span><span class="lineCov">          6 : }</span></a>
+<span class="lineNum">    1651 </span>            : 
+<span class="lineNum">    1652 </span>            : void mpeg2ps_close (mpeg2ps_t *ps)
+<span class="lineNum">    1653 </span>            : {
+<span class="lineNum">    1654 </span>            :         u32 ix;
+<span class="lineNum">    1655 </span><span class="lineCov">         12 :         if (ps == NULL) return;</span>
+<span class="lineNum">    1656 </span><span class="lineCov">         24 :         for (ix = 0; ix &lt; ps-&gt;video_cnt; ix++) {</span>
+<span class="lineNum">    1657 </span><span class="lineCov">          6 :                 mpeg2ps_stream_destroy(ps-&gt;video_streams[ix]);</span>
+<span class="lineNum">    1658 </span><span class="lineCov">          6 :                 ps-&gt;video_streams[ix] = NULL;</span>
+<span class="lineNum">    1659 </span>            :         }
+<span class="lineNum">    1660 </span><span class="lineCov">         24 :         for (ix = 0; ix &lt; ps-&gt;audio_cnt; ix++) {</span>
+<span class="lineNum">    1661 </span><span class="lineCov">          6 :                 mpeg2ps_stream_destroy(ps-&gt;audio_streams[ix]);</span>
+<span class="lineNum">    1662 </span><span class="lineCov">          6 :                 ps-&gt;audio_streams[ix] = NULL;</span>
+<span class="lineNum">    1663 </span>            :         }
+<span class="lineNum">    1664 </span>            : 
+<span class="lineNum">    1665 </span><span class="lineCov">         12 :         if (ps-&gt;filename) gf_free(ps-&gt;filename);</span>
+<span class="lineNum">    1666 </span><span class="lineCov">         12 :         if (ps-&gt;fd) file_close(ps-&gt;fd);</span>
+<span class="lineNum">    1667 </span><span class="lineCov">          6 :         gf_free(ps);</span>
+<span class="lineNum">    1668 </span><span class="lineCov">         12 : }</span>
+<span class="lineNum">    1669 </span>            : 
+<span class="lineNum">    1670 </span>            : /*
+<span class="lineNum">    1671 </span>            :  * check_fd_for_stream will make sure we have a fd for the stream we're
+<span class="lineNum">    1672 </span>            :  * trying to read - we use a different fd for each stream
+<span class="lineNum">    1673 </span>            :  */
+<span class="lineNum">    1674 </span>            : 
+<span class="lineNum">    1675 </span>            : /*
+<span class="lineNum">    1676 </span>            :  * stream_convert_frame_ts_to_msec - given a &quot;read&quot; frame, we'll
+<span class="lineNum">    1677 </span>            :  * calculate the msec and freq timestamps.  This can be called more
+<span class="lineNum">    1678 </span>            :  * than 1 time, if needed, without changing any variables, such as
+<a name="1679"><span class="lineNum">    1679 </span>            :  * frames_since_last_ts, which gets updated in advance_frame</a>
+<span class="lineNum">    1680 </span>            :  */
+<span class="lineNum">    1681 </span>            : static u64 stream_convert_frame_ts_to_msec (mpeg2ps_stream_t *sptr,
+<span class="lineNum">    1682 </span>            :         mpeg2ps_ts_type_t ts_type,
+<span class="lineNum">    1683 </span>            :         u64 base_dts,
+<span class="lineNum">    1684 </span>            :         u32 *freq_ts)
+<span class="lineNum">    1685 </span>            : {
+<span class="lineNum">    1686 </span>            :         u64 calc_ts;
+<span class="lineNum">    1687 </span>            :         u32 frames_since_last = 0;
+<span class="lineNum">    1688 </span>            :         u64 freq_conv;
+<span class="lineNum">    1689 </span>            : 
+<span class="lineNum">    1690 </span><span class="lineNoCov">          0 :         calc_ts = sptr-&gt;last_ts;</span>
+<span class="lineNum">    1691 </span><span class="lineNoCov">          0 :         if (sptr-&gt;frame_ts.have_dts) calc_ts = sptr-&gt;frame_ts.dts;</span>
+<span class="lineNum">    1692 </span><span class="lineNoCov">          0 :         else if (sptr-&gt;frame_ts.have_pts) calc_ts = sptr-&gt;frame_ts.dts;</span>
+<span class="lineNum">    1693 </span><span class="lineNoCov">          0 :         else frames_since_last = sptr-&gt;frames_since_last_ts + 1;</span>
+<span class="lineNum">    1694 </span>            : 
+<span class="lineNum">    1695 </span><span class="lineNoCov">          0 :         if (freq_ts != NULL) {</span>
+<span class="lineNum">    1696 </span><span class="lineNoCov">          0 :                 freq_conv = calc_ts - base_dts;</span>
+<span class="lineNum">    1697 </span><span class="lineNoCov">          0 :                 freq_conv *= sptr-&gt;freq;</span>
+<span class="lineNum">    1698 </span><span class="lineNoCov">          0 :                 freq_conv /= 90000;</span>
+<span class="lineNum">    1699 </span><span class="lineNoCov">          0 :                 freq_conv += frames_since_last * sptr-&gt;samples_per_frame;</span>
+<span class="lineNum">    1700 </span><span class="lineNoCov">          0 :                 *freq_ts = (u32) (freq_conv &amp; 0xffffffff);</span>
+<span class="lineNum">    1701 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">    1702 </span><span class="lineNoCov">          0 :         return convert_ts(sptr, ts_type, calc_ts, base_dts, frames_since_last);</span>
+<span class="lineNum">    1703 </span>            : }
+<span class="lineNum">    1704 </span>            : 
+<span class="lineNum">    1705 </span>            : /*
+<a name="1706"><span class="lineNum">    1706 </span>            :  * mpeg2ps_get_video_frame - gets the next frame</a>
+<span class="lineNum">    1707 </span>            :  */
+<span class="lineNum">    1708 </span>            : Bool mpeg2ps_get_video_frame(mpeg2ps_t *ps, u32 streamno,
+<span class="lineNum">    1709 </span>            :                              u8 **buffer,
+<span class="lineNum">    1710 </span>            :                              u32 *buflen,
+<span class="lineNum">    1711 </span>            :                              u8 *frame_type,
+<span class="lineNum">    1712 </span>            :                              mpeg2ps_ts_type_t ts_type,
+<span class="lineNum">    1713 </span>            :                              u64 *timestamp)
+<span class="lineNum">    1714 </span>            : {
+<span class="lineNum">    1715 </span>            :         mpeg2ps_stream_t *sptr;
+<span class="lineNum">    1716 </span><span class="lineCov">       2036 :         if (invalid_video_streamno(ps, streamno)) return 0;</span>
+<span class="lineNum">    1717 </span>            : 
+<span class="lineNum">    1718 </span><span class="lineCov">       1018 :         sptr = ps-&gt;video_streams[streamno];</span>
+<span class="lineNum">    1719 </span><span class="lineCov">       1018 :         check_fd_for_stream(ps, sptr);</span>
+<span class="lineNum">    1720 </span>            : 
+<span class="lineNum">    1721 </span><span class="lineCov">       1018 :         if (sptr-&gt;have_frame_loaded == 0) {</span>
+<span class="lineNum">    1722 </span>            :                 // if we don't have the frame in the buffer (like after a seek),
+<span class="lineNum">    1723 </span>            :                 // read the next frame
+<span class="lineNum">    1724 </span><span class="lineCov">       1018 :                 if (mpeg2ps_stream_find_mpeg_video_frame(sptr) == 0) {</span>
+<span class="lineNum">    1725 </span><span class="lineCov">          1 :                         return 0;</span>
+<span class="lineNum">    1726 </span>            :                 }
+<span class="lineNum">    1727 </span>            :         }
+<span class="lineNum">    1728 </span><span class="lineCov">       1017 :         *buffer = sptr-&gt;pes_buffer + sptr-&gt;pes_buffer_on;</span>
+<span class="lineNum">    1729 </span><span class="lineCov">       1017 :         *buflen = sptr-&gt;frame_len;</span>
+<span class="lineNum">    1730 </span>            :         // determine frame type
+<span class="lineNum">    1731 </span><span class="lineCov">       1017 :         if (frame_type != NULL) {</span>
+<span class="lineNum">    1732 </span><span class="lineCov">       2034 :                 *frame_type = MPEG12_PictHdrType(sptr-&gt;pes_buffer +</span>
+<span class="lineNum">    1733 </span><span class="lineCov">       1017 :                                                  sptr-&gt;pict_header_offset);</span>
+<span class="lineNum">    1734 </span><span class="lineCov">       1017 :         }</span>
+<span class="lineNum">    1735 </span>            : 
+<span class="lineNum">    1736 </span>            :         // and the timestamp
+<span class="lineNum">    1737 </span><span class="lineCov">       1017 :         if (timestamp != NULL) {</span>
+<span class="lineNum">    1738 </span><span class="lineNoCov">          0 :                 *timestamp = stream_convert_frame_ts_to_msec(sptr, ts_type,</span>
+<span class="lineNum">    1739 </span><span class="lineNoCov">          0 :                              ps-&gt;first_dts, NULL);</span>
+<span class="lineNum">    1740 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">    1741 </span>            : 
+<span class="lineNum">    1742 </span>            :         // finally, indicate that we read this frame - get ready for the next one.
+<span class="lineNum">    1743 </span><span class="lineCov">       1017 :         advance_frame(sptr);</span>
+<span class="lineNum">    1744 </span>            : 
+<span class="lineNum">    1745 </span><span class="lineCov">       1017 :         return 1;</span>
+<span class="lineNum">    1746 </span><span class="lineCov">       1018 : }</span>
+<span class="lineNum">    1747 </span>            : 
+<a name="1748"><span class="lineNum">    1748 </span>            : </a>
+<span class="lineNum">    1749 </span>            : // see above comments
+<span class="lineNum">    1750 </span>            : Bool mpeg2ps_get_audio_frame(mpeg2ps_t *ps, u32 streamno,
+<span class="lineNum">    1751 </span>            :                              u8 **buffer,
+<span class="lineNum">    1752 </span>            :                              u32 *buflen,
+<span class="lineNum">    1753 </span>            :                              mpeg2ps_ts_type_t ts_type,
+<span class="lineNum">    1754 </span>            :                              u32 *freq_timestamp,
+<span class="lineNum">    1755 </span>            :                              u64 *timestamp)
+<span class="lineNum">    1756 </span>            : {
+<span class="lineNum">    1757 </span>            :         mpeg2ps_stream_t *sptr;
+<span class="lineNum">    1758 </span>            :         u64 ts;
+<span class="lineNum">    1759 </span><span class="lineCov">       3118 :         if (invalid_audio_streamno(ps, streamno)) return 0;</span>
+<span class="lineNum">    1760 </span>            : 
+<span class="lineNum">    1761 </span><span class="lineCov">       1559 :         sptr = ps-&gt;audio_streams[streamno];</span>
+<span class="lineNum">    1762 </span><span class="lineCov">       1559 :         check_fd_for_stream(ps, sptr);</span>
+<span class="lineNum">    1763 </span>            : 
+<span class="lineNum">    1764 </span><span class="lineCov">       1559 :         if (sptr-&gt;have_frame_loaded == 0) {</span>
+<span class="lineNum">    1765 </span><span class="lineCov">       1559 :                 if (mpeg2ps_stream_read_frame(sptr, buffer, buflen, 0) == 0)</span>
+<span class="lineNum">    1766 </span><span class="lineCov">          1 :                         return 0;</span>
+<span class="lineNum">    1767 </span>            :         }
+<span class="lineNum">    1768 </span>            : 
+<span class="lineNum">    1769 </span><span class="lineCov">       1558 :         if (timestamp != NULL || freq_timestamp != NULL) {</span>
+<span class="lineNum">    1770 </span><span class="lineNoCov">          0 :                 ts = stream_convert_frame_ts_to_msec(sptr,</span>
+<span class="lineNum">    1771 </span>            :                                                      ts_type,
+<span class="lineNum">    1772 </span><span class="lineNoCov">          0 :                                                      ps-&gt;first_dts,</span>
+<span class="lineNum">    1773 </span>            :                                                      freq_timestamp);
+<span class="lineNum">    1774 </span><span class="lineNoCov">          0 :                 if (timestamp != NULL) {</span>
+<span class="lineNum">    1775 </span><span class="lineNoCov">          0 :                         *timestamp = ts;</span>
+<span class="lineNum">    1776 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">    1777 </span>            :         }
+<span class="lineNum">    1778 </span>            : 
+<span class="lineNum">    1779 </span><span class="lineCov">       1558 :         advance_frame(sptr);</span>
+<span class="lineNum">    1780 </span><span class="lineCov">       1558 :         return 1;</span>
+<a name="1781"><span class="lineNum">    1781 </span><span class="lineCov">       1559 : }</span></a>
+<span class="lineNum">    1782 </span>            : 
+<span class="lineNum">    1783 </span>            : u64 mpeg2ps_get_ps_size(mpeg2ps_t *ps)
+<span class="lineNum">    1784 </span>            : {
+<a name="1785"><span class="lineNum">    1785 </span><span class="lineCov">          4 :         return file_size(ps-&gt;fd);</span></a>
+<span class="lineNum">    1786 </span>            : }
+<span class="lineNum">    1787 </span>            : s64 mpeg2ps_get_video_pos(mpeg2ps_t *ps, u32 streamno)
+<span class="lineNum">    1788 </span>            : {
+<span class="lineNum">    1789 </span><span class="lineCov">       2034 :         if (invalid_video_streamno(ps, streamno)) return 0;</span>
+<a name="1790"><span class="lineNum">    1790 </span><span class="lineCov">       1017 :         return gf_ftell(ps-&gt;video_streams[streamno]-&gt;m_fd);</span></a>
+<span class="lineNum">    1791 </span><span class="lineCov">       1017 : }</span>
+<span class="lineNum">    1792 </span>            : s64 mpeg2ps_get_audio_pos(mpeg2ps_t *ps, u32 streamno)
+<span class="lineNum">    1793 </span>            : {
+<span class="lineNum">    1794 </span><span class="lineCov">       3116 :         if (invalid_audio_streamno(ps, streamno)) return 0;</span>
+<span class="lineNum">    1795 </span><span class="lineCov">       1558 :         return gf_ftell(ps-&gt;audio_streams[streamno]-&gt;m_fd);</span>
+<span class="lineNum">    1796 </span><span class="lineCov">       1558 : }</span>
+<span class="lineNum">    1797 </span>            : 
+<span class="lineNum">    1798 </span>            : #endif /*GPAC_DISABLE_MPEG2PS*/
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

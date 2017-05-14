@@ -1,0 +1,855 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - ietf/rtp_pck_3gpp.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">ietf</a> - rtp_pck_3gpp.c<span style="font-size: 80%;"> (source / <a href="rtp_pck_3gpp.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">108</td>
+            <td class="headerCovTableEntry">446</td>
+            <td class="headerCovTableEntryLo">24.2 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-05-14 22:31:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntryLo">45.5 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *                      GPAC - Multimedia Framework C SDK
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *                      Authors: Jean Le Feuvre
+<span class="lineNum">       5 </span>            :  *                      Copyright (c) Telecom ParisTech 2000-2012
+<span class="lineNum">       6 </span>            :  *                                      All rights reserved
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  *  This file is part of GPAC / IETF RTP/RTSP/SDP sub-project
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  *  GPAC is free software; you can redistribute it and/or modify
+<span class="lineNum">      11 </span>            :  *  it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">      12 </span>            :  *  the Free Software Foundation; either version 2, or (at your option)
+<span class="lineNum">      13 </span>            :  *  any later version.
+<span class="lineNum">      14 </span>            :  *
+<span class="lineNum">      15 </span>            :  *  GPAC is distributed in the hope that it will be useful,
+<span class="lineNum">      16 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      17 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      18 </span>            :  *  GNU Lesser General Public License for more details.
+<span class="lineNum">      19 </span>            :  *
+<span class="lineNum">      20 </span>            :  *  You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      21 </span>            :  *  License along with this library; see the file COPYING.  If not, write to
+<span class="lineNum">      22 </span>            :  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+<span class="lineNum">      23 </span>            :  *
+<span class="lineNum">      24 </span>            :  */
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : #include &lt;gpac/internal/ietf_dev.h&gt;
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span>            : #ifndef GPAC_DISABLE_STREAMING
+<span class="lineNum">      29 </span>            : 
+<a name="30"><span class="lineNum">      30 </span>            : #include &lt;gpac/constants.h&gt;</a>
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            : static void rtp_amr_flush(GP_RTPPacketizer *builder)
+<span class="lineNum">      33 </span>            : {
+<span class="lineNum">      34 </span><span class="lineCov">        578 :         char *hdr;</span>
+<span class="lineNum">      35 </span><span class="lineCov">        289 :         u32 hdr_size;</span>
+<span class="lineNum">      36 </span><span class="lineCov">        289 :         if (!builder-&gt;bytesInPacket) return;</span>
+<span class="lineNum">      37 </span><span class="lineCov">        289 :         gf_bs_get_content(builder-&gt;pck_hdr, &amp;hdr, &amp;hdr_size);</span>
+<span class="lineNum">      38 </span><span class="lineCov">        289 :         gf_bs_del(builder-&gt;pck_hdr);</span>
+<span class="lineNum">      39 </span><span class="lineCov">        289 :         builder-&gt;pck_hdr = NULL;</span>
+<span class="lineNum">      40 </span>            :         /*overwrite last frame F bit*/
+<span class="lineNum">      41 </span><span class="lineCov">        289 :         hdr[builder-&gt;last_au_sn] &amp;= 0x7F;</span>
+<span class="lineNum">      42 </span><span class="lineCov">        289 :         builder-&gt;OnData(builder-&gt;cbk_obj, hdr, hdr_size, GF_TRUE);</span>
+<span class="lineNum">      43 </span><span class="lineCov">        289 :         gf_free(hdr);</span>
+<span class="lineNum">      44 </span><span class="lineCov">        289 :         builder-&gt;OnPacketDone(builder-&gt;cbk_obj, &amp;builder-&gt;rtp_header);</span>
+<span class="lineNum">      45 </span><span class="lineCov">        289 :         builder-&gt;bytesInPacket = 0;</span>
+<span class="lineNum">      46 </span><span class="lineCov">        289 :         builder-&gt;last_au_sn = 0;</span>
+<a name="47"><span class="lineNum">      47 </span><span class="lineCov">        578 : }</span></a>
+<span class="lineNum">      48 </span>            : 
+<span class="lineNum">      49 </span>            : GF_Err gp_rtp_builder_do_amr(GP_RTPPacketizer *builder, char *data, u32 data_size, u8 IsAUEnd, u32 FullAUSize)
+<span class="lineNum">      50 </span>            : {
+<span class="lineNum">      51 </span>            :         u32 offset, rtp_ts, block_size;
+<span class="lineNum">      52 </span>            : 
+<span class="lineNum">      53 </span><span class="lineCov">        578 :         if (!data) {</span>
+<span class="lineNum">      54 </span><span class="lineNoCov">          0 :                 rtp_amr_flush(builder);</span>
+<span class="lineNum">      55 </span><span class="lineNoCov">          0 :                 return GF_OK;</span>
+<span class="lineNum">      56 </span>            :         }
+<span class="lineNum">      57 </span>            : 
+<span class="lineNum">      58 </span><span class="lineCov">        289 :         rtp_ts = (u32) builder-&gt;sl_header.compositionTimeStamp;</span>
+<span class="lineNum">      59 </span>            : 
+<span class="lineNum">      60 </span>            :         offset = 0;
+<span class="lineNum">      61 </span><span class="lineCov">       1156 :         while (data_size&gt;offset) {</span>
+<span class="lineNum">      62 </span><span class="lineCov">        289 :                 u8 ft = (data[offset] &amp; 0x78) &gt;&gt; 3;</span>
+<span class="lineNum">      63 </span>            :                 u8 size;
+<span class="lineNum">      64 </span>            : 
+<span class="lineNum">      65 </span><span class="lineCov">        578 :                 if (builder-&gt;rtp_payt == GF_RTP_PAYT_AMR_WB) {</span>
+<span class="lineNum">      66 </span><span class="lineCov">        289 :                         size = (u32)GF_AMR_WB_FRAME_SIZE[ft];</span>
+<span class="lineNum">      67 </span>            :                         block_size = 320;
+<span class="lineNum">      68 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">      69 </span><span class="lineCov">        289 :                         size = (u32)GF_AMR_FRAME_SIZE[ft];</span>
+<span class="lineNum">      70 </span>            :                         block_size = 160;
+<span class="lineNum">      71 </span>            :                 }
+<span class="lineNum">      72 </span>            : 
+<span class="lineNum">      73 </span>            :                 /*packet full or too long*/
+<span class="lineNum">      74 </span><span class="lineCov">        289 :                 if (builder-&gt;bytesInPacket + 1 + size &gt; builder-&gt;Path_MTU)</span>
+<span class="lineNum">      75 </span><span class="lineNoCov">          0 :                         rtp_amr_flush(builder);</span>
+<span class="lineNum">      76 </span>            : 
+<span class="lineNum">      77 </span>            :                 /*need new*/
+<span class="lineNum">      78 </span><span class="lineCov">        289 :                 if (!builder-&gt;bytesInPacket) {</span>
+<span class="lineNum">      79 </span><span class="lineCov">        289 :                         builder-&gt;rtp_header.TimeStamp = rtp_ts;</span>
+<span class="lineNum">      80 </span><span class="lineCov">        289 :                         builder-&gt;rtp_header.Marker = 0;      /*never set*/</span>
+<span class="lineNum">      81 </span><span class="lineCov">        289 :                         builder-&gt;rtp_header.SequenceNumber += 1;</span>
+<span class="lineNum">      82 </span><span class="lineCov">        289 :                         builder-&gt;OnNewPacket(builder-&gt;cbk_obj, &amp;builder-&gt;rtp_header);</span>
+<span class="lineNum">      83 </span>            :                         assert(builder-&gt;pck_hdr==NULL);
+<span class="lineNum">      84 </span>            : 
+<span class="lineNum">      85 </span>            :                         /*always have header and TOC*/
+<span class="lineNum">      86 </span><span class="lineCov">        289 :                         builder-&gt;pck_hdr = gf_bs_new(NULL, 0, GF_BITSTREAM_WRITE);</span>
+<span class="lineNum">      87 </span>            :                         /*CMR + res (all 0, no interleaving)*/
+<span class="lineNum">      88 </span><span class="lineCov">        289 :                         gf_bs_write_int(builder-&gt;pck_hdr, ft, 4);</span>
+<span class="lineNum">      89 </span><span class="lineCov">        289 :                         gf_bs_write_int(builder-&gt;pck_hdr, 0, 4);</span>
+<span class="lineNum">      90 </span><span class="lineCov">        289 :                         builder-&gt;bytesInPacket = 1;</span>
+<span class="lineNum">      91 </span>            :                         /*no interleaving*/
+<span class="lineNum">      92 </span><span class="lineCov">        289 :                 }</span>
+<span class="lineNum">      93 </span>            : 
+<span class="lineNum">      94 </span>            :                 /*F always to 1*/
+<span class="lineNum">      95 </span><span class="lineCov">        289 :                 gf_bs_write_int(builder-&gt;pck_hdr, 1, 1);</span>
+<span class="lineNum">      96 </span><span class="lineCov">        289 :                 gf_bs_write_int(builder-&gt;pck_hdr, ft, 4);</span>
+<span class="lineNum">      97 </span>            :                 /*Q*/
+<span class="lineNum">      98 </span><span class="lineCov">        289 :                 gf_bs_write_int(builder-&gt;pck_hdr, (data[offset] &amp; 0x4) ? 1 : 0, 1);</span>
+<span class="lineNum">      99 </span><span class="lineCov">        289 :                 gf_bs_write_int(builder-&gt;pck_hdr, 0, 2);</span>
+<span class="lineNum">     100 </span><span class="lineCov">        289 :                 builder-&gt;bytesInPacket ++;</span>
+<span class="lineNum">     101 </span>            : 
+<span class="lineNum">     102 </span>            :                 /*remove frame type byte*/
+<span class="lineNum">     103 </span><span class="lineCov">        289 :                 offset++;</span>
+<span class="lineNum">     104 </span>            : 
+<span class="lineNum">     105 </span>            :                 /*add frame data without rate_type byte header*/
+<span class="lineNum">     106 </span><span class="lineCov">        289 :                 if (builder-&gt;OnDataReference) {</span>
+<span class="lineNum">     107 </span><span class="lineNoCov">          0 :                         builder-&gt;OnDataReference(builder-&gt;cbk_obj, size, offset);</span>
+<span class="lineNum">     108 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     109 </span><span class="lineCov">        289 :                         builder-&gt;OnData(builder-&gt;cbk_obj, data+offset, size, GF_FALSE);</span>
+<span class="lineNum">     110 </span>            :                 }
+<span class="lineNum">     111 </span><span class="lineCov">        289 :                 builder-&gt;last_au_sn++;</span>
+<span class="lineNum">     112 </span><span class="lineCov">        289 :                 builder-&gt;bytesInPacket += size;</span>
+<span class="lineNum">     113 </span><span class="lineCov">        289 :                 offset += size;</span>
+<span class="lineNum">     114 </span><span class="lineCov">        289 :                 rtp_ts += block_size;</span>
+<span class="lineNum">     115 </span>            :                 assert(builder-&gt;bytesInPacket&lt;=builder-&gt;Path_MTU);
+<span class="lineNum">     116 </span>            :                 /*take care of aggregation, flush if needed*/
+<span class="lineNum">     117 </span><span class="lineCov">        578 :                 if (builder-&gt;last_au_sn==builder-&gt;auh_size) rtp_amr_flush(builder);</span>
+<span class="lineNum">     118 </span>            :         }
+<span class="lineNum">     119 </span><span class="lineCov">        289 :         return GF_OK;</span>
+<a name="120"><span class="lineNum">     120 </span><span class="lineCov">        289 : }</span></a>
+<span class="lineNum">     121 </span>            : 
+<span class="lineNum">     122 </span>            : static GFINLINE u8 qes_get_rate_size(u32 idx, const unsigned int *rates, const unsigned int nb_rates)
+<span class="lineNum">     123 </span>            : {
+<span class="lineNum">     124 </span>            :         u32 i;
+<span class="lineNum">     125 </span><span class="lineCov">       7774 :         for (i=0; i&lt;nb_rates; i++) {</span>
+<span class="lineNum">     126 </span><span class="lineCov">       4388 :                 if (rates[2*i]==idx) return rates[2*i+1];</span>
+<span class="lineNum">     127 </span>            :         }
+<span class="lineNum">     128 </span><span class="lineNoCov">          0 :         return 0;</span>
+<a name="129"><span class="lineNum">     129 </span><span class="lineCov">       1002 : }</span></a>
+<span class="lineNum">     130 </span>            : 
+<span class="lineNum">     131 </span>            : GF_Err gp_rtp_builder_do_qcelp(GP_RTPPacketizer *builder, char *data, u32 data_size, u8 IsAUEnd, u32 FullAUSize)
+<span class="lineNum">     132 </span>            : {
+<span class="lineNum">     133 </span>            :         u32 offset, rtp_ts;
+<span class="lineNum">     134 </span><span class="lineCov">       2008 :         u8 hdr;</span>
+<span class="lineNum">     135 </span>            : 
+<span class="lineNum">     136 </span><span class="lineCov">       1004 :         if (!data) {</span>
+<span class="lineNum">     137 </span><span class="lineCov">          2 :                 if (builder-&gt;bytesInPacket) builder-&gt;OnPacketDone(builder-&gt;cbk_obj, &amp;builder-&gt;rtp_header);</span>
+<span class="lineNum">     138 </span><span class="lineCov">          2 :                 builder-&gt;bytesInPacket = 0;</span>
+<span class="lineNum">     139 </span><span class="lineCov">          2 :                 builder-&gt;last_au_sn = 0;</span>
+<span class="lineNum">     140 </span><span class="lineCov">          2 :                 return GF_OK;</span>
+<span class="lineNum">     141 </span>            :         }
+<span class="lineNum">     142 </span>            : 
+<span class="lineNum">     143 </span><span class="lineCov">       1002 :         rtp_ts = (u32) builder-&gt;sl_header.compositionTimeStamp;</span>
+<span class="lineNum">     144 </span>            : 
+<span class="lineNum">     145 </span>            : 
+<span class="lineNum">     146 </span>            :         offset = 0;
+<span class="lineNum">     147 </span><span class="lineCov">       3006 :         while (data_size&gt;offset) {</span>
+<span class="lineNum">     148 </span><span class="lineCov">       1002 :                 u8 frame_type = data[offset];</span>
+<span class="lineNum">     149 </span><span class="lineCov">       1002 :                 u8 size = qes_get_rate_size(frame_type, GF_QCELP_RATE_TO_SIZE, GF_QCELP_RATE_TO_SIZE_NB);</span>
+<span class="lineNum">     150 </span>            :                 /*reserved, not sent)*/
+<span class="lineNum">     151 </span><span class="lineCov">       1002 :                 if (frame_type&gt;=5) {</span>
+<span class="lineNum">     152 </span><span class="lineNoCov">          0 :                         offset += size;</span>
+<span class="lineNum">     153 </span><span class="lineNoCov">          0 :                         continue;</span>
+<span class="lineNum">     154 </span>            :                 }
+<span class="lineNum">     155 </span>            :                 /*packet full or too long*/
+<span class="lineNum">     156 </span><span class="lineCov">       1002 :                 if (builder-&gt;bytesInPacket + size &gt; builder-&gt;Path_MTU) {</span>
+<span class="lineNum">     157 </span><span class="lineNoCov">          0 :                         builder-&gt;OnPacketDone(builder-&gt;cbk_obj, &amp;builder-&gt;rtp_header);</span>
+<span class="lineNum">     158 </span><span class="lineNoCov">          0 :                         builder-&gt;bytesInPacket = 0;</span>
+<span class="lineNum">     159 </span><span class="lineNoCov">          0 :                         builder-&gt;last_au_sn = 0;</span>
+<span class="lineNum">     160 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     161 </span>            : 
+<span class="lineNum">     162 </span>            :                 /*need new*/
+<span class="lineNum">     163 </span><span class="lineCov">       1002 :                 if (!builder-&gt;bytesInPacket) {</span>
+<span class="lineNum">     164 </span><span class="lineCov">       1002 :                         builder-&gt;rtp_header.TimeStamp = rtp_ts;</span>
+<span class="lineNum">     165 </span><span class="lineCov">       1002 :                         builder-&gt;rtp_header.Marker = 0;      /*never set*/</span>
+<span class="lineNum">     166 </span><span class="lineCov">       1002 :                         builder-&gt;rtp_header.SequenceNumber += 1;</span>
+<span class="lineNum">     167 </span><span class="lineCov">       1002 :                         builder-&gt;OnNewPacket(builder-&gt;cbk_obj, &amp;builder-&gt;rtp_header);</span>
+<span class="lineNum">     168 </span><span class="lineCov">       1002 :                         hdr = 0;/*no interleaving*/</span>
+<span class="lineNum">     169 </span><span class="lineCov">       1002 :                         builder-&gt;OnData(builder-&gt;cbk_obj, (char*)&amp;hdr, 1, GF_FALSE);</span>
+<span class="lineNum">     170 </span><span class="lineCov">       1002 :                         builder-&gt;bytesInPacket = 1;</span>
+<span class="lineNum">     171 </span><span class="lineCov">       1002 :                 }</span>
+<span class="lineNum">     172 </span><span class="lineCov">       1002 :                 if (builder-&gt;OnDataReference) {</span>
+<span class="lineNum">     173 </span><span class="lineCov">       1002 :                         builder-&gt;OnDataReference(builder-&gt;cbk_obj, size, offset);</span>
+<span class="lineNum">     174 </span><span class="lineCov">       1002 :                 } else {</span>
+<span class="lineNum">     175 </span><span class="lineNoCov">          0 :                         builder-&gt;OnData(builder-&gt;cbk_obj, data+offset, size, GF_FALSE);</span>
+<span class="lineNum">     176 </span>            :                 }
+<span class="lineNum">     177 </span><span class="lineCov">       1002 :                 builder-&gt;bytesInPacket += size;</span>
+<span class="lineNum">     178 </span><span class="lineCov">       1002 :                 offset += size;</span>
+<span class="lineNum">     179 </span><span class="lineCov">       1002 :                 rtp_ts += 160;</span>
+<span class="lineNum">     180 </span>            :                 assert(builder-&gt;bytesInPacket&lt;=builder-&gt;Path_MTU);
+<span class="lineNum">     181 </span>            : 
+<span class="lineNum">     182 </span>            :                 /*take care of aggregation, flush if needed*/
+<span class="lineNum">     183 </span><span class="lineCov">       1002 :                 builder-&gt;last_au_sn++;</span>
+<span class="lineNum">     184 </span><span class="lineCov">       1002 :                 if (builder-&gt;last_au_sn==builder-&gt;auh_size) {</span>
+<span class="lineNum">     185 </span><span class="lineCov">       1002 :                         builder-&gt;OnPacketDone(builder-&gt;cbk_obj, &amp;builder-&gt;rtp_header);</span>
+<span class="lineNum">     186 </span><span class="lineCov">       1002 :                         builder-&gt;bytesInPacket = 0;</span>
+<span class="lineNum">     187 </span><span class="lineCov">       1002 :                         builder-&gt;last_au_sn = 0;</span>
+<span class="lineNum">     188 </span><span class="lineCov">       1002 :                 }</span>
+<span class="lineNum">     189 </span><span class="lineCov">       1002 :         }</span>
+<span class="lineNum">     190 </span><span class="lineCov">       1002 :         return GF_OK;</span>
+<span class="lineNum">     191 </span><span class="lineCov">       1004 : }</span>
+<a name="192"><span class="lineNum">     192 </span>            : </a>
+<span class="lineNum">     193 </span>            : 
+<span class="lineNum">     194 </span>            : static void rtp_evrc_smv_flush(GP_RTPPacketizer *builder)
+<span class="lineNum">     195 </span>            : {
+<span class="lineNum">     196 </span><span class="lineNoCov">          0 :         if (!builder-&gt;bytesInPacket) return;</span>
+<span class="lineNum">     197 </span><span class="lineNoCov">          0 :         if (builder-&gt;auh_size&gt;1) {</span>
+<span class="lineNum">     198 </span><span class="lineNoCov">          0 :                 char *hdr;</span>
+<span class="lineNum">     199 </span><span class="lineNoCov">          0 :                 u32 hdr_size;</span>
+<span class="lineNum">     200 </span>            :                 /*padding*/
+<span class="lineNum">     201 </span><span class="lineNoCov">          0 :                 if (builder-&gt;last_au_sn % 2) gf_bs_write_int(builder-&gt;pck_hdr, 0, 4);</span>
+<span class="lineNum">     202 </span><span class="lineNoCov">          0 :                 gf_bs_get_content(builder-&gt;pck_hdr, &amp;hdr, &amp;hdr_size);</span>
+<span class="lineNum">     203 </span><span class="lineNoCov">          0 :                 gf_bs_del(builder-&gt;pck_hdr);</span>
+<span class="lineNum">     204 </span><span class="lineNoCov">          0 :                 builder-&gt;pck_hdr = NULL;</span>
+<span class="lineNum">     205 </span>            :                 /*overwrite count*/
+<span class="lineNum">     206 </span><span class="lineNoCov">          0 :                 hdr[0] = 0;</span>
+<span class="lineNum">     207 </span><span class="lineNoCov">          0 :                 hdr[1] = builder-&gt;last_au_sn-1;/*MMM + frameCount-1*/</span>
+<span class="lineNum">     208 </span><span class="lineNoCov">          0 :                 builder-&gt;OnData(builder-&gt;cbk_obj, hdr, hdr_size, GF_TRUE);</span>
+<span class="lineNum">     209 </span><span class="lineNoCov">          0 :                 gf_free(hdr);</span>
+<span class="lineNum">     210 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     211 </span><span class="lineNoCov">          0 :         builder-&gt;OnPacketDone(builder-&gt;cbk_obj, &amp;builder-&gt;rtp_header);</span>
+<span class="lineNum">     212 </span><span class="lineNoCov">          0 :         builder-&gt;bytesInPacket = 0;</span>
+<span class="lineNum">     213 </span><span class="lineNoCov">          0 :         builder-&gt;last_au_sn = 0;</span>
+<a name="214"><span class="lineNum">     214 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     215 </span>            : 
+<span class="lineNum">     216 </span>            : GF_Err gp_rtp_builder_do_smv(GP_RTPPacketizer *builder, char *data, u32 data_size, u8 IsAUEnd, u32 FullAUSize)
+<span class="lineNum">     217 </span>            : {
+<span class="lineNum">     218 </span>            :         u32 offset, rtp_ts;
+<span class="lineNum">     219 </span>            : 
+<span class="lineNum">     220 </span><span class="lineNoCov">          0 :         if (!data) {</span>
+<span class="lineNum">     221 </span><span class="lineNoCov">          0 :                 rtp_evrc_smv_flush(builder);</span>
+<span class="lineNum">     222 </span><span class="lineNoCov">          0 :                 return GF_OK;</span>
+<span class="lineNum">     223 </span>            :         }
+<span class="lineNum">     224 </span>            : 
+<span class="lineNum">     225 </span><span class="lineNoCov">          0 :         rtp_ts = (u32) builder-&gt;sl_header.compositionTimeStamp;</span>
+<span class="lineNum">     226 </span>            : 
+<span class="lineNum">     227 </span>            :         offset = 0;
+<span class="lineNum">     228 </span><span class="lineNoCov">          0 :         while (data_size&gt;offset) {</span>
+<span class="lineNum">     229 </span><span class="lineNoCov">          0 :                 u8 frame_type = data[offset];</span>
+<span class="lineNum">     230 </span><span class="lineNoCov">          0 :                 u8 size = qes_get_rate_size(frame_type, GF_SMV_EVRC_RATE_TO_SIZE, GF_SMV_EVRC_RATE_TO_SIZE_NB);</span>
+<span class="lineNum">     231 </span>            : 
+<span class="lineNum">     232 </span>            :                 /*reserved, not sent)*/
+<span class="lineNum">     233 </span><span class="lineNoCov">          0 :                 if (frame_type&gt;=5) {</span>
+<span class="lineNum">     234 </span><span class="lineNoCov">          0 :                         offset += size;</span>
+<span class="lineNum">     235 </span><span class="lineNoCov">          0 :                         continue;</span>
+<span class="lineNum">     236 </span>            :                 }
+<span class="lineNum">     237 </span>            :                 /*packet full or too long*/
+<span class="lineNum">     238 </span><span class="lineNoCov">          0 :                 if (builder-&gt;bytesInPacket + size &gt; builder-&gt;Path_MTU)</span>
+<span class="lineNum">     239 </span><span class="lineNoCov">          0 :                         rtp_evrc_smv_flush(builder);</span>
+<span class="lineNum">     240 </span>            : 
+<span class="lineNum">     241 </span>            :                 /*need new*/
+<span class="lineNum">     242 </span><span class="lineNoCov">          0 :                 if (!builder-&gt;bytesInPacket) {</span>
+<span class="lineNum">     243 </span><span class="lineNoCov">          0 :                         builder-&gt;rtp_header.TimeStamp = rtp_ts;</span>
+<span class="lineNum">     244 </span><span class="lineNoCov">          0 :                         builder-&gt;rtp_header.Marker = 0;      /*never set*/</span>
+<span class="lineNum">     245 </span><span class="lineNoCov">          0 :                         builder-&gt;rtp_header.SequenceNumber += 1;</span>
+<span class="lineNum">     246 </span><span class="lineNoCov">          0 :                         builder-&gt;OnNewPacket(builder-&gt;cbk_obj, &amp;builder-&gt;rtp_header);</span>
+<span class="lineNum">     247 </span>            :                         assert(builder-&gt;pck_hdr==NULL);
+<span class="lineNum">     248 </span>            : 
+<span class="lineNum">     249 </span><span class="lineNoCov">          0 :                         if (builder-&gt;auh_size&gt;1) {</span>
+<span class="lineNum">     250 </span><span class="lineNoCov">          0 :                                 builder-&gt;pck_hdr = gf_bs_new(NULL, 0, GF_BITSTREAM_WRITE);</span>
+<span class="lineNum">     251 </span>            :                                 /*RRLLLNNN (all 0, no interleaving)*/
+<span class="lineNum">     252 </span><span class="lineNoCov">          0 :                                 gf_bs_write_u8(builder-&gt;pck_hdr, 0);</span>
+<span class="lineNum">     253 </span>            :                                 /*MMM + count-1 : overriden when flushing*/
+<span class="lineNum">     254 </span><span class="lineNoCov">          0 :                                 gf_bs_write_u8(builder-&gt;pck_hdr, 0);</span>
+<span class="lineNum">     255 </span><span class="lineNoCov">          0 :                                 builder-&gt;bytesInPacket = 2;</span>
+<span class="lineNum">     256 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     257 </span>            :                 }
+<span class="lineNum">     258 </span>            : 
+<span class="lineNum">     259 </span>            :                 /*bundle mode: cat rate byte to TOC, on 4 bits*/
+<span class="lineNum">     260 </span><span class="lineNoCov">          0 :                 if (builder-&gt;auh_size&gt;1) {</span>
+<span class="lineNum">     261 </span><span class="lineNoCov">          0 :                         gf_bs_write_int(builder-&gt;pck_hdr, data[offset], 4);</span>
+<span class="lineNum">     262 </span><span class="lineNoCov">          0 :                         if (!(builder-&gt;last_au_sn % 2)) builder-&gt;bytesInPacket += 1;</span>
+<span class="lineNum">     263 </span>            :                 }
+<span class="lineNum">     264 </span>            :                 /*note that EVEN in header-free format the rate_type byte is removed*/
+<span class="lineNum">     265 </span><span class="lineNoCov">          0 :                 offset++;</span>
+<span class="lineNum">     266 </span><span class="lineNoCov">          0 :                 size--;</span>
+<span class="lineNum">     267 </span>            : 
+<span class="lineNum">     268 </span>            :                 /*add frame data without rate_type byte header*/
+<span class="lineNum">     269 </span><span class="lineNoCov">          0 :                 if (builder-&gt;OnDataReference) {</span>
+<span class="lineNum">     270 </span><span class="lineNoCov">          0 :                         builder-&gt;OnDataReference(builder-&gt;cbk_obj, size, offset);</span>
+<span class="lineNum">     271 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     272 </span><span class="lineNoCov">          0 :                         builder-&gt;OnData(builder-&gt;cbk_obj, data+offset, size, GF_FALSE);</span>
+<span class="lineNum">     273 </span>            :                 }
+<span class="lineNum">     274 </span><span class="lineNoCov">          0 :                 builder-&gt;last_au_sn++;</span>
+<span class="lineNum">     275 </span><span class="lineNoCov">          0 :                 builder-&gt;bytesInPacket += size;</span>
+<span class="lineNum">     276 </span><span class="lineNoCov">          0 :                 offset += size;</span>
+<span class="lineNum">     277 </span><span class="lineNoCov">          0 :                 rtp_ts += 160;</span>
+<span class="lineNum">     278 </span>            :                 assert(builder-&gt;bytesInPacket&lt;=builder-&gt;Path_MTU);
+<span class="lineNum">     279 </span>            :                 /*take care of aggregation, flush if needed*/
+<span class="lineNum">     280 </span><span class="lineNoCov">          0 :                 if (builder-&gt;last_au_sn==builder-&gt;auh_size) rtp_evrc_smv_flush(builder);</span>
+<span class="lineNum">     281 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     282 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<a name="283"><span class="lineNum">     283 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     284 </span>            : 
+<span class="lineNum">     285 </span>            : GF_Err gp_rtp_builder_do_h263(GP_RTPPacketizer *builder, char *data, u32 data_size, u8 IsAUEnd, u32 FullAUSize)
+<span class="lineNum">     286 </span>            : {
+<span class="lineNum">     287 </span>            :         GF_BitStream *bs;
+<span class="lineNum">     288 </span><span class="lineCov">        182 :         char hdr[2];</span>
+<span class="lineNum">     289 </span>            :         Bool Pbit;
+<span class="lineNum">     290 </span>            :         u32 offset, size, max_size;
+<span class="lineNum">     291 </span>            : 
+<span class="lineNum">     292 </span><span class="lineCov">         91 :         builder-&gt;rtp_header.TimeStamp = (u32) builder-&gt;sl_header.compositionTimeStamp;</span>
+<span class="lineNum">     293 </span>            : 
+<span class="lineNum">     294 </span>            :         /*the H263 hinter doesn't perform inter-sample concatenation*/
+<span class="lineNum">     295 </span><span class="lineCov">         91 :         if (!data) return GF_OK;</span>
+<span class="lineNum">     296 </span>            : 
+<span class="lineNum">     297 </span>            :         Pbit = GF_TRUE;
+<span class="lineNum">     298 </span>            : 
+<span class="lineNum">     299 </span>            :         /*skip 16 0'ed bits of start code*/
+<span class="lineNum">     300 </span>            :         offset = 2;
+<span class="lineNum">     301 </span><span class="lineCov">         91 :         data_size -= 2;</span>
+<span class="lineNum">     302 </span><span class="lineCov">         91 :         max_size = builder-&gt;Path_MTU - 2;</span>
+<span class="lineNum">     303 </span>            : 
+<span class="lineNum">     304 </span><span class="lineCov">        364 :         while(data_size &gt; 0) {</span>
+<span class="lineNum">     305 </span><span class="lineCov">         91 :                 if(data_size &gt; max_size) {</span>
+<span class="lineNum">     306 </span>            :                         size = max_size;
+<span class="lineNum">     307 </span><span class="lineNoCov">          0 :                         builder-&gt;rtp_header.Marker = 0;</span>
+<span class="lineNum">     308 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     309 </span>            :                         size = data_size;
+<span class="lineNum">     310 </span><span class="lineCov">         91 :                         builder-&gt;rtp_header.Marker = 1;</span>
+<span class="lineNum">     311 </span>            :                 }
+<span class="lineNum">     312 </span>            : 
+<span class="lineNum">     313 </span><span class="lineCov">         91 :                 data_size -= size;</span>
+<span class="lineNum">     314 </span>            : 
+<span class="lineNum">     315 </span>            :                 /*create new RTP Packet */
+<span class="lineNum">     316 </span><span class="lineCov">         91 :                 builder-&gt;rtp_header.SequenceNumber += 1;</span>
+<span class="lineNum">     317 </span><span class="lineCov">         91 :                 builder-&gt;OnNewPacket(builder-&gt;cbk_obj, &amp;builder-&gt;rtp_header);</span>
+<span class="lineNum">     318 </span>            : 
+<span class="lineNum">     319 </span><span class="lineCov">         91 :                 bs = gf_bs_new(hdr, 2, GF_BITSTREAM_WRITE);</span>
+<span class="lineNum">     320 </span><span class="lineCov">         91 :                 gf_bs_write_int(bs, 0, 5);</span>
+<span class="lineNum">     321 </span><span class="lineCov">         91 :                 gf_bs_write_int(bs, Pbit, 1);</span>
+<span class="lineNum">     322 </span><span class="lineCov">         91 :                 gf_bs_write_int(bs, 0, 10);</span>
+<span class="lineNum">     323 </span><span class="lineCov">         91 :                 gf_bs_del(bs);</span>
+<span class="lineNum">     324 </span>            : 
+<span class="lineNum">     325 </span>            :                 /*add header*/
+<span class="lineNum">     326 </span><span class="lineCov">         91 :                 builder-&gt;OnData(builder-&gt;cbk_obj, (char*) hdr, 2, GF_TRUE);</span>
+<span class="lineNum">     327 </span>            :                 /*add payload*/
+<span class="lineNum">     328 </span><span class="lineCov">         91 :                 if (builder-&gt;OnDataReference)</span>
+<span class="lineNum">     329 </span><span class="lineNoCov">          0 :                         builder-&gt;OnDataReference(builder-&gt;cbk_obj, size, offset);</span>
+<span class="lineNum">     330 </span>            :                 else
+<span class="lineNum">     331 </span><span class="lineCov">         91 :                         builder-&gt;OnData(builder-&gt;cbk_obj, data + offset, size, GF_FALSE);</span>
+<span class="lineNum">     332 </span>            : 
+<span class="lineNum">     333 </span><span class="lineCov">         91 :                 builder-&gt;OnPacketDone(builder-&gt;cbk_obj, &amp;builder-&gt;rtp_header);</span>
+<span class="lineNum">     334 </span>            : 
+<span class="lineNum">     335 </span><span class="lineCov">         91 :                 offset += size;</span>
+<span class="lineNum">     336 </span>            :                 Pbit = GF_FALSE;
+<span class="lineNum">     337 </span>            :         }
+<span class="lineNum">     338 </span><span class="lineCov">         91 :         return GF_OK;</span>
+<a name="339"><span class="lineNum">     339 </span><span class="lineCov">         91 : }</span></a>
+<span class="lineNum">     340 </span>            : 
+<span class="lineNum">     341 </span>            : GF_Err gp_rtp_builder_do_tx3g(GP_RTPPacketizer *builder, char *data, u32 data_size, u8 IsAUEnd, u32 FullAUSize, u32 duration, u8 descIndex)
+<span class="lineNum">     342 </span>            : {
+<span class="lineNum">     343 </span>            :         GF_BitStream *bs;
+<span class="lineNum">     344 </span><span class="lineNoCov">          0 :         char *hdr;</span>
+<span class="lineNum">     345 </span><span class="lineNoCov">          0 :         u32 samp_size, txt_size, pay_start, hdr_size, txt_done, cur_frag, nb_frag;</span>
+<span class="lineNum">     346 </span>            :         Bool is_utf_16 = GF_FALSE;
+<span class="lineNum">     347 </span>            : 
+<span class="lineNum">     348 </span><span class="lineNoCov">          0 :         if (!data) {</span>
+<span class="lineNum">     349 </span>            :                 /*flush packet*/
+<span class="lineNum">     350 </span><span class="lineNoCov">          0 :                 if (builder-&gt;bytesInPacket) {</span>
+<span class="lineNum">     351 </span><span class="lineNoCov">          0 :                         builder-&gt;OnPacketDone(builder-&gt;cbk_obj, &amp;builder-&gt;rtp_header);</span>
+<span class="lineNum">     352 </span><span class="lineNoCov">          0 :                         builder-&gt;bytesInPacket = 0;</span>
+<span class="lineNum">     353 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     354 </span><span class="lineNoCov">          0 :                 return GF_OK;</span>
+<span class="lineNum">     355 </span>            :         }
+<span class="lineNum">     356 </span>            :         /*cfg packet*/
+<span class="lineNum">     357 </span><span class="lineNoCov">          0 :         txt_size = data[0];</span>
+<span class="lineNum">     358 </span><span class="lineNoCov">          0 :         txt_size &lt;&lt;= 8;</span>
+<span class="lineNum">     359 </span><span class="lineNoCov">          0 :         txt_size |= (unsigned char) data[1];</span>
+<span class="lineNum">     360 </span>            :         /*remove BOM*/
+<span class="lineNum">     361 </span>            :         pay_start = 2;
+<span class="lineNum">     362 </span><span class="lineNoCov">          0 :         if (txt_size&gt;2) {</span>
+<span class="lineNum">     363 </span>            :                 /*seems 3GP only accepts BE UTF-16 (no LE, no UTF32)*/
+<span class="lineNum">     364 </span><span class="lineNoCov">          0 :                 if (((u8) data[2]==(u8) 0xFE) &amp;&amp; ((u8) data[3]==(u8) 0xFF)) {</span>
+<span class="lineNum">     365 </span>            :                         is_utf_16 = GF_TRUE;
+<span class="lineNum">     366 </span>            :                         pay_start = 4;
+<span class="lineNum">     367 </span><span class="lineNoCov">          0 :                         txt_size -= 2;</span>
+<span class="lineNum">     368 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     369 </span>            :         }
+<span class="lineNum">     370 </span><span class="lineNoCov">          0 :         samp_size = data_size - pay_start;</span>
+<span class="lineNum">     371 </span>            : 
+<span class="lineNum">     372 </span>            :         /*if TTU does not fit in packet flush packet*/
+<span class="lineNum">     373 </span><span class="lineNoCov">          0 :         if (builder-&gt;bytesInPacket &amp;&amp; (builder-&gt;bytesInPacket + 3 + 6 + samp_size &gt; builder-&gt;Path_MTU)) {</span>
+<span class="lineNum">     374 </span><span class="lineNoCov">          0 :                 builder-&gt;OnPacketDone(builder-&gt;cbk_obj, &amp;builder-&gt;rtp_header);</span>
+<span class="lineNum">     375 </span><span class="lineNoCov">          0 :                 builder-&gt;bytesInPacket = 0;</span>
+<span class="lineNum">     376 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     377 </span>            : 
+<span class="lineNum">     378 </span>            :         /*first TTU in packet*/
+<span class="lineNum">     379 </span><span class="lineNoCov">          0 :         if (!builder-&gt;bytesInPacket) {</span>
+<span class="lineNum">     380 </span><span class="lineNoCov">          0 :                 builder-&gt;rtp_header.TimeStamp = (u32) builder-&gt;sl_header.compositionTimeStamp;</span>
+<span class="lineNum">     381 </span><span class="lineNoCov">          0 :                 builder-&gt;rtp_header.Marker = 1;</span>
+<span class="lineNum">     382 </span><span class="lineNoCov">          0 :                 builder-&gt;rtp_header.SequenceNumber += 1;</span>
+<span class="lineNum">     383 </span><span class="lineNoCov">          0 :                 builder-&gt;OnNewPacket(builder-&gt;cbk_obj, &amp;builder-&gt;rtp_header);</span>
+<span class="lineNum">     384 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     385 </span>            :         /*fits entirely*/
+<span class="lineNum">     386 </span><span class="lineNoCov">          0 :         if (builder-&gt;bytesInPacket + 3 + 6 + samp_size &lt;= builder-&gt;Path_MTU) {</span>
+<span class="lineNum">     387 </span><span class="lineNoCov">          0 :                 bs = gf_bs_new(NULL, 0, GF_BITSTREAM_WRITE);</span>
+<span class="lineNum">     388 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, is_utf_16, 1);</span>
+<span class="lineNum">     389 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, 0, 4);</span>
+<span class="lineNum">     390 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, 1, 3);</span>
+<span class="lineNum">     391 </span><span class="lineNoCov">          0 :                 gf_bs_write_u16(bs, 8 + samp_size);</span>
+<span class="lineNum">     392 </span><span class="lineNoCov">          0 :                 gf_bs_write_u8(bs, descIndex);</span>
+<span class="lineNum">     393 </span><span class="lineNoCov">          0 :                 gf_bs_write_u24(bs, duration);</span>
+<span class="lineNum">     394 </span><span class="lineNoCov">          0 :                 gf_bs_write_u16(bs, txt_size);</span>
+<span class="lineNum">     395 </span><span class="lineNoCov">          0 :                 gf_bs_get_content(bs, &amp;hdr, &amp;hdr_size);</span>
+<span class="lineNum">     396 </span><span class="lineNoCov">          0 :                 gf_bs_del(bs);</span>
+<span class="lineNum">     397 </span><span class="lineNoCov">          0 :                 builder-&gt;OnData(builder-&gt;cbk_obj, (char *) hdr, hdr_size, GF_FALSE);</span>
+<span class="lineNum">     398 </span><span class="lineNoCov">          0 :                 builder-&gt;bytesInPacket += hdr_size;</span>
+<span class="lineNum">     399 </span><span class="lineNoCov">          0 :                 gf_free(hdr);</span>
+<span class="lineNum">     400 </span>            : 
+<span class="lineNum">     401 </span><span class="lineNoCov">          0 :                 if (txt_size) {</span>
+<span class="lineNum">     402 </span><span class="lineNoCov">          0 :                         if (builder-&gt;OnDataReference) {</span>
+<span class="lineNum">     403 </span><span class="lineNoCov">          0 :                                 builder-&gt;OnDataReference(builder-&gt;cbk_obj, samp_size, pay_start);</span>
+<span class="lineNum">     404 </span><span class="lineNoCov">          0 :                         } else {</span>
+<span class="lineNum">     405 </span><span class="lineNoCov">          0 :                                 builder-&gt;OnData(builder-&gt;cbk_obj, data + pay_start, samp_size, GF_FALSE);</span>
+<span class="lineNum">     406 </span>            :                         }
+<span class="lineNum">     407 </span><span class="lineNoCov">          0 :                         builder-&gt;bytesInPacket += samp_size;</span>
+<span class="lineNum">     408 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     409 </span>            :                 /*disable aggregation*/
+<span class="lineNum">     410 </span><span class="lineNoCov">          0 :                 if (!(builder-&gt;flags &amp; GP_RTP_PCK_USE_MULTI)) {</span>
+<span class="lineNum">     411 </span><span class="lineNoCov">          0 :                         builder-&gt;OnPacketDone(builder-&gt;cbk_obj, &amp;builder-&gt;rtp_header);</span>
+<span class="lineNum">     412 </span><span class="lineNoCov">          0 :                         builder-&gt;bytesInPacket = 0;</span>
+<span class="lineNum">     413 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     414 </span><span class="lineNoCov">          0 :                 return GF_OK;</span>
+<span class="lineNum">     415 </span>            :         }
+<span class="lineNum">     416 </span>            :         /*doesn't fit and already data, flush packet*/
+<span class="lineNum">     417 </span><span class="lineNoCov">          0 :         if (builder-&gt;bytesInPacket) {</span>
+<span class="lineNum">     418 </span><span class="lineNoCov">          0 :                 builder-&gt;OnPacketDone(builder-&gt;cbk_obj, &amp;builder-&gt;rtp_header);</span>
+<span class="lineNum">     419 </span><span class="lineNoCov">          0 :                 builder-&gt;rtp_header.TimeStamp = (u32) builder-&gt;sl_header.compositionTimeStamp;</span>
+<span class="lineNum">     420 </span>            :                 /*split unit*/
+<span class="lineNum">     421 </span><span class="lineNoCov">          0 :                 builder-&gt;rtp_header.Marker = 0;</span>
+<span class="lineNum">     422 </span><span class="lineNoCov">          0 :                 builder-&gt;rtp_header.SequenceNumber += 1;</span>
+<span class="lineNum">     423 </span><span class="lineNoCov">          0 :                 builder-&gt;OnNewPacket(builder-&gt;cbk_obj, &amp;builder-&gt;rtp_header);</span>
+<span class="lineNum">     424 </span><span class="lineNoCov">          0 :                 builder-&gt;bytesInPacket = 0;</span>
+<span class="lineNum">     425 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     426 </span>            :         /*write all type2 units (text only) - FIXME: split at char boundaries, NOT SUPPORTED YET*/
+<span class="lineNum">     427 </span>            :         txt_done = 0;
+<span class="lineNum">     428 </span>            :         nb_frag = 1;
+<span class="lineNum">     429 </span>            :         /*all fragments needed for Type2 units*/
+<span class="lineNum">     430 </span><span class="lineNoCov">          0 :         while (txt_done + (builder-&gt;Path_MTU-10) &lt; txt_size) {</span>
+<span class="lineNum">     431 </span>            :                 txt_done += (builder-&gt;Path_MTU-10);
+<span class="lineNum">     432 </span><span class="lineNoCov">          0 :                 nb_frag += 1;</span>
+<span class="lineNum">     433 </span>            :         }
+<span class="lineNum">     434 </span>            :         /*all fragments needed for Type3/4 units*/
+<span class="lineNum">     435 </span>            :         txt_done = txt_size;
+<span class="lineNum">     436 </span><span class="lineNoCov">          0 :         while (txt_done + (builder-&gt;Path_MTU-7) &lt; samp_size) {</span>
+<span class="lineNum">     437 </span>            :                 txt_done += (builder-&gt;Path_MTU-7);
+<span class="lineNum">     438 </span><span class="lineNoCov">          0 :                 nb_frag += 1;</span>
+<span class="lineNum">     439 </span>            :         }
+<span class="lineNum">     440 </span>            : 
+<span class="lineNum">     441 </span>            : 
+<span class="lineNum">     442 </span>            :         cur_frag = 0;
+<span class="lineNum">     443 </span>            :         txt_done = 0;
+<span class="lineNum">     444 </span><span class="lineNoCov">          0 :         while (txt_done&lt;txt_size) {</span>
+<span class="lineNum">     445 </span>            :                 u32 size;
+<span class="lineNum">     446 </span><span class="lineNoCov">          0 :                 if (txt_done + (builder-&gt;Path_MTU-10) &lt; txt_size) {</span>
+<span class="lineNum">     447 </span>            :                         size = builder-&gt;Path_MTU-10;
+<span class="lineNum">     448 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     449 </span><span class="lineNoCov">          0 :                         size = txt_size - txt_done;</span>
+<span class="lineNum">     450 </span>            :                 }
+<span class="lineNum">     451 </span>            : 
+<span class="lineNum">     452 </span><span class="lineNoCov">          0 :                 bs = gf_bs_new(NULL, 0, GF_BITSTREAM_WRITE);</span>
+<span class="lineNum">     453 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, is_utf_16, 1);</span>
+<span class="lineNum">     454 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, 0, 4);</span>
+<span class="lineNum">     455 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, 2, 3);</span>
+<span class="lineNum">     456 </span><span class="lineNoCov">          0 :                 gf_bs_write_u16(bs, 9 + size);</span>
+<span class="lineNum">     457 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, nb_frag, 4);</span>
+<span class="lineNum">     458 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, cur_frag, 4);</span>
+<span class="lineNum">     459 </span><span class="lineNoCov">          0 :                 gf_bs_write_u24(bs, duration);</span>
+<span class="lineNum">     460 </span><span class="lineNoCov">          0 :                 gf_bs_write_u8(bs, descIndex);</span>
+<span class="lineNum">     461 </span>            :                 /*SLEN is the full original length minus text len and BOM (put here for buffer allocation purposes)*/
+<span class="lineNum">     462 </span><span class="lineNoCov">          0 :                 gf_bs_write_u16(bs, samp_size);</span>
+<span class="lineNum">     463 </span><span class="lineNoCov">          0 :                 gf_bs_get_content(bs, &amp;hdr, &amp;hdr_size);</span>
+<span class="lineNum">     464 </span><span class="lineNoCov">          0 :                 gf_bs_del(bs);</span>
+<span class="lineNum">     465 </span><span class="lineNoCov">          0 :                 builder-&gt;OnData(builder-&gt;cbk_obj, (char *) hdr, hdr_size, GF_FALSE);</span>
+<span class="lineNum">     466 </span><span class="lineNoCov">          0 :                 builder-&gt;bytesInPacket += hdr_size;</span>
+<span class="lineNum">     467 </span><span class="lineNoCov">          0 :                 gf_free(hdr);</span>
+<span class="lineNum">     468 </span>            : 
+<span class="lineNum">     469 </span><span class="lineNoCov">          0 :                 if (builder-&gt;OnDataReference) {</span>
+<span class="lineNum">     470 </span><span class="lineNoCov">          0 :                         builder-&gt;OnDataReference(builder-&gt;cbk_obj, size, pay_start + txt_done);</span>
+<span class="lineNum">     471 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     472 </span><span class="lineNoCov">          0 :                         builder-&gt;OnData(builder-&gt;cbk_obj, data + pay_start + txt_done, size, GF_FALSE);</span>
+<span class="lineNum">     473 </span>            :                 }
+<span class="lineNum">     474 </span><span class="lineNoCov">          0 :                 builder-&gt;bytesInPacket += size;</span>
+<span class="lineNum">     475 </span><span class="lineNoCov">          0 :                 cur_frag++;</span>
+<span class="lineNum">     476 </span>            : 
+<span class="lineNum">     477 </span>            :                 /*flush packet*/
+<span class="lineNum">     478 </span><span class="lineNoCov">          0 :                 if (cur_frag == nb_frag) {</span>
+<span class="lineNum">     479 </span>            :                         txt_done = txt_size;
+<span class="lineNum">     480 </span><span class="lineNoCov">          0 :                         if (pay_start + txt_done == data_size) {</span>
+<span class="lineNum">     481 </span><span class="lineNoCov">          0 :                                 builder-&gt;rtp_header.Marker = 1;</span>
+<span class="lineNum">     482 </span><span class="lineNoCov">          0 :                                 builder-&gt;OnPacketDone(builder-&gt;cbk_obj, &amp;builder-&gt;rtp_header);</span>
+<span class="lineNum">     483 </span><span class="lineNoCov">          0 :                                 builder-&gt;bytesInPacket = 0;</span>
+<span class="lineNum">     484 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     485 </span>            :                 } else {
+<span class="lineNum">     486 </span><span class="lineNoCov">          0 :                         txt_done += size;</span>
+<span class="lineNum">     487 </span><span class="lineNoCov">          0 :                         builder-&gt;rtp_header.Marker = 0;</span>
+<span class="lineNum">     488 </span><span class="lineNoCov">          0 :                         builder-&gt;OnPacketDone(builder-&gt;cbk_obj, &amp;builder-&gt;rtp_header);</span>
+<span class="lineNum">     489 </span><span class="lineNoCov">          0 :                         builder-&gt;rtp_header.SequenceNumber += 1;</span>
+<span class="lineNum">     490 </span><span class="lineNoCov">          0 :                         builder-&gt;OnNewPacket(builder-&gt;cbk_obj, &amp;builder-&gt;rtp_header);</span>
+<span class="lineNum">     491 </span><span class="lineNoCov">          0 :                         builder-&gt;bytesInPacket = 0;</span>
+<span class="lineNum">     492 </span>            :                 }
+<span class="lineNum">     493 </span>            :         }
+<span class="lineNum">     494 </span>            : 
+<span class="lineNum">     495 </span>            :         txt_done = txt_size;
+<span class="lineNum">     496 </span>            : 
+<span class="lineNum">     497 </span>            :         /*write all modifiers - OPT: split at modifiers boundaries*/
+<span class="lineNum">     498 </span><span class="lineNoCov">          0 :         while (txt_done&lt;samp_size) {</span>
+<span class="lineNum">     499 </span>            :                 u32 size, type;
+<span class="lineNum">     500 </span><span class="lineNoCov">          0 :                 type = (txt_done == txt_size) ? 3 : 4;</span>
+<span class="lineNum">     501 </span>            : 
+<span class="lineNum">     502 </span><span class="lineNoCov">          0 :                 if (txt_done + (builder-&gt;Path_MTU-7) &lt; samp_size) {</span>
+<span class="lineNum">     503 </span><span class="lineNoCov">          0 :                         size = builder-&gt;Path_MTU-10;</span>
+<span class="lineNum">     504 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     505 </span><span class="lineNoCov">          0 :                         size = samp_size - txt_done;</span>
+<span class="lineNum">     506 </span>            :                 }
+<span class="lineNum">     507 </span>            : 
+<span class="lineNum">     508 </span><span class="lineNoCov">          0 :                 bs = gf_bs_new(NULL, 0, GF_BITSTREAM_WRITE);</span>
+<span class="lineNum">     509 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, is_utf_16, 1);</span>
+<span class="lineNum">     510 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, 0, 4);</span>
+<span class="lineNum">     511 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, type, 3);</span>
+<span class="lineNum">     512 </span><span class="lineNoCov">          0 :                 gf_bs_write_u16(bs, 6 + size);</span>
+<span class="lineNum">     513 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, nb_frag, 4);</span>
+<span class="lineNum">     514 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, cur_frag, 4);</span>
+<span class="lineNum">     515 </span><span class="lineNoCov">          0 :                 gf_bs_write_u24(bs, duration);</span>
+<span class="lineNum">     516 </span>            : 
+<span class="lineNum">     517 </span><span class="lineNoCov">          0 :                 gf_bs_get_content(bs, &amp;hdr, &amp;hdr_size);</span>
+<span class="lineNum">     518 </span><span class="lineNoCov">          0 :                 gf_bs_del(bs);</span>
+<span class="lineNum">     519 </span><span class="lineNoCov">          0 :                 builder-&gt;OnData(builder-&gt;cbk_obj, (char *) hdr, hdr_size, GF_FALSE);</span>
+<span class="lineNum">     520 </span><span class="lineNoCov">          0 :                 builder-&gt;bytesInPacket += hdr_size;</span>
+<span class="lineNum">     521 </span><span class="lineNoCov">          0 :                 gf_free(hdr);</span>
+<span class="lineNum">     522 </span>            : 
+<span class="lineNum">     523 </span><span class="lineNoCov">          0 :                 if (builder-&gt;OnDataReference) {</span>
+<span class="lineNum">     524 </span><span class="lineNoCov">          0 :                         builder-&gt;OnDataReference(builder-&gt;cbk_obj, size, pay_start + txt_done);</span>
+<span class="lineNum">     525 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     526 </span><span class="lineNoCov">          0 :                         builder-&gt;OnData(builder-&gt;cbk_obj, data + pay_start + txt_done, size, GF_FALSE);</span>
+<span class="lineNum">     527 </span>            :                 }
+<span class="lineNum">     528 </span><span class="lineNoCov">          0 :                 builder-&gt;bytesInPacket += size;</span>
+<span class="lineNum">     529 </span><span class="lineNoCov">          0 :                 cur_frag++;</span>
+<span class="lineNum">     530 </span><span class="lineNoCov">          0 :                 if (cur_frag==nb_frag) {</span>
+<span class="lineNum">     531 </span><span class="lineNoCov">          0 :                         builder-&gt;rtp_header.Marker = 1;</span>
+<span class="lineNum">     532 </span><span class="lineNoCov">          0 :                         builder-&gt;OnPacketDone(builder-&gt;cbk_obj, &amp;builder-&gt;rtp_header);</span>
+<span class="lineNum">     533 </span><span class="lineNoCov">          0 :                         builder-&gt;bytesInPacket = 0;</span>
+<span class="lineNum">     534 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     535 </span><span class="lineNoCov">          0 :                         builder-&gt;rtp_header.Marker = 0;</span>
+<span class="lineNum">     536 </span><span class="lineNoCov">          0 :                         builder-&gt;OnPacketDone(builder-&gt;cbk_obj, &amp;builder-&gt;rtp_header);</span>
+<span class="lineNum">     537 </span><span class="lineNoCov">          0 :                         builder-&gt;rtp_header.SequenceNumber += 1;</span>
+<span class="lineNum">     538 </span><span class="lineNoCov">          0 :                         builder-&gt;OnNewPacket(builder-&gt;cbk_obj, &amp;builder-&gt;rtp_header);</span>
+<span class="lineNum">     539 </span><span class="lineNoCov">          0 :                         builder-&gt;bytesInPacket = 0;</span>
+<span class="lineNum">     540 </span>            :                 }
+<span class="lineNum">     541 </span><span class="lineNoCov">          0 :                 txt_done += size;</span>
+<span class="lineNum">     542 </span>            :         }
+<span class="lineNum">     543 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">     544 </span><span class="lineNoCov">          0 : }</span>
+<a name="545"><span class="lineNum">     545 </span>            : </a>
+<span class="lineNum">     546 </span>            : 
+<span class="lineNum">     547 </span>            : GF_Err gp_rtp_builder_do_dims(GP_RTPPacketizer *builder, char *data, u32 data_size, u8 IsAUEnd, u32 FullAUSize, u32 duration)
+<span class="lineNum">     548 </span>            : {
+<span class="lineNum">     549 </span>            :         u32 frag_state;
+<span class="lineNum">     550 </span>            :         GF_BitStream *bs;
+<span class="lineNum">     551 </span>            :         u32 offset;
+<span class="lineNum">     552 </span>            :         Bool is_last_du;
+<span class="lineNum">     553 </span>            : 
+<span class="lineNum">     554 </span>            :         /*the DIMS hinter doesn't perform inter-sample concatenation*/
+<span class="lineNum">     555 </span><span class="lineNoCov">          0 :         if (!data) return GF_OK;</span>
+<span class="lineNum">     556 </span>            : 
+<span class="lineNum">     557 </span>            :         offset = 0;
+<span class="lineNum">     558 </span><span class="lineNoCov">          0 :         builder-&gt;rtp_header.TimeStamp = (u32) builder-&gt;sl_header.compositionTimeStamp;</span>
+<span class="lineNum">     559 </span><span class="lineNoCov">          0 :         bs = gf_bs_new(data, data_size, GF_BITSTREAM_READ);</span>
+<span class="lineNum">     560 </span><span class="lineNoCov">          0 :         while (offset &lt; data_size) {</span>
+<span class="lineNum">     561 </span>            :                 u32 du_offset = 0;
+<span class="lineNum">     562 </span>            :                 u32 hdr_offset = 0;
+<span class="lineNum">     563 </span>            :                 u32 orig_size, du_size;
+<span class="lineNum">     564 </span>            : 
+<span class="lineNum">     565 </span><span class="lineNoCov">          0 :                 orig_size = du_size = 2+gf_bs_read_u16(bs);</span>
+<span class="lineNum">     566 </span>            :                 /*if dims size is &gt;0xFFFF, use our internal hack for large units*/
+<span class="lineNum">     567 </span><span class="lineNoCov">          0 :                 if (du_size==2) {</span>
+<span class="lineNum">     568 </span><span class="lineNoCov">          0 :                         orig_size = du_size = 2+gf_bs_read_u32(bs);</span>
+<span class="lineNum">     569 </span>            :                         hdr_offset = 4;
+<span class="lineNum">     570 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     571 </span><span class="lineNoCov">          0 :                 gf_bs_skip_bytes(bs, du_size-2);</span>
+<span class="lineNum">     572 </span>            : 
+<span class="lineNum">     573 </span>            :                 /*prepare M-bit*/
+<span class="lineNum">     574 </span><span class="lineNoCov">          0 :                 is_last_du = (offset+du_size==data_size) ? GF_TRUE : GF_FALSE;</span>
+<span class="lineNum">     575 </span>            : 
+<span class="lineNum">     576 </span>            :                 frag_state = 0;
+<span class="lineNum">     577 </span><span class="lineNoCov">          0 :                 while (du_size) {</span>
+<span class="lineNum">     578 </span>            :                         u32 size_offset = 0;
+<span class="lineNum">     579 </span>            :                         u32 size;
+<span class="lineNum">     580 </span>            :                         //size = du_size;
+<span class="lineNum">     581 </span>            : 
+<span class="lineNum">     582 </span>            :                         /*does not fit, flush required*/
+<span class="lineNum">     583 </span><span class="lineNoCov">          0 :                         if (builder-&gt;bytesInPacket &amp;&amp; (du_size + 1 + builder-&gt;bytesInPacket &gt; builder-&gt;Path_MTU)) {</span>
+<span class="lineNum">     584 </span><span class="lineNoCov">          0 :                                 builder-&gt;OnPacketDone(builder-&gt;cbk_obj, &amp;builder-&gt;rtp_header);</span>
+<span class="lineNum">     585 </span><span class="lineNoCov">          0 :                                 builder-&gt;bytesInPacket = 0;</span>
+<span class="lineNum">     586 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     587 </span>            : 
+<span class="lineNum">     588 </span>            :                         /*fragmentation required*/
+<span class="lineNum">     589 </span><span class="lineNoCov">          0 :                         if (du_size + 1 &gt; builder-&gt;Path_MTU) {</span>
+<span class="lineNum">     590 </span><span class="lineNoCov">          0 :                                 size = builder-&gt;Path_MTU - 1;</span>
+<span class="lineNum">     591 </span>            :                                 /*first fragment*/
+<span class="lineNum">     592 </span><span class="lineNoCov">          0 :                                 if (!frag_state) {</span>
+<span class="lineNum">     593 </span>            :                                         /*size field is skipped !!*/
+<span class="lineNum">     594 </span><span class="lineNoCov">          0 :                                         size_offset = 2 + hdr_offset;</span>
+<span class="lineNum">     595 </span>            :                                         frag_state = 1;
+<span class="lineNum">     596 </span>            : 
+<span class="lineNum">     597 </span><span class="lineNoCov">          0 :                                         while (du_size - size_offset &lt;= size) {</span>
+<span class="lineNum">     598 </span><span class="lineNoCov">          0 :                                                 size--;</span>
+<span class="lineNum">     599 </span>            :                                         }
+<span class="lineNum">     600 </span>            :                                 }
+<span class="lineNum">     601 </span>            :                                 /*any middle fragment*/
+<span class="lineNum">     602 </span>            :                                 else frag_state = 2;
+<span class="lineNum">     603 </span>            : 
+<span class="lineNum">     604 </span><span class="lineNoCov">          0 :                                 builder-&gt;rtp_header.Marker = 0;</span>
+<span class="lineNum">     605 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     606 </span>            :                         /*last fragment*/
+<span class="lineNum">     607 </span><span class="lineNoCov">          0 :                         else if (frag_state) {</span>
+<span class="lineNum">     608 </span>            :                                 size = du_size;
+<span class="lineNum">     609 </span>            :                                 frag_state = 3;
+<span class="lineNum">     610 </span><span class="lineNoCov">          0 :                                 builder-&gt;rtp_header.Marker = is_last_du;</span>
+<span class="lineNum">     611 </span><span class="lineNoCov">          0 :                         } else {</span>
+<span class="lineNum">     612 </span>            :                                 size = du_size;
+<span class="lineNum">     613 </span><span class="lineNoCov">          0 :                                 builder-&gt;rtp_header.Marker = is_last_du;</span>
+<span class="lineNum">     614 </span>            :                         }
+<span class="lineNum">     615 </span>            : 
+<span class="lineNum">     616 </span><span class="lineNoCov">          0 :                         if (frag_state &amp;&amp; builder-&gt;bytesInPacket) {</span>
+<span class="lineNum">     617 </span><span class="lineNoCov">          0 :                                 builder-&gt;OnPacketDone(builder-&gt;cbk_obj, &amp;builder-&gt;rtp_header);</span>
+<span class="lineNum">     618 </span><span class="lineNoCov">          0 :                                 builder-&gt;bytesInPacket = 0;</span>
+<span class="lineNum">     619 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     620 </span>            : 
+<span class="lineNum">     621 </span>            :                         /*need a new packet*/
+<span class="lineNum">     622 </span><span class="lineNoCov">          0 :                         if (!builder-&gt;bytesInPacket) {</span>
+<span class="lineNum">     623 </span><span class="lineNoCov">          0 :                                 char dims_rtp_hdr[1];</span>
+<span class="lineNum">     624 </span>            : 
+<span class="lineNum">     625 </span>            :                                 /*the unit is critical, increase counter (coded on 3 bits)*/
+<span class="lineNum">     626 </span><span class="lineNoCov">          0 :                                 if (! (data[2+hdr_offset] &amp; GF_DIMS_UNIT_P) &amp;&amp; (frag_state &lt;= 1) ) {</span>
+<span class="lineNum">     627 </span><span class="lineNoCov">          0 :                                         builder-&gt;last_au_sn++;</span>
+<span class="lineNum">     628 </span><span class="lineNoCov">          0 :                                         builder-&gt;last_au_sn %= 8;</span>
+<span class="lineNum">     629 </span><span class="lineNoCov">          0 :                                 }</span>
+<span class="lineNum">     630 </span>            :                                 /*set CTR value*/
+<span class="lineNum">     631 </span><span class="lineNoCov">          0 :                                 dims_rtp_hdr[0] = builder-&gt;last_au_sn;</span>
+<span class="lineNum">     632 </span>            :                                 /*if M-bit is set in the dims unit header, replicate it*/
+<span class="lineNum">     633 </span><span class="lineNoCov">          0 :                                 if (data[2+hdr_offset] &amp; (1&lt;&lt;1) ) dims_rtp_hdr[0] |= (1&lt;&lt;6);</span>
+<span class="lineNum">     634 </span>            :                                 /*add unit fragmentation type*/
+<span class="lineNum">     635 </span><span class="lineNoCov">          0 :                                 dims_rtp_hdr[0] |= (frag_state&lt;&lt;3);</span>
+<span class="lineNum">     636 </span>            : 
+<span class="lineNum">     637 </span><span class="lineNoCov">          0 :                                 builder-&gt;rtp_header.SequenceNumber += 1;</span>
+<span class="lineNum">     638 </span><span class="lineNoCov">          0 :                                 builder-&gt;OnNewPacket(builder-&gt;cbk_obj, &amp;builder-&gt;rtp_header);</span>
+<span class="lineNum">     639 </span><span class="lineNoCov">          0 :                                 builder-&gt;OnData(builder-&gt;cbk_obj, (char *) dims_rtp_hdr, 1, GF_TRUE);</span>
+<span class="lineNum">     640 </span><span class="lineNoCov">          0 :                                 builder-&gt;bytesInPacket = 1;</span>
+<span class="lineNum">     641 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     642 </span>            : 
+<span class="lineNum">     643 </span>            :                         /*add payload*/
+<span class="lineNum">     644 </span><span class="lineNoCov">          0 :                         if (builder-&gt;OnDataReference)</span>
+<span class="lineNum">     645 </span><span class="lineNoCov">          0 :                                 builder-&gt;OnDataReference(builder-&gt;cbk_obj, size, offset+du_offset+size_offset);</span>
+<span class="lineNum">     646 </span>            :                         else
+<span class="lineNum">     647 </span><span class="lineNoCov">          0 :                                 builder-&gt;OnData(builder-&gt;cbk_obj, data+offset+du_offset+size_offset, size, GF_FALSE);</span>
+<span class="lineNum">     648 </span>            : 
+<span class="lineNum">     649 </span>            :                         /*if fragmentation, force packet flush even on last packet since aggregation unit do not
+<span class="lineNum">     650 </span>            :                         use the same packet format*/
+<span class="lineNum">     651 </span><span class="lineNoCov">          0 :                         if (frag_state) {</span>
+<span class="lineNum">     652 </span><span class="lineNoCov">          0 :                                 builder-&gt;OnPacketDone(builder-&gt;cbk_obj, &amp;builder-&gt;rtp_header);</span>
+<span class="lineNum">     653 </span><span class="lineNoCov">          0 :                                 builder-&gt;bytesInPacket = 0;</span>
+<span class="lineNum">     654 </span><span class="lineNoCov">          0 :                         } else {</span>
+<span class="lineNum">     655 </span><span class="lineNoCov">          0 :                                 builder-&gt;bytesInPacket += size;</span>
+<span class="lineNum">     656 </span>            :                         }
+<span class="lineNum">     657 </span><span class="lineNoCov">          0 :                         du_offset += size+size_offset;</span>
+<span class="lineNum">     658 </span>            :                         assert(du_size&gt;= size+size_offset);
+<span class="lineNum">     659 </span><span class="lineNoCov">          0 :                         du_size -= size+size_offset;</span>
+<span class="lineNum">     660 </span>            :                 }
+<span class="lineNum">     661 </span><span class="lineNoCov">          0 :                 offset += orig_size;</span>
+<span class="lineNum">     662 </span>            :         }
+<span class="lineNum">     663 </span><span class="lineNoCov">          0 :         if (builder-&gt;bytesInPacket) {</span>
+<span class="lineNum">     664 </span><span class="lineNoCov">          0 :                 builder-&gt;OnPacketDone(builder-&gt;cbk_obj, &amp;builder-&gt;rtp_header);</span>
+<span class="lineNum">     665 </span><span class="lineNoCov">          0 :                 builder-&gt;bytesInPacket = 0;</span>
+<span class="lineNum">     666 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     667 </span><span class="lineNoCov">          0 :         gf_bs_del(bs);</span>
+<span class="lineNum">     668 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">     669 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     670 </span>            : 
+<a name="671"><span class="lineNum">     671 </span>            : </a>
+<span class="lineNum">     672 </span>            : 
+<span class="lineNum">     673 </span>            : static void gf_rtp_ac3_flush(GP_RTPPacketizer *builder)
+<span class="lineNum">     674 </span>            : {
+<span class="lineNum">     675 </span><span class="lineNoCov">          0 :         char hdr[2];</span>
+<span class="lineNum">     676 </span><span class="lineNoCov">          0 :         if (!builder-&gt;bytesInPacket) return;</span>
+<span class="lineNum">     677 </span>            : 
+<span class="lineNum">     678 </span><span class="lineNoCov">          0 :         hdr[0] = builder-&gt;ac3_ft;</span>
+<span class="lineNum">     679 </span><span class="lineNoCov">          0 :         hdr[1] = builder-&gt;last_au_sn;</span>
+<span class="lineNum">     680 </span><span class="lineNoCov">          0 :         builder-&gt;OnData(builder-&gt;cbk_obj, hdr, 2, GF_TRUE);</span>
+<span class="lineNum">     681 </span>            : 
+<span class="lineNum">     682 </span><span class="lineNoCov">          0 :         builder-&gt;OnPacketDone(builder-&gt;cbk_obj, &amp;builder-&gt;rtp_header);</span>
+<span class="lineNum">     683 </span><span class="lineNoCov">          0 :         builder-&gt;bytesInPacket = 0;</span>
+<span class="lineNum">     684 </span><span class="lineNoCov">          0 :         builder-&gt;last_au_sn = 0;</span>
+<span class="lineNum">     685 </span><span class="lineNoCov">          0 :         builder-&gt;ac3_ft = 0;</span>
+<a name="686"><span class="lineNum">     686 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     687 </span>            : 
+<span class="lineNum">     688 </span>            : GF_Err gp_rtp_builder_do_ac3(GP_RTPPacketizer *builder, char *data, u32 data_size, u8 IsAUEnd, u32 FullAUSize)
+<span class="lineNum">     689 </span>            : {
+<span class="lineNum">     690 </span><span class="lineNoCov">          0 :         char hdr[2];</span>
+<span class="lineNum">     691 </span>            :         u32 offset, nb_pck;
+<span class="lineNum">     692 </span>            : 
+<span class="lineNum">     693 </span>            :         /*flush*/
+<span class="lineNum">     694 </span><span class="lineNoCov">          0 :         if (!data) {</span>
+<span class="lineNum">     695 </span><span class="lineNoCov">          0 :                 gf_rtp_ac3_flush(builder);</span>
+<span class="lineNum">     696 </span><span class="lineNoCov">          0 :                 return GF_OK;</span>
+<span class="lineNum">     697 </span>            :         }
+<span class="lineNum">     698 </span>            : 
+<span class="lineNum">     699 </span>            :         if (
+<span class="lineNum">     700 </span>            :             /*AU does not fit*/
+<span class="lineNum">     701 </span><span class="lineNoCov">          0 :             (builder-&gt;bytesInPacket + data_size &gt; builder-&gt;Path_MTU)</span>
+<span class="lineNum">     702 </span><span class="lineNoCov">          0 :             ||</span>
+<span class="lineNum">     703 </span>            :             /*aggregation is not enabled*/
+<span class="lineNum">     704 </span><span class="lineNoCov">          0 :             !(builder-&gt;flags &amp; GP_RTP_PCK_USE_MULTI)</span>
+<span class="lineNum">     705 </span><span class="lineNoCov">          0 :             ||</span>
+<span class="lineNum">     706 </span>            :             /*max ptime is exceeded*/
+<span class="lineNum">     707 </span><span class="lineNoCov">          0 :             (builder-&gt;max_ptime &amp;&amp; ( (u32) builder-&gt;sl_header.compositionTimeStamp &gt;= builder-&gt;rtp_header.TimeStamp + builder-&gt;max_ptime) )</span>
+<span class="lineNum">     708 </span>            : 
+<span class="lineNum">     709 </span>            :         ) {
+<span class="lineNum">     710 </span><span class="lineNoCov">          0 :                 gf_rtp_ac3_flush(builder);</span>
+<span class="lineNum">     711 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     712 </span>            : 
+<span class="lineNum">     713 </span>            :         /*fits*/
+<span class="lineNum">     714 </span><span class="lineNoCov">          0 :         if (builder-&gt;bytesInPacket + data_size &lt; builder-&gt;Path_MTU) {</span>
+<span class="lineNum">     715 </span>            :                 /*need a new packet*/
+<span class="lineNum">     716 </span><span class="lineNoCov">          0 :                 if (!builder-&gt;bytesInPacket) {</span>
+<span class="lineNum">     717 </span><span class="lineNoCov">          0 :                         builder-&gt;rtp_header.TimeStamp = (u32) builder-&gt;sl_header.compositionTimeStamp;</span>
+<span class="lineNum">     718 </span><span class="lineNoCov">          0 :                         builder-&gt;ac3_ft = 0;</span>
+<span class="lineNum">     719 </span><span class="lineNoCov">          0 :                         builder-&gt;rtp_header.Marker = 1;</span>
+<span class="lineNum">     720 </span><span class="lineNoCov">          0 :                         builder-&gt;rtp_header.SequenceNumber += 1;</span>
+<span class="lineNum">     721 </span><span class="lineNoCov">          0 :                         builder-&gt;OnNewPacket(builder-&gt;cbk_obj, &amp;builder-&gt;rtp_header);</span>
+<span class="lineNum">     722 </span>            :                         /*2 bytes header*/
+<span class="lineNum">     723 </span><span class="lineNoCov">          0 :                         builder-&gt;bytesInPacket = 2;</span>
+<span class="lineNum">     724 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     725 </span>            : 
+<span class="lineNum">     726 </span>            :                 /*add payload*/
+<span class="lineNum">     727 </span><span class="lineNoCov">          0 :                 if (builder-&gt;OnDataReference)</span>
+<span class="lineNum">     728 </span><span class="lineNoCov">          0 :                         builder-&gt;OnDataReference(builder-&gt;cbk_obj, data_size, 0);</span>
+<span class="lineNum">     729 </span>            :                 else
+<span class="lineNum">     730 </span><span class="lineNoCov">          0 :                         builder-&gt;OnData(builder-&gt;cbk_obj, data, data_size, GF_FALSE);</span>
+<span class="lineNum">     731 </span>            : 
+<span class="lineNum">     732 </span><span class="lineNoCov">          0 :                 builder-&gt;bytesInPacket += data_size;</span>
+<span class="lineNum">     733 </span><span class="lineNoCov">          0 :                 builder-&gt;last_au_sn++;</span>
+<span class="lineNum">     734 </span><span class="lineNoCov">          0 :                 return GF_OK;</span>
+<span class="lineNum">     735 </span>            :         }
+<span class="lineNum">     736 </span>            : 
+<span class="lineNum">     737 </span>            :         /*need fragmentation*/
+<span class="lineNum">     738 </span>            :         assert(!builder-&gt;bytesInPacket);
+<span class="lineNum">     739 </span>            :         offset = 0;
+<span class="lineNum">     740 </span><span class="lineNoCov">          0 :         nb_pck = data_size / (builder-&gt;Path_MTU-2);</span>
+<span class="lineNum">     741 </span><span class="lineNoCov">          0 :         if (data_size % (builder-&gt;Path_MTU-2)) nb_pck++;</span>
+<span class="lineNum">     742 </span><span class="lineNoCov">          0 :         builder-&gt;last_au_sn = nb_pck;</span>
+<span class="lineNum">     743 </span>            : 
+<span class="lineNum">     744 </span><span class="lineNoCov">          0 :         while (offset &lt; data_size) {</span>
+<span class="lineNum">     745 </span><span class="lineNoCov">          0 :                 u32 pck_size = MIN(data_size-offset, builder-&gt;Path_MTU-2);</span>
+<span class="lineNum">     746 </span>            : 
+<span class="lineNum">     747 </span><span class="lineNoCov">          0 :                 builder-&gt;rtp_header.Marker = 0;</span>
+<span class="lineNum">     748 </span><span class="lineNoCov">          0 :                 builder-&gt;rtp_header.TimeStamp = (u32) builder-&gt;sl_header.compositionTimeStamp;</span>
+<span class="lineNum">     749 </span><span class="lineNoCov">          0 :                 builder-&gt;rtp_header.SequenceNumber += 1;</span>
+<span class="lineNum">     750 </span>            : 
+<span class="lineNum">     751 </span><span class="lineNoCov">          0 :                 if (!offset) {</span>
+<span class="lineNum">     752 </span><span class="lineNoCov">          0 :                         builder-&gt;ac3_ft = (pck_size &gt; 5*data_size/8) ? 1 : 2;</span>
+<span class="lineNum">     753 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     754 </span><span class="lineNoCov">          0 :                         builder-&gt;ac3_ft = 3;</span>
+<span class="lineNum">     755 </span><span class="lineNoCov">          0 :                         if (offset + pck_size == data_size)</span>
+<span class="lineNum">     756 </span><span class="lineNoCov">          0 :                                 builder-&gt;rtp_header.Marker = 1;</span>
+<span class="lineNum">     757 </span>            :                 }
+<span class="lineNum">     758 </span><span class="lineNoCov">          0 :                 builder-&gt;OnNewPacket(builder-&gt;cbk_obj, &amp;builder-&gt;rtp_header);</span>
+<span class="lineNum">     759 </span>            : 
+<span class="lineNum">     760 </span><span class="lineNoCov">          0 :                 hdr[0] = builder-&gt;ac3_ft;</span>
+<span class="lineNum">     761 </span><span class="lineNoCov">          0 :                 hdr[1] = builder-&gt;last_au_sn;</span>
+<span class="lineNum">     762 </span><span class="lineNoCov">          0 :                 builder-&gt;OnData(builder-&gt;cbk_obj, hdr, 2, GF_TRUE);</span>
+<span class="lineNum">     763 </span>            : 
+<span class="lineNum">     764 </span>            :                 /*add payload*/
+<span class="lineNum">     765 </span><span class="lineNoCov">          0 :                 if (builder-&gt;OnDataReference)</span>
+<span class="lineNum">     766 </span><span class="lineNoCov">          0 :                         builder-&gt;OnDataReference(builder-&gt;cbk_obj, pck_size, offset);</span>
+<span class="lineNum">     767 </span>            :                 else
+<span class="lineNum">     768 </span><span class="lineNoCov">          0 :                         builder-&gt;OnData(builder-&gt;cbk_obj, data+offset, pck_size, GF_FALSE);</span>
+<span class="lineNum">     769 </span>            : 
+<span class="lineNum">     770 </span><span class="lineNoCov">          0 :                 builder-&gt;OnPacketDone(builder-&gt;cbk_obj, &amp;builder-&gt;rtp_header);</span>
+<span class="lineNum">     771 </span><span class="lineNoCov">          0 :                 offset += pck_size;</span>
+<span class="lineNum">     772 </span><span class="lineNoCov">          0 :                 builder-&gt;bytesInPacket = 0;</span>
+<span class="lineNum">     773 </span>            :         }
+<span class="lineNum">     774 </span>            : 
+<span class="lineNum">     775 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">     776 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     777 </span>            : 
+<span class="lineNum">     778 </span>            : #endif /*GPAC_DISABLE_STREAMING*/
+<span class="lineNum">     779 </span>            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

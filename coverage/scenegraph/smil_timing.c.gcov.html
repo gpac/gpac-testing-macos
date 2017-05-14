@@ -1,0 +1,1155 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - scenegraph/smil_timing.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">scenegraph</a> - smil_timing.c<span style="font-size: 80%;"> (source / <a href="smil_timing.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">25</td>
+            <td class="headerCovTableEntry">499</td>
+            <td class="headerCovTableEntryLo">5.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-05-14 22:31:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">26</td>
+            <td class="headerCovTableEntryLo">7.7 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *                      GPAC - Multimedia Framework C SDK
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *                      Authors: Cyril Concolato
+<span class="lineNum">       5 </span>            :  *                      Copyright (c) Telecom ParisTech 2004-2012
+<span class="lineNum">       6 </span>            :  *
+<span class="lineNum">       7 </span>            :  *  This file is part of GPAC / SVG Scene Graph sub-project
+<span class="lineNum">       8 </span>            :  *
+<span class="lineNum">       9 </span>            :  *  GPAC is free software; you can redistribute it and/or modify
+<span class="lineNum">      10 </span>            :  *  it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">      11 </span>            :  *  the Free Software Foundation; either version 2, or (at your option)
+<span class="lineNum">      12 </span>            :  *  any later version.
+<span class="lineNum">      13 </span>            :  *
+<span class="lineNum">      14 </span>            :  *  GPAC is distributed in the hope that it will be useful,
+<span class="lineNum">      15 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      16 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      17 </span>            :  *  GNU Lesser General Public License for more details.
+<span class="lineNum">      18 </span>            :  *
+<span class="lineNum">      19 </span>            :  *  You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      20 </span>            :  *  License along with this library; see the file COPYING.  If not, write to
+<span class="lineNum">      21 </span>            :  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+<span class="lineNum">      22 </span>            :  *
+<span class="lineNum">      23 </span>            :  */
+<span class="lineNum">      24 </span>            : 
+<span class="lineNum">      25 </span>            : #include &lt;gpac/internal/scenegraph_dev.h&gt;
+<span class="lineNum">      26 </span>            : #include &lt;gpac/events.h&gt;
+<span class="lineNum">      27 </span>            : #include &lt;gpac/nodes_svg.h&gt;
+<span class="lineNum">      28 </span>            : 
+<a name="29"><span class="lineNum">      29 </span>            : #ifndef GPAC_DISABLE_SVG</a>
+<span class="lineNum">      30 </span>            : 
+<span class="lineNum">      31 </span>            : static void gf_smil_timing_null_timed_function(SMIL_Timing_RTI *rti, Fixed normalized_scene_time, u32 state)
+<span class="lineNum">      32 </span>            : {
+<a name="33"><span class="lineNum">      33 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span>            : static void gf_smil_timing_print_interval(SMIL_Timing_RTI *rti, Bool current, SMIL_Interval *interval)
+<span class="lineNum">      36 </span>            : {
+<span class="lineNum">      37 </span><span class="lineNoCov">          0 :         GF_LOG(GF_LOG_DEBUG, GF_LOG_SMIL, (&quot;[SMIL Timing   ] Time %f - Timed element %s - &quot;, gf_node_get_scene_time((GF_Node *)rti-&gt;timed_elt), gf_node_get_log_name((GF_Node *)rti-&gt;timed_elt)));</span>
+<span class="lineNum">      38 </span><span class="lineNoCov">          0 :         GF_LOG(GF_LOG_DEBUG, GF_LOG_SMIL, (current ? &quot;Current &quot; : &quot;   Next &quot;));</span>
+<span class="lineNum">      39 </span><span class="lineNoCov">          0 :         GF_LOG(GF_LOG_DEBUG, GF_LOG_SMIL, (&quot;Interval - &quot;));</span>
+<span class="lineNum">      40 </span><span class="lineNoCov">          0 :         GF_LOG(GF_LOG_DEBUG, GF_LOG_SMIL, (&quot;begin: %.2f&quot;, interval-&gt;begin));</span>
+<span class="lineNum">      41 </span><span class="lineNoCov">          0 :         GF_LOG(GF_LOG_DEBUG, GF_LOG_SMIL, (&quot; - end: %.2f&quot;, interval-&gt;end));</span>
+<span class="lineNum">      42 </span><span class="lineNoCov">          0 :         GF_LOG(GF_LOG_DEBUG, GF_LOG_SMIL, (&quot; - simple dur: %.2f - active dur: %.2f\n&quot;,interval-&gt;simple_duration, interval-&gt;active_duration));</span>
+<span class="lineNum">      43 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">      44 </span>            : 
+<span class="lineNum">      45 </span>            : /* Computes the active duration for the given interval,
+<a name="46"><span class="lineNum">      46 </span>            :    assumes that the values of begin and end have been set (&gt;0 for real duration or -1 if infinite)</a>
+<span class="lineNum">      47 </span>            :    and that begin is defined (i.e. a positive value, not infinite)*/
+<span class="lineNum">      48 </span>            : static void gf_smil_timing_compute_active_duration(SMIL_Timing_RTI *rti, SMIL_Interval *interval)
+<span class="lineNum">      49 </span>            : {
+<span class="lineNum">      50 </span>            :         Bool clamp_active_duration;
+<span class="lineNum">      51 </span>            :         Bool isDurDefined, isRepeatCountDefined, isRepeatDurDefined, isMinDefined, isMaxDefined, isRepeatDurIndefinite, isRepeatCountIndefinite, isMediaDuration;
+<span class="lineNum">      52 </span><span class="lineNoCov">          0 :         SMILTimingAttributesPointers *timingp = rti-&gt;timingp;</span>
+<span class="lineNum">      53 </span>            : 
+<span class="lineNum">      54 </span>            :         /* TODO: check if the test on begin is right and needed */
+<span class="lineNum">      55 </span><span class="lineNoCov">          0 :         if (!timingp/* || interval-&gt;begin == -1*/) return;</span>
+<span class="lineNum">      56 </span>            : 
+<span class="lineNum">      57 </span><span class="lineNoCov">          0 :         switch (gf_node_get_tag((GF_Node *)rti-&gt;timed_elt)) {</span>
+<span class="lineNum">      58 </span>            :         case TAG_SVG_discard:
+<span class="lineNum">      59 </span><span class="lineNoCov">          0 :                 interval-&gt;active_duration = -1;</span>
+<span class="lineNum">      60 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">      61 </span>            :         }
+<span class="lineNum">      62 </span>            : 
+<span class="lineNum">      63 </span><span class="lineNoCov">          0 :         isDurDefined = (timingp-&gt;dur &amp;&amp; timingp-&gt;dur-&gt;type == SMIL_DURATION_DEFINED);</span>
+<span class="lineNum">      64 </span><span class="lineNoCov">          0 :         isMediaDuration = (timingp-&gt;dur &amp;&amp; (timingp-&gt;dur-&gt;type == SMIL_DURATION_MEDIA) &amp;&amp; (rti-&gt;media_duration&gt;=0) );</span>
+<span class="lineNum">      65 </span><span class="lineNoCov">          0 :         isRepeatCountDefined = (timingp-&gt;repeatCount &amp;&amp; timingp-&gt;repeatCount-&gt;type == SMIL_REPEATCOUNT_DEFINED);</span>
+<span class="lineNum">      66 </span><span class="lineNoCov">          0 :         isRepeatCountIndefinite = (timingp-&gt;repeatCount &amp;&amp; timingp-&gt;repeatCount-&gt;type == SMIL_REPEATCOUNT_INDEFINITE);</span>
+<span class="lineNum">      67 </span><span class="lineNoCov">          0 :         isRepeatDurDefined = (timingp-&gt;repeatDur &amp;&amp; timingp-&gt;repeatDur-&gt;type == SMIL_DURATION_DEFINED);</span>
+<span class="lineNum">      68 </span><span class="lineNoCov">          0 :         isRepeatDurIndefinite = (timingp-&gt;repeatDur &amp;&amp; timingp-&gt;repeatDur-&gt;type == SMIL_DURATION_INDEFINITE);</span>
+<span class="lineNum">      69 </span>            : 
+<span class="lineNum">      70 </span>            :         /* Step 1: Computing active duration using repeatDur and repeatCount */
+<span class="lineNum">      71 </span><span class="lineNoCov">          0 :         if (isDurDefined || isMediaDuration) {</span>
+<span class="lineNum">      72 </span><span class="lineNoCov">          0 :                 interval-&gt;simple_duration = isMediaDuration ? rti-&gt;media_duration : timingp-&gt;dur-&gt;clock_value;</span>
+<span class="lineNum">      73 </span>            : 
+<span class="lineNum">      74 </span><span class="lineNoCov">          0 :                 if (isRepeatCountDefined &amp;&amp; !isRepeatDurDefined) {</span>
+<span class="lineNum">      75 </span><span class="lineNoCov">          0 :                         interval-&gt;repeat_duration = FIX2FLT(timingp-&gt;repeatCount-&gt;count) * interval-&gt;simple_duration;</span>
+<span class="lineNum">      76 </span><span class="lineNoCov">          0 :                 } else if (!isRepeatCountDefined &amp;&amp; isRepeatDurDefined) {</span>
+<span class="lineNum">      77 </span><span class="lineNoCov">          0 :                         interval-&gt;repeat_duration = timingp-&gt;repeatDur-&gt;clock_value;</span>
+<span class="lineNum">      78 </span><span class="lineNoCov">          0 :                 } else if (!isRepeatCountDefined &amp;&amp; !isRepeatDurDefined) {</span>
+<span class="lineNum">      79 </span><span class="lineNoCov">          0 :                         if (isRepeatDurIndefinite || isRepeatCountIndefinite) {</span>
+<span class="lineNum">      80 </span><span class="lineNoCov">          0 :                                 interval-&gt;repeat_duration = -1;</span>
+<span class="lineNum">      81 </span><span class="lineNoCov">          0 :                         } else {</span>
+<span class="lineNum">      82 </span><span class="lineNoCov">          0 :                                 interval-&gt;repeat_duration = interval-&gt;simple_duration;</span>
+<span class="lineNum">      83 </span>            :                         }
+<span class="lineNum">      84 </span>            :                 } else {
+<span class="lineNum">      85 </span><span class="lineNoCov">          0 :                         interval-&gt;repeat_duration = MIN(timingp-&gt;repeatDur-&gt;clock_value,</span>
+<span class="lineNum">      86 </span>            :                                                         FIX2FLT(timingp-&gt;repeatCount-&gt;count) * interval-&gt;simple_duration);
+<span class="lineNum">      87 </span>            :                 }
+<span class="lineNum">      88 </span>            :         } else {
+<span class="lineNum">      89 </span>            : 
+<span class="lineNum">      90 </span>            :                 /* simple_duration is indefinite */
+<span class="lineNum">      91 </span><span class="lineNoCov">          0 :                 interval-&gt;simple_duration = -1;</span>
+<span class="lineNum">      92 </span>            : 
+<span class="lineNum">      93 </span>            :                 /* we can ignore repeatCount to compute active_duration */
+<span class="lineNum">      94 </span><span class="lineNoCov">          0 :                 if (!isRepeatDurDefined) {</span>
+<span class="lineNum">      95 </span><span class="lineNoCov">          0 :                         interval-&gt;repeat_duration = -1;</span>
+<span class="lineNum">      96 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">      97 </span><span class="lineNoCov">          0 :                         interval-&gt;repeat_duration = timingp-&gt;repeatDur-&gt;clock_value;</span>
+<span class="lineNum">      98 </span>            :                 }
+<span class="lineNum">      99 </span>            :         }
+<span class="lineNum">     100 </span>            : 
+<span class="lineNum">     101 </span><span class="lineNoCov">          0 :         interval-&gt;active_duration = interval-&gt;repeat_duration;</span>
+<span class="lineNum">     102 </span>            :         /* Step 2: if end is defined in the document, clamp active duration to end-begin
+<span class="lineNum">     103 </span>            :         otherwise return*/
+<span class="lineNum">     104 </span><span class="lineNoCov">          0 :         if (interval-&gt;end &lt; 0) {</span>
+<span class="lineNum">     105 </span>            :                 /* interval-&gt;active_duration stays as is */
+<span class="lineNum">     106 </span>            :         } else {
+<span class="lineNum">     107 </span><span class="lineNoCov">          0 :                 if (interval-&gt;active_duration &gt;= 0)</span>
+<span class="lineNum">     108 </span><span class="lineNoCov">          0 :                         interval-&gt;active_duration = MIN(interval-&gt;active_duration, interval-&gt;end - interval-&gt;begin);</span>
+<span class="lineNum">     109 </span>            :                 else
+<span class="lineNum">     110 </span><span class="lineNoCov">          0 :                         interval-&gt;active_duration = interval-&gt;end - interval-&gt;begin;</span>
+<span class="lineNum">     111 </span>            :         }
+<span class="lineNum">     112 </span>            : 
+<span class="lineNum">     113 </span>            :         /* min and max check should be checked last,
+<span class="lineNum">     114 </span>            :            to ensure that they have greater priority than the end attribute
+<span class="lineNum">     115 </span>            :            see (animate-elem-223-t.svg) */
+<span class="lineNum">     116 </span>            :         /* Step 3: clamp the active duration with min and max */
+<span class="lineNum">     117 </span>            :         clamp_active_duration = 1;
+<span class="lineNum">     118 </span>            :         /* testing for presence of min and max because some elements may not have them: eg SVG audio */
+<span class="lineNum">     119 </span><span class="lineNoCov">          0 :         isMinDefined = (timingp-&gt;min &amp;&amp; timingp-&gt;min-&gt;type == SMIL_DURATION_DEFINED);</span>
+<span class="lineNum">     120 </span><span class="lineNoCov">          0 :         isMaxDefined = (timingp-&gt;max &amp;&amp; timingp-&gt;max-&gt;type == SMIL_DURATION_DEFINED);</span>
+<span class="lineNum">     121 </span><span class="lineNoCov">          0 :         if (isMinDefined &amp;&amp; isMaxDefined &amp;&amp;</span>
+<span class="lineNum">     122 </span><span class="lineNoCov">          0 :                 timingp-&gt;max-&gt;clock_value &lt; timingp-&gt;min-&gt;clock_value) {</span>
+<span class="lineNum">     123 </span>            :                 clamp_active_duration = 0;
+<span class="lineNum">     124 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     125 </span><span class="lineNoCov">          0 :         if (clamp_active_duration) {</span>
+<span class="lineNum">     126 </span><span class="lineNoCov">          0 :                 if (isMinDefined) {</span>
+<span class="lineNum">     127 </span><span class="lineNoCov">          0 :                         if ((interval-&gt;active_duration &gt;= 0) &amp;&amp;</span>
+<span class="lineNum">     128 </span><span class="lineNoCov">          0 :                                 (interval-&gt;active_duration &lt;= timingp-&gt;min-&gt;clock_value)) {</span>
+<span class="lineNum">     129 </span>            :                                 /* see http://www.w3.org/TR/2005/REC-SMIL2-20051213/smil-timing.html#Timing-MinMax
+<span class="lineNum">     130 </span>            :                                   - if repeat duration or simple duration is smaller than min,
+<span class="lineNum">     131 </span>            :                                   then the (active ? / simple ?) duration shall be set to min
+<span class="lineNum">     132 </span>            :                                   (cf 6th row in animate-elem-65-t.svg)
+<span class="lineNum">     133 </span>            :                                   - if the min &gt; dur &gt; end, the element is played normally for its simple duration
+<span class="lineNum">     134 </span>            :                                   and then is frozen or not shown depending on the value of the fill attribute.
+<span class="lineNum">     135 </span>            :                                   (cf animate-elem-222-t.svg)*/
+<span class="lineNum">     136 </span><span class="lineNoCov">          0 :                                 interval-&gt;active_duration = timingp-&gt;min-&gt;clock_value;</span>
+<span class="lineNum">     137 </span><span class="lineNoCov">          0 :                                 interval-&gt;min_active = 1;</span>
+<span class="lineNum">     138 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     139 </span>            :                 }
+<span class="lineNum">     140 </span><span class="lineNoCov">          0 :                 if (isMaxDefined) {</span>
+<span class="lineNum">     141 </span><span class="lineNoCov">          0 :                         if ((interval-&gt;active_duration &gt;= 0 &amp;&amp; interval-&gt;active_duration &gt;= timingp-&gt;max-&gt;clock_value) ||</span>
+<span class="lineNum">     142 </span><span class="lineNoCov">          0 :                                 interval-&gt;active_duration == -1) {</span>
+<span class="lineNum">     143 </span><span class="lineNoCov">          0 :                                 interval-&gt;active_duration = timingp-&gt;max-&gt;clock_value;</span>
+<span class="lineNum">     144 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     145 </span>            :                 }
+<span class="lineNum">     146 </span>            :         }
+<span class="lineNum">     147 </span>            : 
+<span class="lineNum">     148 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     149 </span>            : 
+<span class="lineNum">     150 </span>            : /* This should be called when the dur attribute is set to media and when the media duration is known.
+<a name="151"><span class="lineNum">     151 </span>            :    The function recomputes the active duration of the current interval according to the given media duration */</a>
+<span class="lineNum">     152 </span>            : GF_EXPORT
+<span class="lineNum">     153 </span>            : void gf_smil_set_media_duration(SMIL_Timing_RTI *rti, Double media_duration)
+<span class="lineNum">     154 </span>            : {
+<span class="lineNum">     155 </span><span class="lineNoCov">          0 :         rti-&gt;media_duration = media_duration;</span>
+<span class="lineNum">     156 </span><span class="lineNoCov">          0 :         gf_smil_timing_compute_active_duration(rti, rti-&gt;current_interval);</span>
+<span class="lineNum">     157 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     158 </span>            : 
+<span class="lineNum">     159 </span>            : /* the end value of this interval needs to be initialized before computing the active duration
+<span class="lineNum">     160 </span>            :    the begin value must be &gt;= 0
+<span class="lineNum">     161 </span>            :    The result can be:
+<span class="lineNum">     162 </span>            :     - a positive value meaning that a resolved and non-indefinite value was found
+<span class="lineNum">     163 </span>            :         - the value -1 meaning indefinite or unresolved
+<span class="lineNum">     164 </span>            :                 TODO: we should make a difference between indefinite and unresolved because
+<span class="lineNum">     165 </span>            :                 if an interval is created with a value of indefinite, this value should not
+<span class="lineNum">     166 </span>            :                 be replaced by a resolved event. (Not sure ?!!)
+<a name="167"><span class="lineNum">     167 </span>            :         - the value -2 meaning that a valid end value (including indefinite) could not be found</a>
+<span class="lineNum">     168 </span>            : */
+<span class="lineNum">     169 </span>            : static void gf_smil_timing_get_interval_end(SMIL_Timing_RTI *rti, SMIL_Interval *interval)
+<span class="lineNum">     170 </span>            : {
+<span class="lineNum">     171 </span>            :         u32 end_count, j;
+<span class="lineNum">     172 </span>            : 
+<span class="lineNum">     173 </span>            :         /* we set the value to indicate that this is an illegal end,
+<span class="lineNum">     174 </span>            :            if it stays like that after searching through the values,
+<span class="lineNum">     175 </span>            :            then the whole interval must be discarded */
+<span class="lineNum">     176 </span><span class="lineNoCov">          0 :         interval-&gt;end = -2;</span>
+<span class="lineNum">     177 </span>            : 
+<span class="lineNum">     178 </span><span class="lineNoCov">          0 :         end_count = (rti-&gt;timingp-&gt;end ? gf_list_count(*rti-&gt;timingp-&gt;end) : 0);</span>
+<span class="lineNum">     179 </span>            :         /* trying to find a matching end */
+<span class="lineNum">     180 </span><span class="lineNoCov">          0 :         if (end_count &gt; 0) {</span>
+<span class="lineNum">     181 </span><span class="lineNoCov">          0 :                 for (j = 0; j &lt; end_count; j++) {</span>
+<span class="lineNum">     182 </span><span class="lineNoCov">          0 :                         SMIL_Time *end = (SMIL_Time*)gf_list_get(*rti-&gt;timingp-&gt;end, j);</span>
+<span class="lineNum">     183 </span><span class="lineNoCov">          0 :                         if ( GF_SMIL_TIME_IS_CLOCK(end-&gt;type) )  {</span>
+<span class="lineNum">     184 </span><span class="lineNoCov">          0 :                                 if( end-&gt;clock &gt;= interval-&gt;begin) {</span>
+<span class="lineNum">     185 </span><span class="lineNoCov">          0 :                                         interval-&gt;end = end-&gt;clock;</span>
+<span class="lineNum">     186 </span><span class="lineNoCov">          0 :                                         break;</span>
+<span class="lineNum">     187 </span>            :                                 }
+<span class="lineNum">     188 </span>            :                         } else {
+<span class="lineNum">     189 </span>            :                                 /* an unresolved or indefinite value is always good */
+<span class="lineNum">     190 </span><span class="lineNoCov">          0 :                                 interval-&gt;end = -1;</span>
+<span class="lineNum">     191 </span><span class="lineNoCov">          0 :                                 break;</span>
+<span class="lineNum">     192 </span>            :                         }
+<span class="lineNum">     193 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     194 </span>            :         } else {
+<span class="lineNum">     195 </span><span class="lineNoCov">          0 :                 interval-&gt;end = -1;</span>
+<span class="lineNum">     196 </span>            :         }
+<a name="197"><span class="lineNum">     197 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     198 </span>            : 
+<span class="lineNum">     199 </span>            : static void gf_smil_timing_get_first_interval(SMIL_Timing_RTI *rti)
+<span class="lineNum">     200 </span>            : {
+<span class="lineNum">     201 </span>            :         u32 i, count;
+<span class="lineNum">     202 </span><span class="lineNoCov">          0 :         if (!rti || !rti-&gt;current_interval) return;</span>
+<span class="lineNum">     203 </span>            :         
+<span class="lineNum">     204 </span><span class="lineNoCov">          0 :         memset(rti-&gt;current_interval, 0, sizeof(SMIL_Interval));</span>
+<span class="lineNum">     205 </span><span class="lineNoCov">          0 :         rti-&gt;current_interval-&gt;begin = -1;</span>
+<span class="lineNum">     206 </span><span class="lineNoCov">          0 :         count = (rti-&gt;timingp-&gt;begin ? gf_list_count(*rti-&gt;timingp-&gt;begin) : 0);</span>
+<span class="lineNum">     207 </span><span class="lineNoCov">          0 :         for (i = 0; i &lt; count; i ++) {</span>
+<span class="lineNum">     208 </span><span class="lineNoCov">          0 :                 SMIL_Time *begin = (SMIL_Time*)gf_list_get(*rti-&gt;timingp-&gt;begin, i);</span>
+<span class="lineNum">     209 </span><span class="lineNoCov">          0 :                 if (GF_SMIL_TIME_IS_CLOCK(begin-&gt;type)) {</span>
+<span class="lineNum">     210 </span><span class="lineNoCov">          0 :                         rti-&gt;current_interval-&gt;begin = begin-&gt;clock;</span>
+<span class="lineNum">     211 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     212 </span>            :                 }
+<span class="lineNum">     213 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     214 </span>            :         /*In SVG, if no 'begin' is specified, the default timing of the time container
+<span class="lineNum">     215 </span>            :         is equivalent to an offset value of '0'.*/
+<span class="lineNum">     216 </span><span class="lineNoCov">          0 :         if (rti-&gt;current_interval-&gt;begin == -1 &amp;&amp; count == 0) {</span>
+<span class="lineNum">     217 </span>            :                 /* except for LASeR Conditional element*/
+<span class="lineNum">     218 </span><span class="lineNoCov">          0 :                 if (rti-&gt;timed_elt-&gt;sgprivate-&gt;tag != TAG_LSR_conditional) {</span>
+<span class="lineNum">     219 </span><span class="lineNoCov">          0 :                         rti-&gt;current_interval-&gt;begin = 0;</span>
+<span class="lineNum">     220 </span>            :                 } else {
+<span class="lineNum">     221 </span><span class="lineNoCov">          0 :                         return;</span>
+<span class="lineNum">     222 </span>            :                 }
+<span class="lineNum">     223 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     224 </span>            : 
+<span class="lineNum">     225 </span>            :         /* this is the first time we check the interval */
+<span class="lineNum">     226 </span><span class="lineNoCov">          0 :         gf_smil_timing_get_interval_end(rti, rti-&gt;current_interval);</span>
+<span class="lineNum">     227 </span>            :         if (0 &amp;&amp; rti-&gt;current_interval-&gt;end == -2) {
+<span class="lineNum">     228 </span>            :                 /* TODO: check if the interval can be discarded (i.e. if end is specified with an invalid end value (return -2)),
+<span class="lineNum">     229 </span>            :                    probably yes, but next time we call the evaluation of interval, we should call get_first_interval */
+<span class="lineNum">     230 </span>            :                 GF_LOG(GF_LOG_DEBUG, GF_LOG_SMIL, (&quot;[SMIL Timing   ] Time %f - Timed element %s - Wrong Interval\n&quot;, gf_node_get_scene_time((GF_Node *)rti-&gt;timed_elt), gf_node_get_log_name((GF_Node *)rti-&gt;timed_elt)));
+<span class="lineNum">     231 </span>            :                 rti-&gt;current_interval-&gt;begin = -1;
+<span class="lineNum">     232 </span>            :                 rti-&gt;current_interval-&gt;end = -1;
+<span class="lineNum">     233 </span>            :                 return;
+<span class="lineNum">     234 </span>            :         }
+<span class="lineNum">     235 </span>            : 
+<span class="lineNum">     236 </span><span class="lineNoCov">          0 :         gf_smil_timing_compute_active_duration(rti, rti-&gt;current_interval);</span>
+<span class="lineNum">     237 </span><span class="lineNoCov">          0 :         gf_smil_timing_print_interval(rti, 1, rti-&gt;current_interval);</span>
+<a name="238"><span class="lineNum">     238 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     239 </span>            : 
+<span class="lineNum">     240 </span>            : static Bool gf_smil_timing_get_next_interval(SMIL_Timing_RTI *rti, Bool current, SMIL_Interval *interval, Double scene_time)
+<span class="lineNum">     241 </span>            : {
+<span class="lineNum">     242 </span>            :         u32 i, count;
+<span class="lineNum">     243 </span><span class="lineNoCov">          0 :         if (!interval) return GF_FALSE;</span>
+<span class="lineNum">     244 </span>            :         
+<span class="lineNum">     245 </span><span class="lineNoCov">          0 :         memset(interval, 0, sizeof(SMIL_Interval));</span>
+<span class="lineNum">     246 </span><span class="lineNoCov">          0 :         interval-&gt;begin = -1;</span>
+<span class="lineNum">     247 </span>            : 
+<span class="lineNum">     248 </span><span class="lineNoCov">          0 :         count = (rti-&gt;timingp-&gt;begin ? gf_list_count(*rti-&gt;timingp-&gt;begin) : 0);</span>
+<span class="lineNum">     249 </span><span class="lineNoCov">          0 :         for (i = 0; i &lt; count; i ++) {</span>
+<span class="lineNum">     250 </span><span class="lineNoCov">          0 :                 SMIL_Time *begin = (SMIL_Time*)gf_list_get(*rti-&gt;timingp-&gt;begin, i);</span>
+<span class="lineNum">     251 </span><span class="lineNoCov">          0 :                 if (GF_SMIL_TIME_IS_CLOCK(begin-&gt;type)) {</span>
+<span class="lineNum">     252 </span><span class="lineNoCov">          0 :                         if (rti-&gt;current_interval-&gt;begin != -1 &amp;&amp; begin-&gt;clock &lt;= rti-&gt;current_interval-&gt;begin) continue;</span>
+<span class="lineNum">     253 </span>            : //                      if (rti-&gt;current_interval-&gt;begin == -1 || begin-&gt;clock &lt;= scene_time) {
+<span class="lineNum">     254 </span><span class="lineNoCov">          0 :                         interval-&gt;begin = begin-&gt;clock;</span>
+<span class="lineNum">     255 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     256 </span>            : //                      }
+<span class="lineNum">     257 </span>            :                 }
+<span class="lineNum">     258 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     259 </span><span class="lineNoCov">          0 :         if (interval-&gt;begin != -1) {</span>
+<span class="lineNum">     260 </span><span class="lineNoCov">          0 :                 gf_smil_timing_get_interval_end(rti, interval);</span>
+<span class="lineNum">     261 </span><span class="lineNoCov">          0 :                 if (interval-&gt;end == -2) {</span>
+<span class="lineNum">     262 </span>            :                         /* this is a wrong interval see first animation in animate-elem-201-t.svg */
+<span class="lineNum">     263 </span><span class="lineNoCov">          0 :                         GF_LOG(GF_LOG_DEBUG, GF_LOG_SMIL, (&quot;[SMIL Timing   ] Time %f - Timed element %s - Wrong Interval\n&quot;, gf_node_get_scene_time((GF_Node *)rti-&gt;timed_elt), gf_node_get_log_name((GF_Node *)rti-&gt;timed_elt)));</span>
+<span class="lineNum">     264 </span><span class="lineNoCov">          0 :                         interval-&gt;begin = -1;</span>
+<span class="lineNum">     265 </span><span class="lineNoCov">          0 :                         interval-&gt;end = -1;</span>
+<span class="lineNum">     266 </span><span class="lineNoCov">          0 :                         return 0;</span>
+<span class="lineNum">     267 </span>            :                 }
+<span class="lineNum">     268 </span><span class="lineNoCov">          0 :                 gf_smil_timing_compute_active_duration(rti, interval);</span>
+<span class="lineNum">     269 </span><span class="lineNoCov">          0 :                 gf_smil_timing_print_interval(rti, current, interval);</span>
+<span class="lineNum">     270 </span><span class="lineNoCov">          0 :                 return 1;</span>
+<span class="lineNum">     271 </span>            :         } else {
+<span class="lineNum">     272 </span><span class="lineNoCov">          0 :                 return 0;</span>
+<span class="lineNum">     273 </span>            :         }
+<span class="lineNum">     274 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     275 </span>            : 
+<span class="lineNum">     276 </span>            : /* To reduce the process of notifying the time to all timed elements, we add to the scene graph
+<span class="lineNum">     277 </span>            :    only the timed elements which have a resolved current interval, other timed elements will be
+<span class="lineNum">     278 </span>            :    added at runtime when an event leads to the creation of a new interval.
+<a name="279"><span class="lineNum">     279 </span>            :    We also insert the new timed element in the order of the current_interval begin value, to stop</a>
+<span class="lineNum">     280 </span>            :    the notification of time when not necessary */
+<span class="lineNum">     281 </span>            : static Bool gf_smil_timing_add_to_sg(GF_SceneGraph *sg, SMIL_Timing_RTI *rti)
+<span class="lineNum">     282 </span>            : {
+<span class="lineNum">     283 </span><span class="lineNoCov">          0 :         if (rti-&gt;current_interval-&gt;begin != -1) {</span>
+<span class="lineNum">     284 </span>            :                 SMIL_Timing_RTI *cur_rti = NULL;
+<span class="lineNum">     285 </span>            :                 u32 i;
+<span class="lineNum">     286 </span>            : 
+<span class="lineNum">     287 </span><span class="lineNoCov">          0 :                 for (i = 0; i &lt; gf_list_count(sg-&gt;smil_timed_elements); i++) {</span>
+<span class="lineNum">     288 </span><span class="lineNoCov">          0 :                         cur_rti = (SMIL_Timing_RTI *)gf_list_get(sg-&gt;smil_timed_elements, i);</span>
+<span class="lineNum">     289 </span><span class="lineNoCov">          0 :                         if (cur_rti-&gt;current_interval-&gt;begin &gt; rti-&gt;current_interval-&gt;begin) break;</span>
+<span class="lineNum">     290 </span>            :                 }
+<span class="lineNum">     291 </span><span class="lineNoCov">          0 :                 gf_list_insert(sg-&gt;smil_timed_elements, rti, i);</span>
+<span class="lineNum">     292 </span>            :                 return 1;
+<span class="lineNum">     293 </span>            :         }
+<span class="lineNum">     294 </span><span class="lineNoCov">          0 :         return 0;</span>
+<span class="lineNum">     295 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     296 </span>            : 
+<span class="lineNum">     297 </span>            : /* when a timed element restarts, since the list of timed elements in the scene graph,
+<a name="298"><span class="lineNum">     298 </span>            :    to which scene time is notified at each rendering cycle, is sorted, we need to remove</a>
+<span class="lineNum">     299 </span>            :    and reinsert this timed element as if it was a new one, to make sure the sorting is correct */
+<span class="lineNum">     300 </span>            : static void gf_smil_mark_modified(SMIL_Timing_RTI *rti, Bool remove)
+<span class="lineNum">     301 </span>            : {
+<span class="lineNum">     302 </span><span class="lineNoCov">          0 :         GF_SceneGraph * sg = rti-&gt;timed_elt-&gt;sgprivate-&gt;scenegraph;</span>
+<span class="lineNum">     303 </span><span class="lineNoCov">          0 :         while (sg-&gt;parent_scene) sg = sg-&gt;parent_scene;</span>
+<span class="lineNum">     304 </span><span class="lineNoCov">          0 :         if (remove) {</span>
+<span class="lineNum">     305 </span><span class="lineNoCov">          0 :                 gf_list_del_item(sg-&gt;modified_smil_timed_elements, rti);</span>
+<span class="lineNum">     306 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     307 </span><span class="lineNoCov">          0 :                 if (gf_list_find(sg-&gt;modified_smil_timed_elements, rti) == -1) {</span>
+<span class="lineNum">     308 </span><span class="lineNoCov">          0 :                         gf_list_add(sg-&gt;modified_smil_timed_elements, rti);</span>
+<span class="lineNum">     309 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     310 </span>            :         }
+<span class="lineNum">     311 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     312 </span>            : 
+<span class="lineNum">     313 </span>            : /* Attributes from the timed elements are not easy to use during runtime,
+<span class="lineNum">     314 </span>            :    the runtime info is a set of easy to use structures.
+<span class="lineNum">     315 </span>            :    This function initializes them (intervals, status ...)
+<a name="316"><span class="lineNum">     316 </span>            :    and registers the element with the scenegraph */</a>
+<span class="lineNum">     317 </span>            : GF_EXPORT
+<span class="lineNum">     318 </span>            : void gf_smil_timing_init_runtime_info(GF_Node *timed_elt)
+<span class="lineNum">     319 </span>            : {
+<span class="lineNum">     320 </span>            :         GF_SceneGraph *sg;
+<span class="lineNum">     321 </span>            :         SMIL_Timing_RTI *rti;
+<span class="lineNum">     322 </span>            :         SMILTimingAttributesPointers *timingp = NULL;
+<span class="lineNum">     323 </span><span class="lineNoCov">          0 :         u32 tag = gf_node_get_tag(timed_elt);</span>
+<span class="lineNum">     324 </span><span class="lineNoCov">          0 :         SVGAllAttributes all_atts;</span>
+<span class="lineNum">     325 </span><span class="lineNoCov">          0 :         SVGTimedAnimBaseElement *e = (SVGTimedAnimBaseElement *)timed_elt;</span>
+<span class="lineNum">     326 </span>            : 
+<span class="lineNum">     327 </span><span class="lineNoCov">          0 :         gf_svg_flatten_attributes((SVG_Element *)e, &amp;all_atts);</span>
+<span class="lineNum">     328 </span><span class="lineNoCov">          0 :         e-&gt;timingp = gf_malloc(sizeof(SMILTimingAttributesPointers));</span>
+<span class="lineNum">     329 </span><span class="lineNoCov">          0 :         e-&gt;timingp-&gt;begin         = all_atts.begin;</span>
+<span class="lineNum">     330 </span><span class="lineNoCov">          0 :         e-&gt;timingp-&gt;clipBegin     = all_atts.clipBegin;</span>
+<span class="lineNum">     331 </span><span class="lineNoCov">          0 :         e-&gt;timingp-&gt;clipEnd               = all_atts.clipEnd;</span>
+<span class="lineNum">     332 </span><span class="lineNoCov">          0 :         e-&gt;timingp-&gt;dur                   = all_atts.dur;</span>
+<span class="lineNum">     333 </span><span class="lineNoCov">          0 :         e-&gt;timingp-&gt;end                   = all_atts.end;</span>
+<span class="lineNum">     334 </span><span class="lineNoCov">          0 :         e-&gt;timingp-&gt;fill          = all_atts.smil_fill;</span>
+<span class="lineNum">     335 </span><span class="lineNoCov">          0 :         e-&gt;timingp-&gt;max                   = all_atts.max;</span>
+<span class="lineNum">     336 </span><span class="lineNoCov">          0 :         e-&gt;timingp-&gt;min                   = all_atts.min;</span>
+<span class="lineNum">     337 </span><span class="lineNoCov">          0 :         e-&gt;timingp-&gt;repeatCount = all_atts.repeatCount;</span>
+<span class="lineNum">     338 </span><span class="lineNoCov">          0 :         e-&gt;timingp-&gt;repeatDur     = all_atts.repeatDur;</span>
+<span class="lineNum">     339 </span><span class="lineNoCov">          0 :         e-&gt;timingp-&gt;restart               = all_atts.restart;</span>
+<span class="lineNum">     340 </span><span class="lineNoCov">          0 :         timingp = e-&gt;timingp;</span>
+<span class="lineNum">     341 </span><span class="lineNoCov">          0 :         if (!timingp) return;</span>
+<span class="lineNum">     342 </span>            : 
+<span class="lineNum">     343 </span><span class="lineNoCov">          0 :         if (tag == TAG_SVG_audio || tag == TAG_SVG_video) {</span>
+<span class="lineNum">     344 </span>            :                 /* if the dur attribute is not set, then it should be set to media
+<span class="lineNum">     345 </span>            :                    as this is the default for media elements see
+<span class="lineNum">     346 </span>            :                    http://www.w3.org/TR/2005/REC-SMIL2-20051213/smil-timing.html#Timing-DurValueSemantics
+<span class="lineNum">     347 </span>            :                    &quot;For simple media elements that specify continuous media (i.e. media with an inherent notion of time),
+<span class="lineNum">     348 </span>            :                    the implicit duration is the intrinsic duration of the media itself - e.g. video and audio files
+<span class="lineNum">     349 </span>            :                    have a defined duration.&quot;
+<span class="lineNum">     350 </span>            :                 TODO: Check if this should work with the animation element */
+<span class="lineNum">     351 </span><span class="lineNoCov">          0 :                 if (!e-&gt;timingp-&gt;dur) {</span>
+<span class="lineNum">     352 </span><span class="lineNoCov">          0 :                         GF_FieldInfo info;</span>
+<span class="lineNum">     353 </span><span class="lineNoCov">          0 :                         gf_node_get_attribute_by_tag((GF_Node *)e, TAG_SVG_ATT_dur, 1, 0, &amp;info);</span>
+<span class="lineNum">     354 </span><span class="lineNoCov">          0 :                         e-&gt;timingp-&gt;dur = (SMIL_Duration *)info.far_ptr;</span>
+<span class="lineNum">     355 </span><span class="lineNoCov">          0 :                         e-&gt;timingp-&gt;dur-&gt;type = SMIL_DURATION_MEDIA;</span>
+<span class="lineNum">     356 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     357 </span>            :         }
+<span class="lineNum">     358 </span>            : 
+<span class="lineNum">     359 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(rti, SMIL_Timing_RTI)</span>
+<span class="lineNum">     360 </span><span class="lineNoCov">          0 :         if (!rti) {</span>
+<span class="lineNum">     361 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_SMIL, (&quot;[SMIL Timing] Failed to alloc SMIL timing RTI\n&quot;));</span>
+<span class="lineNum">     362 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     363 </span>            :         }
+<span class="lineNum">     364 </span><span class="lineNoCov">          0 :         timingp-&gt;runtime = rti;</span>
+<span class="lineNum">     365 </span><span class="lineNoCov">          0 :         rti-&gt;timed_elt = timed_elt;</span>
+<span class="lineNum">     366 </span><span class="lineNoCov">          0 :         GF_LOG(GF_LOG_DEBUG, GF_LOG_SMIL, (&quot;[SMIL Timing   ] Time %f - Timed element %s - Initialization\n&quot;, gf_node_get_scene_time((GF_Node *)rti-&gt;timed_elt), gf_node_get_log_name((GF_Node *)rti-&gt;timed_elt)));</span>
+<span class="lineNum">     367 </span>            : 
+<span class="lineNum">     368 </span><span class="lineNoCov">          0 :         rti-&gt;timingp = timingp;</span>
+<span class="lineNum">     369 </span><span class="lineNoCov">          0 :         rti-&gt;status = SMIL_STATUS_WAITING_TO_BEGIN;</span>
+<span class="lineNum">     370 </span><span class="lineNoCov">          0 :         rti-&gt;evaluate_status = SMIL_TIMING_EVAL_NONE;</span>
+<span class="lineNum">     371 </span><span class="lineNoCov">          0 :         rti-&gt;evaluate = gf_smil_timing_null_timed_function;</span>
+<span class="lineNum">     372 </span><span class="lineNoCov">          0 :         rti-&gt;scene_time = -1;</span>
+<span class="lineNum">     373 </span><span class="lineNoCov">          0 :         rti-&gt;force_reevaluation = 0;</span>
+<span class="lineNum">     374 </span><span class="lineNoCov">          0 :         rti-&gt;media_duration = -1;</span>
+<span class="lineNum">     375 </span>            : 
+<span class="lineNum">     376 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(rti-&gt;current_interval, SMIL_Interval);</span>
+<span class="lineNum">     377 </span><span class="lineNoCov">          0 :         if (!rti-&gt;current_interval) {</span>
+<span class="lineNum">     378 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_SMIL, (&quot;[SMIL Timing] Failed to alloc SMIL timing current interval\n&quot;));</span>
+<span class="lineNum">     379 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     380 </span>            :         }
+<span class="lineNum">     381 </span><span class="lineNoCov">          0 :         gf_smil_timing_get_first_interval(rti);</span>
+<span class="lineNum">     382 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(rti-&gt;next_interval, SMIL_Interval);</span>
+<span class="lineNum">     383 </span><span class="lineNoCov">          0 :         if (!rti-&gt;next_interval) {</span>
+<span class="lineNum">     384 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_SMIL, (&quot;[SMIL Timing] Failed to alloc SMIL timing next interval\n&quot;));</span>
+<span class="lineNum">     385 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     386 </span>            :         }
+<span class="lineNum">     387 </span><span class="lineNoCov">          0 :         gf_smil_timing_get_next_interval(rti, 0, rti-&gt;next_interval, rti-&gt;current_interval-&gt;begin);</span>
+<span class="lineNum">     388 </span>            : 
+<span class="lineNum">     389 </span>            :         /* Now that the runtime info for this timed element is initialized, we can tell the scene graph that it can start
+<span class="lineNum">     390 </span>            :            notifying the scene time to this element. Because of the 'animation' element, we can have many scene graphs
+<span class="lineNum">     391 </span>            :            sharing the same scene time, we therefore add this timed element to the rootmost scene graph. */
+<span class="lineNum">     392 </span><span class="lineNoCov">          0 :         sg = timed_elt-&gt;sgprivate-&gt;scenegraph;</span>
+<span class="lineNum">     393 </span><span class="lineNoCov">          0 :         while (sg-&gt;parent_scene) sg = sg-&gt;parent_scene;</span>
+<span class="lineNum">     394 </span><span class="lineNoCov">          0 :         gf_smil_timing_add_to_sg(sg, rti);</span>
+<span class="lineNum">     395 </span><span class="lineNoCov">          0 : }</span>
+<a name="396"><span class="lineNum">     396 </span>            : </a>
+<span class="lineNum">     397 </span>            : 
+<span class="lineNum">     398 </span>            : static void gf_smil_timing_reset_time_list(GF_List *times)
+<span class="lineNum">     399 </span>            : {
+<span class="lineNum">     400 </span>            :         GF_DOMEventTarget *evt;
+<span class="lineNum">     401 </span>            :         u32 i;
+<span class="lineNum">     402 </span><span class="lineNoCov">          0 :         for (i=0; i&lt;gf_list_count(times); i++) {</span>
+<span class="lineNum">     403 </span><span class="lineNoCov">          0 :                 SMIL_Time *t = gf_list_get(times, i);</span>
+<span class="lineNum">     404 </span><span class="lineNoCov">          0 :                 if (!t-&gt;listener) continue;</span>
+<span class="lineNum">     405 </span>            : 
+<span class="lineNum">     406 </span>            :                 /*detach the listener from the observed node*/
+<span class="lineNum">     407 </span><span class="lineNoCov">          0 :                 evt = t-&gt;listener-&gt;sgprivate-&gt;UserPrivate;</span>
+<span class="lineNum">     408 </span><span class="lineNoCov">          0 :                 t-&gt;listener-&gt;sgprivate-&gt;UserPrivate = NULL;</span>
+<span class="lineNum">     409 </span><span class="lineNoCov">          0 :                 gf_dom_listener_del(t-&gt;listener, evt);</span>
+<span class="lineNum">     410 </span>            : 
+<span class="lineNum">     411 </span>            :                 /*release our listener*/
+<span class="lineNum">     412 </span><span class="lineNoCov">          0 :                 gf_node_unregister(t-&gt;listener, NULL);</span>
+<span class="lineNum">     413 </span><span class="lineNoCov">          0 :                 t-&gt;listener = NULL;</span>
+<span class="lineNum">     414 </span><span class="lineNoCov">          0 :         }</span>
+<a name="415"><span class="lineNum">     415 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     416 </span>            : 
+<span class="lineNum">     417 </span>            : void gf_smil_timing_delete_runtime_info(GF_Node *timed_elt, SMIL_Timing_RTI *rti)
+<span class="lineNum">     418 </span>            : {
+<span class="lineNum">     419 </span>            :         GF_SceneGraph *sg;
+<span class="lineNum">     420 </span>            : 
+<span class="lineNum">     421 </span><span class="lineNoCov">          0 :         if (!rti || !timed_elt) return;</span>
+<span class="lineNum">     422 </span>            : 
+<span class="lineNum">     423 </span><span class="lineNoCov">          0 :         GF_LOG(GF_LOG_DEBUG, GF_LOG_SMIL, (&quot;[SMIL Timing   ] Time %f - Timed element %s - Destruction\n&quot;, gf_node_get_scene_time((GF_Node *)rti-&gt;timed_elt), gf_node_get_log_name((GF_Node *)rti-&gt;timed_elt)));</span>
+<span class="lineNum">     424 </span><span class="lineNoCov">          0 :         gf_free(rti-&gt;current_interval);</span>
+<span class="lineNum">     425 </span><span class="lineNoCov">          0 :         gf_free(rti-&gt;next_interval);</span>
+<span class="lineNum">     426 </span>            : 
+<span class="lineNum">     427 </span>            :         /* we inform the rootmost scene graph that this node will not need notification of the scene time anymore */
+<span class="lineNum">     428 </span><span class="lineNoCov">          0 :         sg = timed_elt-&gt;sgprivate-&gt;scenegraph;</span>
+<span class="lineNum">     429 </span><span class="lineNoCov">          0 :         while (sg-&gt;parent_scene) sg = sg-&gt;parent_scene;</span>
+<span class="lineNum">     430 </span><span class="lineNoCov">          0 :         gf_list_del_item(sg-&gt;smil_timed_elements, rti);</span>
+<span class="lineNum">     431 </span><span class="lineNoCov">          0 :         gf_list_del_item(sg-&gt;modified_smil_timed_elements, rti);</span>
+<span class="lineNum">     432 </span>            : 
+<span class="lineNum">     433 </span>            :         /*remove all associated listeners*/
+<span class="lineNum">     434 </span><span class="lineNoCov">          0 :         if (rti-&gt;timingp-&gt;begin) gf_smil_timing_reset_time_list(* rti-&gt;timingp-&gt;begin);</span>
+<span class="lineNum">     435 </span><span class="lineNoCov">          0 :         if (rti-&gt;timingp-&gt;end) gf_smil_timing_reset_time_list(* rti-&gt;timingp-&gt;end);</span>
+<span class="lineNum">     436 </span>            : 
+<span class="lineNum">     437 </span><span class="lineNoCov">          0 :         gf_free(rti);</span>
+<span class="lineNum">     438 </span><span class="lineNoCov">          0 : }</span>
+<a name="439"><span class="lineNum">     439 </span>            : </a>
+<span class="lineNum">     440 </span>            : GF_EXPORT
+<span class="lineNum">     441 </span>            : Bool gf_smil_timing_is_active(GF_Node *node)
+<span class="lineNum">     442 </span>            : {
+<span class="lineNum">     443 </span>            :         SMILTimingAttributesPointers *timingp = NULL;
+<span class="lineNum">     444 </span><span class="lineNoCov">          0 :         timingp = ((SVGTimedAnimBaseElement *)node)-&gt;timingp;</span>
+<span class="lineNum">     445 </span><span class="lineNoCov">          0 :         if (!timingp || !timingp-&gt;runtime) return 0;</span>
+<span class="lineNum">     446 </span><span class="lineNoCov">          0 :         return (timingp-&gt;runtime-&gt;status == SMIL_STATUS_ACTIVE);</span>
+<span class="lineNum">     447 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     448 </span>            : 
+<span class="lineNum">     449 </span>            : /* This function notifies the scene time to all the timed elements from the list in the given scene graph.
+<span class="lineNum">     450 </span>            :    It returns the number of active timed elements. If no timed element is active, this means that from the timing
+<span class="lineNum">     451 </span>            :    point of view, the scene has not changed and no rendering refresh is needed, even if the time has changed.
+<span class="lineNum">     452 </span>            :    It uses an additional list of modified timed elements to insure that no timing
+<a name="453"><span class="lineNum">     453 </span>            :    element was modified by the begin/end/repeat of another timed element.</a>
+<span class="lineNum">     454 </span>            : */
+<span class="lineNum">     455 </span>            : Bool gf_smil_notify_timed_elements(GF_SceneGraph *sg)
+<span class="lineNum">     456 </span>            : {
+<span class="lineNum">     457 </span>            :         SMIL_Timing_RTI *rti;
+<span class="lineNum">     458 </span><span class="lineCov">          2 :         u32 active_count, i;</span>
+<span class="lineNum">     459 </span>            :         s32 ret;
+<span class="lineNum">     460 </span>            :         Bool do_loop;
+<span class="lineNum">     461 </span><span class="lineCov">          1 :         if (!sg) return 0;</span>
+<span class="lineNum">     462 </span>            : 
+<span class="lineNum">     463 </span>            :         active_count = 0;
+<span class="lineNum">     464 </span>            : 
+<span class="lineNum">     465 </span>            :         /*
+<span class="lineNum">     466 </span>            :                 Note: whenever a timed element is active, we trigger a gf_node_dirty_parent_graph so that the parent graph
+<span class="lineNum">     467 </span>            :                 is aware that some modifications may happen in the subtree. This is needed for cases where the subtree
+<span class="lineNum">     468 </span>            :                 is in an offscreen surface, to force retraversing of the subtree and thus apply the animation.
+<span class="lineNum">     469 </span>            : 
+<span class="lineNum">     470 </span>            :         */
+<span class="lineNum">     471 </span>            : 
+<span class="lineNum">     472 </span>            :         /* notify the new scene time to the register timed elements
+<span class="lineNum">     473 </span>            :            this might modify other timed elements or the element itself
+<span class="lineNum">     474 </span>            :            in which case it will be added to the list of modified elements */
+<span class="lineNum">     475 </span><span class="lineCov">          1 :         i = 0;</span>
+<span class="lineNum">     476 </span>            :         do_loop = 1;
+<span class="lineNum">     477 </span><span class="lineCov">          3 :         while(do_loop &amp;&amp; (rti = (SMIL_Timing_RTI *)gf_list_enum(sg-&gt;smil_timed_elements, &amp;i))) {</span>
+<span class="lineNum">     478 </span><span class="lineNoCov">          0 :                 ret = gf_smil_timing_notify_time(rti, gf_node_get_scene_time((GF_Node*)rti-&gt;timed_elt) );</span>
+<span class="lineNum">     479 </span><span class="lineNoCov">          0 :                 switch (ret) {</span>
+<span class="lineNum">     480 </span>            :                 case -1:
+<span class="lineNum">     481 </span>            :                         /* special case for discard element
+<span class="lineNum">     482 </span>            :                            when a discard element is executed, it automatically removes itself from the list of timed element
+<span class="lineNum">     483 </span>            :                            in the scene graph, we need to fix the index i. */
+<span class="lineNum">     484 </span><span class="lineNoCov">          0 :                         i--;</span>
+<span class="lineNum">     485 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     486 </span>            :                 case -2:
+<span class="lineNum">     487 </span>            :                         /* special return value, -2 means that the tested timed element is waiting to begin
+<span class="lineNum">     488 </span>            :                            Assuming that the timed elements are sorted by begin order,
+<span class="lineNum">     489 </span>            :                            the next ones don't need to be checked */
+<span class="lineNum">     490 </span>            :                         do_loop = 0;
+<span class="lineNum">     491 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     492 </span>            :                 case -3:
+<span class="lineNum">     493 </span>            :                         /* special case for animation elements which do not need to be notified anymore,
+<span class="lineNum">     494 </span>            :                            but which require a tree traversal */
+<span class="lineNum">     495 </span><span class="lineNoCov">          0 :                         i--;</span>
+<span class="lineNum">     496 </span><span class="lineNoCov">          0 :                         active_count ++;</span>
+<span class="lineNum">     497 </span><span class="lineNoCov">          0 :                         gf_node_dirty_parent_graph(rti-&gt;timed_elt);</span>
+<span class="lineNum">     498 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     499 </span>            :                 case 1:
+<span class="lineNum">     500 </span><span class="lineNoCov">          0 :                         active_count++;</span>
+<span class="lineNum">     501 </span><span class="lineNoCov">          0 :                         gf_node_dirty_parent_graph(rti-&gt;timed_elt);</span>
+<span class="lineNum">     502 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     503 </span>            :                 case 0:
+<span class="lineNum">     504 </span>            :                 default:
+<span class="lineNum">     505 </span>            :                         break;
+<span class="lineNum">     506 </span>            :                 }
+<span class="lineNum">     507 </span>            :         }
+<span class="lineNum">     508 </span>            : 
+<span class="lineNum">     509 </span>            :         /* notify the timed elements which have been modified either since the previous frame (updates, scripts) or
+<span class="lineNum">     510 </span>            :            because of the start/end/repeat of the previous notifications */
+<span class="lineNum">     511 </span><span class="lineCov">          1 :         while (gf_list_count(sg-&gt;modified_smil_timed_elements)) {</span>
+<span class="lineNum">     512 </span>            :                 /* first remove the modified smil timed element */
+<span class="lineNum">     513 </span><span class="lineNoCov">          0 :                 rti = gf_list_get(sg-&gt;modified_smil_timed_elements, 0);</span>
+<span class="lineNum">     514 </span><span class="lineNoCov">          0 :                 gf_list_rem(sg-&gt;modified_smil_timed_elements, 0);</span>
+<span class="lineNum">     515 </span>            : 
+<span class="lineNum">     516 </span>            :                 /* then remove it in the list of non modified (if it was there) */
+<span class="lineNum">     517 </span><span class="lineNoCov">          0 :                 gf_list_del_item(sg-&gt;smil_timed_elements, rti);</span>
+<span class="lineNum">     518 </span>            : 
+<span class="lineNum">     519 </span>            :                 /* then insert it at its right position (in the sorted list of timed elements) */
+<span class="lineNum">     520 </span><span class="lineNoCov">          0 :                 gf_smil_timing_add_to_sg(sg, rti);</span>
+<span class="lineNum">     521 </span>            : 
+<span class="lineNum">     522 </span>            :                 /* finally again notify this timed element */
+<span class="lineNum">     523 </span><span class="lineNoCov">          0 :                 rti-&gt;force_reevaluation = 1;</span>
+<span class="lineNum">     524 </span><span class="lineNoCov">          0 :                 ret = gf_smil_timing_notify_time(rti, gf_node_get_scene_time((GF_Node*)rti-&gt;timed_elt) );</span>
+<span class="lineNum">     525 </span><span class="lineNoCov">          0 :                 switch (ret) {</span>
+<span class="lineNum">     526 </span>            :                 case -1:
+<span class="lineNum">     527 </span>            :                         break;
+<span class="lineNum">     528 </span>            :                 case -2:
+<span class="lineNum">     529 </span>            :                         break;
+<span class="lineNum">     530 </span>            :                 case -3:
+<span class="lineNum">     531 </span><span class="lineNoCov">          0 :                         active_count++;</span>
+<span class="lineNum">     532 </span><span class="lineNoCov">          0 :                         gf_node_dirty_parent_graph(rti-&gt;timed_elt);</span>
+<span class="lineNum">     533 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     534 </span>            :                 case 1:
+<span class="lineNum">     535 </span><span class="lineNoCov">          0 :                         active_count++;</span>
+<span class="lineNum">     536 </span><span class="lineNoCov">          0 :                         gf_node_dirty_parent_graph(rti-&gt;timed_elt);</span>
+<span class="lineNum">     537 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     538 </span>            :                 case 0:
+<span class="lineNum">     539 </span>            :                 default:
+<span class="lineNum">     540 </span>            :                         break;
+<span class="lineNum">     541 </span>            :                 }
+<span class="lineNum">     542 </span>            : 
+<span class="lineNum">     543 </span>            :         }
+<span class="lineNum">     544 </span><span class="lineCov">          1 :         return (active_count&gt;0);</span>
+<span class="lineNum">     545 </span><span class="lineCov">          1 : }</span>
+<span class="lineNum">     546 </span>            : 
+<span class="lineNum">     547 </span>            : /* evaluation function for the discard element
+<span class="lineNum">     548 </span>            :    returns 1 if the discard was executed
+<a name="549"><span class="lineNum">     549 </span>            :            0 otherwise</a>
+<span class="lineNum">     550 </span>            : */
+<span class="lineNum">     551 </span>            : static Bool gf_smil_discard(SMIL_Timing_RTI *rti, Fixed scene_time)
+<span class="lineNum">     552 </span>            : {
+<span class="lineNum">     553 </span>            :         u32 nb_inst;
+<span class="lineNum">     554 </span>            :         SMIL_Time *begin;
+<span class="lineNum">     555 </span><span class="lineNoCov">          0 :         SVGTimedAnimBaseElement *tb = (SVGTimedAnimBaseElement *)rti-&gt;timed_elt;</span>
+<span class="lineNum">     556 </span><span class="lineNoCov">          0 :         SMILTimingAttributesPointers *timingp = (SMILTimingAttributesPointers *)rti-&gt;timingp;</span>
+<span class="lineNum">     557 </span>            :         GF_Node *target;
+<span class="lineNum">     558 </span>            : 
+<span class="lineNum">     559 </span><span class="lineNoCov">          0 :         if (!timingp) return 0;</span>
+<span class="lineNum">     560 </span>            : 
+<span class="lineNum">     561 </span><span class="lineNoCov">          0 :         target = tb-&gt;xlinkp-&gt;href ? tb-&gt;xlinkp-&gt;href-&gt;target : NULL;</span>
+<span class="lineNum">     562 </span>            : 
+<span class="lineNum">     563 </span><span class="lineNoCov">          0 :         begin = (timingp-&gt;begin ? (SMIL_Time *)gf_list_get(*timingp-&gt;begin, 0) : NULL);</span>
+<span class="lineNum">     564 </span>            : 
+<span class="lineNum">     565 </span><span class="lineNoCov">          0 :         if (!begin) return 0;</span>
+<span class="lineNum">     566 </span><span class="lineNoCov">          0 :         if (!GF_SMIL_TIME_IS_CLOCK(begin-&gt;type) ) return 0;</span>
+<span class="lineNum">     567 </span>            : 
+<span class="lineNum">     568 </span><span class="lineNoCov">          0 :         if (begin-&gt;clock &gt; scene_time) return 0;</span>
+<span class="lineNum">     569 </span>            : 
+<span class="lineNum">     570 </span><span class="lineNoCov">          0 :         GF_LOG(GF_LOG_DEBUG, GF_LOG_SMIL, (&quot;[SVG Composer] discarding element %s at time %f\n&quot;, target ? gf_node_get_log_name(target) : &quot;None&quot;, scene_time));</span>
+<span class="lineNum">     571 </span>            : 
+<span class="lineNum">     572 </span><span class="lineNoCov">          0 :         gf_smil_mark_modified(rti, 1);</span>
+<span class="lineNum">     573 </span>            : 
+<span class="lineNum">     574 </span>            :         /*this takes care of cases where discard is a child of its target*/
+<span class="lineNum">     575 </span><span class="lineNoCov">          0 :         gf_node_register(rti-&gt;timed_elt, NULL);</span>
+<span class="lineNum">     576 </span><span class="lineNoCov">          0 :         nb_inst = gf_node_get_num_instances(rti-&gt;timed_elt);</span>
+<span class="lineNum">     577 </span><span class="lineNoCov">          0 :         if (target) gf_node_replace(target, NULL, 0);</span>
+<span class="lineNum">     578 </span><span class="lineNoCov">          0 :         if (nb_inst == gf_node_get_num_instances(rti-&gt;timed_elt)) {</span>
+<span class="lineNum">     579 </span><span class="lineNoCov">          0 :                 gf_node_unregister(rti-&gt;timed_elt, NULL);</span>
+<span class="lineNum">     580 </span>            :                 /*after this the stack may be free'd*/
+<span class="lineNum">     581 </span><span class="lineNoCov">          0 :                 gf_node_replace(rti-&gt;timed_elt, NULL, 0);</span>
+<span class="lineNum">     582 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     583 </span>            :                 gf_node_unregister(rti-&gt;timed_elt, NULL);
+<span class="lineNum">     584 </span>            :         }
+<span class="lineNum">     585 </span><span class="lineNoCov">          0 :         return 1;</span>
+<span class="lineNum">     586 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     587 </span>            : 
+<a name="588"><span class="lineNum">     588 </span>            : /* Animations are applied in their begin order first and then in document order.</a>
+<span class="lineNum">     589 </span>            :    Whenever an animation (re)starts, it is placed at the end of the queue (potentially after frozen animations) */
+<span class="lineNum">     590 </span>            : static void gf_smil_reorder_anim(SMIL_Timing_RTI *rti)
+<span class="lineNum">     591 </span>            : {
+<span class="lineNum">     592 </span><span class="lineNoCov">          0 :         SMIL_Anim_RTI *rai = rti-&gt;rai;</span>
+<span class="lineNum">     593 </span><span class="lineNoCov">          0 :         if (rai) {</span>
+<span class="lineNum">     594 </span><span class="lineNoCov">          0 :                 gf_list_del_item(rai-&gt;owner-&gt;anims, rai);</span>
+<span class="lineNum">     595 </span><span class="lineNoCov">          0 :                 gf_list_add(rai-&gt;owner-&gt;anims, rai);</span>
+<span class="lineNum">     596 </span><span class="lineNoCov">          0 :                 gf_smil_anim_reset_variables(rai);</span>
+<span class="lineNum">     597 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     598 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     599 </span>            : 
+<span class="lineNum">     600 </span>            : /* Notifies the scene time to a timed element, potentially changing its status and triggering its evaluation
+<span class="lineNum">     601 </span>            :    Returns:
+<span class="lineNum">     602 </span>            :         0 if no rendering traversal is required,
+<span class="lineNum">     603 </span>            :         1 if a rendering traversal is required,
+<span class="lineNum">     604 </span>            :    -1 if the time node is a discard which has been deleted during this notification,
+<span class="lineNum">     605 </span>            :    -2 means that the timed element is waiting to begin,
+<a name="606"><span class="lineNum">     606 </span>            :    -3 means that the timed element is active but does not need further notifications (set without dur)</a>
+<span class="lineNum">     607 </span>            :              but still requires a rendering traversal */
+<span class="lineNum">     608 </span>            : s32 gf_smil_timing_notify_time(SMIL_Timing_RTI *rti, Double in_scene_time)
+<span class="lineNum">     609 </span>            : {
+<span class="lineNum">     610 </span>            :         s32 ret = 0;
+<span class="lineNum">     611 </span><span class="lineNoCov">          0 :         GF_DOM_Event evt;</span>
+<span class="lineNum">     612 </span><span class="lineNoCov">          0 :         SMILTimingAttributesPointers *timingp = rti-&gt;timingp;</span>
+<span class="lineNum">     613 </span><span class="lineNoCov">          0 :         Bool force_end = 0;</span>
+<span class="lineNum">     614 </span>            : 
+<span class="lineNum">     615 </span><span class="lineNoCov">          0 :         if (!timingp) return 0;</span>
+<span class="lineNum">     616 </span>            : 
+<span class="lineNum">     617 </span>            :         /* if the scene time is the same as it was during the previous notification, it means that the
+<span class="lineNum">     618 </span>            :            animations are paused and we don't need to evaluate it again unless the force_reevaluation flag is set */
+<span class="lineNum">     619 </span><span class="lineNoCov">          0 :         if ((rti-&gt;scene_time == in_scene_time) &amp;&amp; (rti-&gt;force_reevaluation == 0)) return 0;</span>
+<span class="lineNum">     620 </span><span class="lineNoCov">          0 :         if (!rti-&gt;paused) rti-&gt;scene_time = in_scene_time;</span>
+<span class="lineNum">     621 </span><span class="lineNoCov">          0 :         rti-&gt;force_reevaluation = 0;</span>
+<span class="lineNum">     622 </span>            : 
+<span class="lineNum">     623 </span>            :         /* for fraction events, in all cases we indicate that the scene needs redraw */
+<span class="lineNum">     624 </span><span class="lineNoCov">          0 :         if (rti-&gt;evaluate_status == SMIL_TIMING_EVAL_FRACTION)</span>
+<span class="lineNum">     625 </span><span class="lineNoCov">          0 :                 return 1;</span>
+<span class="lineNum">     626 </span>            : 
+<span class="lineNum">     627 </span><span class="lineNoCov">          0 :         if (rti-&gt;evaluate_status == SMIL_TIMING_EVAL_DISCARD) {</span>
+<span class="lineNum">     628 </span>            :                 /* TODO: FIX ME discarding should send a begin event ? */
+<span class="lineNum">     629 </span>            :                 /* Since the discard can only be evaluated once, it unregisters itself
+<span class="lineNum">     630 </span>            :                    from the list of timed elements to be notified, so for this special case
+<span class="lineNum">     631 </span>            :                    we return -1 when the discard has actually been executed */
+<span class="lineNum">     632 </span><span class="lineNoCov">          0 :                 if (gf_smil_discard(rti, FLT2FIX(rti-&gt;scene_time))) return -1;</span>
+<span class="lineNum">     633 </span><span class="lineNoCov">          0 :                 else return 0;</span>
+<span class="lineNum">     634 </span>            :         }
+<span class="lineNum">     635 </span>            : 
+<span class="lineNum">     636 </span><span class="lineNoCov">          0 :         gf_node_register(rti-&gt;timed_elt, NULL);</span>
+<span class="lineNum">     637 </span>            : 
+<span class="lineNum">     638 </span>            : waiting_to_begin:
+<span class="lineNum">     639 </span><span class="lineNoCov">          0 :         if (rti-&gt;status == SMIL_STATUS_WAITING_TO_BEGIN) {</span>
+<span class="lineNum">     640 </span><span class="lineNoCov">          0 :                 if (rti-&gt;current_interval-&gt;begin != -1 &amp;&amp; rti-&gt;scene_time &gt;= rti-&gt;current_interval-&gt;begin) {</span>
+<span class="lineNum">     641 </span>            :                         /* if there is a computed interval with a definite begin value
+<span class="lineNum">     642 </span>            :                            and if that value is lesser than the scene time, then the animation becomes active */
+<span class="lineNum">     643 </span><span class="lineNoCov">          0 :                         GF_LOG(GF_LOG_DEBUG, GF_LOG_SMIL, (&quot;[SMIL Timing   ] Time %f - Timed element %s - Activating\n&quot;, gf_node_get_scene_time((GF_Node *)rti-&gt;timed_elt), gf_node_get_log_name((GF_Node *)rti-&gt;timed_elt)));</span>
+<span class="lineNum">     644 </span><span class="lineNoCov">          0 :                         rti-&gt;status = SMIL_STATUS_ACTIVE;</span>
+<span class="lineNum">     645 </span>            : 
+<span class="lineNum">     646 </span><span class="lineNoCov">          0 :                         if (rti-&gt;timed_elt-&gt;sgprivate-&gt;tag==TAG_LSR_conditional) {</span>
+<span class="lineNum">     647 </span><span class="lineNoCov">          0 :                                 SVG_Element *e = (SVG_Element *)rti-&gt;timed_elt;</span>
+<span class="lineNum">     648 </span>            :                                 /*activate conditional*/
+<span class="lineNum">     649 </span><span class="lineNoCov">          0 :                                 if (e-&gt;children) gf_node_traverse(e-&gt;children-&gt;node, NULL);</span>
+<span class="lineNum">     650 </span><span class="lineNoCov">          0 :                                 rti-&gt;status = SMIL_STATUS_DONE;</span>
+<span class="lineNum">     651 </span><span class="lineNoCov">          0 :                         } else {</span>
+<span class="lineNum">     652 </span><span class="lineNoCov">          0 :                                 gf_smil_reorder_anim(rti);</span>
+<span class="lineNum">     653 </span>            :                         }
+<span class="lineNum">     654 </span>            : 
+<span class="lineNum">     655 </span><span class="lineNoCov">          0 :                         memset(&amp;evt, 0, sizeof(evt));</span>
+<span class="lineNum">     656 </span><span class="lineNoCov">          0 :                         evt.type = GF_EVENT_BEGIN_EVENT;</span>
+<span class="lineNum">     657 </span><span class="lineNoCov">          0 :                         evt.smil_event_time = rti-&gt;current_interval-&gt;begin;</span>
+<span class="lineNum">     658 </span><span class="lineNoCov">          0 :                         gf_dom_event_fire((GF_Node *)rti-&gt;timed_elt, &amp;evt);</span>
+<span class="lineNum">     659 </span>            :                 } else {
+<span class="lineNum">     660 </span><span class="lineNoCov">          0 :                         GF_LOG(GF_LOG_DEBUG, GF_LOG_SMIL, (&quot;[SMIL Timing   ] Time %f - Timed element %s - Evaluating (Not starting)\n&quot;, gf_node_get_scene_time((GF_Node *)rti-&gt;timed_elt), gf_node_get_log_name((GF_Node *)rti-&gt;timed_elt)));</span>
+<span class="lineNum">     661 </span>            :                         ret = -2;
+<span class="lineNum">     662 </span><span class="lineNoCov">          0 :                         goto exit;</span>
+<span class="lineNum">     663 </span>            :                 }
+<span class="lineNum">     664 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     665 </span>            : 
+<span class="lineNum">     666 </span><span class="lineNoCov">          0 :         if (rti-&gt;status == SMIL_STATUS_ACTIVE) {</span>
+<span class="lineNum">     667 </span>            :                 u32 cur_id;
+<span class="lineNum">     668 </span>            : 
+<span class="lineNum">     669 </span><span class="lineNoCov">          0 :                 if (rti-&gt;current_interval-&gt;active_duration &gt;= 0</span>
+<span class="lineNum">     670 </span><span class="lineNoCov">          0 :                         &amp;&amp; rti-&gt;scene_time &gt;= (rti-&gt;current_interval-&gt;begin + rti-&gt;current_interval-&gt;active_duration)) {</span>
+<span class="lineNum">     671 </span>            : force_end:
+<span class="lineNum">     672 </span><span class="lineNoCov">          0 :                         GF_LOG(GF_LOG_DEBUG, GF_LOG_SMIL, (&quot;[SMIL Timing   ] Time %f - Timed element %s - Stopping \n&quot;, gf_node_get_scene_time((GF_Node *)rti-&gt;timed_elt), gf_node_get_log_name((GF_Node *)rti-&gt;timed_elt)));</span>
+<span class="lineNum">     673 </span>            : 
+<span class="lineNum">     674 </span><span class="lineNoCov">          0 :                         rti-&gt;normalized_simple_time = gf_smil_timing_get_normalized_simple_time(rti, rti-&gt;scene_time, NULL);</span>
+<span class="lineNum">     675 </span><span class="lineNoCov">          0 :                         ret = rti-&gt;postpone;</span>
+<span class="lineNum">     676 </span>            : 
+<span class="lineNum">     677 </span><span class="lineNoCov">          0 :                         if (timingp-&gt;fill &amp;&amp; *timingp-&gt;fill == SMIL_FILL_FREEZE) {</span>
+<span class="lineNum">     678 </span><span class="lineNoCov">          0 :                                 rti-&gt;status = SMIL_STATUS_FROZEN;</span>
+<span class="lineNum">     679 </span><span class="lineNoCov">          0 :                                 rti-&gt;evaluate_status = SMIL_TIMING_EVAL_FREEZE;</span>
+<span class="lineNum">     680 </span><span class="lineNoCov">          0 :                                 GF_LOG(GF_LOG_DEBUG, GF_LOG_SMIL, (&quot;[SMIL Timing   ] Time %f - Timed element %s - Preparing to freeze\n&quot;, gf_node_get_scene_time((GF_Node *)rti-&gt;timed_elt), gf_node_get_log_name((GF_Node *)rti-&gt;timed_elt)));</span>
+<span class="lineNum">     681 </span><span class="lineNoCov">          0 :                                 if (!rti-&gt;postpone) {</span>
+<span class="lineNum">     682 </span><span class="lineNoCov">          0 :                                         rti-&gt;evaluate(rti, rti-&gt;normalized_simple_time, rti-&gt;evaluate_status);</span>
+<span class="lineNum">     683 </span><span class="lineNoCov">          0 :                                 }</span>
+<span class="lineNum">     684 </span>            :                         } else {
+<span class="lineNum">     685 </span><span class="lineNoCov">          0 :                                 rti-&gt;status = SMIL_STATUS_DONE;</span>
+<span class="lineNum">     686 </span><span class="lineNoCov">          0 :                                 rti-&gt;evaluate_status = SMIL_TIMING_EVAL_REMOVE;</span>
+<span class="lineNum">     687 </span><span class="lineNoCov">          0 :                                 GF_LOG(GF_LOG_DEBUG, GF_LOG_SMIL, (&quot;[SMIL Timing   ] Time %f - Timed element %s - Preparing to remove\n&quot;, gf_node_get_scene_time((GF_Node *)rti-&gt;timed_elt), gf_node_get_log_name((GF_Node *)rti-&gt;timed_elt)));</span>
+<span class="lineNum">     688 </span><span class="lineNoCov">          0 :                                 if (!rti-&gt;postpone) {</span>
+<span class="lineNum">     689 </span><span class="lineNoCov">          0 :                                         rti-&gt;evaluate(rti, rti-&gt;normalized_simple_time, rti-&gt;evaluate_status);</span>
+<span class="lineNum">     690 </span><span class="lineNoCov">          0 :                                 }</span>
+<span class="lineNum">     691 </span>            :                         }
+<span class="lineNum">     692 </span>            : 
+<span class="lineNum">     693 </span><span class="lineNoCov">          0 :                         memset(&amp;evt, 0, sizeof(evt));</span>
+<span class="lineNum">     694 </span><span class="lineNoCov">          0 :                         evt.type = GF_EVENT_END_EVENT;</span>
+<span class="lineNum">     695 </span>            :                         /* WARNING: begin + active_duration may be greater than 'now' because of force_end cases */
+<span class="lineNum">     696 </span><span class="lineNoCov">          0 :                         evt.smil_event_time = rti-&gt;current_interval-&gt;begin + rti-&gt;current_interval-&gt;active_duration;</span>
+<span class="lineNum">     697 </span><span class="lineNoCov">          0 :                         gf_dom_event_fire((GF_Node *)rti-&gt;timed_elt, &amp;evt);</span>
+<span class="lineNum">     698 </span>            : 
+<span class="lineNum">     699 </span><span class="lineNoCov">          0 :                 } else { /* the animation is still active */</span>
+<span class="lineNum">     700 </span>            : 
+<span class="lineNum">     701 </span><span class="lineNoCov">          0 :                         if (!timingp-&gt;restart || *timingp-&gt;restart == SMIL_RESTART_ALWAYS) {</span>
+<span class="lineNum">     702 </span><span class="lineNoCov">          0 :                                 GF_LOG(GF_LOG_DEBUG, GF_LOG_SMIL, (&quot;[SMIL Timing   ] Time %f - Timed element %s - Checking for restart (always)\n&quot;, gf_node_get_scene_time((GF_Node *)rti-&gt;timed_elt), gf_node_get_log_name((GF_Node *)rti-&gt;timed_elt)));</span>
+<span class="lineNum">     703 </span>            : 
+<span class="lineNum">     704 </span><span class="lineNoCov">          0 :                                 if (rti-&gt;next_interval-&gt;begin != -1 &amp;&amp; rti-&gt;next_interval-&gt;begin &lt; rti-&gt;scene_time) {</span>
+<span class="lineNum">     705 </span><span class="lineNoCov">          0 :                                         *rti-&gt;current_interval = *rti-&gt;next_interval;</span>
+<span class="lineNum">     706 </span><span class="lineNoCov">          0 :                                         gf_smil_timing_get_next_interval(rti, 0, rti-&gt;next_interval, rti-&gt;scene_time);</span>
+<span class="lineNum">     707 </span>            : 
+<span class="lineNum">     708 </span>            :                                         /* mark that this element has been modified and
+<span class="lineNum">     709 </span>            :                                            need to be reinserted at its proper place in the list of timed elements in the scenegraph */
+<span class="lineNum">     710 </span><span class="lineNoCov">          0 :                                         gf_smil_mark_modified(rti, 0);</span>
+<span class="lineNum">     711 </span>            : 
+<span class="lineNum">     712 </span>            :                                         /* if this is animation, reinserting the animation in the list of animations
+<span class="lineNum">     713 </span>            :                                            that targets this attribute, so that it is the last one */
+<span class="lineNum">     714 </span><span class="lineNoCov">          0 :                                         gf_smil_reorder_anim(rti);</span>
+<span class="lineNum">     715 </span>            : 
+<span class="lineNum">     716 </span><span class="lineNoCov">          0 :                                         memset(&amp;evt, 0, sizeof(evt));</span>
+<span class="lineNum">     717 </span><span class="lineNoCov">          0 :                                         evt.type = GF_EVENT_BEGIN_EVENT;</span>
+<span class="lineNum">     718 </span><span class="lineNoCov">          0 :                                         evt.smil_event_time = rti-&gt;current_interval-&gt;begin;</span>
+<span class="lineNum">     719 </span><span class="lineNoCov">          0 :                                         gf_dom_event_fire((GF_Node *)rti-&gt;timed_elt, &amp;evt);</span>
+<span class="lineNum">     720 </span><span class="lineNoCov">          0 :                                 }</span>
+<span class="lineNum">     721 </span>            :                         }
+<span class="lineNum">     722 </span>            : 
+<span class="lineNum">     723 </span><span class="lineNoCov">          0 :                         ret = rti-&gt;postpone;</span>
+<span class="lineNum">     724 </span>            : 
+<span class="lineNum">     725 </span><span class="lineNoCov">          0 :                         cur_id = rti-&gt;current_interval-&gt;nb_iterations;</span>
+<span class="lineNum">     726 </span><span class="lineNoCov">          0 :                         rti-&gt;normalized_simple_time = gf_smil_timing_get_normalized_simple_time(rti, rti-&gt;scene_time, &amp;force_end);</span>
+<span class="lineNum">     727 </span><span class="lineNoCov">          0 :                         if (force_end) {</span>
+<span class="lineNum">     728 </span><span class="lineNoCov">          0 :                                 GF_LOG(GF_LOG_DEBUG, GF_LOG_SMIL, (&quot;[SMIL Timing   ] Time %f - Timed element %s - Forcing end (fill or remove)\n&quot;, gf_node_get_scene_time((GF_Node *)rti-&gt;timed_elt), gf_node_get_log_name((GF_Node *)rti-&gt;timed_elt)));</span>
+<span class="lineNum">     729 </span>            :                                 goto force_end;
+<span class="lineNum">     730 </span>            :                         }
+<span class="lineNum">     731 </span><span class="lineNoCov">          0 :                         if (cur_id &lt; rti-&gt;current_interval-&gt;nb_iterations) {</span>
+<span class="lineNum">     732 </span><span class="lineNoCov">          0 :                                 GF_LOG(GF_LOG_DEBUG, GF_LOG_INTERACT, (&quot;[SMIL Timing   ] Time %f - Timed element %s - Preparing to repeat\n&quot;, gf_node_get_scene_time((GF_Node *)rti-&gt;timed_elt), gf_node_get_log_name((GF_Node *)rti-&gt;timed_elt)));</span>
+<span class="lineNum">     733 </span><span class="lineNoCov">          0 :                                 memset(&amp;evt, 0, sizeof(evt));</span>
+<span class="lineNum">     734 </span><span class="lineNoCov">          0 :                                 evt.type = GF_EVENT_REPEAT_EVENT;</span>
+<span class="lineNum">     735 </span><span class="lineNoCov">          0 :                                 evt.smil_event_time = rti-&gt;current_interval-&gt;begin + rti-&gt;current_interval-&gt;nb_iterations*rti-&gt;current_interval-&gt;simple_duration;</span>
+<span class="lineNum">     736 </span><span class="lineNoCov">          0 :                                 evt.detail = rti-&gt;current_interval-&gt;nb_iterations;</span>
+<span class="lineNum">     737 </span><span class="lineNoCov">          0 :                                 gf_dom_event_fire((GF_Node *)rti-&gt;timed_elt, &amp;evt);</span>
+<span class="lineNum">     738 </span>            : 
+<span class="lineNum">     739 </span><span class="lineNoCov">          0 :                                 rti-&gt;evaluate_status = SMIL_TIMING_EVAL_REPEAT;</span>
+<span class="lineNum">     740 </span><span class="lineNoCov">          0 :                         } else {</span>
+<span class="lineNum">     741 </span><span class="lineNoCov">          0 :                                 GF_LOG(GF_LOG_DEBUG, GF_LOG_SMIL, (&quot;[SMIL Timing   ] Time %f - Timed element %s - Preparing to update\n&quot;, gf_node_get_scene_time((GF_Node *)rti-&gt;timed_elt), gf_node_get_log_name((GF_Node *)rti-&gt;timed_elt)));</span>
+<span class="lineNum">     742 </span><span class="lineNoCov">          0 :                                 rti-&gt;evaluate_status = SMIL_TIMING_EVAL_UPDATE;</span>
+<span class="lineNum">     743 </span>            :                         }
+<span class="lineNum">     744 </span>            : 
+<span class="lineNum">     745 </span><span class="lineNoCov">          0 :                         if (!rti-&gt;postpone) {</span>
+<span class="lineNum">     746 </span><span class="lineNoCov">          0 :                                 rti-&gt;evaluate(rti, rti-&gt;normalized_simple_time, rti-&gt;evaluate_status);</span>
+<span class="lineNum">     747 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     748 </span>            : 
+<span class="lineNum">     749 </span>            :                         /* special case for animations with unspecified simpleDur (not with media timed elements)
+<span class="lineNum">     750 </span>            :                            we need to indicate that this anim does not need to be notified anymore and that
+<span class="lineNum">     751 </span>            :                            it does not require tree traversal */
+<span class="lineNum">     752 </span><span class="lineNoCov">          0 :                         if (gf_svg_is_animation_tag(rti-&gt;timed_elt-&gt;sgprivate-&gt;tag)</span>
+<span class="lineNum">     753 </span><span class="lineNoCov">          0 :                                 &amp;&amp; (rti-&gt;current_interval-&gt;simple_duration==-1)</span>
+<span class="lineNum">     754 </span><span class="lineNoCov">          0 :                                 &amp;&amp; (rti-&gt;current_interval-&gt;active_duration==-1)</span>
+<span class="lineNum">     755 </span>            :                            ) {
+<span class="lineNum">     756 </span>            :                                 /*GF_SceneGraph * sg = rti-&gt;timed_elt-&gt;sgprivate-&gt;scenegraph;
+<span class="lineNum">     757 </span>            :                                 while (sg-&gt;parent_scene) sg = sg-&gt;parent_scene;
+<span class="lineNum">     758 </span>            :                                 gf_list_del_item(sg-&gt;smil_timed_elements, rti);
+<span class="lineNum">     759 </span>            :                                 ret = -3;*/
+<span class="lineNum">     760 </span>            :                                 ret = 1;
+<span class="lineNum">     761 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     762 </span>            :                 }
+<span class="lineNum">     763 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     764 </span>            : 
+<span class="lineNum">     765 </span><span class="lineNoCov">          0 :         if ((rti-&gt;status == SMIL_STATUS_DONE) || (rti-&gt;status == SMIL_STATUS_FROZEN)) {</span>
+<span class="lineNum">     766 </span><span class="lineNoCov">          0 :                 if (!timingp-&gt;restart || *timingp-&gt;restart != SMIL_RESTART_NEVER) {</span>
+<span class="lineNum">     767 </span>            :                         /* Check changes in begin or end attributes */
+<span class="lineNum">     768 </span><span class="lineNoCov">          0 :                         GF_LOG(GF_LOG_DEBUG, GF_LOG_SMIL, (&quot;[SMIL Timing   ] Time %f - Timed element %s - Checking for restart when not active\n&quot;, gf_node_get_scene_time((GF_Node *)rti-&gt;timed_elt), gf_node_get_log_name((GF_Node *)rti-&gt;timed_elt)));</span>
+<span class="lineNum">     769 </span><span class="lineNoCov">          0 :                         if (rti-&gt;next_interval-&gt;begin != -1) {</span>
+<span class="lineNum">     770 </span>            :                                 Bool restart_timing = 0;
+<span class="lineNum">     771 </span>            :                                 /*next interval is right now*/
+<span class="lineNum">     772 </span><span class="lineNoCov">          0 :                                 if (rti-&gt;next_interval-&gt;begin == rti-&gt;current_interval-&gt;begin+rti-&gt;current_interval-&gt;active_duration)</span>
+<span class="lineNum">     773 </span><span class="lineNoCov">          0 :                                         restart_timing = 1;</span>
+<span class="lineNum">     774 </span>            : 
+<span class="lineNum">     775 </span>            :                                 /*switch intervals*/
+<span class="lineNum">     776 </span><span class="lineNoCov">          0 :                                 if (rti-&gt;next_interval-&gt;begin &gt;= rti-&gt;current_interval-&gt;begin+rti-&gt;current_interval-&gt;active_duration) {</span>
+<span class="lineNum">     777 </span><span class="lineNoCov">          0 :                                         *rti-&gt;current_interval = *rti-&gt;next_interval;</span>
+<span class="lineNum">     778 </span>            : 
+<span class="lineNum">     779 </span><span class="lineNoCov">          0 :                                         gf_smil_timing_print_interval(rti, 1, rti-&gt;current_interval);</span>
+<span class="lineNum">     780 </span><span class="lineNoCov">          0 :                                         gf_smil_timing_get_next_interval(rti, 0, rti-&gt;next_interval, rti-&gt;scene_time);</span>
+<span class="lineNum">     781 </span>            : 
+<span class="lineNum">     782 </span>            :                                         /* mark that this element has been modified and
+<span class="lineNum">     783 </span>            :                                            need to be reinserted at its proper place in the list of timed elements in the scenegraph */
+<span class="lineNum">     784 </span><span class="lineNoCov">          0 :                                         gf_smil_mark_modified(rti, 0);</span>
+<span class="lineNum">     785 </span><span class="lineNoCov">          0 :                                 } else {</span>
+<span class="lineNum">     786 </span><span class="lineNoCov">          0 :                                         rti-&gt;next_interval-&gt;begin = -1;</span>
+<span class="lineNum">     787 </span>            :                                 }
+<span class="lineNum">     788 </span>            : 
+<span class="lineNum">     789 </span>            :                                 /*if chaining to new interval, go to wait_for begin right now*/
+<span class="lineNum">     790 </span><span class="lineNoCov">          0 :                                 if (restart_timing) {</span>
+<span class="lineNum">     791 </span><span class="lineNoCov">          0 :                                         rti-&gt;status = SMIL_STATUS_WAITING_TO_BEGIN;</span>
+<span class="lineNum">     792 </span><span class="lineNoCov">          0 :                                         rti-&gt;evaluate_status = SMIL_TIMING_EVAL_NONE;</span>
+<span class="lineNum">     793 </span><span class="lineNoCov">          0 :                                         GF_LOG(GF_LOG_DEBUG, GF_LOG_SMIL, (&quot;[SMIL Timing   ] Time %f - Timed element %s - Returning to eval none status\n&quot;, gf_node_get_scene_time((GF_Node *)rti-&gt;timed_elt), gf_node_get_log_name((GF_Node *)rti-&gt;timed_elt)));</span>
+<span class="lineNum">     794 </span>            :                                         ret = 0;
+<span class="lineNum">     795 </span><span class="lineNoCov">          0 :                                         goto waiting_to_begin;</span>
+<span class="lineNum">     796 </span>            :                                 }
+<span class="lineNum">     797 </span>            :                                 /*otherwise move state to waiting for begin for next smil_timing evaluation, but
+<span class="lineNum">     798 </span>            :                                 don't change evaluate status for next anim evaluation*/
+<span class="lineNum">     799 </span>            :                                 else {
+<span class="lineNum">     800 </span>            :                                         rti-&gt;status = SMIL_STATUS_WAITING_TO_BEGIN;
+<span class="lineNum">     801 </span>            :                                 }
+<span class="lineNum">     802 </span><span class="lineNoCov">          0 :                         } else {</span>
+<span class="lineNum">     803 </span>            :                                 /*??? what is this ???*/
+<span class="lineNum">     804 </span>            :                                 //ret = 0;
+<span class="lineNum">     805 </span>            :                         }
+<span class="lineNum">     806 </span><span class="lineNoCov">          0 :                 } else if ((rti-&gt;status == SMIL_STATUS_DONE) &amp;&amp;</span>
+<span class="lineNum">     807 </span><span class="lineNoCov">          0 :                            timingp-&gt;restart &amp;&amp; (*timingp-&gt;restart == SMIL_RESTART_NEVER)) {</span>
+<span class="lineNum">     808 </span>            :                         /* the timed element is done and cannot restart, we don't need to evaluate it anymore */
+<span class="lineNum">     809 </span><span class="lineNoCov">          0 :                         GF_SceneGraph * sg = rti-&gt;timed_elt-&gt;sgprivate-&gt;scenegraph;</span>
+<span class="lineNum">     810 </span><span class="lineNoCov">          0 :                         while (sg-&gt;parent_scene) sg = sg-&gt;parent_scene;</span>
+<span class="lineNum">     811 </span><span class="lineNoCov">          0 :                         gf_list_del_item(sg-&gt;smil_timed_elements, rti);</span>
+<span class="lineNum">     812 </span>            :                         ret = -1;
+<span class="lineNum">     813 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     814 </span>            :         }
+<span class="lineNum">     815 </span>            : 
+<span class="lineNum">     816 </span>            : exit:
+<span class="lineNum">     817 </span><span class="lineNoCov">          0 :         gf_node_unregister(rti-&gt;timed_elt, NULL);</span>
+<span class="lineNum">     818 </span><span class="lineNoCov">          0 :         return ret;</span>
+<span class="lineNum">     819 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     820 </span>            : 
+<span class="lineNum">     821 </span>            : /* returns a fraction between 0 and 1 of the elapsed time in the simple duration */
+<span class="lineNum">     822 </span>            : /* WARNING: According to SMIL (http://www.w3.org/TR/2005/REC-SMIL2-20051213/animation.html#animationNS-Fill,
+<span class="lineNum">     823 </span>            : see &quot;Illustration of animation combining a partial repeat and fill=&quot;freeze&quot;&quot;)
+<a name="824"><span class="lineNum">     824 </span>            : When a element is frozen, its normalized simple time is not necessarily 1,</a>
+<span class="lineNum">     825 </span>            : an animation can be frozen in the middle of a repeatition */
+<span class="lineNum">     826 </span>            : Fixed gf_smil_timing_get_normalized_simple_time(SMIL_Timing_RTI *rti, Double scene_time, Bool *force_end)
+<span class="lineNum">     827 </span>            : {
+<span class="lineNum">     828 </span>            :         Double activeTime;
+<span class="lineNum">     829 </span>            :         Double simpleTime;
+<span class="lineNum">     830 </span>            :         Fixed normalizedSimpleTime;
+<span class="lineNum">     831 </span>            : 
+<span class="lineNum">     832 </span><span class="lineNoCov">          0 :         if (rti-&gt;current_interval-&gt;begin == -1) return 0;</span>
+<span class="lineNum">     833 </span>            : 
+<span class="lineNum">     834 </span>            :         /* we define the active time as the elapsed time from the current activation of the element */
+<span class="lineNum">     835 </span><span class="lineNoCov">          0 :         activeTime = scene_time - rti-&gt;current_interval-&gt;begin;</span>
+<span class="lineNum">     836 </span>            : 
+<span class="lineNum">     837 </span>            :         /* Is the animation reaching the end of its active duration ? */
+<span class="lineNum">     838 </span><span class="lineNoCov">          0 :         if (rti-&gt;current_interval-&gt;active_duration != -1 &amp;&amp; activeTime &gt;= rti-&gt;current_interval-&gt;active_duration) {</span>
+<span class="lineNum">     839 </span>            : 
+<span class="lineNum">     840 </span>            :                 /* we clamp the active time to its maximum value */
+<span class="lineNum">     841 </span>            :                 activeTime = rti-&gt;current_interval-&gt;active_duration;
+<span class="lineNum">     842 </span>            : 
+<span class="lineNum">     843 </span>            :                 /* if the simple duration is defined, then we can take iterations into account */
+<span class="lineNum">     844 </span><span class="lineNoCov">          0 :                 if (rti-&gt;current_interval-&gt;simple_duration&gt;0) {</span>
+<span class="lineNum">     845 </span>            : 
+<span class="lineNum">     846 </span><span class="lineNoCov">          0 :                         if (activeTime == rti-&gt;current_interval-&gt;simple_duration*(rti-&gt;current_interval-&gt;nb_iterations+1)) {</span>
+<span class="lineNum">     847 </span><span class="lineNoCov">          0 :                                 return FIX_ONE;</span>
+<span class="lineNum">     848 </span>            :                         } else {
+<span class="lineNum">     849 </span>            :                                 goto end;
+<span class="lineNum">     850 </span>            :                         }
+<span class="lineNum">     851 </span>            :                 } else {
+<span class="lineNum">     852 </span>            :                         /* If the element does not define its simple duration, but it has an active duration,
+<span class="lineNum">     853 </span>            :                            and we are past this active duration, we assume it's blocked in final state
+<span class="lineNum">     854 </span>            :                            We should take into account fill behavior*/
+<span class="lineNum">     855 </span><span class="lineNoCov">          0 :                         rti-&gt;current_interval-&gt;nb_iterations = 0;</span>
+<span class="lineNum">     856 </span><span class="lineNoCov">          0 :                         if (rti-&gt;timingp-&gt;fill &amp;&amp; *(rti-&gt;timingp-&gt;fill) == SMIL_FILL_FREEZE) {</span>
+<span class="lineNum">     857 </span><span class="lineNoCov">          0 :                                 if (rti-&gt;current_interval-&gt;repeat_duration == rti-&gt;current_interval-&gt;simple_duration) {</span>
+<span class="lineNum">     858 </span><span class="lineNoCov">          0 :                                         return FIX_ONE;</span>
+<span class="lineNum">     859 </span>            :                                 } else {
+<span class="lineNum">     860 </span><span class="lineNoCov">          0 :                                         return  rti-&gt;normalized_simple_time;</span>
+<span class="lineNum">     861 </span>            :                                 }
+<span class="lineNum">     862 </span>            :                         } else {
+<span class="lineNum">     863 </span><span class="lineNoCov">          0 :                                 return 0;</span>
+<span class="lineNum">     864 </span>            :                         }
+<span class="lineNum">     865 </span>            :                 }
+<span class="lineNum">     866 </span>            :         }
+<span class="lineNum">     867 </span>            : 
+<span class="lineNum">     868 </span>            : end:
+<span class="lineNum">     869 </span>            :         /* if the simple duration is defined, then we can take iterations into account */
+<span class="lineNum">     870 </span><span class="lineNoCov">          0 :         if (rti-&gt;current_interval-&gt;simple_duration&gt;0) {</span>
+<span class="lineNum">     871 </span>            : 
+<span class="lineNum">     872 </span>            :                 /* if we are active but frozen or done (animate-elem-65-t, animate-elem-222-t)
+<span class="lineNum">     873 </span>            :                 (see The rule to apply to compute the active duration of an element with min or max specified) */
+<span class="lineNum">     874 </span><span class="lineNoCov">          0 :                 if ((activeTime &gt;= rti-&gt;current_interval-&gt;repeat_duration) &amp;&amp; rti-&gt;current_interval-&gt;min_active) {</span>
+<span class="lineNum">     875 </span>            :                         /* freeze the normalized simple time */
+<span class="lineNum">     876 </span><span class="lineNoCov">          0 :                         if (force_end) *force_end = 1;</span>
+<span class="lineNum">     877 </span><span class="lineNoCov">          0 :                         if (rti-&gt;timingp-&gt;fill &amp;&amp; *(rti-&gt;timingp-&gt;fill) == SMIL_FILL_FREEZE) {</span>
+<span class="lineNum">     878 </span><span class="lineNoCov">          0 :                                 if (rti-&gt;current_interval-&gt;repeat_duration == rti-&gt;current_interval-&gt;simple_duration) {</span>
+<span class="lineNum">     879 </span><span class="lineNoCov">          0 :                                         return FIX_ONE;</span>
+<span class="lineNum">     880 </span>            :                                 } else {
+<span class="lineNum">     881 </span><span class="lineNoCov">          0 :                                         return  rti-&gt;normalized_simple_time;</span>
+<span class="lineNum">     882 </span>            :                                 }
+<span class="lineNum">     883 </span>            :                         }
+<span class="lineNum">     884 </span>            :                 }
+<span class="lineNum">     885 </span>            :                 /* we update the number of iterations */
+<span class="lineNum">     886 </span><span class="lineNoCov">          0 :                 rti-&gt;current_interval-&gt;nb_iterations = (u32)floor(activeTime / rti-&gt;current_interval-&gt;simple_duration);</span>
+<span class="lineNum">     887 </span>            :         } else {
+<span class="lineNum">     888 </span>            :                 /* If the element does not define its simple duration, we assume it's blocked in final state
+<span class="lineNum">     889 </span>            :                    Is this correct ? */
+<span class="lineNum">     890 </span><span class="lineNoCov">          0 :                 rti-&gt;current_interval-&gt;nb_iterations = 0;</span>
+<span class="lineNum">     891 </span>            :                 //GF_LOG(GF_LOG_DEBUG, GF_LOG_SMIL, (&quot;[SMIL Timing   ] Time %f - Timed element %s - Error Computing Normalized Simple Time while simple duration is indefinite\n&quot;, gf_node_get_scene_time((GF_Node *)rti-&gt;timed_elt), gf_node_get_log_name((GF_Node *)rti-&gt;timed_elt)));
+<span class="lineNum">     892 </span><span class="lineNoCov">          0 :                 return FIX_ONE;</span>
+<span class="lineNum">     893 </span>            :         }
+<span class="lineNum">     894 </span>            : 
+<span class="lineNum">     895 </span>            :         /* We compute the simple time by removing time taken by previous iterations */
+<span class="lineNum">     896 </span><span class="lineNoCov">          0 :         simpleTime = activeTime - rti-&gt;current_interval-&gt;simple_duration * rti-&gt;current_interval-&gt;nb_iterations;</span>
+<span class="lineNum">     897 </span>            : 
+<span class="lineNum">     898 </span>            :         /* Then we clamp the simple time to be sure it is between 0 and simple duration */
+<span class="lineNum">     899 </span><span class="lineNoCov">          0 :         simpleTime = MAX(0, simpleTime);</span>
+<span class="lineNum">     900 </span><span class="lineNoCov">          0 :         simpleTime = MIN(rti-&gt;current_interval-&gt;simple_duration, simpleTime);</span>
+<span class="lineNum">     901 </span>            : 
+<span class="lineNum">     902 </span>            :         /* Then we normalize to have a value between 0 and 1 */
+<span class="lineNum">     903 </span><span class="lineNoCov">          0 :         normalizedSimpleTime = FLT2FIX(simpleTime / rti-&gt;current_interval-&gt;simple_duration);</span>
+<span class="lineNum">     904 </span>            : 
+<span class="lineNum">     905 </span><span class="lineNoCov">          0 :         return normalizedSimpleTime;</span>
+<span class="lineNum">     906 </span><span class="lineNoCov">          0 : }</span>
+<a name="907"><span class="lineNum">     907 </span>            : </a>
+<span class="lineNum">     908 </span>            : /* This function is called when a modification to the node has been made (scripts, updates or events ...) */
+<span class="lineNum">     909 </span>            : void gf_smil_timing_modified(GF_Node *node, GF_FieldInfo *field)
+<span class="lineNum">     910 </span>            : {
+<span class="lineNum">     911 </span>            :         SMILTimingAttributesPointers *timingp = NULL;
+<span class="lineNum">     912 </span>            :         SMIL_Timing_RTI *rti;
+<span class="lineNum">     913 </span>            : 
+<span class="lineNum">     914 </span><span class="lineNoCov">          0 :         timingp = ((SVGTimedAnimBaseElement *)node)-&gt;timingp;</span>
+<span class="lineNum">     915 </span>            : 
+<span class="lineNum">     916 </span><span class="lineNoCov">          0 :         if (!timingp) return;</span>
+<span class="lineNum">     917 </span><span class="lineNoCov">          0 :         rti = timingp-&gt;runtime;</span>
+<span class="lineNum">     918 </span><span class="lineNoCov">          0 :         if (!rti) return;</span>
+<span class="lineNum">     919 </span>            : 
+<span class="lineNum">     920 </span><span class="lineNoCov">          0 :         GF_LOG(GF_LOG_DEBUG, GF_LOG_SMIL, (&quot;[SMIL Timing   ] Time %f - Timed element %s - Modification\n&quot;, gf_node_get_scene_time((GF_Node *)rti-&gt;timed_elt), gf_node_get_log_name((GF_Node *)rti-&gt;timed_elt)));</span>
+<span class="lineNum">     921 </span><span class="lineNoCov">          0 :         if (rti-&gt;current_interval-&gt;begin == -1) {</span>
+<span class="lineNum">     922 </span><span class="lineNoCov">          0 :                 gf_smil_timing_get_next_interval(rti, 1, rti-&gt;current_interval, gf_node_get_scene_time((GF_Node*)rti-&gt;timed_elt));</span>
+<span class="lineNum">     923 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     924 </span>            :                 /* we don't have the right to modify the end of an element if it's not in unresolved state */
+<span class="lineNum">     925 </span><span class="lineNoCov">          0 :                 if (rti-&gt;current_interval-&gt;end == -1) gf_smil_timing_get_interval_end(rti, rti-&gt;current_interval);</span>
+<span class="lineNum">     926 </span>            :                 if (0 &amp;&amp; rti-&gt;current_interval-&gt;end == -2) {
+<span class="lineNum">     927 </span>            :                         /* TODO: check if the interval can be discarded if end = -2,
+<span class="lineNum">     928 </span>            :                            probably no, because the interval is currently running*/
+<span class="lineNum">     929 </span>            :                         GF_LOG(GF_LOG_DEBUG, GF_LOG_SMIL, (&quot;[SMIL Timing   ] Time %f - Timed element %s - Wrong Interval\n&quot;, gf_node_get_scene_time((GF_Node *)rti-&gt;timed_elt), gf_node_get_log_name((GF_Node *)rti-&gt;timed_elt)));
+<span class="lineNum">     930 </span>            :                         rti-&gt;current_interval-&gt;begin = -1;
+<span class="lineNum">     931 </span>            :                         rti-&gt;current_interval-&gt;end = -1;
+<span class="lineNum">     932 </span>            :                         return;
+<span class="lineNum">     933 </span>            :                 }
+<span class="lineNum">     934 </span>            : 
+<span class="lineNum">     935 </span><span class="lineNoCov">          0 :                 gf_smil_timing_compute_active_duration(rti, rti-&gt;current_interval);</span>
+<span class="lineNum">     936 </span><span class="lineNoCov">          0 :                 gf_smil_timing_print_interval(rti, 1, rti-&gt;current_interval);</span>
+<span class="lineNum">     937 </span>            :         }
+<span class="lineNum">     938 </span><span class="lineNoCov">          0 :         gf_smil_timing_get_next_interval(rti, 0, rti-&gt;next_interval, gf_node_get_scene_time((GF_Node*)rti-&gt;timed_elt));</span>
+<span class="lineNum">     939 </span>            : 
+<span class="lineNum">     940 </span>            :         /* mark that this element has been modified and
+<span class="lineNum">     941 </span>            :            need to be reinserted at its proper place in the list of timed elements in the scenegraph */
+<span class="lineNum">     942 </span><span class="lineNoCov">          0 :         gf_smil_mark_modified(rti, 0);</span>
+<span class="lineNum">     943 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     944 </span>            : 
+<span class="lineNum">     945 </span>            : 
+<a name="946"><span class="lineNum">     946 </span>            : /* Tries to resolve event-based or sync-based time values</a>
+<span class="lineNum">     947 </span>            :    Used in parsing, to determine if a timed element can be initialized */
+<span class="lineNum">     948 </span>            : Bool gf_svg_resolve_smil_times(GF_Node *anim, void *event_base_element,
+<span class="lineNum">     949 </span>            :                                GF_List *smil_times, Bool is_end, const char *node_name)
+<span class="lineNum">     950 </span>            : {
+<span class="lineNum">     951 </span>            :         u32 i, done, count;
+<span class="lineNum">     952 </span>            : 
+<span class="lineNum">     953 </span>            :         done = 0;
+<span class="lineNum">     954 </span><span class="lineCov">        852 :         count = gf_list_count(smil_times);</span>
+<span class="lineNum">     955 </span><span class="lineCov">       1180 :         for (i=0; i&lt;count; i++) {</span>
+<span class="lineNum">     956 </span><span class="lineCov">        164 :                 SMIL_Time *t = (SMIL_Time *)gf_list_get(smil_times, i);</span>
+<span class="lineNum">     957 </span>            : 
+<span class="lineNum">     958 </span><span class="lineCov">        164 :                 if (t-&gt;type != GF_SMIL_TIME_EVENT) {</span>
+<span class="lineNum">     959 </span><span class="lineCov">        152 :                         done++;</span>
+<span class="lineNum">     960 </span><span class="lineCov">        152 :                         continue;</span>
+<span class="lineNum">     961 </span>            :                 }
+<span class="lineNum">     962 </span><span class="lineCov">         12 :                 if (!t-&gt;element_id) {</span>
+<span class="lineNum">     963 </span><span class="lineNoCov">          0 :                         if (!t-&gt;element) t-&gt;element = (GF_Node *)event_base_element;</span>
+<span class="lineNum">     964 </span><span class="lineNoCov">          0 :                         done++;</span>
+<span class="lineNum">     965 </span><span class="lineNoCov">          0 :                         continue;</span>
+<span class="lineNum">     966 </span>            :                 }
+<span class="lineNum">     967 </span>            :                 /*commented out because it breaks regular anims (cf interact-pevents-07-t.svg)*/
+<span class="lineNum">     968 </span>            : //              if (node_name &amp;&amp; strcmp(node_name, t-&gt;element_id)) continue;
+<span class="lineNum">     969 </span>            : 
+<span class="lineNum">     970 </span><span class="lineCov">         12 :                 t-&gt;element = gf_sg_find_node_by_name(anim-&gt;sgprivate-&gt;scenegraph, t-&gt;element_id);</span>
+<span class="lineNum">     971 </span><span class="lineCov">         12 :                 if (t-&gt;element) {</span>
+<span class="lineNum">     972 </span><span class="lineCov">         12 :                         gf_free(t-&gt;element_id);</span>
+<span class="lineNum">     973 </span><span class="lineCov">         12 :                         t-&gt;element_id = NULL;</span>
+<span class="lineNum">     974 </span><span class="lineCov">         12 :                         done++;</span>
+<span class="lineNum">     975 </span><span class="lineCov">         12 :                 }</span>
+<span class="lineNum">     976 </span><span class="lineCov">         12 :         }</span>
+<span class="lineNum">     977 </span>            :         /*lacuna value of discard is 0*/
+<span class="lineNum">     978 </span><span class="lineCov">        498 :         if (!count &amp;&amp; !is_end &amp;&amp; (anim-&gt;sgprivate-&gt;tag==TAG_SVG_discard) ) {</span>
+<span class="lineNum">     979 </span>            :                 SMIL_Time *t;
+<span class="lineNum">     980 </span><span class="lineNoCov">          0 :                 GF_SAFEALLOC(t, SMIL_Time);</span>
+<span class="lineNum">     981 </span><span class="lineNoCov">          0 :                 if (!t) {</span>
+<span class="lineNum">     982 </span><span class="lineNoCov">          0 :                         GF_LOG(GF_LOG_ERROR, GF_LOG_SMIL, (&quot;[SMIL Timing] Failed to alloc SMIL time for discard\n&quot;));</span>
+<span class="lineNum">     983 </span><span class="lineNoCov">          0 :                         return 0;</span>
+<span class="lineNum">     984 </span>            :                 }
+<span class="lineNum">     985 </span><span class="lineNoCov">          0 :                 t-&gt;clock = 0;</span>
+<span class="lineNum">     986 </span><span class="lineNoCov">          0 :                 t-&gt;type = GF_SMIL_TIME_CLOCK;</span>
+<span class="lineNum">     987 </span><span class="lineNoCov">          0 :                 gf_list_add(smil_times, t);</span>
+<span class="lineNum">     988 </span><span class="lineNoCov">          0 :                 return 1;</span>
+<span class="lineNum">     989 </span>            :         }
+<span class="lineNum">     990 </span>            : 
+<span class="lineNum">     991 </span><span class="lineCov">        426 :         if (done!=count) return 0;</span>
+<span class="lineNum">     992 </span><span class="lineCov">        426 :         return 1;</span>
+<span class="lineNum">     993 </span><span class="lineCov">        426 : }</span>
+<span class="lineNum">     994 </span>            : 
+<span class="lineNum">     995 </span>            : /* Inserts a new resolved time instant in the begin or end attribute.
+<span class="lineNum">     996 </span>            :    The insertion preserves the sorting and removes the previous insertions
+<span class="lineNum">     997 </span>            :     which have become obsolete
+<a name="998"><span class="lineNum">     998 </span>            :    WARNING: Only used for inserting time when an &lt;a&gt; element, whose target is a timed element, is activated. */</a>
+<span class="lineNum">     999 </span>            : GF_EXPORT
+<span class="lineNum">    1000 </span>            : void gf_smil_timing_insert_clock(GF_Node *elt, Bool is_end, Double clock)
+<span class="lineNum">    1001 </span>            : {
+<span class="lineNum">    1002 </span>            :         u32 i, count, found;
+<span class="lineNum">    1003 </span><span class="lineNoCov">          0 :         SVGTimedAnimBaseElement *timed = (SVGTimedAnimBaseElement*)elt;</span>
+<span class="lineNum">    1004 </span>            :         SMIL_Time *begin;
+<span class="lineNum">    1005 </span>            :         GF_List *l;
+<span class="lineNum">    1006 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(begin, SMIL_Time);</span>
+<span class="lineNum">    1007 </span><span class="lineNoCov">          0 :         if (!begin) {</span>
+<span class="lineNum">    1008 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_SMIL, (&quot;[SMIL Timing] Failed to alloc SMIL begin value\n&quot;));</span>
+<span class="lineNum">    1009 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">    1010 </span>            :         }
+<span class="lineNum">    1011 </span>            : 
+<span class="lineNum">    1012 </span><span class="lineNoCov">          0 :         begin-&gt;type = GF_SMIL_TIME_EVENT_RESOLVED;</span>
+<span class="lineNum">    1013 </span><span class="lineNoCov">          0 :         begin-&gt;clock = clock;</span>
+<span class="lineNum">    1014 </span>            : 
+<span class="lineNum">    1015 </span><span class="lineNoCov">          0 :         l = is_end ? *timed-&gt;timingp-&gt;end : *timed-&gt;timingp-&gt;begin;</span>
+<span class="lineNum">    1016 </span>            : 
+<span class="lineNum">    1017 </span>            :         found = 0;
+<span class="lineNum">    1018 </span><span class="lineNoCov">          0 :         count = gf_list_count(l);</span>
+<span class="lineNum">    1019 </span><span class="lineNoCov">          0 :         for (i=0; i&lt;count; i++) {</span>
+<span class="lineNum">    1020 </span><span class="lineNoCov">          0 :                 SMIL_Time *first = (SMIL_Time *)gf_list_get(l, i);</span>
+<span class="lineNum">    1021 </span>            :                 /*remove past instanciations*/
+<span class="lineNum">    1022 </span><span class="lineNoCov">          0 :                 if ((first-&gt;type==GF_SMIL_TIME_EVENT_RESOLVED) &amp;&amp; (first-&gt;clock &lt; begin-&gt;clock)) {</span>
+<span class="lineNum">    1023 </span><span class="lineNoCov">          0 :                         gf_list_rem(l, i);</span>
+<span class="lineNum">    1024 </span><span class="lineNoCov">          0 :                         gf_free(first);</span>
+<span class="lineNum">    1025 </span><span class="lineNoCov">          0 :                         i--;</span>
+<span class="lineNum">    1026 </span><span class="lineNoCov">          0 :                         count--;</span>
+<span class="lineNum">    1027 </span><span class="lineNoCov">          0 :                         continue;</span>
+<span class="lineNum">    1028 </span>            :                 }
+<span class="lineNum">    1029 </span><span class="lineNoCov">          0 :                 if ( (first-&gt;type == GF_SMIL_TIME_INDEFINITE)</span>
+<span class="lineNum">    1030 </span><span class="lineNoCov">          0 :                         || ( (first-&gt;type == GF_SMIL_TIME_CLOCK) &amp;&amp; (first-&gt;clock &gt; begin-&gt;clock) )</span>
+<span class="lineNum">    1031 </span>            :                    ) {
+<span class="lineNum">    1032 </span><span class="lineNoCov">          0 :                         gf_list_insert(l, begin, i);</span>
+<span class="lineNum">    1033 </span>            :                         found = 1;
+<span class="lineNum">    1034 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1035 </span>            :                 }
+<span class="lineNum">    1036 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">    1037 </span><span class="lineNoCov">          0 :         if (!found) gf_list_add(l, begin);</span>
+<span class="lineNum">    1038 </span>            : 
+<span class="lineNum">    1039 </span>            :         /* call gf_smil_timing_modified */
+<span class="lineNum">    1040 </span><span class="lineNoCov">          0 :         gf_node_changed(elt, NULL);</span>
+<a name="1041"><span class="lineNum">    1041 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">    1042 </span>            : 
+<span class="lineNum">    1043 </span>            : void gf_smil_timing_pause(GF_Node *node)
+<span class="lineNum">    1044 </span>            : {
+<span class="lineNum">    1045 </span><span class="lineNoCov">          0 :         if (node &amp;&amp; ((SVGTimedAnimBaseElement *)node)-&gt;timingp  &amp;&amp; ((SVGTimedAnimBaseElement *)node)-&gt;timingp-&gt;runtime) {</span>
+<span class="lineNum">    1046 </span>            :                 SMIL_Timing_RTI *rti = ((SVGTimedAnimBaseElement *)node)-&gt;timingp-&gt;runtime;
+<span class="lineNum">    1047 </span><span class="lineNoCov">          0 :                 if (rti-&gt;status&lt;=SMIL_STATUS_ACTIVE) rti-&gt;paused = 1;</span>
+<span class="lineNum">    1048 </span><span class="lineNoCov">          0 :         }</span>
+<a name="1049"><span class="lineNum">    1049 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">    1050 </span>            : 
+<span class="lineNum">    1051 </span>            : void gf_smil_timing_resume(GF_Node *node)
+<span class="lineNum">    1052 </span>            : {
+<span class="lineNum">    1053 </span><span class="lineNoCov">          0 :         if (node &amp;&amp; ((SVGTimedAnimBaseElement *)node)-&gt;timingp  &amp;&amp; ((SVGTimedAnimBaseElement *)node)-&gt;timingp-&gt;runtime) {</span>
+<span class="lineNum">    1054 </span>            :                 SMIL_Timing_RTI *rti = ((SVGTimedAnimBaseElement *)node)-&gt;timingp-&gt;runtime;
+<span class="lineNum">    1055 </span><span class="lineNoCov">          0 :                 rti-&gt;paused = 0;</span>
+<span class="lineNum">    1056 </span><span class="lineNoCov">          0 :         }</span>
+<a name="1057"><span class="lineNum">    1057 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">    1058 </span>            : 
+<span class="lineNum">    1059 </span>            : void gf_smil_set_evaluation_callback(GF_Node *node,
+<span class="lineNum">    1060 </span>            :                                      void (*smil_evaluate)(struct _smil_timing_rti *rti, Fixed normalized_simple_time, u32 state))
+<span class="lineNum">    1061 </span>            : {
+<span class="lineNum">    1062 </span><span class="lineNoCov">          0 :         if (node &amp;&amp; ((SVGTimedAnimBaseElement *)node)-&gt;timingp  &amp;&amp; ((SVGTimedAnimBaseElement *)node)-&gt;timingp-&gt;runtime) {</span>
+<span class="lineNum">    1063 </span>            :                 SMIL_Timing_RTI *rti = ((SVGTimedAnimBaseElement *)node)-&gt;timingp-&gt;runtime;
+<span class="lineNum">    1064 </span><span class="lineNoCov">          0 :                 rti-&gt;evaluate = smil_evaluate;</span>
+<span class="lineNum">    1065 </span><span class="lineNoCov">          0 :         }</span>
+<a name="1066"><span class="lineNum">    1066 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">    1067 </span>            : 
+<span class="lineNum">    1068 </span>            : GF_Node *gf_smil_get_element(SMIL_Timing_RTI *rti)
+<span class="lineNum">    1069 </span>            : {
+<span class="lineNum">    1070 </span><span class="lineNoCov">          0 :         return rti-&gt;timed_elt;</span>
+<a name="1071"><span class="lineNum">    1071 </span>            : }</a>
+<span class="lineNum">    1072 </span>            : 
+<span class="lineNum">    1073 </span>            : Double gf_smil_get_media_duration(SMIL_Timing_RTI *rti)
+<span class="lineNum">    1074 </span>            : {
+<span class="lineNum">    1075 </span><span class="lineNoCov">          0 :         return rti-&gt;media_duration;</span>
+<span class="lineNum">    1076 </span>            : }
+<span class="lineNum">    1077 </span>            : 
+<span class="lineNum">    1078 </span>            : 
+<span class="lineNum">    1079 </span>            : #endif /*GPAC_DISABLE_SVG*/
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

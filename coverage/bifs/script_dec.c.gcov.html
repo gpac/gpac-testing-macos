@@ -1,0 +1,862 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - bifs/script_dec.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">bifs</a> - script_dec.c<span style="font-size: 80%;"> (source / <a href="script_dec.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">407</td>
+            <td class="headerCovTableEntry">487</td>
+            <td class="headerCovTableEntryMed">83.6 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-05-14 22:31:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">31</td>
+            <td class="headerCovTableEntry">31</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *                      GPAC - Multimedia Framework C SDK
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *                      Authors: Jean Le Feuvre
+<span class="lineNum">       5 </span>            :  *                      Copyright (c) Telecom ParisTech 2000-2012
+<span class="lineNum">       6 </span>            :  *                                      All rights reserved
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  *  This file is part of GPAC / BIFS codec sub-project
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  *  GPAC is free software; you can redistribute it and/or modify
+<span class="lineNum">      11 </span>            :  *  it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">      12 </span>            :  *  the Free Software Foundation; either version 2, or (at your option)
+<span class="lineNum">      13 </span>            :  *  any later version.
+<span class="lineNum">      14 </span>            :  *
+<span class="lineNum">      15 </span>            :  *  GPAC is distributed in the hope that it will be useful,
+<span class="lineNum">      16 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      17 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      18 </span>            :  *  GNU Lesser General Public License for more details.
+<span class="lineNum">      19 </span>            :  *
+<span class="lineNum">      20 </span>            :  *  You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      21 </span>            :  *  License along with this library; see the file COPYING.  If not, write to
+<span class="lineNum">      22 </span>            :  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+<span class="lineNum">      23 </span>            :  *
+<span class="lineNum">      24 </span>            :  */
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : 
+<span class="lineNum">      27 </span>            : #include &quot;script.h&quot;
+<span class="lineNum">      28 </span>            : 
+<span class="lineNum">      29 </span>            : #if !defined(GPAC_DISABLE_BIFS) &amp;&amp; defined(GPAC_HAS_SPIDERMONKEY)
+<span class="lineNum">      30 </span>            : 
+<span class="lineNum">      31 </span>            : #define BINOP_MINVAL ET_EQ
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span>            : typedef struct
+<span class="lineNum">      34 </span>            : {
+<span class="lineNum">      35 </span>            :         GF_Node *script;
+<span class="lineNum">      36 </span>            :         GF_BifsDecoder *codec;
+<span class="lineNum">      37 </span>            :         GF_BitStream *bs;
+<span class="lineNum">      38 </span>            :         char *string;
+<span class="lineNum">      39 </span>            :         u32 length;
+<span class="lineNum">      40 </span>            :         GF_List *identifiers;
+<span class="lineNum">      41 </span>            :         char *new_line;
+<span class="lineNum">      42 </span>            :         u32 indent;
+<span class="lineNum">      43 </span>            : } ScriptParser;
+<span class="lineNum">      44 </span>            : 
+<span class="lineNum">      45 </span>            : 
+<span class="lineNum">      46 </span>            : void SFS_Identifier(ScriptParser *parser);
+<span class="lineNum">      47 </span>            : void SFS_Arguments(ScriptParser *parser, Bool is_var);
+<span class="lineNum">      48 </span>            : void SFS_StatementBlock(ScriptParser *parser, Bool functBody);
+<span class="lineNum">      49 </span>            : void SFS_Statement(ScriptParser *parser);
+<span class="lineNum">      50 </span>            : void SFS_IfStatement(ScriptParser *parser);
+<span class="lineNum">      51 </span>            : void SFS_SwitchStatement(ScriptParser *parser);
+<span class="lineNum">      52 </span>            : void SFS_ForStatement(ScriptParser *parser);
+<span class="lineNum">      53 </span>            : void SFS_WhileStatement(ScriptParser *parser);
+<span class="lineNum">      54 </span>            : void SFS_ReturnStatement(ScriptParser *parser);
+<span class="lineNum">      55 </span>            : void SFS_CompoundExpression(ScriptParser *parser);
+<span class="lineNum">      56 </span>            : void SFS_OptionalExpression(ScriptParser *parser);
+<span class="lineNum">      57 </span>            : void SFS_Expression(ScriptParser *parser);
+<span class="lineNum">      58 </span>            : void SFS_NewObject(ScriptParser *parser);
+<span class="lineNum">      59 </span>            : void SFS_ArrayDeref(ScriptParser *parser);
+<span class="lineNum">      60 </span>            : void SFS_FunctionCall(ScriptParser *parser);
+<span class="lineNum">      61 </span>            : void SFS_ObjectMemberAccess(ScriptParser *parser);
+<span class="lineNum">      62 </span>            : void SFS_ObjectMethodCall(ScriptParser *parser);
+<span class="lineNum">      63 </span>            : void SFS_Params(ScriptParser *parser);
+<span class="lineNum">      64 </span>            : void SFS_GetNumber(ScriptParser *parser);
+<span class="lineNum">      65 </span>            : void SFS_GetString(ScriptParser *parser);
+<span class="lineNum">      66 </span>            : void SFS_GetBoolean(ScriptParser *parser);
+<span class="lineNum">      67 </span>            : 
+<a name="68"><span class="lineNum">      68 </span>            : #define PARSER_STEP_ALLOC       500</a>
+<span class="lineNum">      69 </span>            : 
+<span class="lineNum">      70 </span>            : static void SFS_AddString(ScriptParser *parser, char *str)
+<span class="lineNum">      71 </span>            : {
+<span class="lineNum">      72 </span>            :         char *new_str;
+<span class="lineNum">      73 </span><span class="lineCov">     190480 :         if (!str) return;</span>
+<span class="lineNum">      74 </span><span class="lineCov">      95240 :         if (strlen(parser-&gt;string) + strlen(str) &gt;= parser-&gt;length) {</span>
+<span class="lineNum">      75 </span><span class="lineCov">        360 :                 parser-&gt;length += PARSER_STEP_ALLOC;</span>
+<span class="lineNum">      76 </span><span class="lineCov">        360 :                 new_str = (char *)gf_malloc(sizeof(char)*parser-&gt;length);</span>
+<span class="lineNum">      77 </span><span class="lineCov">        360 :                 strcpy(new_str, parser-&gt;string);</span>
+<span class="lineNum">      78 </span><span class="lineCov">        360 :                 gf_free(parser-&gt;string);</span>
+<span class="lineNum">      79 </span><span class="lineCov">        360 :                 parser-&gt;string = new_str;</span>
+<span class="lineNum">      80 </span><span class="lineCov">        360 :         }</span>
+<span class="lineNum">      81 </span><span class="lineCov">      95240 :         strcat(parser-&gt;string, str);</span>
+<a name="82"><span class="lineNum">      82 </span><span class="lineCov">     190480 : }</span></a>
+<span class="lineNum">      83 </span>            : 
+<span class="lineNum">      84 </span>            : static void SFS_AddInt(ScriptParser *parser, s32 val)
+<span class="lineNum">      85 </span>            : {
+<span class="lineNum">      86 </span><span class="lineCov">       8830 :         char msg[500];</span>
+<span class="lineNum">      87 </span><span class="lineCov">       4415 :         sprintf(msg, &quot;%d&quot;, val);</span>
+<a name="88"><span class="lineNum">      88 </span><span class="lineCov">       4415 :         SFS_AddString(parser, msg);</span></a>
+<span class="lineNum">      89 </span><span class="lineCov">       4415 : }</span>
+<span class="lineNum">      90 </span>            : static void SFS_AddChar(ScriptParser *parser, char c)
+<span class="lineNum">      91 </span>            : {
+<span class="lineNum">      92 </span><span class="lineCov">       1190 :         char msg[2];</span>
+<span class="lineNum">      93 </span><span class="lineCov">        595 :         sprintf(msg, &quot;%c&quot;, c);</span>
+<span class="lineNum">      94 </span><span class="lineCov">        595 :         SFS_AddString(parser, msg);</span>
+<span class="lineNum">      95 </span><span class="lineCov">        595 : }</span>
+<a name="96"><span class="lineNum">      96 </span>            : </a>
+<span class="lineNum">      97 </span>            : 
+<span class="lineNum">      98 </span>            : GF_Err ParseScriptField(ScriptParser *parser)
+<span class="lineNum">      99 </span>            : {
+<span class="lineNum">     100 </span>            :         GF_ScriptField *field;
+<span class="lineNum">     101 </span>            :         GF_Err e;
+<span class="lineNum">     102 </span>            :         u32 eventType, fieldType;
+<span class="lineNum">     103 </span><span class="lineCov">       2650 :         char name[1000];</span>
+<span class="lineNum">     104 </span><span class="lineCov">       1325 :         GF_FieldInfo info;</span>
+<span class="lineNum">     105 </span>            : 
+<span class="lineNum">     106 </span><span class="lineCov">       1325 :         eventType = gf_bs_read_int(parser-&gt;bs, 2);</span>
+<span class="lineNum">     107 </span><span class="lineCov">       1325 :         fieldType = gf_bs_read_int(parser-&gt;bs, 6);</span>
+<span class="lineNum">     108 </span><span class="lineCov">       1325 :         gf_bifs_dec_name(parser-&gt;bs, name);</span>
+<span class="lineNum">     109 </span><span class="lineCov">       1325 :         field = gf_sg_script_field_new(parser-&gt;script, eventType, fieldType, name);</span>
+<span class="lineNum">     110 </span><span class="lineCov">       1325 :         if (!field) return GF_NON_COMPLIANT_BITSTREAM;</span>
+<span class="lineNum">     111 </span>            : 
+<span class="lineNum">     112 </span>            :         //save the name in the list of identifiers
+<span class="lineNum">     113 </span><span class="lineCov">       1325 :         gf_list_add(parser-&gt;identifiers, gf_strdup(name));</span>
+<span class="lineNum">     114 </span>            : 
+<span class="lineNum">     115 </span><span class="lineCov">       1325 :         if (parser-&gt;codec-&gt;pCurrentProto) {</span>
+<span class="lineNum">     116 </span><span class="lineCov">         60 :                 Bool isISfield = (Bool)gf_bs_read_int(parser-&gt;bs, 1);</span>
+<span class="lineNum">     117 </span><span class="lineCov">         60 :                 if (isISfield) {</span>
+<span class="lineNum">     118 </span><span class="lineNoCov">          0 :                         u32 numProtoField = gf_sg_proto_get_field_count(parser-&gt;codec-&gt;pCurrentProto);</span>
+<span class="lineNum">     119 </span><span class="lineNoCov">          0 :                         u32 numBits = gf_get_bit_size(numProtoField - 1);</span>
+<span class="lineNum">     120 </span><span class="lineNoCov">          0 :                         u32 field_all = gf_bs_read_int(parser-&gt;bs, numBits);</span>
+<span class="lineNum">     121 </span><span class="lineNoCov">          0 :                         e = gf_sg_script_field_get_info(field, &amp;info);</span>
+<span class="lineNum">     122 </span><span class="lineNoCov">          0 :                         if (e) return e;</span>
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 :                         e = gf_sg_proto_field_set_ised(parser-&gt;codec-&gt;pCurrentProto, field_all, parser-&gt;script, info.fieldIndex);</span>
+<span class="lineNum">     124 </span><span class="lineNoCov">          0 :                         return e;</span>
+<span class="lineNum">     125 </span>            :                 }
+<span class="lineNum">     126 </span><span class="lineCov">         60 :         }</span>
+<span class="lineNum">     127 </span>            :         /*get default value*/
+<span class="lineNum">     128 </span><span class="lineCov">       1325 :         if (eventType == GF_SG_SCRIPT_TYPE_FIELD) {</span>
+<span class="lineNum">     129 </span><span class="lineCov">        795 :                 if (gf_bs_read_int(parser-&gt;bs, 1)) {</span>
+<span class="lineNum">     130 </span><span class="lineCov">        795 :                         e = gf_sg_script_field_get_info(field, &amp;info);</span>
+<span class="lineNum">     131 </span><span class="lineCov">        795 :                         if (e) return e;</span>
+<span class="lineNum">     132 </span><span class="lineCov">        795 :                         gf_bifs_dec_field(parser-&gt;codec, parser-&gt;bs, parser-&gt;script, &amp;info, GF_FALSE);</span>
+<span class="lineNum">     133 </span><span class="lineCov">        795 :                 }</span>
+<span class="lineNum">     134 </span>            :         }
+<span class="lineNum">     135 </span>            : 
+<span class="lineNum">     136 </span><span class="lineCov">       1325 :         return parser-&gt;codec-&gt;LastError;</span>
+<a name="137"><span class="lineNum">     137 </span><span class="lineCov">       1325 : }</span></a>
+<span class="lineNum">     138 </span>            : 
+<span class="lineNum">     139 </span>            : static void SFS_IncIndent(ScriptParser *pars) {
+<a name="140"><span class="lineNum">     140 </span><span class="lineCov">       4420 :         pars-&gt;indent++;</span></a>
+<span class="lineNum">     141 </span><span class="lineCov">       2210 : }</span>
+<span class="lineNum">     142 </span>            : static void SFS_DecIndent(ScriptParser *pars) {
+<a name="143"><span class="lineNum">     143 </span><span class="lineCov">       4420 :         pars-&gt;indent--;</span></a>
+<span class="lineNum">     144 </span><span class="lineCov">       2210 : }</span>
+<span class="lineNum">     145 </span>            : static void SFS_Space(ScriptParser *pars) {
+<a name="146"><span class="lineNum">     146 </span><span class="lineCov">       2580 :         if (pars-&gt;new_line) SFS_AddString(pars, &quot; &quot;);</span></a>
+<span class="lineNum">     147 </span><span class="lineCov">        860 : }</span>
+<span class="lineNum">     148 </span>            : static void SFS_Indent(ScriptParser *pars)
+<span class="lineNum">     149 </span>            : {
+<span class="lineNum">     150 </span>            :         u32 i;
+<span class="lineNum">     151 </span><span class="lineCov">      18270 :         if (pars-&gt;new_line) {</span>
+<span class="lineNum">     152 </span><span class="lineCov">      51640 :                 for (i=0; i&lt;pars-&gt;indent; i++) SFS_AddString(pars, &quot; &quot;);</span>
+<a name="153"><span class="lineNum">     153 </span>            :         }</a>
+<span class="lineNum">     154 </span><span class="lineCov">       9135 : }</span>
+<span class="lineNum">     155 </span>            : static GFINLINE void SFS_Line(ScriptParser *parser)
+<span class="lineNum">     156 </span>            : {
+<span class="lineNum">     157 </span><span class="lineCov">      21240 :         if (parser-&gt;new_line) {</span>
+<span class="lineNum">     158 </span><span class="lineCov">      10620 :                 SFS_AddString(parser, parser-&gt;new_line);</span>
+<span class="lineNum">     159 </span><span class="lineCov">      10620 :         }</span>
+<span class="lineNum">     160 </span><span class="lineCov">      10620 : }</span>
+<a name="161"><span class="lineNum">     161 </span>            : </a>
+<span class="lineNum">     162 </span>            : 
+<span class="lineNum">     163 </span>            : GF_Err SFScript_Parse(GF_BifsDecoder *codec, SFScript *script_field, GF_BitStream *bs, GF_Node *n)
+<span class="lineNum">     164 </span>            : {
+<span class="lineNum">     165 </span>            :         GF_Err e;
+<span class="lineNum">     166 </span>            :         u32 i, count, nbBits;
+<span class="lineNum">     167 </span>            :         char *ptr;
+<span class="lineNum">     168 </span><span class="lineCov">        290 :         ScriptParser parser;</span>
+<span class="lineNum">     169 </span>            :         e = GF_OK;
+<span class="lineNum">     170 </span><span class="lineCov">        145 :         if (gf_node_get_tag(n) != TAG_MPEG4_Script) return GF_NON_COMPLIANT_BITSTREAM;</span>
+<span class="lineNum">     171 </span>            : 
+<span class="lineNum">     172 </span><span class="lineCov">        145 :         parser.codec = codec;</span>
+<span class="lineNum">     173 </span><span class="lineCov">        145 :         parser.script = n;</span>
+<span class="lineNum">     174 </span><span class="lineCov">        145 :         parser.bs = bs;</span>
+<span class="lineNum">     175 </span><span class="lineCov">        145 :         parser.length = 500;</span>
+<span class="lineNum">     176 </span><span class="lineCov">        145 :         parser.string = (char *) gf_malloc(sizeof(char)* parser.length);</span>
+<span class="lineNum">     177 </span><span class="lineCov">        145 :         parser.string[0] = 0;</span>
+<span class="lineNum">     178 </span><span class="lineCov">        145 :         parser.identifiers = gf_list_new();</span>
+<span class="lineNum">     179 </span><span class="lineCov">        145 :         parser.new_line = (char *) (codec-&gt;dec_memory_mode ? &quot;\n&quot; : NULL);</span>
+<span class="lineNum">     180 </span><span class="lineCov">        145 :         parser.indent = 0;</span>
+<span class="lineNum">     181 </span>            : 
+<span class="lineNum">     182 </span>            :         //first parse fields
+<span class="lineNum">     183 </span>            : 
+<span class="lineNum">     184 </span><span class="lineCov">        145 :         if (gf_bs_read_int(bs, 1)) {</span>
+<span class="lineNum">     185 </span>            :                 //endFlag
+<span class="lineNum">     186 </span><span class="lineCov">        350 :                 while (!gf_bs_read_int(bs, 1)) {</span>
+<span class="lineNum">     187 </span><span class="lineCov">        270 :                         e = ParseScriptField(&amp;parser);</span>
+<span class="lineNum">     188 </span><span class="lineCov">        270 :                         if (e) goto exit;</span>
+<span class="lineNum">     189 </span>            :                 }
+<span class="lineNum">     190 </span>            :         } else {
+<span class="lineNum">     191 </span><span class="lineCov">         65 :                 nbBits = gf_bs_read_int(bs, 4);</span>
+<span class="lineNum">     192 </span><span class="lineCov">         65 :                 count = gf_bs_read_int(bs, nbBits);</span>
+<span class="lineNum">     193 </span><span class="lineCov">       2240 :                 for (i=0; i&lt;count; i++) {</span>
+<span class="lineNum">     194 </span><span class="lineCov">       1055 :                         e = ParseScriptField(&amp;parser);</span>
+<span class="lineNum">     195 </span><span class="lineCov">       1055 :                         if (e) goto exit;</span>
+<span class="lineNum">     196 </span>            :                 }
+<span class="lineNum">     197 </span>            :         }
+<span class="lineNum">     198 </span>            :         //reserevd
+<span class="lineNum">     199 </span><span class="lineCov">        145 :         gf_bs_read_int(bs, 1);</span>
+<span class="lineNum">     200 </span>            :         //then parse
+<span class="lineNum">     201 </span><span class="lineCov">        145 :         SFS_AddString(&amp;parser, &quot;javascript:&quot;);</span>
+<span class="lineNum">     202 </span><span class="lineCov">        145 :         SFS_AddString(&amp;parser, parser.new_line);</span>
+<span class="lineNum">     203 </span>            : 
+<span class="lineNum">     204 </span>            :         //hasFunction
+<span class="lineNum">     205 </span><span class="lineCov">       2010 :         while (gf_bs_read_int(bs, 1)) {</span>
+<span class="lineNum">     206 </span><span class="lineCov">        860 :                 SFS_AddString(&amp;parser, &quot;function &quot;);</span>
+<span class="lineNum">     207 </span><span class="lineCov">        860 :                 SFS_Identifier(&amp;parser);</span>
+<span class="lineNum">     208 </span><span class="lineCov">        860 :                 SFS_Arguments(&amp;parser, GF_FALSE);</span>
+<span class="lineNum">     209 </span><span class="lineCov">        860 :                 SFS_Space(&amp;parser);</span>
+<span class="lineNum">     210 </span><span class="lineCov">        860 :                 SFS_StatementBlock(&amp;parser, GF_TRUE);</span>
+<span class="lineNum">     211 </span><span class="lineCov">        860 :                 SFS_Line(&amp;parser);</span>
+<span class="lineNum">     212 </span>            :         }
+<span class="lineNum">     213 </span>            : 
+<span class="lineNum">     214 </span><span class="lineCov">        145 :         SFS_Line(&amp;parser);</span>
+<span class="lineNum">     215 </span>            : 
+<span class="lineNum">     216 </span><span class="lineCov">        145 :         if (script_field-&gt;script_text) gf_free(script_field-&gt;script_text);</span>
+<span class="lineNum">     217 </span><span class="lineCov">        145 :         script_field-&gt;script_text = (char *) gf_strdup(parser.string);</span>
+<span class="lineNum">     218 </span>            : 
+<span class="lineNum">     219 </span>            : exit:
+<span class="lineNum">     220 </span>            :         //clean up
+<span class="lineNum">     221 </span><span class="lineCov">      12035 :         while (gf_list_count(parser.identifiers)) {</span>
+<span class="lineNum">     222 </span><span class="lineCov">       7975 :                 ptr = (char *)gf_list_get(parser.identifiers, 0);</span>
+<span class="lineNum">     223 </span><span class="lineCov">       3915 :                 gf_free(ptr);</span>
+<span class="lineNum">     224 </span><span class="lineCov">       3915 :                 gf_list_rem(parser.identifiers, 0);</span>
+<span class="lineNum">     225 </span>            :         }
+<span class="lineNum">     226 </span><span class="lineCov">        145 :         gf_list_del(parser.identifiers);</span>
+<span class="lineNum">     227 </span><span class="lineCov">        290 :         if (parser.string) gf_free(parser.string);</span>
+<span class="lineNum">     228 </span><span class="lineCov">        145 :         return e;</span>
+<span class="lineNum">     229 </span><span class="lineCov">        145 : }</span>
+<span class="lineNum">     230 </span>            : 
+<a name="231"><span class="lineNum">     231 </span>            : </a>
+<span class="lineNum">     232 </span>            : 
+<span class="lineNum">     233 </span>            : void SFS_Identifier(ScriptParser *parser)
+<span class="lineNum">     234 </span>            : {
+<span class="lineNum">     235 </span>            :         u32 index;
+<span class="lineNum">     236 </span><span class="lineCov">      38350 :         char name[500];</span>
+<span class="lineNum">     237 </span>            : 
+<span class="lineNum">     238 </span><span class="lineCov">      19175 :         if (parser-&gt;codec-&gt;LastError) return;</span>
+<span class="lineNum">     239 </span>            : 
+<span class="lineNum">     240 </span>            :         //received
+<span class="lineNum">     241 </span><span class="lineCov">      38350 :         if (gf_bs_read_int(parser-&gt;bs, 1)) {</span>
+<span class="lineNum">     242 </span><span class="lineCov">      35760 :                 index = gf_bs_read_int(parser-&gt;bs, gf_get_bit_size(gf_list_count(parser-&gt;identifiers) - 1));</span>
+<span class="lineNum">     243 </span><span class="lineCov">      16585 :                 SFS_AddString(parser, (char *)gf_list_get(parser-&gt;identifiers, index));</span>
+<span class="lineNum">     244 </span><span class="lineCov">      16585 :         }</span>
+<span class="lineNum">     245 </span>            :         //parse
+<span class="lineNum">     246 </span>            :         else {
+<span class="lineNum">     247 </span><span class="lineCov">       2590 :                 gf_bifs_dec_name(parser-&gt;bs, name);</span>
+<span class="lineNum">     248 </span><span class="lineCov">       2590 :                 gf_list_add(parser-&gt;identifiers, gf_strdup(name));</span>
+<span class="lineNum">     249 </span><span class="lineCov">       2590 :                 SFS_AddString(parser, name);</span>
+<span class="lineNum">     250 </span>            :         }
+<a name="251"><span class="lineNum">     251 </span><span class="lineCov">      38350 : }</span></a>
+<span class="lineNum">     252 </span>            : 
+<span class="lineNum">     253 </span>            : void SFS_Arguments(ScriptParser *parser, Bool is_var)
+<span class="lineNum">     254 </span>            : {
+<span class="lineNum">     255 </span>            :         u32 val;
+<span class="lineNum">     256 </span><span class="lineCov">       1740 :         if (parser-&gt;codec-&gt;LastError) return;</span>
+<span class="lineNum">     257 </span><span class="lineCov">       1730 :         if (!is_var) SFS_AddString(parser, &quot;(&quot;);</span>
+<span class="lineNum">     258 </span>            : 
+<span class="lineNum">     259 </span><span class="lineCov">        870 :         val = gf_bs_read_int(parser-&gt;bs, 1);</span>
+<span class="lineNum">     260 </span><span class="lineCov">       3135 :         while (val) {</span>
+<span class="lineNum">     261 </span><span class="lineCov">       1395 :                 SFS_Identifier(parser);</span>
+<span class="lineNum">     262 </span><span class="lineCov">       1395 :                 val = gf_bs_read_int(parser-&gt;bs, 1);</span>
+<span class="lineNum">     263 </span><span class="lineCov">       2050 :                 if (val) SFS_AddString(parser, &quot;,&quot;);</span>
+<span class="lineNum">     264 </span>            :         }
+<span class="lineNum">     265 </span><span class="lineCov">       1730 :         if (!is_var) SFS_AddString(parser, &quot;)&quot;);</span>
+<a name="266"><span class="lineNum">     266 </span><span class="lineCov">       1740 : }</span></a>
+<span class="lineNum">     267 </span>            : 
+<span class="lineNum">     268 </span>            : void SFS_StatementBlock(ScriptParser *parser, Bool funcBody)
+<span class="lineNum">     269 </span>            : {
+<span class="lineNum">     270 </span><span class="lineCov">       6640 :         if (parser-&gt;codec-&gt;LastError) return;</span>
+<span class="lineNum">     271 </span>            : 
+<span class="lineNum">     272 </span><span class="lineCov">       3320 :         if (gf_bs_read_int(parser-&gt;bs, 1)) {</span>
+<span class="lineNum">     273 </span><span class="lineCov">       2210 :                 SFS_AddString(parser, &quot;{&quot;);</span>
+<span class="lineNum">     274 </span><span class="lineCov">       2210 :                 SFS_IncIndent(parser);</span>
+<span class="lineNum">     275 </span>            : 
+<span class="lineNum">     276 </span><span class="lineCov">      17130 :                 while (gf_bs_read_int(parser-&gt;bs, 1)) {</span>
+<span class="lineNum">     277 </span><span class="lineCov">       6355 :                         SFS_Line(parser);</span>
+<span class="lineNum">     278 </span><span class="lineCov">       6355 :                         SFS_Indent(parser);</span>
+<span class="lineNum">     279 </span><span class="lineCov">       6355 :                         SFS_Statement(parser);</span>
+<span class="lineNum">     280 </span>            :                 }
+<span class="lineNum">     281 </span><span class="lineCov">       2210 :                 SFS_DecIndent(parser);</span>
+<span class="lineNum">     282 </span><span class="lineCov">       2210 :                 SFS_Line(parser);</span>
+<span class="lineNum">     283 </span><span class="lineCov">       2210 :                 SFS_Indent(parser);</span>
+<span class="lineNum">     284 </span><span class="lineCov">       2210 :                 SFS_AddString(parser, &quot;}&quot;);</span>
+<span class="lineNum">     285 </span><span class="lineCov">       3320 :         } else if (funcBody) {</span>
+<span class="lineNum">     286 </span><span class="lineNoCov">          0 :                 SFS_AddString(parser, &quot;{&quot;);</span>
+<span class="lineNum">     287 </span><span class="lineNoCov">          0 :                 SFS_Statement(parser);</span>
+<span class="lineNum">     288 </span><span class="lineNoCov">          0 :                 SFS_AddString(parser, &quot;}&quot;);</span>
+<span class="lineNum">     289 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     290 </span><span class="lineCov">       1110 :                 SFS_Statement(parser);</span>
+<span class="lineNum">     291 </span>            :         }
+<span class="lineNum">     292 </span><span class="lineCov">       3320 : }</span>
+<a name="293"><span class="lineNum">     293 </span>            : </a>
+<span class="lineNum">     294 </span>            : 
+<span class="lineNum">     295 </span>            : void SFS_Statement(ScriptParser *parser)
+<span class="lineNum">     296 </span>            : {
+<span class="lineNum">     297 </span>            :         u32 val;
+<span class="lineNum">     298 </span><span class="lineCov">      14930 :         if (parser-&gt;codec-&gt;LastError) return;</span>
+<span class="lineNum">     299 </span>            : 
+<span class="lineNum">     300 </span><span class="lineCov">      14930 :         val = gf_bs_read_int(parser-&gt;bs, NUMBITS_STATEMENT);</span>
+<span class="lineNum">     301 </span><span class="lineCov">      14930 :         switch (val) {</span>
+<span class="lineNum">     302 </span>            :         case ST_IF:
+<span class="lineNum">     303 </span><span class="lineCov">       1665 :                 SFS_IfStatement(parser);</span>
+<span class="lineNum">     304 </span><span class="lineCov">       1665 :                 break;</span>
+<span class="lineNum">     305 </span>            :         case ST_FOR:
+<span class="lineNum">     306 </span><span class="lineCov">        270 :                 SFS_ForStatement(parser);</span>
+<span class="lineNum">     307 </span><span class="lineCov">        270 :                 break;</span>
+<span class="lineNum">     308 </span>            :         case ST_WHILE:
+<span class="lineNum">     309 </span><span class="lineCov">         35 :                 SFS_WhileStatement(parser);</span>
+<span class="lineNum">     310 </span><span class="lineCov">         35 :                 break;</span>
+<span class="lineNum">     311 </span>            :         case ST_RETURN:
+<span class="lineNum">     312 </span><span class="lineCov">        460 :                 SFS_ReturnStatement(parser);</span>
+<span class="lineNum">     313 </span><span class="lineCov">        460 :                 break;</span>
+<span class="lineNum">     314 </span>            :         case ST_BREAK:
+<span class="lineNum">     315 </span><span class="lineCov">        110 :                 SFS_AddString(parser, &quot;break;&quot;);</span>
+<span class="lineNum">     316 </span><span class="lineCov">        110 :                 break;</span>
+<span class="lineNum">     317 </span>            :         case ST_CONTINUE:
+<span class="lineNum">     318 </span><span class="lineCov">         10 :                 SFS_AddString(parser, &quot;continue;&quot;);</span>
+<span class="lineNum">     319 </span><span class="lineCov">         10 :                 break;</span>
+<span class="lineNum">     320 </span>            :         case ST_COMPOUND_EXPR:
+<span class="lineNum">     321 </span><span class="lineCov">       4895 :                 SFS_CompoundExpression(parser);</span>
+<span class="lineNum">     322 </span><span class="lineCov">       4895 :                 SFS_AddString(parser, &quot;;&quot;);</span>
+<span class="lineNum">     323 </span><span class="lineCov">       4895 :                 break;</span>
+<span class="lineNum">     324 </span>            :         case ST_SWITCH:
+<span class="lineNum">     325 </span><span class="lineCov">         20 :                 SFS_SwitchStatement(parser);</span>
+<span class="lineNum">     326 </span><span class="lineCov">         20 :                 break;</span>
+<span class="lineNum">     327 </span>            :         }
+<a name="328"><span class="lineNum">     328 </span><span class="lineCov">      14930 : }</span></a>
+<span class="lineNum">     329 </span>            : 
+<span class="lineNum">     330 </span>            : void SFS_IfStatement(ScriptParser *parser)
+<span class="lineNum">     331 </span>            : {
+<span class="lineNum">     332 </span><span class="lineCov">       3330 :         if (parser-&gt;codec-&gt;LastError) return;</span>
+<span class="lineNum">     333 </span><span class="lineCov">       1665 :         SFS_AddString(parser, &quot;if (&quot;);</span>
+<span class="lineNum">     334 </span><span class="lineCov">       1665 :         SFS_CompoundExpression(parser);</span>
+<span class="lineNum">     335 </span><span class="lineCov">       1665 :         SFS_AddString(parser, &quot;) &quot;);</span>
+<span class="lineNum">     336 </span><span class="lineCov">       1665 :         SFS_StatementBlock(parser, GF_FALSE);</span>
+<span class="lineNum">     337 </span>            :         //has else
+<span class="lineNum">     338 </span><span class="lineCov">       1665 :         if (gf_bs_read_int(parser-&gt;bs, 1)) {</span>
+<span class="lineNum">     339 </span><span class="lineCov">        410 :                 SFS_Line(parser);</span>
+<span class="lineNum">     340 </span><span class="lineCov">        410 :                 SFS_Indent(parser);</span>
+<span class="lineNum">     341 </span><span class="lineCov">        410 :                 SFS_AddString(parser, &quot;else &quot;);</span>
+<span class="lineNum">     342 </span><span class="lineCov">        410 :                 SFS_StatementBlock(parser, GF_FALSE);</span>
+<span class="lineNum">     343 </span><span class="lineCov">        410 :         }</span>
+<a name="344"><span class="lineNum">     344 </span><span class="lineCov">       1665 : }</span></a>
+<span class="lineNum">     345 </span>            : 
+<span class="lineNum">     346 </span>            : void SFS_SwitchStatement(ScriptParser *parser)
+<span class="lineNum">     347 </span>            : {
+<span class="lineNum">     348 </span>            :         u32 numBits, caseValue;
+<span class="lineNum">     349 </span>            : 
+<span class="lineNum">     350 </span><span class="lineCov">         40 :         if (parser-&gt;codec-&gt;LastError) return;</span>
+<span class="lineNum">     351 </span><span class="lineCov">         20 :         SFS_AddString(parser, &quot;switch (&quot;);</span>
+<span class="lineNum">     352 </span><span class="lineCov">         20 :         SFS_CompoundExpression(parser);</span>
+<span class="lineNum">     353 </span><span class="lineCov">         20 :         SFS_AddString(parser, &quot;)&quot;);</span>
+<span class="lineNum">     354 </span><span class="lineCov">         20 :         SFS_AddString(parser, &quot;{&quot;);</span>
+<span class="lineNum">     355 </span><span class="lineCov">         20 :         SFS_Line(parser);</span>
+<span class="lineNum">     356 </span>            : 
+<span class="lineNum">     357 </span><span class="lineCov">         20 :         numBits = gf_bs_read_int(parser-&gt;bs, 5);</span>
+<span class="lineNum">     358 </span><span class="lineCov">         20 :         do {</span>
+<span class="lineNum">     359 </span><span class="lineCov">         80 :                 SFS_Indent(parser);</span>
+<span class="lineNum">     360 </span><span class="lineCov">         80 :                 SFS_AddString(parser, &quot;case &quot;);</span>
+<span class="lineNum">     361 </span><span class="lineCov">         80 :                 caseValue = gf_bs_read_int(parser-&gt;bs, numBits);</span>
+<span class="lineNum">     362 </span><span class="lineCov">         80 :                 SFS_AddInt(parser, caseValue);</span>
+<span class="lineNum">     363 </span><span class="lineCov">         80 :                 SFS_AddString(parser, &quot;:&quot;);</span>
+<span class="lineNum">     364 </span><span class="lineCov">         80 :                 SFS_Line(parser);</span>
+<span class="lineNum">     365 </span><span class="lineCov">         80 :                 SFS_Indent(parser);</span>
+<span class="lineNum">     366 </span><span class="lineCov">         80 :                 SFS_StatementBlock(parser, GF_FALSE);</span>
+<span class="lineNum">     367 </span><span class="lineCov">         80 :                 SFS_Line(parser);</span>
+<span class="lineNum">     368 </span><span class="lineCov">         80 :         }</span>
+<span class="lineNum">     369 </span><span class="lineCov">         80 :         while (gf_bs_read_int(parser-&gt;bs, 1));</span>
+<span class="lineNum">     370 </span>            : 
+<span class="lineNum">     371 </span>            :         //default
+<span class="lineNum">     372 </span><span class="lineCov">         20 :         if (gf_bs_read_int(parser-&gt;bs, 1)) {</span>
+<span class="lineNum">     373 </span><span class="lineNoCov">          0 :                 SFS_AddString(parser, &quot;default:&quot;);</span>
+<span class="lineNum">     374 </span><span class="lineNoCov">          0 :                 SFS_Line(parser);</span>
+<span class="lineNum">     375 </span><span class="lineNoCov">          0 :                 SFS_StatementBlock(parser, GF_FALSE);</span>
+<span class="lineNum">     376 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     377 </span><span class="lineCov">         20 :         SFS_AddString(parser, &quot;}&quot;);</span>
+<a name="378"><span class="lineNum">     378 </span><span class="lineCov">         40 : }</span></a>
+<span class="lineNum">     379 </span>            : 
+<span class="lineNum">     380 </span>            : void SFS_ForStatement(ScriptParser *parser)
+<span class="lineNum">     381 </span>            : {
+<span class="lineNum">     382 </span><span class="lineCov">        540 :         if (parser-&gt;codec-&gt;LastError) return;</span>
+<span class="lineNum">     383 </span><span class="lineCov">        270 :         SFS_AddString(parser, &quot;for (&quot;);</span>
+<span class="lineNum">     384 </span><span class="lineCov">        270 :         SFS_OptionalExpression(parser);</span>
+<span class="lineNum">     385 </span><span class="lineCov">        270 :         SFS_AddString(parser, &quot;;&quot;);</span>
+<span class="lineNum">     386 </span><span class="lineCov">        270 :         SFS_OptionalExpression(parser);</span>
+<span class="lineNum">     387 </span><span class="lineCov">        270 :         SFS_AddString(parser, &quot;;&quot;);</span>
+<span class="lineNum">     388 </span><span class="lineCov">        270 :         SFS_OptionalExpression(parser);</span>
+<span class="lineNum">     389 </span><span class="lineCov">        270 :         SFS_AddString(parser, &quot;)&quot;);</span>
+<span class="lineNum">     390 </span>            : 
+<span class="lineNum">     391 </span><span class="lineCov">        270 :         SFS_StatementBlock(parser, GF_FALSE);</span>
+<a name="392"><span class="lineNum">     392 </span><span class="lineCov">        540 : }</span></a>
+<span class="lineNum">     393 </span>            : 
+<span class="lineNum">     394 </span>            : void SFS_WhileStatement(ScriptParser *parser)
+<span class="lineNum">     395 </span>            : {
+<span class="lineNum">     396 </span><span class="lineCov">         70 :         if (parser-&gt;codec-&gt;LastError) return;</span>
+<span class="lineNum">     397 </span><span class="lineCov">         35 :         SFS_AddString(parser, &quot;while (&quot;);</span>
+<span class="lineNum">     398 </span><span class="lineCov">         35 :         SFS_CompoundExpression(parser);</span>
+<span class="lineNum">     399 </span><span class="lineCov">         35 :         SFS_AddString(parser, &quot;)&quot;);</span>
+<span class="lineNum">     400 </span>            : 
+<span class="lineNum">     401 </span><span class="lineCov">         35 :         SFS_StatementBlock(parser, GF_FALSE);</span>
+<a name="402"><span class="lineNum">     402 </span><span class="lineCov">         70 : }</span></a>
+<span class="lineNum">     403 </span>            : 
+<span class="lineNum">     404 </span>            : void SFS_ReturnStatement(ScriptParser *parser)
+<span class="lineNum">     405 </span>            : {
+<span class="lineNum">     406 </span><span class="lineCov">        920 :         if (parser-&gt;codec-&gt;LastError) return;</span>
+<span class="lineNum">     407 </span><span class="lineCov">        460 :         SFS_AddString(parser, &quot;return&quot;);</span>
+<span class="lineNum">     408 </span><span class="lineCov">        460 :         if (gf_bs_read_int(parser-&gt;bs, 1)) {</span>
+<span class="lineNum">     409 </span><span class="lineCov">        165 :                 SFS_AddString(parser, &quot; &quot;);</span>
+<span class="lineNum">     410 </span><span class="lineCov">        165 :                 SFS_CompoundExpression(parser);</span>
+<span class="lineNum">     411 </span><span class="lineCov">        165 :         }</span>
+<span class="lineNum">     412 </span><span class="lineCov">        460 :         SFS_AddString(parser, &quot;;&quot;);</span>
+<span class="lineNum">     413 </span><span class="lineCov">        460 :         SFS_Line(parser);</span>
+<a name="414"><span class="lineNum">     414 </span><span class="lineCov">        920 : }</span></a>
+<span class="lineNum">     415 </span>            : 
+<span class="lineNum">     416 </span>            : void SFS_CompoundExpression(ScriptParser *parser)
+<span class="lineNum">     417 </span>            : {
+<span class="lineNum">     418 </span><span class="lineCov">      19080 :         if (parser-&gt;codec-&gt;LastError) return;</span>
+<span class="lineNum">     419 </span><span class="lineCov">       9540 :         SFS_Expression(parser);</span>
+<span class="lineNum">     420 </span><span class="lineCov">       9540 :         if (! gf_bs_read_int(parser-&gt;bs, 1)) return;</span>
+<span class="lineNum">     421 </span><span class="lineNoCov">          0 :         SFS_AddString(parser, &quot;,&quot;);</span>
+<span class="lineNum">     422 </span><span class="lineNoCov">          0 :         SFS_CompoundExpression(parser);</span>
+<a name="423"><span class="lineNum">     423 </span><span class="lineCov">       9540 : }</span></a>
+<span class="lineNum">     424 </span>            : 
+<span class="lineNum">     425 </span>            : void SFS_OptionalExpression(ScriptParser *parser)
+<span class="lineNum">     426 </span>            : {
+<span class="lineNum">     427 </span><span class="lineCov">       1620 :         if (parser-&gt;codec-&gt;LastError) return;</span>
+<span class="lineNum">     428 </span><span class="lineCov">        810 :         if (gf_bs_read_int(parser-&gt;bs, 1)) {</span>
+<span class="lineNum">     429 </span><span class="lineCov">        800 :                 SFS_CompoundExpression(parser);</span>
+<span class="lineNum">     430 </span><span class="lineCov">        800 :         }</span>
+<span class="lineNum">     431 </span><span class="lineCov">        810 : }</span>
+<a name="432"><span class="lineNum">     432 </span>            : </a>
+<span class="lineNum">     433 </span>            : 
+<span class="lineNum">     434 </span>            : void SFS_Expression(ScriptParser *parser)
+<span class="lineNum">     435 </span>            : {
+<span class="lineNum">     436 </span><span class="lineCov">      69740 :         u32 val = gf_bs_read_int(parser-&gt;bs, NUMBITS_EXPR_TYPE);</span>
+<span class="lineNum">     437 </span><span class="lineCov">      34870 :         if (parser-&gt;codec-&gt;LastError) return;</span>
+<span class="lineNum">     438 </span>            : 
+<span class="lineNum">     439 </span><span class="lineCov">      69740 :         switch(val) {</span>
+<span class="lineNum">     440 </span>            :         case ET_CURVED_EXPR:
+<span class="lineNum">     441 </span><span class="lineCov">        515 :                 SFS_AddString(parser, &quot;(&quot;);</span>
+<span class="lineNum">     442 </span><span class="lineCov">        515 :                 SFS_CompoundExpression(parser);</span>
+<span class="lineNum">     443 </span><span class="lineCov">        515 :                 SFS_AddString(parser, &quot;)&quot;);</span>
+<span class="lineNum">     444 </span><span class="lineCov">        515 :                 break;</span>
+<span class="lineNum">     445 </span>            :         case ET_NEGATIVE:
+<span class="lineNum">     446 </span><span class="lineCov">        385 :                 SFS_AddString(parser, &quot;-&quot;);</span>
+<span class="lineNum">     447 </span><span class="lineCov">        385 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     448 </span><span class="lineCov">        385 :                 break;</span>
+<span class="lineNum">     449 </span>            :         case ET_NOT:
+<span class="lineNum">     450 </span><span class="lineCov">        300 :                 SFS_AddString(parser, &quot;!&quot;);</span>
+<span class="lineNum">     451 </span><span class="lineCov">        300 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     452 </span><span class="lineCov">        300 :                 break;</span>
+<span class="lineNum">     453 </span>            :         case ET_ONESCOMP:
+<span class="lineNum">     454 </span><span class="lineNoCov">          0 :                 SFS_AddString(parser, &quot;~&quot;);</span>
+<span class="lineNum">     455 </span><span class="lineNoCov">          0 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     456 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     457 </span>            :         case ET_INCREMENT:
+<span class="lineNum">     458 </span><span class="lineCov">         25 :                 SFS_AddString(parser, &quot;++&quot;);</span>
+<span class="lineNum">     459 </span><span class="lineCov">         25 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     460 </span><span class="lineCov">         25 :                 break;</span>
+<span class="lineNum">     461 </span>            :         case ET_DECREMENT:
+<span class="lineNum">     462 </span><span class="lineCov">          5 :                 SFS_AddString(parser, &quot;--&quot;);</span>
+<span class="lineNum">     463 </span><span class="lineCov">          5 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     464 </span><span class="lineCov">          5 :                 break;</span>
+<span class="lineNum">     465 </span>            :         case ET_POST_INCREMENT:
+<span class="lineNum">     466 </span><span class="lineCov">        365 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     467 </span><span class="lineCov">        365 :                 SFS_AddString(parser, &quot;++&quot;);</span>
+<span class="lineNum">     468 </span><span class="lineCov">        365 :                 break;</span>
+<span class="lineNum">     469 </span>            :         case ET_POST_DECREMENT:
+<span class="lineNum">     470 </span><span class="lineCov">         65 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     471 </span><span class="lineCov">         65 :                 SFS_AddString(parser, &quot;--&quot;);</span>
+<span class="lineNum">     472 </span><span class="lineCov">         65 :                 break;</span>
+<span class="lineNum">     473 </span>            :         case ET_CONDTEST:
+<span class="lineNum">     474 </span><span class="lineCov">         35 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     475 </span><span class="lineCov">         35 :                 SFS_AddString(parser, &quot; ? &quot;);</span>
+<span class="lineNum">     476 </span><span class="lineCov">         35 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     477 </span><span class="lineCov">         35 :                 SFS_AddString(parser, &quot; : &quot;);</span>
+<span class="lineNum">     478 </span><span class="lineCov">         35 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     479 </span><span class="lineCov">         35 :                 break;</span>
+<span class="lineNum">     480 </span>            :         case ET_STRING:
+<span class="lineNum">     481 </span><span class="lineCov">        935 :                 SFS_AddString(parser, &quot;'&quot;);</span>
+<span class="lineNum">     482 </span><span class="lineCov">        935 :                 SFS_GetString(parser);</span>
+<span class="lineNum">     483 </span><span class="lineCov">        935 :                 SFS_AddString(parser, &quot;'&quot;);</span>
+<span class="lineNum">     484 </span><span class="lineCov">        935 :                 break;</span>
+<span class="lineNum">     485 </span>            :         case ET_NUMBER:
+<span class="lineNum">     486 </span><span class="lineCov">       4515 :                 SFS_GetNumber(parser);</span>
+<span class="lineNum">     487 </span><span class="lineCov">       4515 :                 break;</span>
+<span class="lineNum">     488 </span>            :         case ET_IDENTIFIER:
+<span class="lineNum">     489 </span><span class="lineCov">      13275 :                 SFS_Identifier(parser);</span>
+<span class="lineNum">     490 </span><span class="lineCov">      13275 :                 break;</span>
+<span class="lineNum">     491 </span>            :         case ET_FUNCTION_CALL:
+<span class="lineNum">     492 </span><span class="lineCov">        785 :                 SFS_FunctionCall(parser);</span>
+<span class="lineNum">     493 </span><span class="lineCov">        785 :                 break;</span>
+<span class="lineNum">     494 </span>            :         case ET_NEW:
+<span class="lineNum">     495 </span><span class="lineCov">        250 :                 SFS_NewObject(parser);</span>
+<span class="lineNum">     496 </span><span class="lineCov">        250 :                 break;</span>
+<span class="lineNum">     497 </span>            :         case ET_OBJECT_MEMBER_ACCESS:
+<span class="lineNum">     498 </span><span class="lineCov">       2325 :                 SFS_ObjectMemberAccess(parser);</span>
+<span class="lineNum">     499 </span><span class="lineCov">       2325 :                 break;</span>
+<span class="lineNum">     500 </span>            :         case ET_OBJECT_METHOD_CALL:
+<span class="lineNum">     501 </span><span class="lineCov">        285 :                 SFS_ObjectMethodCall(parser);</span>
+<span class="lineNum">     502 </span><span class="lineCov">        285 :                 break;</span>
+<span class="lineNum">     503 </span>            :         case ET_ARRAY_DEREFERENCE:
+<span class="lineNum">     504 </span><span class="lineCov">       1445 :                 SFS_ArrayDeref(parser);</span>
+<span class="lineNum">     505 </span><span class="lineCov">       1445 :                 break;</span>
+<span class="lineNum">     506 </span>            : 
+<span class="lineNum">     507 </span>            :         case ET_MULTIPLY:
+<span class="lineNum">     508 </span><span class="lineCov">        690 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     509 </span><span class="lineCov">        690 :                 SFS_AddString(parser, &quot;*&quot;);</span>
+<span class="lineNum">     510 </span><span class="lineCov">        690 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     511 </span><span class="lineCov">        690 :                 break;</span>
+<span class="lineNum">     512 </span>            :         case ET_DIVIDE:
+<span class="lineNum">     513 </span><span class="lineCov">        220 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     514 </span><span class="lineCov">        220 :                 SFS_AddString(parser, &quot;/&quot;);</span>
+<span class="lineNum">     515 </span><span class="lineCov">        220 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     516 </span><span class="lineCov">        220 :                 break;</span>
+<span class="lineNum">     517 </span>            :         case ET_MOD:
+<span class="lineNum">     518 </span><span class="lineCov">         10 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     519 </span><span class="lineCov">         10 :                 SFS_AddString(parser, &quot;%&quot;);</span>
+<span class="lineNum">     520 </span><span class="lineCov">         10 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     521 </span><span class="lineCov">         10 :                 break;</span>
+<span class="lineNum">     522 </span>            :         case ET_PLUS:
+<span class="lineNum">     523 </span><span class="lineCov">       1175 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     524 </span><span class="lineCov">       1175 :                 SFS_AddString(parser, &quot;+&quot;);</span>
+<span class="lineNum">     525 </span><span class="lineCov">       1175 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     526 </span><span class="lineCov">       1175 :                 break;</span>
+<span class="lineNum">     527 </span>            :         case ET_MINUS:
+<span class="lineNum">     528 </span><span class="lineCov">        500 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     529 </span><span class="lineCov">        500 :                 SFS_AddString(parser, &quot;-&quot;);</span>
+<span class="lineNum">     530 </span><span class="lineCov">        500 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     531 </span><span class="lineCov">        500 :                 break;</span>
+<span class="lineNum">     532 </span>            :         case ET_LSHIFT:
+<span class="lineNum">     533 </span><span class="lineNoCov">          0 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     534 </span><span class="lineNoCov">          0 :                 SFS_AddString(parser, &quot;&lt;&lt;&quot;);</span>
+<span class="lineNum">     535 </span><span class="lineNoCov">          0 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     536 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     537 </span>            :         case ET_RSHIFT:
+<span class="lineNum">     538 </span><span class="lineNoCov">          0 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     539 </span><span class="lineNoCov">          0 :                 SFS_AddString(parser, &quot;&gt;&gt;&quot;);</span>
+<span class="lineNum">     540 </span><span class="lineNoCov">          0 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     541 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     542 </span>            :         case ET_RSHIFTFILL:
+<span class="lineNum">     543 </span><span class="lineNoCov">          0 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     544 </span><span class="lineNoCov">          0 :                 SFS_AddString(parser, &quot;&gt;&gt;&gt;&quot;);</span>
+<span class="lineNum">     545 </span><span class="lineNoCov">          0 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     546 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     547 </span>            :         case ET_AND:
+<span class="lineNum">     548 </span><span class="lineNoCov">          0 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     549 </span><span class="lineNoCov">          0 :                 SFS_AddString(parser, &quot;&amp;&quot;);</span>
+<span class="lineNum">     550 </span><span class="lineNoCov">          0 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     551 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     552 </span>            :         case ET_XOR:
+<span class="lineNum">     553 </span><span class="lineNoCov">          0 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     554 </span><span class="lineNoCov">          0 :                 SFS_AddString(parser, &quot;^&quot;);</span>
+<span class="lineNum">     555 </span><span class="lineNoCov">          0 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     556 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     557 </span>            :         case ET_OR:
+<span class="lineNum">     558 </span><span class="lineNoCov">          0 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     559 </span><span class="lineNoCov">          0 :                 SFS_AddString(parser, &quot;|&quot;);</span>
+<span class="lineNum">     560 </span><span class="lineNoCov">          0 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     561 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     562 </span>            :         case ET_LT:
+<span class="lineNum">     563 </span><span class="lineCov">        530 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     564 </span><span class="lineCov">        530 :                 SFS_AddString(parser, &quot;&lt;&quot;);</span>
+<span class="lineNum">     565 </span><span class="lineCov">        530 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     566 </span><span class="lineCov">        530 :                 break;</span>
+<span class="lineNum">     567 </span>            :         case ET_LE:
+<span class="lineNum">     568 </span><span class="lineCov">        100 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     569 </span><span class="lineCov">        100 :                 SFS_AddString(parser, &quot;&lt;=&quot;);</span>
+<span class="lineNum">     570 </span><span class="lineCov">        100 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     571 </span><span class="lineCov">        100 :                 break;</span>
+<span class="lineNum">     572 </span>            :         case ET_GT:
+<span class="lineNum">     573 </span><span class="lineCov">        175 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     574 </span><span class="lineCov">        175 :                 SFS_AddString(parser, &quot;&gt;&quot;);</span>
+<span class="lineNum">     575 </span><span class="lineCov">        175 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     576 </span><span class="lineCov">        175 :                 break;</span>
+<span class="lineNum">     577 </span>            :         case ET_GE:
+<span class="lineNum">     578 </span><span class="lineCov">        210 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     579 </span><span class="lineCov">        210 :                 SFS_AddString(parser, &quot;&gt;=&quot;);</span>
+<span class="lineNum">     580 </span><span class="lineCov">        210 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     581 </span><span class="lineCov">        210 :                 break;</span>
+<span class="lineNum">     582 </span>            :         case ET_EQ:
+<span class="lineNum">     583 </span><span class="lineCov">        545 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     584 </span><span class="lineCov">        545 :                 SFS_AddString(parser, &quot;==&quot;);</span>
+<span class="lineNum">     585 </span><span class="lineCov">        545 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     586 </span><span class="lineCov">        545 :                 break;</span>
+<span class="lineNum">     587 </span>            :         case ET_NE:
+<span class="lineNum">     588 </span><span class="lineCov">        130 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     589 </span><span class="lineCov">        130 :                 SFS_AddString(parser, &quot;!=&quot;);</span>
+<span class="lineNum">     590 </span><span class="lineCov">        130 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     591 </span><span class="lineCov">        130 :                 break;</span>
+<span class="lineNum">     592 </span>            :         case ET_LAND:
+<span class="lineNum">     593 </span><span class="lineCov">        240 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     594 </span><span class="lineCov">        240 :                 SFS_AddString(parser, &quot;&amp;&amp;&quot;);</span>
+<span class="lineNum">     595 </span><span class="lineCov">        240 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     596 </span><span class="lineCov">        240 :                 break;</span>
+<span class="lineNum">     597 </span>            :         case ET_LOR:
+<span class="lineNum">     598 </span><span class="lineCov">         85 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     599 </span><span class="lineCov">         85 :                 SFS_AddString(parser, &quot;||&quot;);</span>
+<span class="lineNum">     600 </span><span class="lineCov">         85 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     601 </span><span class="lineCov">         85 :                 break;</span>
+<span class="lineNum">     602 </span>            :         case ET_ASSIGN:
+<span class="lineNum">     603 </span><span class="lineCov">       4000 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     604 </span><span class="lineCov">       4000 :                 SFS_AddString(parser, &quot;=&quot;);</span>
+<span class="lineNum">     605 </span><span class="lineCov">       4000 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     606 </span><span class="lineCov">       4000 :                 break;</span>
+<span class="lineNum">     607 </span>            :         case ET_PLUSEQ:
+<span class="lineNum">     608 </span><span class="lineCov">        270 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     609 </span><span class="lineCov">        270 :                 SFS_AddString(parser, &quot;+=&quot;);</span>
+<span class="lineNum">     610 </span><span class="lineCov">        270 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     611 </span><span class="lineCov">        270 :                 break;</span>
+<span class="lineNum">     612 </span>            :         case ET_MINUSEQ:
+<span class="lineNum">     613 </span><span class="lineCov">         60 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     614 </span><span class="lineCov">         60 :                 SFS_AddString(parser, &quot;-=&quot;);</span>
+<span class="lineNum">     615 </span><span class="lineCov">         60 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     616 </span><span class="lineCov">         60 :                 break;</span>
+<span class="lineNum">     617 </span>            :         case ET_MULTIPLYEQ:
+<span class="lineNum">     618 </span><span class="lineCov">         25 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     619 </span><span class="lineCov">         25 :                 SFS_AddString(parser, &quot;*=&quot;);</span>
+<span class="lineNum">     620 </span><span class="lineCov">         25 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     621 </span><span class="lineCov">         25 :                 break;</span>
+<span class="lineNum">     622 </span>            :         case ET_DIVIDEEQ:
+<span class="lineNum">     623 </span><span class="lineCov">         50 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     624 </span><span class="lineCov">         50 :                 SFS_AddString(parser, &quot;/=&quot;);</span>
+<span class="lineNum">     625 </span><span class="lineCov">         50 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     626 </span><span class="lineCov">         50 :                 break;</span>
+<span class="lineNum">     627 </span>            :         case ET_MODEQ:
+<span class="lineNum">     628 </span><span class="lineNoCov">          0 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     629 </span><span class="lineNoCov">          0 :                 SFS_AddString(parser, &quot;%=&quot;);</span>
+<span class="lineNum">     630 </span><span class="lineNoCov">          0 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     631 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     632 </span>            :         case ET_LSHIFTEQ:
+<span class="lineNum">     633 </span><span class="lineNoCov">          0 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     634 </span><span class="lineNoCov">          0 :                 SFS_AddString(parser, &quot;&lt;&lt;=&quot;);</span>
+<span class="lineNum">     635 </span><span class="lineNoCov">          0 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     636 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     637 </span>            :         case ET_RSHIFTEQ:
+<span class="lineNum">     638 </span><span class="lineNoCov">          0 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     639 </span><span class="lineNoCov">          0 :                 SFS_AddString(parser, &quot;&gt;&gt;=&quot;);</span>
+<span class="lineNum">     640 </span><span class="lineNoCov">          0 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     641 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     642 </span>            :         case ET_RSHIFTFILLEQ:
+<span class="lineNum">     643 </span><span class="lineNoCov">          0 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     644 </span><span class="lineNoCov">          0 :                 SFS_AddString(parser, &quot;&gt;&gt;&gt;=&quot;);</span>
+<span class="lineNum">     645 </span><span class="lineNoCov">          0 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     646 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     647 </span>            :         case ET_ANDEQ:
+<span class="lineNum">     648 </span><span class="lineNoCov">          0 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     649 </span><span class="lineNoCov">          0 :                 SFS_AddString(parser, &quot;&amp;=&quot;);</span>
+<span class="lineNum">     650 </span><span class="lineNoCov">          0 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     651 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     652 </span>            :         case ET_XOREQ:
+<span class="lineNum">     653 </span><span class="lineNoCov">          0 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     654 </span><span class="lineNoCov">          0 :                 SFS_AddString(parser, &quot;^=&quot;);</span>
+<span class="lineNum">     655 </span><span class="lineNoCov">          0 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     656 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     657 </span>            :         case ET_OREQ:
+<span class="lineNum">     658 </span><span class="lineNoCov">          0 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     659 </span><span class="lineNoCov">          0 :                 SFS_AddString(parser, &quot;|=&quot;);</span>
+<span class="lineNum">     660 </span><span class="lineNoCov">          0 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     661 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     662 </span>            :         case ET_BOOLEAN:
+<span class="lineNum">     663 </span><span class="lineCov">        335 :                 SFS_GetBoolean(parser);</span>
+<span class="lineNum">     664 </span><span class="lineCov">        335 :                 break;</span>
+<span class="lineNum">     665 </span>            :         case ET_VAR:
+<span class="lineNum">     666 </span><span class="lineCov">         10 :                 SFS_AddString(parser, &quot;var &quot;);</span>
+<span class="lineNum">     667 </span><span class="lineCov">         10 :                 SFS_Arguments(parser, GF_TRUE);</span>
+<span class="lineNum">     668 </span><span class="lineCov">         10 :                 break;</span>
+<span class="lineNum">     669 </span>            :         case ET_FUNCTION_ASSIGN:
+<span class="lineNum">     670 </span><span class="lineNoCov">          0 :                 SFS_AddString(parser, &quot;function &quot;);</span>
+<span class="lineNum">     671 </span><span class="lineNoCov">          0 :                 SFS_Arguments(parser, GF_FALSE);</span>
+<span class="lineNum">     672 </span><span class="lineNoCov">          0 :                 SFS_StatementBlock(parser, GF_TRUE);</span>
+<span class="lineNum">     673 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     674 </span>            :         default:
+<span class="lineNum">     675 </span>            :                 assert(0);
+<span class="lineNum">     676 </span>            :                 break;
+<span class="lineNum">     677 </span>            :         }
+<a name="678"><span class="lineNum">     678 </span><span class="lineCov">      69740 : }</span></a>
+<span class="lineNum">     679 </span>            : 
+<span class="lineNum">     680 </span>            : void SFS_NewObject(ScriptParser *parser)
+<span class="lineNum">     681 </span>            : {
+<span class="lineNum">     682 </span><span class="lineCov">        500 :         if (parser-&gt;codec-&gt;LastError) return;</span>
+<span class="lineNum">     683 </span><span class="lineCov">        250 :         SFS_AddString(parser, &quot;new &quot;);</span>
+<span class="lineNum">     684 </span><span class="lineCov">        250 :         SFS_Identifier(parser);</span>
+<span class="lineNum">     685 </span><span class="lineCov">        250 :         SFS_AddString(parser, &quot;(&quot;);</span>
+<span class="lineNum">     686 </span><span class="lineCov">        250 :         SFS_Params(parser);</span>
+<span class="lineNum">     687 </span><span class="lineCov">        250 :         SFS_AddString(parser, &quot;) &quot;);</span>
+<a name="688"><span class="lineNum">     688 </span><span class="lineCov">        500 : }</span></a>
+<span class="lineNum">     689 </span>            : 
+<span class="lineNum">     690 </span>            : void SFS_ArrayDeref(ScriptParser *parser)
+<span class="lineNum">     691 </span>            : {
+<span class="lineNum">     692 </span><span class="lineCov">       2890 :         if (parser-&gt;codec-&gt;LastError) return;</span>
+<span class="lineNum">     693 </span><span class="lineCov">       1445 :         SFS_Expression(parser);</span>
+<span class="lineNum">     694 </span><span class="lineCov">       1445 :         SFS_AddString(parser, &quot;[&quot;);</span>
+<span class="lineNum">     695 </span><span class="lineCov">       1445 :         SFS_CompoundExpression(parser);</span>
+<span class="lineNum">     696 </span><span class="lineCov">       1445 :         SFS_AddString(parser, &quot;]&quot;);</span>
+<a name="697"><span class="lineNum">     697 </span><span class="lineCov">       2890 : }</span></a>
+<span class="lineNum">     698 </span>            : 
+<span class="lineNum">     699 </span>            : void SFS_FunctionCall(ScriptParser *parser)
+<span class="lineNum">     700 </span>            : {
+<span class="lineNum">     701 </span><span class="lineCov">       1570 :         if (parser-&gt;codec-&gt;LastError) return;</span>
+<span class="lineNum">     702 </span><span class="lineCov">        785 :         SFS_Identifier(parser);</span>
+<span class="lineNum">     703 </span><span class="lineCov">        785 :         SFS_AddString(parser, &quot;(&quot;);</span>
+<span class="lineNum">     704 </span><span class="lineCov">        785 :         SFS_Params(parser);</span>
+<span class="lineNum">     705 </span><span class="lineCov">        785 :         SFS_AddString(parser, &quot;)&quot;);</span>
+<a name="706"><span class="lineNum">     706 </span><span class="lineCov">       1570 : }</span></a>
+<span class="lineNum">     707 </span>            : 
+<span class="lineNum">     708 </span>            : void SFS_ObjectMemberAccess(ScriptParser *parser)
+<span class="lineNum">     709 </span>            : {
+<span class="lineNum">     710 </span><span class="lineCov">       4650 :         if (parser-&gt;codec-&gt;LastError) return;</span>
+<span class="lineNum">     711 </span><span class="lineCov">       2325 :         SFS_Expression(parser);</span>
+<span class="lineNum">     712 </span><span class="lineCov">       2325 :         SFS_AddString(parser, &quot;.&quot;);</span>
+<span class="lineNum">     713 </span><span class="lineCov">       2325 :         SFS_Identifier(parser);</span>
+<span class="lineNum">     714 </span><span class="lineCov">       4650 : }</span>
+<a name="715"><span class="lineNum">     715 </span>            : </a>
+<span class="lineNum">     716 </span>            : 
+<span class="lineNum">     717 </span>            : void SFS_ObjectMethodCall(ScriptParser *parser)
+<span class="lineNum">     718 </span>            : {
+<span class="lineNum">     719 </span><span class="lineCov">        570 :         if (parser-&gt;codec-&gt;LastError) return;</span>
+<span class="lineNum">     720 </span><span class="lineCov">        285 :         SFS_Expression(parser);</span>
+<span class="lineNum">     721 </span><span class="lineCov">        285 :         SFS_AddString(parser, &quot;.&quot;);</span>
+<span class="lineNum">     722 </span><span class="lineCov">        285 :         SFS_Identifier(parser);</span>
+<span class="lineNum">     723 </span><span class="lineCov">        285 :         SFS_AddString(parser, &quot;(&quot;);</span>
+<span class="lineNum">     724 </span><span class="lineCov">        285 :         SFS_Params(parser);</span>
+<span class="lineNum">     725 </span><span class="lineCov">        285 :         SFS_AddString(parser, &quot;)&quot;);</span>
+<a name="726"><span class="lineNum">     726 </span><span class="lineCov">        570 : }</span></a>
+<span class="lineNum">     727 </span>            : 
+<span class="lineNum">     728 </span>            : void SFS_Params(ScriptParser *parser)
+<span class="lineNum">     729 </span>            : {
+<span class="lineNum">     730 </span>            :         u32 val;
+<span class="lineNum">     731 </span><span class="lineCov">       2640 :         if (parser-&gt;codec-&gt;LastError) return;</span>
+<span class="lineNum">     732 </span><span class="lineCov">       1320 :         val = gf_bs_read_int(parser-&gt;bs, 1);</span>
+<span class="lineNum">     733 </span><span class="lineCov">       4635 :         while (val) {</span>
+<span class="lineNum">     734 </span><span class="lineCov">       1995 :                 SFS_Expression(parser);</span>
+<span class="lineNum">     735 </span><span class="lineCov">       1995 :                 val = gf_bs_read_int(parser-&gt;bs, 1);</span>
+<span class="lineNum">     736 </span><span class="lineCov">       2910 :                 if(val) SFS_AddString(parser, &quot;,&quot;);</span>
+<span class="lineNum">     737 </span>            :         }
+<a name="738"><span class="lineNum">     738 </span><span class="lineCov">       2640 : }</span></a>
+<span class="lineNum">     739 </span>            : 
+<span class="lineNum">     740 </span>            : void SFS_GetNumber(ScriptParser *parser)
+<span class="lineNum">     741 </span>            : {
+<span class="lineNum">     742 </span>            :         u32 val, nbBits;
+<span class="lineNum">     743 </span>            : 
+<span class="lineNum">     744 </span><span class="lineCov">       9030 :         if (parser-&gt;codec-&gt;LastError) return;</span>
+<span class="lineNum">     745 </span>            :         // integer
+<span class="lineNum">     746 </span><span class="lineCov">       9030 :         if (gf_bs_read_int(parser-&gt;bs, 1)) {</span>
+<span class="lineNum">     747 </span><span class="lineCov">       8850 :                 nbBits = gf_bs_read_int(parser-&gt;bs, 5);</span>
+<span class="lineNum">     748 </span><span class="lineCov">       4335 :                 val = gf_bs_read_int(parser-&gt;bs, nbBits);</span>
+<span class="lineNum">     749 </span><span class="lineCov">       4335 :                 SFS_AddInt(parser, val);</span>
+<span class="lineNum">     750 </span><span class="lineCov">       4335 :                 return;</span>
+<span class="lineNum">     751 </span>            :         }
+<span class="lineNum">     752 </span>            :         // real number
+<span class="lineNum">     753 </span><span class="lineCov">        180 :         val = gf_bs_read_int(parser-&gt;bs, 4);</span>
+<span class="lineNum">     754 </span><span class="lineCov">       1550 :         while ( val != 15) {</span>
+<span class="lineNum">     755 </span><span class="lineCov">        595 :                 if (val&lt;=9) {</span>
+<span class="lineNum">     756 </span><span class="lineCov">        415 :                         SFS_AddChar(parser, (char) (val + '0') );</span>
+<span class="lineNum">     757 </span><span class="lineCov">        595 :                 } else if (val==10) {</span>
+<span class="lineNum">     758 </span><span class="lineCov">        180 :                         SFS_AddChar(parser, '.');</span>
+<span class="lineNum">     759 </span><span class="lineCov">        180 :                 } else if (val==11) {</span>
+<span class="lineNum">     760 </span><span class="lineNoCov">          0 :                         SFS_AddChar(parser, 'E');</span>
+<span class="lineNum">     761 </span><span class="lineNoCov">          0 :                 } else if (val==12) {</span>
+<span class="lineNum">     762 </span><span class="lineNoCov">          0 :                         SFS_AddChar(parser, '-');</span>
+<span class="lineNum">     763 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     764 </span><span class="lineCov">        595 :                 val = gf_bs_read_int(parser-&gt;bs, 4);</span>
+<span class="lineNum">     765 </span>            :         }
+<a name="766"><span class="lineNum">     766 </span><span class="lineCov">       4695 : }</span></a>
+<span class="lineNum">     767 </span>            : 
+<span class="lineNum">     768 </span>            : void SFS_GetString(ScriptParser *parser)
+<span class="lineNum">     769 </span>            : {
+<span class="lineNum">     770 </span><span class="lineCov">       1870 :         char name[1000];</span>
+<span class="lineNum">     771 </span><span class="lineCov">        935 :         if (parser-&gt;codec-&gt;LastError) return;</span>
+<span class="lineNum">     772 </span><span class="lineCov">        935 :         gf_bifs_dec_name(parser-&gt;bs, name);</span>
+<span class="lineNum">     773 </span><span class="lineCov">        935 :         SFS_AddString(parser, name);</span>
+<a name="774"><span class="lineNum">     774 </span><span class="lineCov">       1870 : }</span></a>
+<span class="lineNum">     775 </span>            : 
+<span class="lineNum">     776 </span>            : void SFS_GetBoolean(ScriptParser *parser)
+<span class="lineNum">     777 </span>            : {
+<span class="lineNum">     778 </span><span class="lineCov">        670 :         if (parser-&gt;codec-&gt;LastError) return;</span>
+<span class="lineNum">     779 </span><span class="lineCov">        335 :         if (gf_bs_read_int(parser-&gt;bs, 1)) {</span>
+<span class="lineNum">     780 </span><span class="lineCov">        175 :                 SFS_AddString(parser, &quot;true&quot;);</span>
+<span class="lineNum">     781 </span><span class="lineCov">        175 :         } else {</span>
+<span class="lineNum">     782 </span><span class="lineCov">        160 :                 SFS_AddString(parser, &quot;false&quot;);</span>
+<span class="lineNum">     783 </span>            :         }
+<span class="lineNum">     784 </span><span class="lineCov">        335 : }</span>
+<span class="lineNum">     785 </span>            : 
+<span class="lineNum">     786 </span>            : #endif /*!defined(GPAC_DISABLE_BIFS) &amp;&amp; defined(GPAC_HAS_SPIDERMONKEY)*/
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

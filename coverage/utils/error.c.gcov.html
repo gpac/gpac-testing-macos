@@ -1,0 +1,1412 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - utils/error.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">utils</a> - error.c<span style="font-size: 80%;"> (source / <a href="error.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">109</td>
+            <td class="headerCovTableEntry">248</td>
+            <td class="headerCovTableEntryLo">44.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-05-14 22:31:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">18</td>
+            <td class="headerCovTableEntry">23</td>
+            <td class="headerCovTableEntryMed">78.3 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *                      GPAC - Multimedia Framework C SDK
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *                      Authors: Jean Le Feuvre
+<span class="lineNum">       5 </span>            :  *                      Copyright (c) Telecom ParisTech 2000-2012
+<span class="lineNum">       6 </span>            :  *                                      All rights reserved
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  *  This file is part of GPAC / common tools sub-project
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  *  GPAC is free software; you can redistribute it and/or modify
+<span class="lineNum">      11 </span>            :  *  it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">      12 </span>            :  *  the Free Software Foundation; either version 2, or (at your option)
+<span class="lineNum">      13 </span>            :  *  any later version.
+<span class="lineNum">      14 </span>            :  *
+<span class="lineNum">      15 </span>            :  *  GPAC is distributed in the hope that it will be useful,
+<span class="lineNum">      16 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      17 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      18 </span>            :  *  GNU Lesser General Public License for more details.
+<span class="lineNum">      19 </span>            :  *
+<span class="lineNum">      20 </span>            :  *  You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      21 </span>            :  *  License along with this library; see the file COPYING.  If not, write to
+<span class="lineNum">      22 </span>            :  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+<span class="lineNum">      23 </span>            :  *
+<span class="lineNum">      24 </span>            :  */
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : #include &lt;gpac/tools.h&gt;
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span>            : #if defined(WIN32) &amp;&amp; !defined(GPAC_CONFIG_WIN32)
+<span class="lineNum">      29 </span>            : #include &lt;windows.h&gt;
+<span class="lineNum">      30 </span>            : #include &lt;wincon.h&gt;
+<span class="lineNum">      31 </span>            : static HANDLE console = NULL;
+<span class="lineNum">      32 </span>            : static WORD console_attr_ori = 0;
+<span class="lineNum">      33 </span>            : #endif
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span>            : 
+<span class="lineNum">      36 </span>            : static char szTYPE[5];
+<span class="lineNum">      37 </span>            : 
+<a name="38"><span class="lineNum">      38 </span>            : </a>
+<span class="lineNum">      39 </span>            : GF_EXPORT
+<span class="lineNum">      40 </span>            : const char *gf_4cc_to_str(u32 type)
+<span class="lineNum">      41 </span>            : {
+<span class="lineNum">      42 </span>            :         u32 ch, i;
+<span class="lineNum">      43 </span>            :         char *ptr, *name = (char *)szTYPE;
+<span class="lineNum">      44 </span>            :         ptr = name;
+<span class="lineNum">      45 </span><span class="lineCov">      21417 :         for (i = 0; i &lt; 4; i++, name++) {</span>
+<span class="lineNum">      46 </span><span class="lineCov">       7788 :                 ch = type &gt;&gt; (8 * (3-i) ) &amp; 0xff;</span>
+<span class="lineNum">      47 </span><span class="lineCov">       7788 :                 if ( ch &gt;= 0x20 &amp;&amp; ch &lt;= 0x7E ) {</span>
+<span class="lineNum">      48 </span><span class="lineCov">       7682 :                         *name = ch;</span>
+<span class="lineNum">      49 </span><span class="lineCov">       7682 :                 } else {</span>
+<span class="lineNum">      50 </span><span class="lineCov">        106 :                         *name = '.';</span>
+<span class="lineNum">      51 </span>            :                 }
+<span class="lineNum">      52 </span>            :         }
+<span class="lineNum">      53 </span><span class="lineCov">       1947 :         *name = 0;</span>
+<span class="lineNum">      54 </span><span class="lineCov">       1947 :         return (const char *) ptr;</span>
+<span class="lineNum">      55 </span>            : }
+<span class="lineNum">      56 </span>            : 
+<span class="lineNum">      57 </span>            : 
+<span class="lineNum">      58 </span>            : static const char *szProg[] =
+<span class="lineNum">      59 </span>            : {
+<span class="lineNum">      60 </span>            :         &quot;                    &quot;,
+<span class="lineNum">      61 </span>            :         &quot;=                   &quot;,
+<span class="lineNum">      62 </span>            :         &quot;==                  &quot;,
+<span class="lineNum">      63 </span>            :         &quot;===                 &quot;,
+<span class="lineNum">      64 </span>            :         &quot;====                &quot;,
+<span class="lineNum">      65 </span>            :         &quot;=====               &quot;,
+<span class="lineNum">      66 </span>            :         &quot;======              &quot;,
+<span class="lineNum">      67 </span>            :         &quot;=======             &quot;,
+<span class="lineNum">      68 </span>            :         &quot;========            &quot;,
+<span class="lineNum">      69 </span>            :         &quot;=========           &quot;,
+<span class="lineNum">      70 </span>            :         &quot;==========          &quot;,
+<span class="lineNum">      71 </span>            :         &quot;===========         &quot;,
+<span class="lineNum">      72 </span>            :         &quot;============        &quot;,
+<span class="lineNum">      73 </span>            :         &quot;=============       &quot;,
+<span class="lineNum">      74 </span>            :         &quot;==============      &quot;,
+<span class="lineNum">      75 </span>            :         &quot;===============     &quot;,
+<span class="lineNum">      76 </span>            :         &quot;================    &quot;,
+<span class="lineNum">      77 </span>            :         &quot;=================   &quot;,
+<span class="lineNum">      78 </span>            :         &quot;==================  &quot;,
+<span class="lineNum">      79 </span>            :         &quot;=================== &quot;,
+<span class="lineNum">      80 </span>            :         &quot;====================&quot;,
+<span class="lineNum">      81 </span>            : };
+<span class="lineNum">      82 </span>            : 
+<a name="83"><span class="lineNum">      83 </span>            : static u64 prev_pos = 0;</a>
+<span class="lineNum">      84 </span>            : static u64 prev_pc = 0;
+<span class="lineNum">      85 </span>            : static void gf_on_progress_std(const char *_title, u64 done, u64 total)
+<span class="lineNum">      86 </span>            : {
+<span class="lineNum">      87 </span>            :         Double prog;
+<span class="lineNum">      88 </span>            :         u32 pos, pc;
+<span class="lineNum">      89 </span><span class="lineCov">       7560 :         const char *szT = _title ? (char *)_title : (char *) &quot;&quot;;</span>
+<span class="lineNum">      90 </span><span class="lineCov">       3780 :         prog = (double) done;</span>
+<span class="lineNum">      91 </span><span class="lineCov">       3780 :         prog /= total;</span>
+<span class="lineNum">      92 </span><span class="lineCov">      11333 :         pos = MIN((u32) (20 * prog), 20);</span>
+<span class="lineNum">      93 </span>            : 
+<span class="lineNum">      94 </span><span class="lineCov">       3780 :         if (pos&gt;prev_pos) {</span>
+<span class="lineNum">      95 </span><span class="lineCov">        140 :                 prev_pos = 0;</span>
+<span class="lineNum">      96 </span><span class="lineCov">        140 :                 prev_pc = 0;</span>
+<span class="lineNum">      97 </span><span class="lineCov">        140 :         }</span>
+<span class="lineNum">      98 </span><span class="lineCov">       3780 :         pc = (u32) ( 100 * prog);</span>
+<span class="lineNum">      99 </span><span class="lineCov">       7420 :         if ((pos!=prev_pos) || (pc!=prev_pc)) {</span>
+<span class="lineNum">     100 </span><span class="lineCov">        700 :                 prev_pos = pos;</span>
+<span class="lineNum">     101 </span><span class="lineCov">        700 :                 prev_pc = pc;</span>
+<span class="lineNum">     102 </span><span class="lineCov">        700 :                 fprintf(stderr, &quot;%s: |%s| (%02d/100)\r&quot;, szT, szProg[pos], pc);</span>
+<span class="lineNum">     103 </span><span class="lineCov">        700 :                 fflush(stderr);</span>
+<span class="lineNum">     104 </span><span class="lineCov">        700 :         }</span>
+<span class="lineNum">     105 </span><span class="lineCov">       3780 :         if (done==total) {</span>
+<span class="lineNum">     106 </span><span class="lineCov">          7 :                 u32 len = (u32) strlen(szT) + 40;</span>
+<span class="lineNum">     107 </span><span class="lineCov">       1344 :                 while (len) {</span>
+<span class="lineNum">     108 </span><span class="lineCov">        889 :                         fprintf(stderr, &quot; &quot;);</span>
+<span class="lineNum">     109 </span><span class="lineCov">        441 :                         len--;</span>
+<span class="lineNum">     110 </span>            :                 };
+<span class="lineNum">     111 </span><span class="lineCov">          7 :                 fprintf(stderr, &quot;\r&quot;);</span>
+<span class="lineNum">     112 </span><span class="lineCov">          7 :         }</span>
+<span class="lineNum">     113 </span><span class="lineCov">       3780 : }</span>
+<span class="lineNum">     114 </span>            : 
+<span class="lineNum">     115 </span>            : static gf_on_progress_cbk prog_cbk = NULL;
+<span class="lineNum">     116 </span>            : static void *user_cbk;
+<a name="117"><span class="lineNum">     117 </span>            : </a>
+<span class="lineNum">     118 </span>            : GF_EXPORT
+<span class="lineNum">     119 </span>            : void gf_set_progress(const char *title, u64 done, u64 total)
+<span class="lineNum">     120 </span>            : {
+<span class="lineNum">     121 </span><span class="lineCov">    1031364 :         if (prog_cbk) {</span>
+<span class="lineNum">     122 </span><span class="lineCov">     511902 :                 prog_cbk(user_cbk, title, done, total);</span>
+<span class="lineNum">     123 </span><span class="lineCov">     511902 :         }</span>
+<span class="lineNum">     124 </span>            : #ifndef _WIN32_WCE
+<span class="lineNum">     125 </span>            :         else {
+<span class="lineNum">     126 </span><span class="lineCov">       3780 :                 gf_on_progress_std(title, done, total);</span>
+<span class="lineNum">     127 </span>            :         }
+<span class="lineNum">     128 </span>            : #endif
+<span class="lineNum">     129 </span><span class="lineCov">     515682 : }</span>
+<a name="130"><span class="lineNum">     130 </span>            : </a>
+<span class="lineNum">     131 </span>            : GF_EXPORT
+<span class="lineNum">     132 </span>            : void gf_set_progress_callback(void *_user_cbk, gf_on_progress_cbk _prog_cbk)
+<span class="lineNum">     133 </span>            : {
+<span class="lineNum">     134 </span><span class="lineCov">       7796 :         prog_cbk = _prog_cbk;</span>
+<span class="lineNum">     135 </span><span class="lineCov">       3898 :         user_cbk = _user_cbk;</span>
+<span class="lineNum">     136 </span><span class="lineCov">       3898 : }</span>
+<span class="lineNum">     137 </span>            : 
+<span class="lineNum">     138 </span>            : /*ENTRIES MUST BE IN THE SAME ORDER AS LOG_TOOL DECLARATION IN &lt;gpac/tools.h&gt;*/
+<span class="lineNum">     139 </span>            : static struct log_tool_info {
+<span class="lineNum">     140 </span>            :         u32 type;
+<span class="lineNum">     141 </span>            :         const char *name;
+<span class="lineNum">     142 </span>            :         GF_LOG_Level level;
+<span class="lineNum">     143 </span>            : } global_log_tools [] =
+<span class="lineNum">     144 </span>            : {
+<span class="lineNum">     145 </span>            :         { GF_LOG_CORE, &quot;core&quot;, GF_LOG_WARNING },
+<span class="lineNum">     146 </span>            :         { GF_LOG_CODING, &quot;coding&quot;, GF_LOG_WARNING },
+<span class="lineNum">     147 </span>            :         { GF_LOG_CONTAINER, &quot;container&quot;, GF_LOG_WARNING },
+<span class="lineNum">     148 </span>            :         { GF_LOG_NETWORK, &quot;network&quot;, GF_LOG_WARNING },
+<span class="lineNum">     149 </span>            :         { GF_LOG_RTP, &quot;rtp&quot;, GF_LOG_WARNING },
+<span class="lineNum">     150 </span>            :         { GF_LOG_AUTHOR, &quot;author&quot;, GF_LOG_WARNING },
+<span class="lineNum">     151 </span>            :         { GF_LOG_SYNC, &quot;sync&quot;, GF_LOG_WARNING },
+<span class="lineNum">     152 </span>            :         { GF_LOG_CODEC, &quot;codec&quot;, GF_LOG_WARNING },
+<span class="lineNum">     153 </span>            :         { GF_LOG_PARSER, &quot;parser&quot;, GF_LOG_WARNING },
+<span class="lineNum">     154 </span>            :         { GF_LOG_MEDIA, &quot;media&quot;, GF_LOG_WARNING },
+<span class="lineNum">     155 </span>            :         { GF_LOG_SCENE, &quot;scene&quot;, GF_LOG_WARNING },
+<span class="lineNum">     156 </span>            :         { GF_LOG_SCRIPT, &quot;script&quot;, GF_LOG_WARNING },
+<span class="lineNum">     157 </span>            :         { GF_LOG_INTERACT, &quot;interact&quot;, GF_LOG_WARNING },
+<span class="lineNum">     158 </span>            :         { GF_LOG_COMPOSE, &quot;compose&quot;, GF_LOG_WARNING },
+<span class="lineNum">     159 </span>            :         { GF_LOG_CACHE, &quot;cache&quot;, GF_LOG_WARNING },
+<span class="lineNum">     160 </span>            :         { GF_LOG_MMIO, &quot;mmio&quot;, GF_LOG_WARNING },
+<span class="lineNum">     161 </span>            :         { GF_LOG_RTI, &quot;rti&quot;, GF_LOG_WARNING },
+<span class="lineNum">     162 </span>            :         { GF_LOG_SMIL, &quot;smil&quot;, GF_LOG_WARNING },
+<span class="lineNum">     163 </span>            :         { GF_LOG_MEMORY, &quot;mem&quot;, GF_LOG_WARNING },
+<span class="lineNum">     164 </span>            :         { GF_LOG_AUDIO, &quot;audio&quot;, GF_LOG_WARNING },
+<span class="lineNum">     165 </span>            :         { GF_LOG_MODULE, &quot;module&quot;, GF_LOG_WARNING },
+<span class="lineNum">     166 </span>            :         { GF_LOG_MUTEX, &quot;mutex&quot;, GF_LOG_WARNING },
+<span class="lineNum">     167 </span>            :         { GF_LOG_CONDITION, &quot;condition&quot;, GF_LOG_WARNING },
+<span class="lineNum">     168 </span>            :         { GF_LOG_DASH, &quot;dash&quot;, GF_LOG_WARNING },
+<span class="lineNum">     169 </span>            :         { GF_LOG_CONSOLE, &quot;console&quot;, GF_LOG_INFO },
+<span class="lineNum">     170 </span>            :         { GF_LOG_APP, &quot;app&quot;, GF_LOG_INFO },
+<span class="lineNum">     171 </span>            :         { GF_LOG_SCHEDULER, &quot;scheduler&quot;, GF_LOG_INFO },
+<span class="lineNum">     172 </span>            : };
+<a name="173"><span class="lineNum">     173 </span>            : </a>
+<span class="lineNum">     174 </span>            : GF_EXPORT
+<span class="lineNum">     175 </span>            : GF_Err gf_log_modify_tools_levels(const char *val)
+<span class="lineNum">     176 </span>            : {
+<span class="lineNum">     177 </span>            : #ifndef GPAC_DISABLE_LOG
+<span class="lineNum">     178 </span>            :         u32 level;
+<span class="lineNum">     179 </span>            :         char *sep, *sep_level;
+<span class="lineNum">     180 </span><span class="lineCov">          3 :         while (val &amp;&amp; strlen(val)) {</span>
+<span class="lineNum">     181 </span>            :                 const char *next_val = NULL;
+<span class="lineNum">     182 </span>            :                 const char *tools = NULL;
+<span class="lineNum">     183 </span>            :                 /*look for log level*/
+<span class="lineNum">     184 </span><span class="lineNoCov">          0 :                 sep_level = strchr(val, '@');</span>
+<span class="lineNum">     185 </span><span class="lineNoCov">          0 :                 if (!sep_level) {</span>
+<span class="lineNum">     186 </span><span class="lineNoCov">          0 :                         fprintf(stderr, &quot;Unrecognized log format %s - expecting logTool@logLevel\n&quot;, val);</span>
+<span class="lineNum">     187 </span><span class="lineNoCov">          0 :                         return GF_BAD_PARAM;</span>
+<span class="lineNum">     188 </span>            :                 }
+<span class="lineNum">     189 </span>            : 
+<span class="lineNum">     190 </span><span class="lineNoCov">          0 :                 if (!strnicmp(sep_level+1, &quot;error&quot;, 5)) {</span>
+<span class="lineNum">     191 </span>            :                         level = GF_LOG_ERROR;
+<span class="lineNum">     192 </span><span class="lineNoCov">          0 :                         next_val = sep_level+1 + 5;</span>
+<span class="lineNum">     193 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     194 </span><span class="lineNoCov">          0 :                 else if (!strnicmp(sep_level+1, &quot;warning&quot;, 7)) {</span>
+<span class="lineNum">     195 </span>            :                         level = GF_LOG_WARNING;
+<span class="lineNum">     196 </span><span class="lineNoCov">          0 :                         next_val = sep_level+1 + 7;</span>
+<span class="lineNum">     197 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     198 </span><span class="lineNoCov">          0 :                 else if (!strnicmp(sep_level+1, &quot;info&quot;, 4)) {</span>
+<span class="lineNum">     199 </span>            :                         level = GF_LOG_INFO;
+<span class="lineNum">     200 </span><span class="lineNoCov">          0 :                         next_val = sep_level+1 + 4;</span>
+<span class="lineNum">     201 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     202 </span><span class="lineNoCov">          0 :                 else if (!strnicmp(sep_level+1, &quot;debug&quot;, 5)) {</span>
+<span class="lineNum">     203 </span>            :                         level = GF_LOG_DEBUG;
+<span class="lineNum">     204 </span><span class="lineNoCov">          0 :                         next_val = sep_level+1 + 5;</span>
+<span class="lineNum">     205 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     206 </span><span class="lineNoCov">          0 :                 else if (!strnicmp(sep_level+1, &quot;quiet&quot;, 5)) {</span>
+<span class="lineNum">     207 </span>            :                         level = GF_LOG_QUIET;
+<span class="lineNum">     208 </span><span class="lineNoCov">          0 :                         next_val = sep_level+1 + 5;</span>
+<span class="lineNum">     209 </span>            :                 }
+<span class="lineNum">     210 </span>            :                 else {
+<span class="lineNum">     211 </span><span class="lineNoCov">          0 :                         fprintf(stderr, &quot;Unknown log level specified: %s\n&quot;, sep_level+1);</span>
+<span class="lineNum">     212 </span><span class="lineNoCov">          0 :                         return GF_BAD_PARAM;</span>
+<span class="lineNum">     213 </span>            :                 }
+<span class="lineNum">     214 </span>            : 
+<span class="lineNum">     215 </span><span class="lineNoCov">          0 :                 sep_level[0] = 0;</span>
+<span class="lineNum">     216 </span>            :                 tools = val;
+<span class="lineNum">     217 </span><span class="lineNoCov">          0 :                 while (tools) {</span>
+<span class="lineNum">     218 </span>            :                         u32 i;
+<span class="lineNum">     219 </span>            : 
+<span class="lineNum">     220 </span><span class="lineNoCov">          0 :                         sep = strchr(tools, ':');</span>
+<span class="lineNum">     221 </span><span class="lineNoCov">          0 :                         if (sep) sep[0] = 0;</span>
+<span class="lineNum">     222 </span>            : 
+<span class="lineNum">     223 </span><span class="lineNoCov">          0 :                         if (!stricmp(tools, &quot;all&quot;)) {</span>
+<span class="lineNum">     224 </span><span class="lineNoCov">          0 :                                 for (i=0; i&lt;GF_LOG_TOOL_MAX; i++)</span>
+<span class="lineNum">     225 </span><span class="lineNoCov">          0 :                                         global_log_tools[i].level = level;</span>
+<span class="lineNum">     226 </span>            :                         }
+<span class="lineNum">     227 </span>            :                         else {
+<span class="lineNum">     228 </span>            :                                 Bool found = GF_FALSE;
+<span class="lineNum">     229 </span><span class="lineNoCov">          0 :                                 for (i=0; i&lt;GF_LOG_TOOL_MAX; i++) {</span>
+<span class="lineNum">     230 </span><span class="lineNoCov">          0 :                                         if (!strcmp(global_log_tools[i].name, tools)) {</span>
+<span class="lineNum">     231 </span><span class="lineNoCov">          0 :                                                 global_log_tools[i].level = level;</span>
+<span class="lineNum">     232 </span>            :                                                 found = GF_TRUE;
+<span class="lineNum">     233 </span><span class="lineNoCov">          0 :                                         }</span>
+<span class="lineNum">     234 </span>            :                                 }
+<span class="lineNum">     235 </span><span class="lineNoCov">          0 :                                 if (!found) {</span>
+<span class="lineNum">     236 </span><span class="lineNoCov">          0 :                                         sep_level[0] = '@';</span>
+<span class="lineNum">     237 </span><span class="lineNoCov">          0 :                                         if (sep) sep[0] = ':';</span>
+<span class="lineNum">     238 </span><span class="lineNoCov">          0 :                                         fprintf(stderr, &quot;Unknown log tool specified: %s\n&quot;, val);</span>
+<span class="lineNum">     239 </span><span class="lineNoCov">          0 :                                         return GF_BAD_PARAM;</span>
+<span class="lineNum">     240 </span>            :                                 }
+<span class="lineNum">     241 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     242 </span>            : 
+<span class="lineNum">     243 </span><span class="lineNoCov">          0 :                         if (!sep) break;</span>
+<span class="lineNum">     244 </span><span class="lineNoCov">          0 :                         sep[0] = ':';</span>
+<span class="lineNum">     245 </span><span class="lineNoCov">          0 :                         tools = sep+1;</span>
+<span class="lineNum">     246 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     247 </span>            : 
+<span class="lineNum">     248 </span><span class="lineNoCov">          0 :                 sep_level[0] = '@';</span>
+<span class="lineNum">     249 </span><span class="lineNoCov">          0 :                 if (!next_val[0]) break;</span>
+<span class="lineNum">     250 </span><span class="lineNoCov">          0 :                 val = next_val+1;</span>
+<span class="lineNum">     251 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     252 </span>            : #endif
+<span class="lineNum">     253 </span><span class="lineCov">          1 :         return GF_OK;</span>
+<span class="lineNum">     254 </span><span class="lineCov">          1 : }</span>
+<a name="255"><span class="lineNum">     255 </span>            : </a>
+<span class="lineNum">     256 </span>            : GF_EXPORT
+<span class="lineNum">     257 </span>            : GF_Err gf_log_set_tools_levels(const char *val)
+<span class="lineNum">     258 </span>            : {
+<span class="lineNum">     259 </span>            : #ifndef GPAC_DISABLE_LOG
+<span class="lineNum">     260 </span>            :         u32 i;
+<span class="lineNum">     261 </span><span class="lineCov">         57 :         for (i=0; i&lt;GF_LOG_TOOL_MAX; i++)</span>
+<span class="lineNum">     262 </span><span class="lineCov">         27 :                 global_log_tools[i].level = GF_LOG_WARNING;</span>
+<span class="lineNum">     263 </span>            : 
+<span class="lineNum">     264 </span><span class="lineCov">          1 :         return gf_log_modify_tools_levels(val);</span>
+<span class="lineNum">     265 </span>            : #else
+<span class="lineNum">     266 </span>            :         return GF_OK;
+<span class="lineNum">     267 </span>            : #endif
+<span class="lineNum">     268 </span>            : }
+<a name="269"><span class="lineNum">     269 </span>            : </a>
+<span class="lineNum">     270 </span>            : GF_EXPORT
+<span class="lineNum">     271 </span>            : char *gf_log_get_tools_levels()
+<span class="lineNum">     272 </span>            : {
+<span class="lineNum">     273 </span>            : #ifndef GPAC_DISABLE_LOG
+<span class="lineNum">     274 </span>            :         u32 i, level, len;
+<span class="lineNum">     275 </span><span class="lineNoCov">          0 :         char szLogs[GF_MAX_PATH];</span>
+<span class="lineNum">     276 </span><span class="lineNoCov">          0 :         char szLogTools[GF_MAX_PATH];</span>
+<span class="lineNum">     277 </span><span class="lineNoCov">          0 :         strcpy(szLogTools, &quot;&quot;);</span>
+<span class="lineNum">     278 </span>            : 
+<span class="lineNum">     279 </span>            :         level = GF_LOG_QUIET;
+<span class="lineNum">     280 </span><span class="lineNoCov">          0 :         while (level &lt;= GF_LOG_DEBUG) {</span>
+<span class="lineNum">     281 </span>            :                 u32 nb_tools = 0;
+<span class="lineNum">     282 </span><span class="lineNoCov">          0 :                 strcpy(szLogs, &quot;&quot;);</span>
+<span class="lineNum">     283 </span><span class="lineNoCov">          0 :                 for (i=0; i&lt;GF_LOG_TOOL_MAX; i++) {</span>
+<span class="lineNum">     284 </span><span class="lineNoCov">          0 :                         if (global_log_tools[i].level == level) {</span>
+<span class="lineNum">     285 </span><span class="lineNoCov">          0 :                                 strcat(szLogs, global_log_tools[i].name);</span>
+<span class="lineNum">     286 </span><span class="lineNoCov">          0 :                                 strcat(szLogs, &quot;:&quot;);</span>
+<span class="lineNum">     287 </span><span class="lineNoCov">          0 :                                 nb_tools++;</span>
+<span class="lineNum">     288 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     289 </span>            :                 }
+<span class="lineNum">     290 </span><span class="lineNoCov">          0 :                 if (nb_tools) {</span>
+<span class="lineNum">     291 </span>            :                         char *levelstr = &quot;@warning&quot;;
+<span class="lineNum">     292 </span><span class="lineNoCov">          0 :                         if (level==GF_LOG_QUIET) levelstr = &quot;@quiet&quot;;</span>
+<span class="lineNum">     293 </span><span class="lineNoCov">          0 :                         else if (level==GF_LOG_ERROR) levelstr = &quot;@error&quot;;</span>
+<span class="lineNum">     294 </span><span class="lineNoCov">          0 :                         else if (level==GF_LOG_WARNING) levelstr = &quot;@warning&quot;;</span>
+<span class="lineNum">     295 </span><span class="lineNoCov">          0 :                         else if (level==GF_LOG_INFO) levelstr = &quot;@info&quot;;</span>
+<span class="lineNum">     296 </span><span class="lineNoCov">          0 :                         else if (level==GF_LOG_DEBUG) levelstr = &quot;@debug&quot;;</span>
+<span class="lineNum">     297 </span>            : 
+<span class="lineNum">     298 </span><span class="lineNoCov">          0 :                         if (nb_tools&gt;GF_LOG_TOOL_MAX/2) {</span>
+<span class="lineNum">     299 </span><span class="lineNoCov">          0 :                                 strcpy(szLogs, szLogTools);</span>
+<span class="lineNum">     300 </span><span class="lineNoCov">          0 :                                 strcpy(szLogTools, &quot;all&quot;);</span>
+<span class="lineNum">     301 </span><span class="lineNoCov">          0 :                                 strcat(szLogTools, levelstr);</span>
+<span class="lineNum">     302 </span><span class="lineNoCov">          0 :                                 if (strlen(szLogs)) {</span>
+<span class="lineNum">     303 </span><span class="lineNoCov">          0 :                                         strcat(szLogTools, &quot;:&quot;);</span>
+<span class="lineNum">     304 </span><span class="lineNoCov">          0 :                                         strcat(szLogTools, szLogs);</span>
+<span class="lineNum">     305 </span><span class="lineNoCov">          0 :                                 }</span>
+<span class="lineNum">     306 </span>            :                         } else {
+<span class="lineNum">     307 </span><span class="lineNoCov">          0 :                                 if (strlen(szLogTools)) {</span>
+<span class="lineNum">     308 </span><span class="lineNoCov">          0 :                                         strcat(szLogTools, &quot;:&quot;);</span>
+<span class="lineNum">     309 </span><span class="lineNoCov">          0 :                                 }</span>
+<span class="lineNum">     310 </span>            :                                 /*remove last ':' from tool*/
+<span class="lineNum">     311 </span><span class="lineNoCov">          0 :                                 szLogs[ strlen(szLogs) - 1 ] = 0;</span>
+<span class="lineNum">     312 </span><span class="lineNoCov">          0 :                                 strcat(szLogTools, szLogs);</span>
+<span class="lineNum">     313 </span><span class="lineNoCov">          0 :                                 strcat(szLogTools, levelstr);</span>
+<span class="lineNum">     314 </span>            :                         }
+<span class="lineNum">     315 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     316 </span><span class="lineNoCov">          0 :                 level++;</span>
+<span class="lineNum">     317 </span>            :         }
+<span class="lineNum">     318 </span><span class="lineNoCov">          0 :         len = (u32) strlen(szLogTools);</span>
+<span class="lineNum">     319 </span><span class="lineNoCov">          0 :         if (len) {</span>
+<span class="lineNum">     320 </span>            :                 /*remove last ':' from level*/
+<span class="lineNum">     321 </span><span class="lineNoCov">          0 :                 if (szLogTools[ len-1 ] == ':') szLogTools[ len-1 ] = 0;</span>
+<span class="lineNum">     322 </span><span class="lineNoCov">          0 :                 return gf_strdup(szLogTools);</span>
+<span class="lineNum">     323 </span>            :         }
+<span class="lineNum">     324 </span>            : #endif
+<span class="lineNum">     325 </span><span class="lineNoCov">          0 :         return gf_strdup(&quot;all@quiet&quot;);</span>
+<span class="lineNum">     326 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     327 </span>            : 
+<span class="lineNum">     328 </span>            : #ifndef GPAC_DISABLE_LOG
+<span class="lineNum">     329 </span>            : u32 call_lev = 0;
+<span class="lineNum">     330 </span>            : u32 call_tool = 0;
+<a name="331"><span class="lineNum">     331 </span>            : </a>
+<span class="lineNum">     332 </span>            : GF_EXPORT
+<span class="lineNum">     333 </span>            : Bool gf_log_tool_level_on(GF_LOG_Tool log_tool, GF_LOG_Level log_level)
+<span class="lineNum">     334 </span>            : {
+<span class="lineNum">     335 </span>            :         assert(log_tool&lt;GF_LOG_TOOL_MAX);
+<span class="lineNum">     336 </span><span class="lineCov">   63508410 :         if (global_log_tools[log_tool].level &gt;= log_level) return GF_TRUE;</span>
+<span class="lineNum">     337 </span><span class="lineCov">   31734798 :         return GF_FALSE;</span>
+<span class="lineNum">     338 </span><span class="lineCov">   31747736 : }</span>
+<span class="lineNum">     339 </span>            : 
+<span class="lineNum">     340 </span>            : #define RED    &quot;\x1b[31m&quot;
+<span class="lineNum">     341 </span>            : #define YELLOW &quot;\x1b[33m&quot;
+<span class="lineNum">     342 </span>            : #define GREEN  &quot;\x1b[32m&quot;
+<span class="lineNum">     343 </span>            : #define CYAN   &quot;\x1b[36m&quot;
+<span class="lineNum">     344 </span>            : #define WHITE  &quot;\x1b[37m&quot;
+<a name="345"><span class="lineNum">     345 </span>            : #define RESET  &quot;\x1b[0m&quot;</a>
+<span class="lineNum">     346 </span>            : 
+<span class="lineNum">     347 </span>            : void default_log_callback(void *cbck, GF_LOG_Level level, GF_LOG_Tool tool, const char *fmt, va_list vlist)
+<span class="lineNum">     348 </span>            : {
+<span class="lineNum">     349 </span>            : #if defined(WIN32) &amp;&amp; !defined(GPAC_CONFIG_WIN32)
+<span class="lineNum">     350 </span>            :         if (console == NULL) {
+<span class="lineNum">     351 </span>            :                 CONSOLE_SCREEN_BUFFER_INFO console_info;
+<span class="lineNum">     352 </span>            :                 console = GetStdHandle(STD_ERROR_HANDLE);
+<span class="lineNum">     353 </span>            :                 assert(console != INVALID_HANDLE_VALUE);
+<span class="lineNum">     354 </span>            :                 if (console != INVALID_HANDLE_VALUE) {
+<span class="lineNum">     355 </span>            :                         GetConsoleScreenBufferInfo(console, &amp;console_info);
+<span class="lineNum">     356 </span>            :                         console_attr_ori = console_info.wAttributes;
+<span class="lineNum">     357 </span>            :                 }
+<span class="lineNum">     358 </span>            :         }
+<span class="lineNum">     359 </span>            :         switch(level) {
+<span class="lineNum">     360 </span>            :                 case GF_LOG_ERROR:
+<span class="lineNum">     361 </span>            :                         SetConsoleTextAttribute(console, FOREGROUND_RED | FOREGROUND_INTENSITY);
+<span class="lineNum">     362 </span>            :                         break;
+<span class="lineNum">     363 </span>            :                 case GF_LOG_WARNING:
+<span class="lineNum">     364 </span>            :                         SetConsoleTextAttribute(console, FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN);
+<span class="lineNum">     365 </span>            :                         break;
+<span class="lineNum">     366 </span>            :                 case GF_LOG_INFO:
+<span class="lineNum">     367 </span>            :                         SetConsoleTextAttribute(console, FOREGROUND_INTENSITY | FOREGROUND_GREEN);
+<span class="lineNum">     368 </span>            :                         break;
+<span class="lineNum">     369 </span>            :                 case GF_LOG_DEBUG:
+<span class="lineNum">     370 </span>            :                         SetConsoleTextAttribute(console, FOREGROUND_GREEN);
+<span class="lineNum">     371 </span>            :                         break;
+<span class="lineNum">     372 </span>            :                 default:
+<span class="lineNum">     373 </span>            :                         SetConsoleTextAttribute(console, FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE);
+<span class="lineNum">     374 </span>            :                         break;
+<span class="lineNum">     375 </span>            :         }
+<span class="lineNum">     376 </span>            :         
+<span class="lineNum">     377 </span>            :         vfprintf(stderr, fmt, vlist);
+<span class="lineNum">     378 </span>            :         SetConsoleTextAttribute(console, console_attr_ori);
+<span class="lineNum">     379 </span>            : #elif !defined(_WIN32_WCE)
+<span class="lineNum">     380 </span><span class="lineCov">      24064 :         switch(level) {</span>
+<span class="lineNum">     381 </span>            :                 case GF_LOG_ERROR:
+<span class="lineNum">     382 </span><span class="lineCov">         59 :                         fprintf(stderr, RED);</span>
+<span class="lineNum">     383 </span><span class="lineCov">         59 :                         break;</span>
+<span class="lineNum">     384 </span>            :                 case GF_LOG_WARNING:
+<span class="lineNum">     385 </span><span class="lineCov">        419 :                         fprintf(stderr, YELLOW);</span>
+<span class="lineNum">     386 </span><span class="lineCov">        419 :                         break;</span>
+<span class="lineNum">     387 </span>            :                 case GF_LOG_INFO:
+<span class="lineNum">     388 </span><span class="lineCov">      11554 :                         fprintf(stderr, GREEN);</span>
+<span class="lineNum">     389 </span><span class="lineCov">      11554 :                         break;</span>
+<span class="lineNum">     390 </span>            :                 case GF_LOG_DEBUG:
+<span class="lineNum">     391 </span><span class="lineNoCov">          0 :                         fprintf(stderr, CYAN);</span>
+<span class="lineNum">     392 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     393 </span>            :                 default:
+<span class="lineNum">     394 </span><span class="lineNoCov">          0 :                         fprintf(stderr, WHITE);</span>
+<span class="lineNum">     395 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     396 </span>            :         }
+<span class="lineNum">     397 </span>            : 
+<span class="lineNum">     398 </span><span class="lineCov">      12032 :         vfprintf(stderr, fmt, vlist);</span>
+<span class="lineNum">     399 </span><span class="lineCov">      12032 :         fprintf(stderr, RESET);</span>
+<span class="lineNum">     400 </span>            : #else /*_WIN32_WCE*/
+<span class="lineNum">     401 </span>            :         /*no log*/
+<span class="lineNum">     402 </span>            : #endif
+<span class="lineNum">     403 </span><span class="lineCov">      12032 : }</span>
+<span class="lineNum">     404 </span>            : 
+<span class="lineNum">     405 </span>            : static void *user_log_cbk = NULL;
+<span class="lineNum">     406 </span>            : gf_log_cbk log_cbk = default_log_callback;
+<span class="lineNum">     407 </span>            : static Bool log_exit_on_error = GF_FALSE;
+<a name="408"><span class="lineNum">     408 </span>            : </a>
+<span class="lineNum">     409 </span>            : GF_EXPORT
+<span class="lineNum">     410 </span>            : void gf_log(const char *fmt, ...)
+<span class="lineNum">     411 </span>            : {
+<span class="lineNum">     412 </span><span class="lineCov">      24064 :         va_list vl;</span>
+<span class="lineNum">     413 </span><span class="lineCov">      12032 :         va_start(vl, fmt);</span>
+<span class="lineNum">     414 </span><span class="lineCov">      12032 :         log_cbk(user_log_cbk, call_lev, call_tool, fmt, vl);</span>
+<span class="lineNum">     415 </span><span class="lineCov">      12032 :         va_end(vl);</span>
+<span class="lineNum">     416 </span><span class="lineCov">      12032 :         if (log_exit_on_error &amp;&amp; (call_lev==GF_LOG_ERROR) &amp;&amp; (call_tool != GF_LOG_MEMORY)) {</span>
+<span class="lineNum">     417 </span><span class="lineNoCov">          0 :                 exit(1);</span>
+<span class="lineNum">     418 </span>            :         }
+<span class="lineNum">     419 </span><span class="lineCov">      12032 : }</span>
+<a name="420"><span class="lineNum">     420 </span>            : </a>
+<span class="lineNum">     421 </span>            : GF_EXPORT
+<span class="lineNum">     422 </span>            : void gf_log_va_list(GF_LOG_Level level, GF_LOG_Tool tool, const char *fmt, va_list vl)
+<span class="lineNum">     423 </span>            : {
+<span class="lineNum">     424 </span><span class="lineNoCov">          0 :         log_cbk(user_log_cbk, call_lev, call_tool, fmt, vl);</span>
+<span class="lineNum">     425 </span><span class="lineNoCov">          0 :         if (log_exit_on_error &amp;&amp; (call_lev==GF_LOG_ERROR) &amp;&amp; (call_tool != GF_LOG_MEMORY)) {</span>
+<span class="lineNum">     426 </span><span class="lineNoCov">          0 :                 exit(1);</span>
+<span class="lineNum">     427 </span>            :         }
+<span class="lineNum">     428 </span><span class="lineNoCov">          0 : }</span>
+<a name="429"><span class="lineNum">     429 </span>            : </a>
+<span class="lineNum">     430 </span>            : GF_EXPORT
+<span class="lineNum">     431 </span>            : void gf_log_set_strict_error(Bool strict)
+<span class="lineNum">     432 </span>            : {
+<span class="lineNum">     433 </span><span class="lineCov">          2 :         log_exit_on_error = strict;</span>
+<span class="lineNum">     434 </span><span class="lineCov">          1 : }</span>
+<a name="435"><span class="lineNum">     435 </span>            : </a>
+<span class="lineNum">     436 </span>            : GF_EXPORT
+<span class="lineNum">     437 </span>            : void gf_log_set_tool_level(GF_LOG_Tool tool, GF_LOG_Level level)
+<span class="lineNum">     438 </span>            : {
+<span class="lineNum">     439 </span>            :         assert(tool&lt;=GF_LOG_TOOL_MAX);
+<span class="lineNum">     440 </span><span class="lineCov">      69844 :         if (tool==GF_LOG_ALL) {</span>
+<span class="lineNum">     441 </span>            :                 u32 i;
+<span class="lineNum">     442 </span><span class="lineCov">     220304 :                 for (i=0; i&lt;GF_LOG_TOOL_MAX; i++)</span>
+<span class="lineNum">     443 </span><span class="lineCov">     106218 :                         global_log_tools[i].level = level;</span>
+<span class="lineNum">     444 </span><span class="lineCov">       3934 :         } else {</span>
+<span class="lineNum">     445 </span><span class="lineCov">      30988 :                 global_log_tools[tool].level = level;</span>
+<span class="lineNum">     446 </span>            :         }
+<span class="lineNum">     447 </span><span class="lineCov">      34922 : }</span>
+<a name="448"><span class="lineNum">     448 </span>            : </a>
+<span class="lineNum">     449 </span>            : GF_EXPORT
+<span class="lineNum">     450 </span>            : void gf_log_lt(GF_LOG_Level ll, GF_LOG_Tool lt)
+<span class="lineNum">     451 </span>            : {
+<span class="lineNum">     452 </span><span class="lineCov">      24064 :         call_lev = ll;</span>
+<span class="lineNum">     453 </span><span class="lineCov">      12032 :         call_tool = lt;</span>
+<span class="lineNum">     454 </span><span class="lineCov">      12032 : }</span>
+<a name="455"><span class="lineNum">     455 </span>            : </a>
+<span class="lineNum">     456 </span>            : GF_EXPORT
+<span class="lineNum">     457 </span>            : gf_log_cbk gf_log_set_callback(void *usr_cbk, gf_log_cbk cbk)
+<span class="lineNum">     458 </span>            : {
+<span class="lineNum">     459 </span><span class="lineNoCov">          0 :         gf_log_cbk prev_cbk = log_cbk;</span>
+<span class="lineNum">     460 </span>            :         log_cbk = cbk;
+<span class="lineNum">     461 </span><span class="lineNoCov">          0 :         if (!log_cbk) log_cbk = default_log_callback;</span>
+<span class="lineNum">     462 </span><span class="lineNoCov">          0 :         if (usr_cbk) user_log_cbk = usr_cbk;</span>
+<span class="lineNum">     463 </span><span class="lineNoCov">          0 :         return prev_cbk;</span>
+<span class="lineNum">     464 </span>            : }
+<span class="lineNum">     465 </span>            : 
+<span class="lineNum">     466 </span>            : #else
+<span class="lineNum">     467 </span>            : GF_EXPORT
+<span class="lineNum">     468 </span>            : void gf_log(const char *fmt, ...)
+<span class="lineNum">     469 </span>            : {
+<span class="lineNum">     470 </span>            : }
+<span class="lineNum">     471 </span>            : GF_EXPORT
+<span class="lineNum">     472 </span>            : void gf_log_lt(GF_LOG_Level ll, GF_LOG_Tool lt)
+<span class="lineNum">     473 </span>            : {
+<span class="lineNum">     474 </span>            : }
+<span class="lineNum">     475 </span>            : GF_EXPORT
+<span class="lineNum">     476 </span>            : void gf_log_set_strict_error(Bool strict)
+<span class="lineNum">     477 </span>            : {
+<span class="lineNum">     478 </span>            : }
+<span class="lineNum">     479 </span>            : 
+<span class="lineNum">     480 </span>            : GF_EXPORT
+<span class="lineNum">     481 </span>            : gf_log_cbk gf_log_set_callback(void *usr_cbk, gf_log_cbk cbk)
+<span class="lineNum">     482 </span>            : {
+<span class="lineNum">     483 </span>            :         return NULL;
+<span class="lineNum">     484 </span>            : }
+<span class="lineNum">     485 </span>            : #endif
+<span class="lineNum">     486 </span>            : 
+<span class="lineNum">     487 </span>            : static char szErrMsg[20];
+<a name="488"><span class="lineNum">     488 </span>            : </a>
+<span class="lineNum">     489 </span>            : GF_EXPORT
+<span class="lineNum">     490 </span>            : const char *gf_error_to_string(GF_Err e)
+<span class="lineNum">     491 </span>            : {
+<span class="lineNum">     492 </span><span class="lineCov">        474 :         switch (e) {</span>
+<span class="lineNum">     493 </span>            :         case GF_EOS:
+<span class="lineNum">     494 </span><span class="lineCov">          1 :                 return &quot;End Of Stream / File&quot;;</span>
+<span class="lineNum">     495 </span>            :         case GF_OK:
+<span class="lineNum">     496 </span><span class="lineNoCov">          0 :                 return &quot;No Error&quot;;</span>
+<span class="lineNum">     497 </span>            : 
+<span class="lineNum">     498 </span>            :         /*General errors */
+<span class="lineNum">     499 </span>            :         case GF_BAD_PARAM:
+<span class="lineNum">     500 </span><span class="lineCov">         11 :                 return &quot;Bad Parameter&quot;;</span>
+<span class="lineNum">     501 </span>            :         case GF_OUT_OF_MEM:
+<span class="lineNum">     502 </span><span class="lineNoCov">          0 :                 return &quot;Out Of Memory&quot;;</span>
+<span class="lineNum">     503 </span>            :         case GF_IO_ERR:
+<span class="lineNum">     504 </span><span class="lineNoCov">          0 :                 return &quot;I/O Error&quot;;</span>
+<span class="lineNum">     505 </span>            :         case GF_NOT_SUPPORTED:
+<span class="lineNum">     506 </span><span class="lineCov">          2 :                 return &quot;Feature Not Supported&quot;;</span>
+<span class="lineNum">     507 </span>            :         case GF_CORRUPTED_DATA:
+<span class="lineNum">     508 </span><span class="lineNoCov">          0 :                 return &quot;Corrupted Data in file/stream&quot;;</span>
+<span class="lineNum">     509 </span>            : 
+<span class="lineNum">     510 </span>            :         /*File Format Errors */
+<span class="lineNum">     511 </span>            :         case GF_ISOM_INVALID_FILE:
+<span class="lineNum">     512 </span><span class="lineCov">          8 :                 return &quot;Invalid IsoMedia File&quot;;</span>
+<span class="lineNum">     513 </span>            :         case GF_ISOM_INCOMPLETE_FILE:
+<span class="lineNum">     514 </span><span class="lineNoCov">          0 :                 return &quot;IsoMedia File is truncated&quot;;</span>
+<span class="lineNum">     515 </span>            :         case GF_ISOM_INVALID_MEDIA:
+<span class="lineNum">     516 </span><span class="lineNoCov">          0 :                 return &quot;Invalid IsoMedia Media&quot;;</span>
+<span class="lineNum">     517 </span>            :         case GF_ISOM_INVALID_MODE:
+<span class="lineNum">     518 </span><span class="lineNoCov">          0 :                 return &quot;Invalid Mode while accessing the file&quot;;</span>
+<span class="lineNum">     519 </span>            :         case GF_ISOM_UNKNOWN_DATA_REF:
+<span class="lineNum">     520 </span><span class="lineNoCov">          0 :                 return &quot;Media Data Reference not found&quot;;</span>
+<span class="lineNum">     521 </span>            : 
+<span class="lineNum">     522 </span>            :         /*Object Descriptor Errors */
+<span class="lineNum">     523 </span>            :         case GF_ODF_INVALID_DESCRIPTOR:
+<span class="lineNum">     524 </span><span class="lineNoCov">          0 :                 return &quot;Invalid MPEG-4 Descriptor&quot;;</span>
+<span class="lineNum">     525 </span>            :         case GF_ODF_FORBIDDEN_DESCRIPTOR:
+<span class="lineNum">     526 </span><span class="lineNoCov">          0 :                 return &quot;MPEG-4 Descriptor Not Allowed&quot;;</span>
+<span class="lineNum">     527 </span>            :         case GF_ODF_INVALID_COMMAND:
+<span class="lineNum">     528 </span><span class="lineNoCov">          0 :                 return &quot;Read OD Command Failed&quot;;</span>
+<span class="lineNum">     529 </span>            : 
+<span class="lineNum">     530 </span>            :         /*BIFS Errors */
+<span class="lineNum">     531 </span>            :         case GF_SG_UNKNOWN_NODE:
+<span class="lineNum">     532 </span><span class="lineNoCov">          0 :                 return &quot;Unknown BIFS Node&quot;;</span>
+<span class="lineNum">     533 </span>            :         case GF_SG_INVALID_PROTO:
+<span class="lineNum">     534 </span><span class="lineNoCov">          0 :                 return &quot;Invalid Proto Interface&quot;;</span>
+<span class="lineNum">     535 </span>            :         case GF_BIFS_UNKNOWN_VERSION:
+<span class="lineNum">     536 </span><span class="lineNoCov">          0 :                 return &quot;Invalid BIFS version&quot;;</span>
+<span class="lineNum">     537 </span>            :         case GF_SCRIPT_ERROR:
+<span class="lineNum">     538 </span><span class="lineNoCov">          0 :                 return &quot;Invalid Script&quot;;</span>
+<span class="lineNum">     539 </span>            : 
+<span class="lineNum">     540 </span>            :         /*MPEG-4 Errors */
+<span class="lineNum">     541 </span>            :         case GF_BUFFER_TOO_SMALL:
+<span class="lineNum">     542 </span><span class="lineNoCov">          0 :                 return &quot;Bad Buffer size (too small)&quot;;</span>
+<span class="lineNum">     543 </span>            :         case GF_NON_COMPLIANT_BITSTREAM:
+<span class="lineNum">     544 </span><span class="lineNoCov">          0 :                 return &quot;BitStream Not Compliant&quot;;</span>
+<span class="lineNum">     545 </span>            :         case GF_CODEC_NOT_FOUND:
+<span class="lineNum">     546 </span><span class="lineNoCov">          0 :                 return &quot;Media Codec not found&quot;;</span>
+<span class="lineNum">     547 </span>            : 
+<span class="lineNum">     548 </span>            :         /*DMIF errors - local and control plane */
+<span class="lineNum">     549 </span>            :         case GF_URL_ERROR:
+<span class="lineNum">     550 </span><span class="lineCov">        215 :                 return &quot;Requested URL is not valid or cannot be found&quot;;</span>
+<span class="lineNum">     551 </span>            : 
+<span class="lineNum">     552 </span>            :         case GF_SERVICE_ERROR:
+<span class="lineNum">     553 </span><span class="lineNoCov">          0 :                 return &quot;Internal Service Error&quot;;</span>
+<span class="lineNum">     554 </span>            :         case GF_REMOTE_SERVICE_ERROR:
+<span class="lineNum">     555 </span><span class="lineNoCov">          0 :                 return &quot;Dialog Failure with remote peer&quot;;</span>
+<span class="lineNum">     556 </span>            : 
+<span class="lineNum">     557 </span>            :         case GF_STREAM_NOT_FOUND:
+<span class="lineNum">     558 </span><span class="lineNoCov">          0 :                 return &quot;Media Channel couldn't be found&quot;;</span>
+<span class="lineNum">     559 </span>            : 
+<span class="lineNum">     560 </span>            :         case GF_IP_ADDRESS_NOT_FOUND:
+<span class="lineNum">     561 </span><span class="lineNoCov">          0 :                 return &quot;IP Address Not Found&quot;;</span>
+<span class="lineNum">     562 </span>            :         case GF_IP_CONNECTION_FAILURE:
+<span class="lineNum">     563 </span><span class="lineNoCov">          0 :                 return &quot;IP Connection Failed&quot;;</span>
+<span class="lineNum">     564 </span>            :         case GF_IP_NETWORK_FAILURE:
+<span class="lineNum">     565 </span><span class="lineNoCov">          0 :                 return &quot;Network Unreachable&quot;;</span>
+<span class="lineNum">     566 </span>            : 
+<span class="lineNum">     567 </span>            :         case GF_IP_NETWORK_EMPTY:
+<span class="lineNum">     568 </span><span class="lineNoCov">          0 :                 return &quot;Network Timeout&quot;;</span>
+<span class="lineNum">     569 </span>            :         case GF_IP_SOCK_WOULD_BLOCK:
+<span class="lineNum">     570 </span><span class="lineNoCov">          0 :                 return &quot;Socket Would Block&quot;;</span>
+<span class="lineNum">     571 </span>            :         case GF_IP_CONNECTION_CLOSED:
+<span class="lineNum">     572 </span><span class="lineNoCov">          0 :                 return &quot;Connection to server closed&quot;;</span>
+<span class="lineNum">     573 </span>            :         case GF_IP_UDP_TIMEOUT:
+<span class="lineNum">     574 </span><span class="lineNoCov">          0 :                 return &quot;UDP traffic timeout&quot;;</span>
+<span class="lineNum">     575 </span>            :         case GF_AUTHENTICATION_FAILURE:
+<span class="lineNum">     576 </span><span class="lineNoCov">          0 :                 return &quot;Authentication failure&quot;;</span>
+<span class="lineNum">     577 </span>            :         case GF_SCRIPT_NOT_READY:
+<span class="lineNum">     578 </span><span class="lineNoCov">          0 :                 return &quot;Script not ready for playback&quot;;</span>
+<span class="lineNum">     579 </span>            :         case GF_INVALID_CONFIGURATION:
+<span class="lineNum">     580 </span><span class="lineNoCov">          0 :                 return &quot;Bad configuration for the current context&quot;;</span>
+<span class="lineNum">     581 </span>            :         case GF_NOT_FOUND:
+<span class="lineNum">     582 </span><span class="lineNoCov">          0 :                 return &quot;At least one required element has not been found&quot;;</span>
+<span class="lineNum">     583 </span>            :         case GF_MISSING_REQUIREMENTS:
+<span class="lineNum">     584 </span><span class="lineNoCov">          0 :                 return &quot;The filter is missing at least one requirement&quot;;</span>
+<span class="lineNum">     585 </span>            :         case GF_WRONG_DATAFORMAT:
+<span class="lineNum">     586 </span><span class="lineNoCov">          0 :                 return &quot;Unexpected data format&quot;;</span>
+<span class="lineNum">     587 </span>            :         default:
+<span class="lineNum">     588 </span><span class="lineNoCov">          0 :                 sprintf(szErrMsg, &quot;Unknown Error (%d)&quot;, e);</span>
+<span class="lineNum">     589 </span><span class="lineNoCov">          0 :                 return szErrMsg;</span>
+<span class="lineNum">     590 </span>            :         }
+<span class="lineNum">     591 </span><span class="lineCov">        237 : }</span>
+<span class="lineNum">     592 </span>            : 
+<span class="lineNum">     593 </span>            : static const u32 gf_crc_table[256] = {
+<span class="lineNum">     594 </span>            :         0x00000000, 0x04c11db7, 0x09823b6e, 0x0d4326d9, 0x130476dc, 0x17c56b6b,
+<span class="lineNum">     595 </span>            :         0x1a864db2, 0x1e475005, 0x2608edb8, 0x22c9f00f, 0x2f8ad6d6, 0x2b4bcb61,
+<span class="lineNum">     596 </span>            :         0x350c9b64, 0x31cd86d3, 0x3c8ea00a, 0x384fbdbd, 0x4c11db70, 0x48d0c6c7,
+<span class="lineNum">     597 </span>            :         0x4593e01e, 0x4152fda9, 0x5f15adac, 0x5bd4b01b, 0x569796c2, 0x52568b75,
+<span class="lineNum">     598 </span>            :         0x6a1936c8, 0x6ed82b7f, 0x639b0da6, 0x675a1011, 0x791d4014, 0x7ddc5da3,
+<span class="lineNum">     599 </span>            :         0x709f7b7a, 0x745e66cd, 0x9823b6e0, 0x9ce2ab57, 0x91a18d8e, 0x95609039,
+<span class="lineNum">     600 </span>            :         0x8b27c03c, 0x8fe6dd8b, 0x82a5fb52, 0x8664e6e5, 0xbe2b5b58, 0xbaea46ef,
+<span class="lineNum">     601 </span>            :         0xb7a96036, 0xb3687d81, 0xad2f2d84, 0xa9ee3033, 0xa4ad16ea, 0xa06c0b5d,
+<span class="lineNum">     602 </span>            :         0xd4326d90, 0xd0f37027, 0xddb056fe, 0xd9714b49, 0xc7361b4c, 0xc3f706fb,
+<span class="lineNum">     603 </span>            :         0xceb42022, 0xca753d95, 0xf23a8028, 0xf6fb9d9f, 0xfbb8bb46, 0xff79a6f1,
+<span class="lineNum">     604 </span>            :         0xe13ef6f4, 0xe5ffeb43, 0xe8bccd9a, 0xec7dd02d, 0x34867077, 0x30476dc0,
+<span class="lineNum">     605 </span>            :         0x3d044b19, 0x39c556ae, 0x278206ab, 0x23431b1c, 0x2e003dc5, 0x2ac12072,
+<span class="lineNum">     606 </span>            :         0x128e9dcf, 0x164f8078, 0x1b0ca6a1, 0x1fcdbb16, 0x018aeb13, 0x054bf6a4,
+<span class="lineNum">     607 </span>            :         0x0808d07d, 0x0cc9cdca, 0x7897ab07, 0x7c56b6b0, 0x71159069, 0x75d48dde,
+<span class="lineNum">     608 </span>            :         0x6b93dddb, 0x6f52c06c, 0x6211e6b5, 0x66d0fb02, 0x5e9f46bf, 0x5a5e5b08,
+<span class="lineNum">     609 </span>            :         0x571d7dd1, 0x53dc6066, 0x4d9b3063, 0x495a2dd4, 0x44190b0d, 0x40d816ba,
+<span class="lineNum">     610 </span>            :         0xaca5c697, 0xa864db20, 0xa527fdf9, 0xa1e6e04e, 0xbfa1b04b, 0xbb60adfc,
+<span class="lineNum">     611 </span>            :         0xb6238b25, 0xb2e29692, 0x8aad2b2f, 0x8e6c3698, 0x832f1041, 0x87ee0df6,
+<span class="lineNum">     612 </span>            :         0x99a95df3, 0x9d684044, 0x902b669d, 0x94ea7b2a, 0xe0b41de7, 0xe4750050,
+<span class="lineNum">     613 </span>            :         0xe9362689, 0xedf73b3e, 0xf3b06b3b, 0xf771768c, 0xfa325055, 0xfef34de2,
+<span class="lineNum">     614 </span>            :         0xc6bcf05f, 0xc27dede8, 0xcf3ecb31, 0xcbffd686, 0xd5b88683, 0xd1799b34,
+<span class="lineNum">     615 </span>            :         0xdc3abded, 0xd8fba05a, 0x690ce0ee, 0x6dcdfd59, 0x608edb80, 0x644fc637,
+<span class="lineNum">     616 </span>            :         0x7a089632, 0x7ec98b85, 0x738aad5c, 0x774bb0eb, 0x4f040d56, 0x4bc510e1,
+<span class="lineNum">     617 </span>            :         0x46863638, 0x42472b8f, 0x5c007b8a, 0x58c1663d, 0x558240e4, 0x51435d53,
+<span class="lineNum">     618 </span>            :         0x251d3b9e, 0x21dc2629, 0x2c9f00f0, 0x285e1d47, 0x36194d42, 0x32d850f5,
+<span class="lineNum">     619 </span>            :         0x3f9b762c, 0x3b5a6b9b, 0x0315d626, 0x07d4cb91, 0x0a97ed48, 0x0e56f0ff,
+<span class="lineNum">     620 </span>            :         0x1011a0fa, 0x14d0bd4d, 0x19939b94, 0x1d528623, 0xf12f560e, 0xf5ee4bb9,
+<span class="lineNum">     621 </span>            :         0xf8ad6d60, 0xfc6c70d7, 0xe22b20d2, 0xe6ea3d65, 0xeba91bbc, 0xef68060b,
+<span class="lineNum">     622 </span>            :         0xd727bbb6, 0xd3e6a601, 0xdea580d8, 0xda649d6f, 0xc423cd6a, 0xc0e2d0dd,
+<span class="lineNum">     623 </span>            :         0xcda1f604, 0xc960ebb3, 0xbd3e8d7e, 0xb9ff90c9, 0xb4bcb610, 0xb07daba7,
+<span class="lineNum">     624 </span>            :         0xae3afba2, 0xaafbe615, 0xa7b8c0cc, 0xa379dd7b, 0x9b3660c6, 0x9ff77d71,
+<span class="lineNum">     625 </span>            :         0x92b45ba8, 0x9675461f, 0x8832161a, 0x8cf30bad, 0x81b02d74, 0x857130c3,
+<span class="lineNum">     626 </span>            :         0x5d8a9099, 0x594b8d2e, 0x5408abf7, 0x50c9b640, 0x4e8ee645, 0x4a4ffbf2,
+<span class="lineNum">     627 </span>            :         0x470cdd2b, 0x43cdc09c, 0x7b827d21, 0x7f436096, 0x7200464f, 0x76c15bf8,
+<span class="lineNum">     628 </span>            :         0x68860bfd, 0x6c47164a, 0x61043093, 0x65c52d24, 0x119b4be9, 0x155a565e,
+<span class="lineNum">     629 </span>            :         0x18197087, 0x1cd86d30, 0x029f3d35, 0x065e2082, 0x0b1d065b, 0x0fdc1bec,
+<span class="lineNum">     630 </span>            :         0x3793a651, 0x3352bbe6, 0x3e119d3f, 0x3ad08088, 0x2497d08d, 0x2056cd3a,
+<span class="lineNum">     631 </span>            :         0x2d15ebe3, 0x29d4f654, 0xc5a92679, 0xc1683bce, 0xcc2b1d17, 0xc8ea00a0,
+<span class="lineNum">     632 </span>            :         0xd6ad50a5, 0xd26c4d12, 0xdf2f6bcb, 0xdbee767c, 0xe3a1cbc1, 0xe760d676,
+<span class="lineNum">     633 </span>            :         0xea23f0af, 0xeee2ed18, 0xf0a5bd1d, 0xf464a0aa, 0xf9278673, 0xfde69bc4,
+<span class="lineNum">     634 </span>            :         0x89b8fd09, 0x8d79e0be, 0x803ac667, 0x84fbdbd0, 0x9abc8bd5, 0x9e7d9662,
+<span class="lineNum">     635 </span>            :         0x933eb0bb, 0x97ffad0c, 0xafb010b1, 0xab710d06, 0xa6322bdf, 0xa2f33668,
+<span class="lineNum">     636 </span>            :         0xbcb4666d, 0xb8757bda, 0xb5365d03, 0xb1f740b4
+<span class="lineNum">     637 </span>            : };
+<a name="638"><span class="lineNum">     638 </span>            : </a>
+<span class="lineNum">     639 </span>            : GF_EXPORT
+<span class="lineNum">     640 </span>            : u32 gf_crc_32(const char *data, u32 len)
+<span class="lineNum">     641 </span>            : {
+<span class="lineNum">     642 </span>            :         register u32 i;
+<span class="lineNum">     643 </span>            :         u32 crc = 0xffffffff;
+<span class="lineNum">     644 </span><span class="lineCov">       1390 :         if (!data) return 0;</span>
+<span class="lineNum">     645 </span><span class="lineCov">      33338 :         for (i=0; i&lt;len; i++)</span>
+<span class="lineNum">     646 </span><span class="lineCov">      15974 :                 crc = (crc &lt;&lt; 8) ^ gf_crc_table[((crc &gt;&gt; 24) ^ *data++) &amp; 0xff];</span>
+<span class="lineNum">     647 </span>            : 
+<span class="lineNum">     648 </span><span class="lineCov">        695 :         return crc;</span>
+<span class="lineNum">     649 </span><span class="lineCov">        695 : }</span>
+<span class="lineNum">     650 </span>            : 
+<span class="lineNum">     651 </span>            : 
+<span class="lineNum">     652 </span>            : #define CHECK_MAC(_a) &quot;#_a :&quot; ? (_a) ? &quot;yes&quot;:&quot;no&quot;
+<a name="653"><span class="lineNum">     653 </span>            : </a>
+<span class="lineNum">     654 </span>            : GF_EXPORT
+<span class="lineNum">     655 </span>            : const char *gpac_features()
+<span class="lineNum">     656 </span>            : {
+<span class="lineNum">     657 </span>            :         const char *features = &quot;&quot;
+<span class="lineNum">     658 </span>            : #ifdef GPAC_64_BITS
+<span class="lineNum">     659 </span>            :                                &quot;GPAC_64_BITS &quot;
+<span class="lineNum">     660 </span>            : #endif
+<span class="lineNum">     661 </span>            : 
+<span class="lineNum">     662 </span>            : #ifdef GPAC_FIXED_POINT
+<span class="lineNum">     663 </span>            :                                &quot;GPAC_FIXED_POINT &quot;
+<span class="lineNum">     664 </span>            : #endif
+<span class="lineNum">     665 </span>            : #ifdef GPAC_MEMORY_TRACKING
+<span class="lineNum">     666 </span>            :                                &quot;GPAC_MEMORY_TRACKING &quot;
+<span class="lineNum">     667 </span>            : #endif
+<span class="lineNum">     668 </span>            : #ifdef GPAC_BIG_ENDIAN
+<span class="lineNum">     669 </span>            :                                &quot;GPAC_BIG_ENDIAN &quot;
+<span class="lineNum">     670 </span>            : #endif
+<span class="lineNum">     671 </span>            : #ifdef GPAC_HAS_SSL
+<span class="lineNum">     672 </span>            :                                &quot;GPAC_HAS_SSL &quot;
+<span class="lineNum">     673 </span>            : #endif
+<span class="lineNum">     674 </span>            : #ifdef GPAC_HAS_SPIDERMONKEY
+<span class="lineNum">     675 </span>            :                                &quot;GPAC_HAS_SPIDERMONKEY &quot;
+<span class="lineNum">     676 </span>            : #endif
+<span class="lineNum">     677 </span>            : #ifdef GPAC_HAS_JPEG
+<span class="lineNum">     678 </span>            :                                &quot;GPAC_HAS_JPEG &quot;
+<span class="lineNum">     679 </span>            : #endif
+<span class="lineNum">     680 </span>            : #ifdef GPAC_HAS_PNG
+<span class="lineNum">     681 </span>            :                                &quot;GPAC_HAS_PNG &quot;
+<span class="lineNum">     682 </span>            : #endif
+<span class="lineNum">     683 </span>            : #ifdef GPAC_DISABLE_3D
+<span class="lineNum">     684 </span>            :                                &quot;GPAC_DISABLE_3D &quot;
+<span class="lineNum">     685 </span>            : #endif
+<span class="lineNum">     686 </span>            : #ifdef GPAC_USE_TINYGL
+<span class="lineNum">     687 </span>            :                                &quot;GPAC_USE_TINYGL &quot;
+<span class="lineNum">     688 </span>            : #endif
+<span class="lineNum">     689 </span>            : #ifdef GPAC_USE_GLES1X
+<span class="lineNum">     690 </span>            :                                &quot;GPAC_USE_GLES1X &quot;
+<span class="lineNum">     691 </span>            : #endif
+<span class="lineNum">     692 </span>            : #if defined(_WIN32_WCE)
+<span class="lineNum">     693 </span>            : #ifdef GPAC_USE_IGPP
+<span class="lineNum">     694 </span>            :                                &quot;GPAC_USE_IGPP &quot;
+<span class="lineNum">     695 </span>            : #endif
+<span class="lineNum">     696 </span>            : #ifdef GPAC_USE_IGPP_HP
+<span class="lineNum">     697 </span>            :                                &quot;GPAC_USE_IGPP_HP &quot;
+<span class="lineNum">     698 </span>            : #endif
+<span class="lineNum">     699 </span>            : #endif
+<span class="lineNum">     700 </span>            : #ifdef GPAC_DISABLE_SVG
+<span class="lineNum">     701 </span>            :                                &quot;GPAC_DISABLE_SVG &quot;
+<span class="lineNum">     702 </span>            : #endif
+<span class="lineNum">     703 </span>            : #ifdef GPAC_DISABLE_VRML
+<span class="lineNum">     704 </span>            :                                &quot;GPAC_DISABLE_VRML &quot;
+<span class="lineNum">     705 </span>            : #endif
+<span class="lineNum">     706 </span>            : #ifdef GPAC_MINIMAL_ODF
+<span class="lineNum">     707 </span>            :                                &quot;GPAC_MINIMAL_ODF &quot;
+<span class="lineNum">     708 </span>            : #endif
+<span class="lineNum">     709 </span>            : #ifdef GPAC_DISABLE_BIFS
+<span class="lineNum">     710 </span>            :                                &quot;GPAC_DISABLE_BIFS &quot;
+<span class="lineNum">     711 </span>            : #endif
+<span class="lineNum">     712 </span>            : #ifdef GPAC_DISABLE_QTVR
+<span class="lineNum">     713 </span>            :                                &quot;GPAC_DISABLE_QTVR &quot;
+<span class="lineNum">     714 </span>            : #endif
+<span class="lineNum">     715 </span>            : #ifdef GPAC_DISABLE_AVILIB
+<span class="lineNum">     716 </span>            :                                &quot;GPAC_DISABLE_AVILIB &quot;
+<span class="lineNum">     717 </span>            : #endif
+<span class="lineNum">     718 </span>            : #ifdef GPAC_DISABLE_OGG
+<span class="lineNum">     719 </span>            :                                &quot;GPAC_DISABLE_OGG &quot;
+<span class="lineNum">     720 </span>            : #endif
+<span class="lineNum">     721 </span>            : #ifdef GPAC_DISABLE_MPEG2PS
+<span class="lineNum">     722 </span>            :                                &quot;GPAC_DISABLE_MPEG2PS &quot;
+<span class="lineNum">     723 </span>            : #endif
+<span class="lineNum">     724 </span>            : #ifdef GPAC_DISABLE_MPEG2PS
+<span class="lineNum">     725 </span>            :                                &quot;GPAC_DISABLE_MPEG2TS &quot;
+<span class="lineNum">     726 </span>            : #endif
+<span class="lineNum">     727 </span>            : #ifdef GPAC_DISABLE_SENG
+<span class="lineNum">     728 </span>            :                                &quot;GPAC_DISABLE_SENG &quot;
+<span class="lineNum">     729 </span>            : #endif
+<span class="lineNum">     730 </span>            : #ifdef GPAC_DISABLE_MEDIA_IMPORT
+<span class="lineNum">     731 </span>            :                                &quot;GPAC_DISABLE_MEDIA_IMPORT &quot;
+<span class="lineNum">     732 </span>            : #endif
+<span class="lineNum">     733 </span>            : #ifdef GPAC_DISABLE_AV_PARSERS
+<span class="lineNum">     734 </span>            :                                &quot;GPAC_DISABLE_AV_PARSERS &quot;
+<span class="lineNum">     735 </span>            : #endif
+<span class="lineNum">     736 </span>            : #ifdef GPAC_DISABLE_MEDIA_EXPORT
+<span class="lineNum">     737 </span>            :                                &quot;GPAC_DISABLE_MEDIA_EXPORT &quot;
+<span class="lineNum">     738 </span>            : #endif
+<span class="lineNum">     739 </span>            : #ifdef GPAC_DISABLE_SWF_IMPORT
+<span class="lineNum">     740 </span>            :                                &quot;GPAC_DISABLE_SWF_IMPORT &quot;
+<span class="lineNum">     741 </span>            : #endif
+<span class="lineNum">     742 </span>            : #ifdef GPAC_DISABLE_SCENE_STATS
+<span class="lineNum">     743 </span>            :                                &quot;GPAC_DISABLE_SCENE_STATS &quot;
+<span class="lineNum">     744 </span>            : #endif
+<span class="lineNum">     745 </span>            : #ifdef GPAC_DISABLE_SCENE_DUMP
+<span class="lineNum">     746 </span>            :                                &quot;GPAC_DISABLE_SCENE_DUMP &quot;
+<span class="lineNum">     747 </span>            : #endif
+<span class="lineNum">     748 </span>            : #ifdef GPAC_DISABLE_SCENE_ENCODER
+<span class="lineNum">     749 </span>            :                                &quot;GPAC_DISABLE_SCENE_ENCODER &quot;
+<span class="lineNum">     750 </span>            : #endif
+<span class="lineNum">     751 </span>            : #ifdef GPAC_DISABLE_LOADER_ISOM
+<span class="lineNum">     752 </span>            :                                &quot;GPAC_DISABLE_LOADER_ISOM &quot;
+<span class="lineNum">     753 </span>            : #endif
+<span class="lineNum">     754 </span>            : #ifdef GPAC_DISABLE_OD_DUMP
+<span class="lineNum">     755 </span>            :                                &quot;GPAC_DISABLE_OD_DUMP &quot;
+<span class="lineNum">     756 </span>            : #endif
+<span class="lineNum">     757 </span>            : #ifdef GPAC_DISABLE_MCRYPT
+<span class="lineNum">     758 </span>            :                                &quot;GPAC_DISABLE_MCRYPT &quot;
+<span class="lineNum">     759 </span>            : #endif
+<span class="lineNum">     760 </span>            : #ifdef GPAC_DISABLE_ISOM
+<span class="lineNum">     761 </span>            :                                &quot;GPAC_DISABLE_MCRYPT &quot;
+<span class="lineNum">     762 </span>            : #endif
+<span class="lineNum">     763 </span>            : #ifdef GPAC_DISABLE_ISOM_HINTING
+<span class="lineNum">     764 </span>            :                                &quot;GPAC_DISABLE_ISOM_HINTING &quot;
+<span class="lineNum">     765 </span>            : #endif
+<span class="lineNum">     766 </span>            : #ifdef GPAC_DISABLE_ISOM_WRITE
+<span class="lineNum">     767 </span>            :                                &quot;GPAC_DISABLE_ISOM_WRITE &quot;
+<span class="lineNum">     768 </span>            : #endif
+<span class="lineNum">     769 </span>            : #ifdef GPAC_DISABLE_ISOM_FRAGMENTS
+<span class="lineNum">     770 </span>            :                                &quot;GPAC_DISABLE_ISOM_FRAGMENTS &quot;
+<span class="lineNum">     771 </span>            : #endif
+<span class="lineNum">     772 </span>            : #ifdef GPAC_DISABLE_LASER
+<span class="lineNum">     773 </span>            :                                &quot;GPAC_DISABLE_LASER &quot;
+<span class="lineNum">     774 </span>            : #endif
+<span class="lineNum">     775 </span>            : #ifdef GPAC_DISABLE_STREAMING
+<span class="lineNum">     776 </span>            :                                &quot;GPAC_DISABLE_STREAMING &quot;
+<span class="lineNum">     777 </span>            : #endif
+<span class="lineNum">     778 </span>            : 
+<span class="lineNum">     779 </span>            :                                ;
+<span class="lineNum">     780 </span><span class="lineCov">          6 :         return features;</span>
+<span class="lineNum">     781 </span>            : }
+<span class="lineNum">     782 </span>            : 
+<span class="lineNum">     783 </span>            : 
+<span class="lineNum">     784 </span>            : static const struct lang_def {
+<span class="lineNum">     785 </span>            :         const char *name;
+<span class="lineNum">     786 </span>            :         const char *three_char_code;
+<span class="lineNum">     787 </span>            :         const char *two_char_code;
+<span class="lineNum">     788 </span>            : } defined_languages [] =
+<span class="lineNum">     789 </span>            : {
+<span class="lineNum">     790 </span>            :         { &quot;Abkhazian&quot;,&quot;abk&quot;,&quot;ab&quot;} ,
+<span class="lineNum">     791 </span>            :         { &quot;Achinese&quot;,&quot;ace&quot;,&quot;&quot;} ,
+<span class="lineNum">     792 </span>            :         { &quot;Acoli&quot;,&quot;ach&quot;,&quot;&quot;} ,
+<span class="lineNum">     793 </span>            :         { &quot;Adangme&quot;,&quot;ada&quot;,&quot;&quot;} ,
+<span class="lineNum">     794 </span>            :         { &quot;Adyghe; Adygei&quot;,&quot;ady&quot;,&quot;&quot;} ,
+<span class="lineNum">     795 </span>            :         { &quot;Afar&quot;,&quot;aar&quot;,&quot;aa&quot;} ,
+<span class="lineNum">     796 </span>            :         { &quot;Afrihili&quot;,&quot;afh&quot;,&quot;&quot;} ,
+<span class="lineNum">     797 </span>            :         { &quot;Afrikaans&quot;,&quot;afr&quot;,&quot;af&quot;} ,
+<span class="lineNum">     798 </span>            :         { &quot;Afro-Asiatic languages&quot;,&quot;afa&quot;,&quot;&quot;} ,
+<span class="lineNum">     799 </span>            :         { &quot;Ainu&quot;,&quot;ain&quot;,&quot;&quot;} ,
+<span class="lineNum">     800 </span>            :         { &quot;Akan&quot;,&quot;aka&quot;,&quot;ak&quot;} ,
+<span class="lineNum">     801 </span>            :         { &quot;Akkadian&quot;,&quot;akk&quot;,&quot;&quot;} ,
+<span class="lineNum">     802 </span>            :         { &quot;Albanian&quot;,&quot;sqi&quot;,&quot;sq&quot;} ,
+<span class="lineNum">     803 </span>            :         { &quot;Aleut&quot;,&quot;ale&quot;,&quot;&quot;} ,
+<span class="lineNum">     804 </span>            :         { &quot;Algonquian languages&quot;,&quot;alg&quot;,&quot;&quot;} ,
+<span class="lineNum">     805 </span>            :         { &quot;Altaic languages&quot;,&quot;tut&quot;,&quot;&quot;} ,
+<span class="lineNum">     806 </span>            :         { &quot;Amharic&quot;,&quot;amh&quot;,&quot;am&quot;} ,
+<span class="lineNum">     807 </span>            :         { &quot;Angika&quot;,&quot;anp&quot;,&quot;&quot;} ,
+<span class="lineNum">     808 </span>            :         { &quot;Apache languages&quot;,&quot;apa&quot;,&quot;&quot;} ,
+<span class="lineNum">     809 </span>            :         { &quot;Arabic&quot;,&quot;ara&quot;,&quot;ar&quot;} ,
+<span class="lineNum">     810 </span>            :         { &quot;Aragonese&quot;,&quot;arg&quot;,&quot;an&quot;} ,
+<span class="lineNum">     811 </span>            :         { &quot;Arapaho&quot;,&quot;arp&quot;,&quot;&quot;} ,
+<span class="lineNum">     812 </span>            :         { &quot;Arawak&quot;,&quot;arw&quot;,&quot;&quot;} ,
+<span class="lineNum">     813 </span>            :         { &quot;Armenian&quot;,&quot;hye&quot;,&quot;hy&quot;} ,
+<span class="lineNum">     814 </span>            :         { &quot;Aromanian; Arumanian; Macedo-Romanian&quot;,&quot;rup&quot;,&quot;&quot;} ,
+<span class="lineNum">     815 </span>            :         { &quot;Artificial languages&quot;,&quot;art&quot;,&quot;&quot;} ,
+<span class="lineNum">     816 </span>            :         { &quot;Assamese&quot;,&quot;asm&quot;,&quot;as&quot;} ,
+<span class="lineNum">     817 </span>            :         { &quot;Asturian; Bable; Leonese; Asturleonese&quot;,&quot;ast&quot;,&quot;&quot;} ,
+<span class="lineNum">     818 </span>            :         { &quot;Athapascan languages&quot;,&quot;ath&quot;,&quot;&quot;} ,
+<span class="lineNum">     819 </span>            :         { &quot;Australian languages&quot;,&quot;aus&quot;,&quot;&quot;} ,
+<span class="lineNum">     820 </span>            :         { &quot;Austronesian languages&quot;,&quot;map&quot;,&quot;&quot;} ,
+<span class="lineNum">     821 </span>            :         { &quot;Avaric&quot;,&quot;ava&quot;,&quot;av&quot;} ,
+<span class="lineNum">     822 </span>            :         { &quot;Avestan&quot;,&quot;ave&quot;,&quot;ae&quot;} ,
+<span class="lineNum">     823 </span>            :         { &quot;Awadhi&quot;,&quot;awa&quot;,&quot;&quot;} ,
+<span class="lineNum">     824 </span>            :         { &quot;Aymara&quot;,&quot;aym&quot;,&quot;ay&quot;} ,
+<span class="lineNum">     825 </span>            :         { &quot;Azerbaijani&quot;,&quot;aze&quot;,&quot;az&quot;} ,
+<span class="lineNum">     826 </span>            :         { &quot;Balinese&quot;,&quot;ban&quot;,&quot;&quot;} ,
+<span class="lineNum">     827 </span>            :         { &quot;Baltic languages&quot;,&quot;bat&quot;,&quot;&quot;} ,
+<span class="lineNum">     828 </span>            :         { &quot;Baluchi&quot;,&quot;bal&quot;,&quot;&quot;} ,
+<span class="lineNum">     829 </span>            :         { &quot;Bambara&quot;,&quot;bam&quot;,&quot;bm&quot;} ,
+<span class="lineNum">     830 </span>            :         { &quot;Bamileke languages&quot;,&quot;bai&quot;,&quot;&quot;} ,
+<span class="lineNum">     831 </span>            :         { &quot;Banda languages&quot;,&quot;bad&quot;,&quot;&quot;} ,
+<span class="lineNum">     832 </span>            :         { &quot;Bantu languages&quot;,&quot;bnt&quot;,&quot;&quot;} ,
+<span class="lineNum">     833 </span>            :         { &quot;Basa&quot;,&quot;bas&quot;,&quot;&quot;} ,
+<span class="lineNum">     834 </span>            :         { &quot;Bashkir&quot;,&quot;bak&quot;,&quot;ba&quot;} ,
+<span class="lineNum">     835 </span>            :         { &quot;Basque&quot;,&quot;eus&quot;,&quot;eu&quot;} ,
+<span class="lineNum">     836 </span>            :         { &quot;Batak languages&quot;,&quot;btk&quot;,&quot;&quot;} ,
+<span class="lineNum">     837 </span>            :         { &quot;Beja; Bedawiyet&quot;,&quot;bej&quot;,&quot;&quot;} ,
+<span class="lineNum">     838 </span>            :         { &quot;Belarusian&quot;,&quot;bel&quot;,&quot;be&quot;} ,
+<span class="lineNum">     839 </span>            :         { &quot;Bemba&quot;,&quot;bem&quot;,&quot;&quot;} ,
+<span class="lineNum">     840 </span>            :         { &quot;Bengali&quot;,&quot;ben&quot;,&quot;bn&quot;} ,
+<span class="lineNum">     841 </span>            :         { &quot;Berber languages&quot;,&quot;ber&quot;,&quot;&quot;} ,
+<span class="lineNum">     842 </span>            :         { &quot;Bhojpuri&quot;,&quot;bho&quot;,&quot;&quot;} ,
+<span class="lineNum">     843 </span>            :         { &quot;Bihari languages&quot;,&quot;bih&quot;,&quot;bh&quot;} ,
+<span class="lineNum">     844 </span>            :         { &quot;Bikol&quot;,&quot;bik&quot;,&quot;&quot;} ,
+<span class="lineNum">     845 </span>            :         { &quot;Bini; Edo&quot;,&quot;bin&quot;,&quot;&quot;} ,
+<span class="lineNum">     846 </span>            :         { &quot;Bislama&quot;,&quot;bis&quot;,&quot;bi&quot;} ,
+<span class="lineNum">     847 </span>            :         { &quot;Blin; Bilin&quot;,&quot;byn&quot;,&quot;&quot;} ,
+<span class="lineNum">     848 </span>            :         { &quot;Blissymbols; Blissymbolics; Bliss&quot;,&quot;zbl&quot;,&quot;&quot;} ,
+<span class="lineNum">     849 </span>            :         { &quot;Bokmal, Norwegian; Norwegian Bokmal&quot;,&quot;nob&quot;,&quot;nb&quot;} ,
+<span class="lineNum">     850 </span>            :         { &quot;Bosnian&quot;,&quot;bos&quot;,&quot;bs&quot;} ,
+<span class="lineNum">     851 </span>            :         { &quot;Braj&quot;,&quot;bra&quot;,&quot;&quot;} ,
+<span class="lineNum">     852 </span>            :         { &quot;Breton&quot;,&quot;bre&quot;,&quot;br&quot;} ,
+<span class="lineNum">     853 </span>            :         { &quot;Buginese&quot;,&quot;bug&quot;,&quot;&quot;} ,
+<span class="lineNum">     854 </span>            :         { &quot;Bulgarian&quot;,&quot;bul&quot;,&quot;bg&quot;} ,
+<span class="lineNum">     855 </span>            :         { &quot;Buriat&quot;,&quot;bua&quot;,&quot;&quot;} ,
+<span class="lineNum">     856 </span>            :         { &quot;Burmese&quot;,&quot;mya&quot;,&quot;my&quot;} ,
+<span class="lineNum">     857 </span>            :         { &quot;Caddo&quot;,&quot;cad&quot;,&quot;&quot;} ,
+<span class="lineNum">     858 </span>            :         { &quot;Catalan; Valencian&quot;,&quot;cat&quot;,&quot;ca&quot;} ,
+<span class="lineNum">     859 </span>            :         { &quot;Caucasian languages&quot;,&quot;cau&quot;,&quot;&quot;} ,
+<span class="lineNum">     860 </span>            :         { &quot;Cebuano&quot;,&quot;ceb&quot;,&quot;&quot;} ,
+<span class="lineNum">     861 </span>            :         { &quot;Celtic languages&quot;,&quot;cel&quot;,&quot;&quot;} ,
+<span class="lineNum">     862 </span>            :         { &quot;Central American Indian languages&quot;,&quot;cai&quot;,&quot;&quot;} ,
+<span class="lineNum">     863 </span>            :         { &quot;Central Khmer&quot;,&quot;khm&quot;,&quot;km&quot;} ,
+<span class="lineNum">     864 </span>            :         { &quot;Chagatai&quot;,&quot;chg&quot;,&quot;&quot;} ,
+<span class="lineNum">     865 </span>            :         { &quot;Chamic languages&quot;,&quot;cmc&quot;,&quot;&quot;} ,
+<span class="lineNum">     866 </span>            :         { &quot;Chamorro&quot;,&quot;cha&quot;,&quot;ch&quot;} ,
+<span class="lineNum">     867 </span>            :         { &quot;Chechen&quot;,&quot;che&quot;,&quot;ce&quot;} ,
+<span class="lineNum">     868 </span>            :         { &quot;Cherokee&quot;,&quot;chr&quot;,&quot;&quot;} ,
+<span class="lineNum">     869 </span>            :         { &quot;Cheyenne&quot;,&quot;chy&quot;,&quot;&quot;} ,
+<span class="lineNum">     870 </span>            :         { &quot;Chibcha&quot;,&quot;chb&quot;,&quot;&quot;} ,
+<span class="lineNum">     871 </span>            :         { &quot;Chichewa; Chewa; Nyanja&quot;,&quot;nya&quot;,&quot;ny&quot;} ,
+<span class="lineNum">     872 </span>            :         { &quot;Chinese&quot;,&quot;zho&quot;,&quot;zh&quot;} ,
+<span class="lineNum">     873 </span>            :         { &quot;Chinook jargon&quot;,&quot;chn&quot;,&quot;&quot;} ,
+<span class="lineNum">     874 </span>            :         { &quot;Chipewyan; Dene Suline&quot;,&quot;chp&quot;,&quot;&quot;} ,
+<span class="lineNum">     875 </span>            :         { &quot;Choctaw&quot;,&quot;cho&quot;,&quot;&quot;} ,
+<span class="lineNum">     876 </span>            :         { &quot;Church Slavic; Old Slavonic; Church Slavonic; Old Bulgarian; Old Church}  S{ lavonic&quot;,&quot;chu&quot;,&quot;cu&quot;} ,
+<span class="lineNum">     877 </span>            :         { &quot;Chuukese&quot;,&quot;chk&quot;,&quot;&quot;} ,
+<span class="lineNum">     878 </span>            :         { &quot;Chuvash&quot;,&quot;chv&quot;,&quot;cv&quot;} ,
+<span class="lineNum">     879 </span>            :         { &quot;Classical Newari; Old Newari; Classical Nepal Bhasa&quot;,&quot;nwc&quot;,&quot;&quot;} ,
+<span class="lineNum">     880 </span>            :         { &quot;Classical Syriac&quot;,&quot;syc&quot;,&quot;&quot;} ,
+<span class="lineNum">     881 </span>            :         { &quot;Coptic&quot;,&quot;cop&quot;,&quot;&quot;} ,
+<span class="lineNum">     882 </span>            :         { &quot;Cornish&quot;,&quot;cor&quot;,&quot;kw&quot;} ,
+<span class="lineNum">     883 </span>            :         { &quot;Corsican&quot;,&quot;cos&quot;,&quot;co&quot;} ,
+<span class="lineNum">     884 </span>            :         { &quot;Cree&quot;,&quot;cre&quot;,&quot;cr&quot;} ,
+<span class="lineNum">     885 </span>            :         { &quot;Creek&quot;,&quot;mus&quot;,&quot;&quot;} ,
+<span class="lineNum">     886 </span>            :         { &quot;Creoles and pidgins&quot;,&quot;crp&quot;,&quot;&quot;} ,
+<span class="lineNum">     887 </span>            :         { &quot;Creoles and pidgins, English based&quot;,&quot;cpe&quot;,&quot;&quot;} ,
+<span class="lineNum">     888 </span>            :         { &quot;Creoles and pidgins, French-based&quot;,&quot;cpf&quot;,&quot;&quot;} ,
+<span class="lineNum">     889 </span>            :         { &quot;Creoles and pidgins, Portuguese-based&quot;,&quot;cpp&quot;,&quot;&quot;} ,
+<span class="lineNum">     890 </span>            :         { &quot;Crimean Tatar; Crimean Turkish&quot;,&quot;crh&quot;,&quot;&quot;} ,
+<span class="lineNum">     891 </span>            :         { &quot;Croatian&quot;,&quot;hrv&quot;,&quot;hr&quot;} ,
+<span class="lineNum">     892 </span>            :         { &quot;Cushitic languages&quot;,&quot;cus&quot;,&quot;&quot;} ,
+<span class="lineNum">     893 </span>            :         { &quot;Czech&quot;,&quot;ces&quot;,&quot;cs&quot;} ,
+<span class="lineNum">     894 </span>            :         { &quot;Dakota&quot;,&quot;dak&quot;,&quot;&quot;} ,
+<span class="lineNum">     895 </span>            :         { &quot;Danish&quot;,&quot;dan&quot;,&quot;da&quot;} ,
+<span class="lineNum">     896 </span>            :         { &quot;Dargwa&quot;,&quot;dar&quot;,&quot;&quot;} ,
+<span class="lineNum">     897 </span>            :         { &quot;Delaware&quot;,&quot;del&quot;,&quot;&quot;} ,
+<span class="lineNum">     898 </span>            :         { &quot;Dinka&quot;,&quot;din&quot;,&quot;&quot;} ,
+<span class="lineNum">     899 </span>            :         { &quot;Divehi; Dhivehi; Maldivian&quot;,&quot;div&quot;,&quot;dv&quot;} ,
+<span class="lineNum">     900 </span>            :         { &quot;Dogri&quot;,&quot;doi&quot;,&quot;&quot;} ,
+<span class="lineNum">     901 </span>            :         { &quot;Dogrib&quot;,&quot;dgr&quot;,&quot;&quot;} ,
+<span class="lineNum">     902 </span>            :         { &quot;Dravidian languages&quot;,&quot;dra&quot;,&quot;&quot;} ,
+<span class="lineNum">     903 </span>            :         { &quot;Duala&quot;,&quot;dua&quot;,&quot;&quot;} ,
+<span class="lineNum">     904 </span>            :         { &quot;Dutch, Middle (ca.1050-1350)&quot;,&quot;dum&quot;,&quot;&quot;} ,
+<span class="lineNum">     905 </span>            :         { &quot;Dutch; Flemish&quot;,&quot;nld&quot;,&quot;nl&quot;} ,
+<span class="lineNum">     906 </span>            :         { &quot;Dyula&quot;,&quot;dyu&quot;,&quot;&quot;} ,
+<span class="lineNum">     907 </span>            :         { &quot;Dzongkha&quot;,&quot;dzo&quot;,&quot;dz&quot;} ,
+<span class="lineNum">     908 </span>            :         { &quot;Eastern Frisian&quot;,&quot;frs&quot;,&quot;&quot;} ,
+<span class="lineNum">     909 </span>            :         { &quot;Efik&quot;,&quot;efi&quot;,&quot;&quot;} ,
+<span class="lineNum">     910 </span>            :         { &quot;Egyptian (Ancient)&quot;,&quot;egy&quot;,&quot;&quot;} ,
+<span class="lineNum">     911 </span>            :         { &quot;Ekajuk&quot;,&quot;eka&quot;,&quot;&quot;} ,
+<span class="lineNum">     912 </span>            :         { &quot;Elamite&quot;,&quot;elx&quot;,&quot;&quot;} ,
+<span class="lineNum">     913 </span>            :         { &quot;English&quot;,&quot;eng&quot;,&quot;en&quot;} ,
+<span class="lineNum">     914 </span>            :         { &quot;English, Middle (1100-1500)&quot;,&quot;enm&quot;,&quot;&quot;} ,
+<span class="lineNum">     915 </span>            :         { &quot;English, Old (ca.450-1100)&quot;,&quot;ang&quot;,&quot;&quot;} ,
+<span class="lineNum">     916 </span>            :         { &quot;Erzya&quot;,&quot;myv&quot;,&quot;&quot;} ,
+<span class="lineNum">     917 </span>            :         { &quot;Esperanto&quot;,&quot;epo&quot;,&quot;eo&quot;} ,
+<span class="lineNum">     918 </span>            :         { &quot;Estonian&quot;,&quot;est&quot;,&quot;et&quot;} ,
+<span class="lineNum">     919 </span>            :         { &quot;Ewe&quot;,&quot;ewe&quot;,&quot;ee&quot;} ,
+<span class="lineNum">     920 </span>            :         { &quot;Ewondo&quot;,&quot;ewo&quot;,&quot;&quot;} ,
+<span class="lineNum">     921 </span>            :         { &quot;Fang&quot;,&quot;fan&quot;,&quot;&quot;} ,
+<span class="lineNum">     922 </span>            :         { &quot;Fanti&quot;,&quot;fat&quot;,&quot;&quot;} ,
+<span class="lineNum">     923 </span>            :         { &quot;Faroese&quot;,&quot;fao&quot;,&quot;fo&quot;} ,
+<span class="lineNum">     924 </span>            :         { &quot;Fijian&quot;,&quot;fij&quot;,&quot;fj&quot;} ,
+<span class="lineNum">     925 </span>            :         { &quot;Filipino; Pilipino&quot;,&quot;fil&quot;,&quot;&quot;} ,
+<span class="lineNum">     926 </span>            :         { &quot;Finnish&quot;,&quot;fin&quot;,&quot;fi&quot;} ,
+<span class="lineNum">     927 </span>            :         { &quot;Finno-Ugrian languages&quot;,&quot;fiu&quot;,&quot;&quot;} ,
+<span class="lineNum">     928 </span>            :         { &quot;Fon&quot;,&quot;fon&quot;,&quot;&quot;} ,
+<span class="lineNum">     929 </span>            :         { &quot;French&quot;,&quot;fra&quot;,&quot;fr&quot;} ,
+<span class="lineNum">     930 </span>            :         { &quot;French, Middle (ca.1400-1600)&quot;,&quot;frm&quot;,&quot;&quot;} ,
+<span class="lineNum">     931 </span>            :         { &quot;French, Old (842-ca.1400)&quot;,&quot;fro&quot;,&quot;&quot;} ,
+<span class="lineNum">     932 </span>            :         { &quot;Friulian&quot;,&quot;fur&quot;,&quot;&quot;} ,
+<span class="lineNum">     933 </span>            :         { &quot;Fulah&quot;,&quot;ful&quot;,&quot;ff&quot;} ,
+<span class="lineNum">     934 </span>            :         { &quot;Ga&quot;,&quot;gaa&quot;,&quot;&quot;} ,
+<span class="lineNum">     935 </span>            :         { &quot;Gaelic; Scottish Gaelic&quot;,&quot;gla&quot;,&quot;gd&quot;} ,
+<span class="lineNum">     936 </span>            :         { &quot;Galibi Carib&quot;,&quot;car&quot;,&quot;&quot;} ,
+<span class="lineNum">     937 </span>            :         { &quot;Galician&quot;,&quot;glg&quot;,&quot;gl&quot;} ,
+<span class="lineNum">     938 </span>            :         { &quot;Ganda&quot;,&quot;lug&quot;,&quot;lg&quot;} ,
+<span class="lineNum">     939 </span>            :         { &quot;Gayo&quot;,&quot;gay&quot;,&quot;&quot;} ,
+<span class="lineNum">     940 </span>            :         { &quot;Gbaya&quot;,&quot;gba&quot;,&quot;&quot;} ,
+<span class="lineNum">     941 </span>            :         { &quot;Geez&quot;,&quot;gez&quot;,&quot;&quot;} ,
+<span class="lineNum">     942 </span>            :         { &quot;Georgian&quot;,&quot;kat&quot;,&quot;ka&quot;} ,
+<span class="lineNum">     943 </span>            :         { &quot;German&quot;,&quot;deu&quot;,&quot;de&quot;} ,
+<span class="lineNum">     944 </span>            :         { &quot;German, Middle High (ca.1050-1500)&quot;,&quot;gmh&quot;,&quot;&quot;} ,
+<span class="lineNum">     945 </span>            :         { &quot;German, Old High (ca.750-1050)&quot;,&quot;goh&quot;,&quot;&quot;} ,
+<span class="lineNum">     946 </span>            :         { &quot;Germanic languages&quot;,&quot;gem&quot;,&quot;&quot;} ,
+<span class="lineNum">     947 </span>            :         { &quot;Gilbertese&quot;,&quot;gil&quot;,&quot;&quot;} ,
+<span class="lineNum">     948 </span>            :         { &quot;Gondi&quot;,&quot;gon&quot;,&quot;&quot;} ,
+<span class="lineNum">     949 </span>            :         { &quot;Gorontalo&quot;,&quot;gor&quot;,&quot;&quot;} ,
+<span class="lineNum">     950 </span>            :         { &quot;Gothic&quot;,&quot;got&quot;,&quot;&quot;} ,
+<span class="lineNum">     951 </span>            :         { &quot;Grebo&quot;,&quot;grb&quot;,&quot;&quot;} ,
+<span class="lineNum">     952 </span>            :         { &quot;Greek, Ancient (to 1453)&quot;,&quot;grc&quot;,&quot;&quot;} ,
+<span class="lineNum">     953 </span>            :         { &quot;Greek, Modern (1453-)&quot;,&quot;ell&quot;,&quot;el&quot;} ,
+<span class="lineNum">     954 </span>            :         { &quot;Guarani&quot;,&quot;grn&quot;,&quot;gn&quot;} ,
+<span class="lineNum">     955 </span>            :         { &quot;Gujarati&quot;,&quot;guj&quot;,&quot;gu&quot;} ,
+<span class="lineNum">     956 </span>            :         { &quot;Gwich'in&quot;,&quot;gwi&quot;,&quot;&quot;} ,
+<span class="lineNum">     957 </span>            :         { &quot;Haida&quot;,&quot;hai&quot;,&quot;&quot;} ,
+<span class="lineNum">     958 </span>            :         { &quot;Haitian; Haitian Creole&quot;,&quot;hat&quot;,&quot;ht&quot;} ,
+<span class="lineNum">     959 </span>            :         { &quot;Hausa&quot;,&quot;hau&quot;,&quot;ha&quot;} ,
+<span class="lineNum">     960 </span>            :         { &quot;Hawaiian&quot;,&quot;haw&quot;,&quot;&quot;} ,
+<span class="lineNum">     961 </span>            :         { &quot;Hebrew&quot;,&quot;heb&quot;,&quot;he&quot;} ,
+<span class="lineNum">     962 </span>            :         { &quot;Herero&quot;,&quot;her&quot;,&quot;hz&quot;} ,
+<span class="lineNum">     963 </span>            :         { &quot;Hiligaynon&quot;,&quot;hil&quot;,&quot;&quot;} ,
+<span class="lineNum">     964 </span>            :         { &quot;Himachali languages; Western Pahari languages&quot;,&quot;him&quot;,&quot;&quot;} ,
+<span class="lineNum">     965 </span>            :         { &quot;Hindi&quot;,&quot;hin&quot;,&quot;hi&quot;} ,
+<span class="lineNum">     966 </span>            :         { &quot;Hiri Motu&quot;,&quot;hmo&quot;,&quot;ho&quot;} ,
+<span class="lineNum">     967 </span>            :         { &quot;Hittite&quot;,&quot;hit&quot;,&quot;&quot;} ,
+<span class="lineNum">     968 </span>            :         { &quot;Hmong; Mong&quot;,&quot;hmn&quot;,&quot;&quot;} ,
+<span class="lineNum">     969 </span>            :         { &quot;Hungarian&quot;,&quot;hun&quot;,&quot;hu&quot;} ,
+<span class="lineNum">     970 </span>            :         { &quot;Hupa&quot;,&quot;hup&quot;,&quot;&quot;} ,
+<span class="lineNum">     971 </span>            :         { &quot;Iban&quot;,&quot;iba&quot;,&quot;&quot;} ,
+<span class="lineNum">     972 </span>            :         { &quot;Icelandic&quot;,&quot;isl&quot;,&quot;is&quot;} ,
+<span class="lineNum">     973 </span>            :         { &quot;Ido&quot;,&quot;ido&quot;,&quot;io&quot;} ,
+<span class="lineNum">     974 </span>            :         { &quot;Igbo&quot;,&quot;ibo&quot;,&quot;ig&quot;} ,
+<span class="lineNum">     975 </span>            :         { &quot;Ijo languages&quot;,&quot;ijo&quot;,&quot;&quot;} ,
+<span class="lineNum">     976 </span>            :         { &quot;Iloko&quot;,&quot;ilo&quot;,&quot;&quot;} ,
+<span class="lineNum">     977 </span>            :         { &quot;Inari Sami&quot;,&quot;smn&quot;,&quot;&quot;} ,
+<span class="lineNum">     978 </span>            :         { &quot;Indic languages&quot;,&quot;inc&quot;,&quot;&quot;} ,
+<span class="lineNum">     979 </span>            :         { &quot;Indo-European languages&quot;,&quot;ine&quot;,&quot;&quot;} ,
+<span class="lineNum">     980 </span>            :         { &quot;Indonesian&quot;,&quot;ind&quot;,&quot;id&quot;} ,
+<span class="lineNum">     981 </span>            :         { &quot;Ingush&quot;,&quot;inh&quot;,&quot;&quot;} ,
+<span class="lineNum">     982 </span>            :         { &quot;Interlingua (International Auxiliary Language Association)&quot;,&quot;ina&quot;,&quot;ia&quot;} ,
+<span class="lineNum">     983 </span>            :         { &quot;Interlingue; Occidental&quot;,&quot;ile&quot;,&quot;ie&quot;} ,
+<span class="lineNum">     984 </span>            :         { &quot;Inuktitut&quot;,&quot;iku&quot;,&quot;iu&quot;} ,
+<span class="lineNum">     985 </span>            :         { &quot;Inupiaq&quot;,&quot;ipk&quot;,&quot;ik&quot;} ,
+<span class="lineNum">     986 </span>            :         { &quot;Iranian languages&quot;,&quot;ira&quot;,&quot;&quot;} ,
+<span class="lineNum">     987 </span>            :         { &quot;Irish&quot;,&quot;gle&quot;,&quot;ga&quot;} ,
+<span class="lineNum">     988 </span>            :         { &quot;Irish, Middle (900-1200)&quot;,&quot;mga&quot;,&quot;&quot;} ,
+<span class="lineNum">     989 </span>            :         { &quot;Irish, Old (to 900)&quot;,&quot;sga&quot;,&quot;&quot;} ,
+<span class="lineNum">     990 </span>            :         { &quot;Iroquoian languages&quot;,&quot;iro&quot;,&quot;&quot;} ,
+<span class="lineNum">     991 </span>            :         { &quot;Italian&quot;,&quot;ita&quot;,&quot;it&quot;} ,
+<span class="lineNum">     992 </span>            :         { &quot;Japanese&quot;,&quot;jpn&quot;,&quot;ja&quot;} ,
+<span class="lineNum">     993 </span>            :         { &quot;Javanese&quot;,&quot;jav&quot;,&quot;jv&quot;} ,
+<span class="lineNum">     994 </span>            :         { &quot;Judeo-Arabic&quot;,&quot;jrb&quot;,&quot;&quot;} ,
+<span class="lineNum">     995 </span>            :         { &quot;Judeo-Persian&quot;,&quot;jpr&quot;,&quot;&quot;} ,
+<span class="lineNum">     996 </span>            :         { &quot;Kabardian&quot;,&quot;kbd&quot;,&quot;&quot;} ,
+<span class="lineNum">     997 </span>            :         { &quot;Kabyle&quot;,&quot;kab&quot;,&quot;&quot;} ,
+<span class="lineNum">     998 </span>            :         { &quot;Kachin; Jingpho&quot;,&quot;kac&quot;,&quot;&quot;} ,
+<span class="lineNum">     999 </span>            :         { &quot;Kalaallisut; Greenlandic&quot;,&quot;kal&quot;,&quot;kl&quot;} ,
+<span class="lineNum">    1000 </span>            :         { &quot;Kalmyk; Oirat&quot;,&quot;xal&quot;,&quot;&quot;} ,
+<span class="lineNum">    1001 </span>            :         { &quot;Kamba&quot;,&quot;kam&quot;,&quot;&quot;} ,
+<span class="lineNum">    1002 </span>            :         { &quot;Kannada&quot;,&quot;kan&quot;,&quot;kn&quot;} ,
+<span class="lineNum">    1003 </span>            :         { &quot;Kanuri&quot;,&quot;kau&quot;,&quot;kr&quot;} ,
+<span class="lineNum">    1004 </span>            :         { &quot;Kara-Kalpak&quot;,&quot;kaa&quot;,&quot;&quot;} ,
+<span class="lineNum">    1005 </span>            :         { &quot;Karachay-Balkar&quot;,&quot;krc&quot;,&quot;&quot;} ,
+<span class="lineNum">    1006 </span>            :         { &quot;Karelian&quot;,&quot;krl&quot;,&quot;&quot;} ,
+<span class="lineNum">    1007 </span>            :         { &quot;Karen languages&quot;,&quot;kar&quot;,&quot;&quot;} ,
+<span class="lineNum">    1008 </span>            :         { &quot;Kashmiri&quot;,&quot;kas&quot;,&quot;ks&quot;} ,
+<span class="lineNum">    1009 </span>            :         { &quot;Kashubian&quot;,&quot;csb&quot;,&quot;&quot;} ,
+<span class="lineNum">    1010 </span>            :         { &quot;Kawi&quot;,&quot;kaw&quot;,&quot;&quot;} ,
+<span class="lineNum">    1011 </span>            :         { &quot;Kazakh&quot;,&quot;kaz&quot;,&quot;kk&quot;} ,
+<span class="lineNum">    1012 </span>            :         { &quot;Khasi&quot;,&quot;kha&quot;,&quot;&quot;} ,
+<span class="lineNum">    1013 </span>            :         { &quot;Khoisan languages&quot;,&quot;khi&quot;,&quot;&quot;} ,
+<span class="lineNum">    1014 </span>            :         { &quot;Khotanese; Sakan&quot;,&quot;kho&quot;,&quot;&quot;} ,
+<span class="lineNum">    1015 </span>            :         { &quot;Kikuyu; Gikuyu&quot;,&quot;kik&quot;,&quot;ki&quot;} ,
+<span class="lineNum">    1016 </span>            :         { &quot;Kimbundu&quot;,&quot;kmb&quot;,&quot;&quot;} ,
+<span class="lineNum">    1017 </span>            :         { &quot;Kinyarwanda&quot;,&quot;kin&quot;,&quot;rw&quot;} ,
+<span class="lineNum">    1018 </span>            :         { &quot;Kirghiz; Kyrgyz&quot;,&quot;kir&quot;,&quot;ky&quot;} ,
+<span class="lineNum">    1019 </span>            :         { &quot;Klingon; tlhIngan-Hol&quot;,&quot;tlh&quot;,&quot;&quot;} ,
+<span class="lineNum">    1020 </span>            :         { &quot;Komi&quot;,&quot;kom&quot;,&quot;kv&quot;} ,
+<span class="lineNum">    1021 </span>            :         { &quot;Kongo&quot;,&quot;kon&quot;,&quot;kg&quot;} ,
+<span class="lineNum">    1022 </span>            :         { &quot;Konkani&quot;,&quot;kok&quot;,&quot;&quot;} ,
+<span class="lineNum">    1023 </span>            :         { &quot;Korean&quot;,&quot;kor&quot;,&quot;ko&quot;} ,
+<span class="lineNum">    1024 </span>            :         { &quot;Kosraean&quot;,&quot;kos&quot;,&quot;&quot;} ,
+<span class="lineNum">    1025 </span>            :         { &quot;Kpelle&quot;,&quot;kpe&quot;,&quot;&quot;} ,
+<span class="lineNum">    1026 </span>            :         { &quot;Kru languages&quot;,&quot;kro&quot;,&quot;&quot;} ,
+<span class="lineNum">    1027 </span>            :         { &quot;Kuanyama; Kwanyama&quot;,&quot;kua&quot;,&quot;kj&quot;} ,
+<span class="lineNum">    1028 </span>            :         { &quot;Kumyk&quot;,&quot;kum&quot;,&quot;&quot;} ,
+<span class="lineNum">    1029 </span>            :         { &quot;Kurdish&quot;,&quot;kur&quot;,&quot;ku&quot;} ,
+<span class="lineNum">    1030 </span>            :         { &quot;Kurukh&quot;,&quot;kru&quot;,&quot;&quot;} ,
+<span class="lineNum">    1031 </span>            :         { &quot;Kutenai&quot;,&quot;kut&quot;,&quot;&quot;} ,
+<span class="lineNum">    1032 </span>            :         { &quot;Ladino&quot;,&quot;lad&quot;,&quot;&quot;} ,
+<span class="lineNum">    1033 </span>            :         { &quot;Lahnda&quot;,&quot;lah&quot;,&quot;&quot;} ,
+<span class="lineNum">    1034 </span>            :         { &quot;Lamba&quot;,&quot;lam&quot;,&quot;&quot;} ,
+<span class="lineNum">    1035 </span>            :         { &quot;Land Dayak languages&quot;,&quot;day&quot;,&quot;&quot;} ,
+<span class="lineNum">    1036 </span>            :         { &quot;Lao&quot;,&quot;lao&quot;,&quot;lo&quot;} ,
+<span class="lineNum">    1037 </span>            :         { &quot;Latin&quot;,&quot;lat&quot;,&quot;la&quot;} ,
+<span class="lineNum">    1038 </span>            :         { &quot;Latvian&quot;,&quot;lav&quot;,&quot;lv&quot;} ,
+<span class="lineNum">    1039 </span>            :         { &quot;Lezghian&quot;,&quot;lez&quot;,&quot;&quot;} ,
+<span class="lineNum">    1040 </span>            :         { &quot;Limburgan; Limburger; Limburgish&quot;,&quot;lim&quot;,&quot;li&quot;} ,
+<span class="lineNum">    1041 </span>            :         { &quot;Lingala&quot;,&quot;lin&quot;,&quot;ln&quot;} ,
+<span class="lineNum">    1042 </span>            :         { &quot;Lithuanian&quot;,&quot;lit&quot;,&quot;lt&quot;} ,
+<span class="lineNum">    1043 </span>            :         { &quot;Lojban&quot;,&quot;jbo&quot;,&quot;&quot;} ,
+<span class="lineNum">    1044 </span>            :         { &quot;Low German; Low Saxon; German, Low; Saxon, Low&quot;,&quot;nds&quot;,&quot;&quot;} ,
+<span class="lineNum">    1045 </span>            :         { &quot;Lower Sorbian&quot;,&quot;dsb&quot;,&quot;&quot;} ,
+<span class="lineNum">    1046 </span>            :         { &quot;Lozi&quot;,&quot;loz&quot;,&quot;&quot;} ,
+<span class="lineNum">    1047 </span>            :         { &quot;Luba-Katanga&quot;,&quot;lub&quot;,&quot;lu&quot;} ,
+<span class="lineNum">    1048 </span>            :         { &quot;Luba-Lulua&quot;,&quot;lua&quot;,&quot;&quot;} ,
+<span class="lineNum">    1049 </span>            :         { &quot;Luiseno&quot;,&quot;lui&quot;,&quot;&quot;} ,
+<span class="lineNum">    1050 </span>            :         { &quot;Lule Sami&quot;,&quot;smj&quot;,&quot;&quot;} ,
+<span class="lineNum">    1051 </span>            :         { &quot;Lunda&quot;,&quot;lun&quot;,&quot;&quot;} ,
+<span class="lineNum">    1052 </span>            :         { &quot;Luo (Kenya and Tanzania)&quot;,&quot;luo&quot;,&quot;&quot;} ,
+<span class="lineNum">    1053 </span>            :         { &quot;Lushai&quot;,&quot;lus&quot;,&quot;&quot;} ,
+<span class="lineNum">    1054 </span>            :         { &quot;Luxembourgish; Letzeburgesch&quot;,&quot;ltz&quot;,&quot;lb&quot;} ,
+<span class="lineNum">    1055 </span>            :         { &quot;Macedonian&quot;,&quot;mkd&quot;,&quot;mk&quot;} ,
+<span class="lineNum">    1056 </span>            :         { &quot;Madurese&quot;,&quot;mad&quot;,&quot;&quot;} ,
+<span class="lineNum">    1057 </span>            :         { &quot;Magahi&quot;,&quot;mag&quot;,&quot;&quot;} ,
+<span class="lineNum">    1058 </span>            :         { &quot;Maithili&quot;,&quot;mai&quot;,&quot;&quot;} ,
+<span class="lineNum">    1059 </span>            :         { &quot;Makasar&quot;,&quot;mak&quot;,&quot;&quot;} ,
+<span class="lineNum">    1060 </span>            :         { &quot;Malagasy&quot;,&quot;mlg&quot;,&quot;mg&quot;} ,
+<span class="lineNum">    1061 </span>            :         { &quot;Malay&quot;,&quot;msa&quot;,&quot;ms&quot;} ,
+<span class="lineNum">    1062 </span>            :         { &quot;Malayalam&quot;,&quot;mal&quot;,&quot;ml&quot;} ,
+<span class="lineNum">    1063 </span>            :         { &quot;Maltese&quot;,&quot;mlt&quot;,&quot;mt&quot;} ,
+<span class="lineNum">    1064 </span>            :         { &quot;Manchu&quot;,&quot;mnc&quot;,&quot;&quot;} ,
+<span class="lineNum">    1065 </span>            :         { &quot;Mandar&quot;,&quot;mdr&quot;,&quot;&quot;} ,
+<span class="lineNum">    1066 </span>            :         { &quot;Mandingo&quot;,&quot;man&quot;,&quot;&quot;} ,
+<span class="lineNum">    1067 </span>            :         { &quot;Manipuri&quot;,&quot;mni&quot;,&quot;&quot;} ,
+<span class="lineNum">    1068 </span>            :         { &quot;Manobo languages&quot;,&quot;mno&quot;,&quot;&quot;} ,
+<span class="lineNum">    1069 </span>            :         { &quot;Manx&quot;,&quot;glv&quot;,&quot;gv&quot;} ,
+<span class="lineNum">    1070 </span>            :         { &quot;Maori&quot;,&quot;mri&quot;,&quot;mi&quot;} ,
+<span class="lineNum">    1071 </span>            :         { &quot;Mapudungun; Mapuche&quot;,&quot;arn&quot;,&quot;&quot;} ,
+<span class="lineNum">    1072 </span>            :         { &quot;Marathi&quot;,&quot;mar&quot;,&quot;mr&quot;} ,
+<span class="lineNum">    1073 </span>            :         { &quot;Mari&quot;,&quot;chm&quot;,&quot;&quot;} ,
+<span class="lineNum">    1074 </span>            :         { &quot;Marshallese&quot;,&quot;mah&quot;,&quot;mh&quot;} ,
+<span class="lineNum">    1075 </span>            :         { &quot;Marwari&quot;,&quot;mwr&quot;,&quot;&quot;} ,
+<span class="lineNum">    1076 </span>            :         { &quot;Masai&quot;,&quot;mas&quot;,&quot;&quot;} ,
+<span class="lineNum">    1077 </span>            :         { &quot;Mayan languages&quot;,&quot;myn&quot;,&quot;&quot;} ,
+<span class="lineNum">    1078 </span>            :         { &quot;Mende&quot;,&quot;men&quot;,&quot;&quot;} ,
+<span class="lineNum">    1079 </span>            :         { &quot;Mi'kmaq; Micmac&quot;,&quot;mic&quot;,&quot;&quot;} ,
+<span class="lineNum">    1080 </span>            :         { &quot;Minangkabau&quot;,&quot;min&quot;,&quot;&quot;} ,
+<span class="lineNum">    1081 </span>            :         { &quot;Mirandese&quot;,&quot;mwl&quot;,&quot;&quot;} ,
+<span class="lineNum">    1082 </span>            :         { &quot;Mohawk&quot;,&quot;moh&quot;,&quot;&quot;} ,
+<span class="lineNum">    1083 </span>            :         { &quot;Moksha&quot;,&quot;mdf&quot;,&quot;&quot;} ,
+<span class="lineNum">    1084 </span>            :         { &quot;Mon-Khmer languages&quot;,&quot;mkh&quot;,&quot;&quot;} ,
+<span class="lineNum">    1085 </span>            :         { &quot;Mongo&quot;,&quot;lol&quot;,&quot;&quot;} ,
+<span class="lineNum">    1086 </span>            :         { &quot;Mongolian&quot;,&quot;mon&quot;,&quot;mn&quot;} ,
+<span class="lineNum">    1087 </span>            :         { &quot;Mossi&quot;,&quot;mos&quot;,&quot;&quot;} ,
+<span class="lineNum">    1088 </span>            :         { &quot;Multiple languages&quot;,&quot;mul&quot;,&quot;&quot;} ,
+<span class="lineNum">    1089 </span>            :         { &quot;Munda languages&quot;,&quot;mun&quot;,&quot;&quot;} ,
+<span class="lineNum">    1090 </span>            :         { &quot;N'Ko&quot;,&quot;nqo&quot;,&quot;&quot;} ,
+<span class="lineNum">    1091 </span>            :         { &quot;Nahuatl languages&quot;,&quot;nah&quot;,&quot;&quot;} ,
+<span class="lineNum">    1092 </span>            :         { &quot;Nauru&quot;,&quot;nau&quot;,&quot;na&quot;} ,
+<span class="lineNum">    1093 </span>            :         { &quot;Navajo; Navaho&quot;,&quot;nav&quot;,&quot;nv&quot;} ,
+<span class="lineNum">    1094 </span>            :         { &quot;Ndebele, North; North Ndebele&quot;,&quot;nde&quot;,&quot;nd&quot;} ,
+<span class="lineNum">    1095 </span>            :         { &quot;Ndebele, South; South Ndebele&quot;,&quot;nbl&quot;,&quot;nr&quot;} ,
+<span class="lineNum">    1096 </span>            :         { &quot;Ndonga&quot;,&quot;ndo&quot;,&quot;ng&quot;} ,
+<span class="lineNum">    1097 </span>            :         { &quot;Neapolitan&quot;,&quot;nap&quot;,&quot;&quot;} ,
+<span class="lineNum">    1098 </span>            :         { &quot;Nepal Bhasa; Newari&quot;,&quot;new&quot;,&quot;&quot;} ,
+<span class="lineNum">    1099 </span>            :         { &quot;Nepali&quot;,&quot;nep&quot;,&quot;ne&quot;} ,
+<span class="lineNum">    1100 </span>            :         { &quot;Nias&quot;,&quot;nia&quot;,&quot;&quot;} ,
+<span class="lineNum">    1101 </span>            :         { &quot;Niger-Kordofanian languages&quot;,&quot;nic&quot;,&quot;&quot;} ,
+<span class="lineNum">    1102 </span>            :         { &quot;Nilo-Saharan languages&quot;,&quot;ssa&quot;,&quot;&quot;} ,
+<span class="lineNum">    1103 </span>            :         { &quot;Niuean&quot;,&quot;niu&quot;,&quot;&quot;} ,
+<span class="lineNum">    1104 </span>            :         { &quot;No linguistic content; Not applicable&quot;,&quot;zxx&quot;,&quot;&quot;} ,
+<span class="lineNum">    1105 </span>            :         { &quot;Nogai&quot;,&quot;nog&quot;,&quot;&quot;} ,
+<span class="lineNum">    1106 </span>            :         { &quot;Norse, Old&quot;,&quot;non&quot;,&quot;&quot;} ,
+<span class="lineNum">    1107 </span>            :         { &quot;North American Indian languages&quot;,&quot;nai&quot;,&quot;&quot;} ,
+<span class="lineNum">    1108 </span>            :         { &quot;Northern Frisian&quot;,&quot;frr&quot;,&quot;&quot;} ,
+<span class="lineNum">    1109 </span>            :         { &quot;Northern Sami&quot;,&quot;sme&quot;,&quot;se&quot;} ,
+<span class="lineNum">    1110 </span>            :         { &quot;Norwegian&quot;,&quot;nor&quot;,&quot;no&quot;} ,
+<span class="lineNum">    1111 </span>            :         { &quot;Norwegian Nynorsk; Nynorsk, Norwegian&quot;,&quot;nno&quot;,&quot;nn&quot;} ,
+<span class="lineNum">    1112 </span>            :         { &quot;Nubian languages&quot;,&quot;nub&quot;,&quot;&quot;} ,
+<span class="lineNum">    1113 </span>            :         { &quot;Nyamwezi&quot;,&quot;nym&quot;,&quot;&quot;} ,
+<span class="lineNum">    1114 </span>            :         { &quot;Nyankole&quot;,&quot;nyn&quot;,&quot;&quot;} ,
+<span class="lineNum">    1115 </span>            :         { &quot;Nyoro&quot;,&quot;nyo&quot;,&quot;&quot;} ,
+<span class="lineNum">    1116 </span>            :         { &quot;Nzima&quot;,&quot;nzi&quot;,&quot;&quot;} ,
+<span class="lineNum">    1117 </span>            :         { &quot;Occitan (post 1500)&quot;,&quot;oci&quot;,&quot;oc&quot;} ,
+<span class="lineNum">    1118 </span>            :         { &quot;Official Aramaic (700-300 BCE); Imperial Aramaic (700-300 BCE)&quot;,&quot;arc&quot;,&quot;&quot;} ,
+<span class="lineNum">    1119 </span>            :         { &quot;Ojibwa&quot;,&quot;oji&quot;,&quot;oj&quot;} ,
+<span class="lineNum">    1120 </span>            :         { &quot;Oriya&quot;,&quot;ori&quot;,&quot;or&quot;} ,
+<span class="lineNum">    1121 </span>            :         { &quot;Oromo&quot;,&quot;orm&quot;,&quot;om&quot;} ,
+<span class="lineNum">    1122 </span>            :         { &quot;Osage&quot;,&quot;osa&quot;,&quot;&quot;} ,
+<span class="lineNum">    1123 </span>            :         { &quot;Ossetian; Ossetic&quot;,&quot;oss&quot;,&quot;os&quot;} ,
+<span class="lineNum">    1124 </span>            :         { &quot;Otomian languages&quot;,&quot;oto&quot;,&quot;&quot;} ,
+<span class="lineNum">    1125 </span>            :         { &quot;Pahlavi&quot;,&quot;pal&quot;,&quot;&quot;} ,
+<span class="lineNum">    1126 </span>            :         { &quot;Palauan&quot;,&quot;pau&quot;,&quot;&quot;} ,
+<span class="lineNum">    1127 </span>            :         { &quot;Pali&quot;,&quot;pli&quot;,&quot;pi&quot;} ,
+<span class="lineNum">    1128 </span>            :         { &quot;Pampanga; Kapampangan&quot;,&quot;pam&quot;,&quot;&quot;} ,
+<span class="lineNum">    1129 </span>            :         { &quot;Pangasinan&quot;,&quot;pag&quot;,&quot;&quot;} ,
+<span class="lineNum">    1130 </span>            :         { &quot;Panjabi; Punjabi&quot;,&quot;pan&quot;,&quot;pa&quot;} ,
+<span class="lineNum">    1131 </span>            :         { &quot;Papiamento&quot;,&quot;pap&quot;,&quot;&quot;} ,
+<span class="lineNum">    1132 </span>            :         { &quot;Papuan languages&quot;,&quot;paa&quot;,&quot;&quot;} ,
+<span class="lineNum">    1133 </span>            :         { &quot;Pedi; Sepedi; Northern Sotho&quot;,&quot;nso&quot;,&quot;&quot;} ,
+<span class="lineNum">    1134 </span>            :         { &quot;Persian&quot;,&quot;fas&quot;,&quot;fa&quot;} ,
+<span class="lineNum">    1135 </span>            :         { &quot;Persian, Old (ca.600-400 B.C.)&quot;,&quot;peo&quot;,&quot;&quot;} ,
+<span class="lineNum">    1136 </span>            :         { &quot;Philippine languages&quot;,&quot;phi&quot;,&quot;&quot;} ,
+<span class="lineNum">    1137 </span>            :         { &quot;Phoenician&quot;,&quot;phn&quot;,&quot;&quot;} ,
+<span class="lineNum">    1138 </span>            :         { &quot;Pohnpeian&quot;,&quot;pon&quot;,&quot;&quot;} ,
+<span class="lineNum">    1139 </span>            :         { &quot;Polish&quot;,&quot;pol&quot;,&quot;pl&quot;} ,
+<span class="lineNum">    1140 </span>            :         { &quot;Portuguese&quot;,&quot;por&quot;,&quot;pt&quot;} ,
+<span class="lineNum">    1141 </span>            :         { &quot;Prakrit languages&quot;,&quot;pra&quot;,&quot;&quot;} ,
+<span class="lineNum">    1142 </span>            :         //{ &quot;Provençal, Old (to 1500);Occitan, Old (to 1500)&quot;,&quot;pro&quot;,&quot;&quot;} ,
+<span class="lineNum">    1143 </span>            :         { &quot;Pushto; Pashto&quot;,&quot;pus&quot;,&quot;ps&quot;} ,
+<span class="lineNum">    1144 </span>            :         { &quot;Quechua&quot;,&quot;que&quot;,&quot;qu&quot;} ,
+<span class="lineNum">    1145 </span>            :         { &quot;Rajasthani&quot;,&quot;raj&quot;,&quot;&quot;} ,
+<span class="lineNum">    1146 </span>            :         { &quot;Rapanui&quot;,&quot;rap&quot;,&quot;&quot;} ,
+<span class="lineNum">    1147 </span>            :         { &quot;Rarotongan; Cook Islands Maori&quot;,&quot;rar&quot;,&quot;&quot;} ,
+<span class="lineNum">    1148 </span>            :         { &quot;Reserved for local use&quot;,&quot;qaa-qtz&quot;,&quot;&quot;} ,
+<span class="lineNum">    1149 </span>            :         { &quot;Romance languages&quot;,&quot;roa&quot;,&quot;&quot;} ,
+<span class="lineNum">    1150 </span>            :         { &quot;Romanian; Moldavian; Moldovan&quot;,&quot;ron&quot;,&quot;ro&quot;} ,
+<span class="lineNum">    1151 </span>            :         { &quot;Romansh&quot;,&quot;roh&quot;,&quot;rm&quot;} ,
+<span class="lineNum">    1152 </span>            :         { &quot;Romany&quot;,&quot;rom&quot;,&quot;&quot;} ,
+<span class="lineNum">    1153 </span>            :         { &quot;Rundi&quot;,&quot;run&quot;,&quot;rn&quot;} ,
+<span class="lineNum">    1154 </span>            :         { &quot;Russian&quot;,&quot;rus&quot;,&quot;ru&quot;} ,
+<span class="lineNum">    1155 </span>            :         { &quot;Salishan languages&quot;,&quot;sal&quot;,&quot;&quot;} ,
+<span class="lineNum">    1156 </span>            :         { &quot;Samaritan Aramaic&quot;,&quot;sam&quot;,&quot;&quot;} ,
+<span class="lineNum">    1157 </span>            :         { &quot;Sami languages&quot;,&quot;smi&quot;,&quot;&quot;} ,
+<span class="lineNum">    1158 </span>            :         { &quot;Samoan&quot;,&quot;smo&quot;,&quot;sm&quot;} ,
+<span class="lineNum">    1159 </span>            :         { &quot;Sandawe&quot;,&quot;sad&quot;,&quot;&quot;} ,
+<span class="lineNum">    1160 </span>            :         { &quot;Sango&quot;,&quot;sag&quot;,&quot;sg&quot;} ,
+<span class="lineNum">    1161 </span>            :         { &quot;Sanskrit&quot;,&quot;san&quot;,&quot;sa&quot;} ,
+<span class="lineNum">    1162 </span>            :         { &quot;Santali&quot;,&quot;sat&quot;,&quot;&quot;} ,
+<span class="lineNum">    1163 </span>            :         { &quot;Sardinian&quot;,&quot;srd&quot;,&quot;sc&quot;} ,
+<span class="lineNum">    1164 </span>            :         { &quot;Sasak&quot;,&quot;sas&quot;,&quot;&quot;} ,
+<span class="lineNum">    1165 </span>            :         { &quot;Scots&quot;,&quot;sco&quot;,&quot;&quot;} ,
+<span class="lineNum">    1166 </span>            :         { &quot;Selkup&quot;,&quot;sel&quot;,&quot;&quot;} ,
+<span class="lineNum">    1167 </span>            :         { &quot;Semitic languages&quot;,&quot;sem&quot;,&quot;&quot;} ,
+<span class="lineNum">    1168 </span>            :         { &quot;Serbian&quot;,&quot;srp&quot;,&quot;sr&quot;} ,
+<span class="lineNum">    1169 </span>            :         { &quot;Serer&quot;,&quot;srr&quot;,&quot;&quot;} ,
+<span class="lineNum">    1170 </span>            :         { &quot;Shan&quot;,&quot;shn&quot;,&quot;&quot;} ,
+<span class="lineNum">    1171 </span>            :         { &quot;Shona&quot;,&quot;sna&quot;,&quot;sn&quot;} ,
+<span class="lineNum">    1172 </span>            :         { &quot;Sichuan Yi; Nuosu&quot;,&quot;iii&quot;,&quot;ii&quot;} ,
+<span class="lineNum">    1173 </span>            :         { &quot;Sicilian&quot;,&quot;scn&quot;,&quot;&quot;} ,
+<span class="lineNum">    1174 </span>            :         { &quot;Sidamo&quot;,&quot;sid&quot;,&quot;&quot;} ,
+<span class="lineNum">    1175 </span>            :         { &quot;Sign Languages&quot;,&quot;sgn&quot;,&quot;&quot;} ,
+<span class="lineNum">    1176 </span>            :         { &quot;Siksika&quot;,&quot;bla&quot;,&quot;&quot;} ,
+<span class="lineNum">    1177 </span>            :         { &quot;Sindhi&quot;,&quot;snd&quot;,&quot;sd&quot;} ,
+<span class="lineNum">    1178 </span>            :         { &quot;Sinhala; Sinhalese&quot;,&quot;sin&quot;,&quot;si&quot;} ,
+<span class="lineNum">    1179 </span>            :         { &quot;Sino-Tibetan languages&quot;,&quot;sit&quot;,&quot;&quot;} ,
+<span class="lineNum">    1180 </span>            :         { &quot;Siouan languages&quot;,&quot;sio&quot;,&quot;&quot;} ,
+<span class="lineNum">    1181 </span>            :         { &quot;Skolt Sami&quot;,&quot;sms&quot;,&quot;&quot;} ,
+<span class="lineNum">    1182 </span>            :         { &quot;Slave (Athapascan)&quot;,&quot;den&quot;,&quot;&quot;} ,
+<span class="lineNum">    1183 </span>            :         { &quot;Slavic languages&quot;,&quot;sla&quot;,&quot;&quot;} ,
+<span class="lineNum">    1184 </span>            :         { &quot;Slovak&quot;,&quot;slk&quot;,&quot;sk&quot;} ,
+<span class="lineNum">    1185 </span>            :         { &quot;Slovenian&quot;,&quot;slv&quot;,&quot;sl&quot;} ,
+<span class="lineNum">    1186 </span>            :         { &quot;Sogdian&quot;,&quot;sog&quot;,&quot;&quot;} ,
+<span class="lineNum">    1187 </span>            :         { &quot;Somali&quot;,&quot;som&quot;,&quot;so&quot;} ,
+<span class="lineNum">    1188 </span>            :         { &quot;Songhai languages&quot;,&quot;son&quot;,&quot;&quot;} ,
+<span class="lineNum">    1189 </span>            :         { &quot;Soninke&quot;,&quot;snk&quot;,&quot;&quot;} ,
+<span class="lineNum">    1190 </span>            :         { &quot;Sorbian languages&quot;,&quot;wen&quot;,&quot;&quot;} ,
+<span class="lineNum">    1191 </span>            :         { &quot;Sotho, Southern&quot;,&quot;sot&quot;,&quot;st&quot;} ,
+<span class="lineNum">    1192 </span>            :         { &quot;South American Indian languages&quot;,&quot;sai&quot;,&quot;&quot;} ,
+<span class="lineNum">    1193 </span>            :         { &quot;Southern Altai&quot;,&quot;alt&quot;,&quot;&quot;} ,
+<span class="lineNum">    1194 </span>            :         { &quot;Southern Sami&quot;,&quot;sma&quot;,&quot;&quot;} ,
+<span class="lineNum">    1195 </span>            :         { &quot;Spanish; Castilian&quot;,&quot;spa&quot;,&quot;es&quot;} ,
+<span class="lineNum">    1196 </span>            :         { &quot;Sranan Tongo&quot;,&quot;srn&quot;,&quot;&quot;} ,
+<span class="lineNum">    1197 </span>            :         { &quot;Sukuma&quot;,&quot;suk&quot;,&quot;&quot;} ,
+<span class="lineNum">    1198 </span>            :         { &quot;Sumerian&quot;,&quot;sux&quot;,&quot;&quot;} ,
+<span class="lineNum">    1199 </span>            :         { &quot;Sundanese&quot;,&quot;sun&quot;,&quot;su&quot;} ,
+<span class="lineNum">    1200 </span>            :         { &quot;Susu&quot;,&quot;sus&quot;,&quot;&quot;} ,
+<span class="lineNum">    1201 </span>            :         { &quot;Swahili&quot;,&quot;swa&quot;,&quot;sw&quot;} ,
+<span class="lineNum">    1202 </span>            :         { &quot;Swati&quot;,&quot;ssw&quot;,&quot;ss&quot;} ,
+<span class="lineNum">    1203 </span>            :         { &quot;Swedish&quot;,&quot;swe&quot;,&quot;sv&quot;} ,
+<span class="lineNum">    1204 </span>            :         { &quot;Swiss German; Alemannic; Alsatian&quot;,&quot;gsw&quot;,&quot;&quot;} ,
+<span class="lineNum">    1205 </span>            :         { &quot;Syriac&quot;,&quot;syr&quot;,&quot;&quot;} ,
+<span class="lineNum">    1206 </span>            :         { &quot;Tagalog&quot;,&quot;tgl&quot;,&quot;tl&quot;} ,
+<span class="lineNum">    1207 </span>            :         { &quot;Tahitian&quot;,&quot;tah&quot;,&quot;ty&quot;} ,
+<span class="lineNum">    1208 </span>            :         { &quot;Tai languages&quot;,&quot;tai&quot;,&quot;&quot;} ,
+<span class="lineNum">    1209 </span>            :         { &quot;Tajik&quot;,&quot;tgk&quot;,&quot;tg&quot;} ,
+<span class="lineNum">    1210 </span>            :         { &quot;Tamashek&quot;,&quot;tmh&quot;,&quot;&quot;} ,
+<span class="lineNum">    1211 </span>            :         { &quot;Tamil&quot;,&quot;tam&quot;,&quot;ta&quot;} ,
+<span class="lineNum">    1212 </span>            :         { &quot;Tatar&quot;,&quot;tat&quot;,&quot;tt&quot;} ,
+<span class="lineNum">    1213 </span>            :         { &quot;Telugu&quot;,&quot;tel&quot;,&quot;te&quot;} ,
+<span class="lineNum">    1214 </span>            :         { &quot;Tereno&quot;,&quot;ter&quot;,&quot;&quot;} ,
+<span class="lineNum">    1215 </span>            :         { &quot;Tetum&quot;,&quot;tet&quot;,&quot;&quot;} ,
+<span class="lineNum">    1216 </span>            :         { &quot;Thai&quot;,&quot;tha&quot;,&quot;th&quot;} ,
+<span class="lineNum">    1217 </span>            :         { &quot;Tibetan&quot;,&quot;bod&quot;,&quot;bo&quot;} ,
+<span class="lineNum">    1218 </span>            :         { &quot;Tigre&quot;,&quot;tig&quot;,&quot;&quot;} ,
+<span class="lineNum">    1219 </span>            :         { &quot;Tigrinya&quot;,&quot;tir&quot;,&quot;ti&quot;} ,
+<span class="lineNum">    1220 </span>            :         { &quot;Timne&quot;,&quot;tem&quot;,&quot;&quot;} ,
+<span class="lineNum">    1221 </span>            :         { &quot;Tiv&quot;,&quot;tiv&quot;,&quot;&quot;} ,
+<span class="lineNum">    1222 </span>            :         { &quot;Tlingit&quot;,&quot;tli&quot;,&quot;&quot;} ,
+<span class="lineNum">    1223 </span>            :         { &quot;Tok Pisin&quot;,&quot;tpi&quot;,&quot;&quot;} ,
+<span class="lineNum">    1224 </span>            :         { &quot;Tokelau&quot;,&quot;tkl&quot;,&quot;&quot;} ,
+<span class="lineNum">    1225 </span>            :         { &quot;Tonga (Nyasa)&quot;,&quot;tog&quot;,&quot;&quot;} ,
+<span class="lineNum">    1226 </span>            :         { &quot;Tonga (Tonga Islands)&quot;,&quot;ton&quot;,&quot;to&quot;} ,
+<span class="lineNum">    1227 </span>            :         { &quot;Tsimshian&quot;,&quot;tsi&quot;,&quot;&quot;} ,
+<span class="lineNum">    1228 </span>            :         { &quot;Tsonga&quot;,&quot;tso&quot;,&quot;ts&quot;} ,
+<span class="lineNum">    1229 </span>            :         { &quot;Tswana&quot;,&quot;tsn&quot;,&quot;tn&quot;} ,
+<span class="lineNum">    1230 </span>            :         { &quot;Tumbuka&quot;,&quot;tum&quot;,&quot;&quot;} ,
+<span class="lineNum">    1231 </span>            :         { &quot;Tupi languages&quot;,&quot;tup&quot;,&quot;&quot;} ,
+<span class="lineNum">    1232 </span>            :         { &quot;Turkish&quot;,&quot;tur&quot;,&quot;tr&quot;} ,
+<span class="lineNum">    1233 </span>            :         { &quot;Turkish, Ottoman (1500-1928)&quot;,&quot;ota&quot;,&quot;&quot;} ,
+<span class="lineNum">    1234 </span>            :         { &quot;Turkmen&quot;,&quot;tuk&quot;,&quot;tk&quot;} ,
+<span class="lineNum">    1235 </span>            :         { &quot;Tuvalu&quot;,&quot;tvl&quot;,&quot;&quot;} ,
+<span class="lineNum">    1236 </span>            :         { &quot;Tuvinian&quot;,&quot;tyv&quot;,&quot;&quot;} ,
+<span class="lineNum">    1237 </span>            :         { &quot;Twi&quot;,&quot;twi&quot;,&quot;tw&quot;} ,
+<span class="lineNum">    1238 </span>            :         { &quot;Udmurt&quot;,&quot;udm&quot;,&quot;&quot;} ,
+<span class="lineNum">    1239 </span>            :         { &quot;Ugaritic&quot;,&quot;uga&quot;,&quot;&quot;} ,
+<span class="lineNum">    1240 </span>            :         { &quot;Uighur; Uyghur&quot;,&quot;uig&quot;,&quot;ug&quot;} ,
+<span class="lineNum">    1241 </span>            :         { &quot;Ukrainian&quot;,&quot;ukr&quot;,&quot;uk&quot;} ,
+<span class="lineNum">    1242 </span>            :         { &quot;Umbundu&quot;,&quot;umb&quot;,&quot;&quot;} ,
+<span class="lineNum">    1243 </span>            :         { &quot;Uncoded languages&quot;,&quot;mis&quot;,&quot;&quot;} ,
+<span class="lineNum">    1244 </span>            :         { &quot;Undetermined&quot;,&quot;und&quot;,&quot;&quot;} ,
+<span class="lineNum">    1245 </span>            :         { &quot;Upper Sorbian&quot;,&quot;hsb&quot;,&quot;&quot;} ,
+<span class="lineNum">    1246 </span>            :         { &quot;Urdu&quot;,&quot;urd&quot;,&quot;ur&quot;} ,
+<span class="lineNum">    1247 </span>            :         { &quot;Uzbek&quot;,&quot;uzb&quot;,&quot;uz&quot;} ,
+<span class="lineNum">    1248 </span>            :         { &quot;Vai&quot;,&quot;vai&quot;,&quot;&quot;} ,
+<span class="lineNum">    1249 </span>            :         { &quot;Venda&quot;,&quot;ven&quot;,&quot;ve&quot;} ,
+<span class="lineNum">    1250 </span>            :         { &quot;Vietnamese&quot;,&quot;vie&quot;,&quot;vi&quot;} ,
+<span class="lineNum">    1251 </span>            :         //{ &quot;Volapük&quot;,&quot;vol&quot;,&quot;vo&quot;} ,
+<span class="lineNum">    1252 </span>            :         { &quot;Votic&quot;,&quot;vot&quot;,&quot;&quot;} ,
+<span class="lineNum">    1253 </span>            :         { &quot;Wakashan languages&quot;,&quot;wak&quot;,&quot;&quot;} ,
+<span class="lineNum">    1254 </span>            :         { &quot;Walloon&quot;,&quot;wln&quot;,&quot;wa&quot;} ,
+<span class="lineNum">    1255 </span>            :         { &quot;Waray&quot;,&quot;war&quot;,&quot;&quot;} ,
+<span class="lineNum">    1256 </span>            :         { &quot;Washo&quot;,&quot;was&quot;,&quot;&quot;} ,
+<span class="lineNum">    1257 </span>            :         { &quot;Welsh&quot;,&quot;cym&quot;,&quot;cy&quot;} ,
+<span class="lineNum">    1258 </span>            :         { &quot;Western Frisian&quot;,&quot;fry&quot;,&quot;fy&quot;} ,
+<span class="lineNum">    1259 </span>            :         { &quot;Wolaitta; Wolaytta&quot;,&quot;wal&quot;,&quot;&quot;} ,
+<span class="lineNum">    1260 </span>            :         { &quot;Wolof&quot;,&quot;wol&quot;,&quot;wo&quot;} ,
+<span class="lineNum">    1261 </span>            :         { &quot;Xhosa&quot;,&quot;xho&quot;,&quot;xh&quot;} ,
+<span class="lineNum">    1262 </span>            :         { &quot;Yakut&quot;,&quot;sah&quot;,&quot;&quot;} ,
+<span class="lineNum">    1263 </span>            :         { &quot;Yao&quot;,&quot;yao&quot;,&quot;&quot;} ,
+<span class="lineNum">    1264 </span>            :         { &quot;Yapese&quot;,&quot;yap&quot;,&quot;&quot;} ,
+<span class="lineNum">    1265 </span>            :         { &quot;Yiddish&quot;,&quot;yid&quot;,&quot;yi&quot;} ,
+<span class="lineNum">    1266 </span>            :         { &quot;Yoruba&quot;,&quot;yor&quot;,&quot;yo&quot;} ,
+<span class="lineNum">    1267 </span>            :         { &quot;Yupik languages&quot;,&quot;ypk&quot;,&quot;&quot;} ,
+<span class="lineNum">    1268 </span>            :         { &quot;Zande languages&quot;,&quot;znd&quot;,&quot;&quot;} ,
+<span class="lineNum">    1269 </span>            :         { &quot;Zapotec&quot;,&quot;zap&quot;,&quot;&quot;} ,
+<span class="lineNum">    1270 </span>            :         { &quot;Zaza; Dimili; Dimli; Kirdki; Kirmanjki; Zazaki&quot;,&quot;zza&quot;,&quot;&quot;} ,
+<span class="lineNum">    1271 </span>            :         { &quot;Zenaga&quot;,&quot;zen&quot;,&quot;&quot;} ,
+<span class="lineNum">    1272 </span>            :         { &quot;Zhuang; Chuang&quot;,&quot;zha&quot;,&quot;za&quot;} ,
+<span class="lineNum">    1273 </span>            :         { &quot;Zulu&quot;,&quot;zul&quot;,&quot;zu&quot;} ,
+<span class="lineNum">    1274 </span>            :         { &quot;Zuni&quot;,&quot;zun&quot;,&quot;&quot;} ,
+<span class="lineNum">    1275 </span>            : };
+<span class="lineNum">    1276 </span>            : 
+<a name="1277"><span class="lineNum">    1277 </span>            : </a>
+<span class="lineNum">    1278 </span>            : GF_EXPORT
+<span class="lineNum">    1279 </span>            : u32 gf_lang_get_count()
+<span class="lineNum">    1280 </span>            : {
+<span class="lineNum">    1281 </span><span class="lineNoCov">          0 :         return sizeof(defined_languages) / sizeof(struct lang_def);</span>
+<span class="lineNum">    1282 </span>            : }
+<a name="1283"><span class="lineNum">    1283 </span>            : </a>
+<span class="lineNum">    1284 </span>            : GF_EXPORT
+<span class="lineNum">    1285 </span>            : s32 gf_lang_find(const char *lang_or_rfc_5646_code)
+<span class="lineNum">    1286 </span>            : {
+<span class="lineNum">    1287 </span>            :         //find the language ISO639 entry for the given code
+<span class="lineNum">    1288 </span>            :         u32 i=0;
+<span class="lineNum">    1289 </span>            :         u32 len=0;
+<span class="lineNum">    1290 </span>            :         char *sep;
+<span class="lineNum">    1291 </span>            :         u32 count = sizeof(defined_languages) / sizeof(struct lang_def);
+<span class="lineNum">    1292 </span>            : 
+<span class="lineNum">    1293 </span><span class="lineCov">        232 :         if (!lang_or_rfc_5646_code) return -1;</span>
+<span class="lineNum">    1294 </span>            : 
+<span class="lineNum">    1295 </span><span class="lineCov">        116 :         len = (u32)strlen(lang_or_rfc_5646_code);</span>
+<span class="lineNum">    1296 </span><span class="lineCov">        116 :         sep = (char *) strchr(lang_or_rfc_5646_code, '-');</span>
+<span class="lineNum">    1297 </span><span class="lineCov">        116 :         if (sep) {</span>
+<span class="lineNum">    1298 </span><span class="lineCov">         33 :                 sep[0] = 0;</span>
+<span class="lineNum">    1299 </span><span class="lineCov">         33 :                 len = (u32) strlen(lang_or_rfc_5646_code);</span>
+<span class="lineNum">    1300 </span><span class="lineCov">         33 :                 sep[0] = '-';</span>
+<span class="lineNum">    1301 </span><span class="lineCov">         33 :         }</span>
+<span class="lineNum">    1302 </span>            : 
+<span class="lineNum">    1303 </span><span class="lineCov">      69848 :         for (i=0; i&lt;count; i++) {</span>
+<span class="lineNum">    1304 </span><span class="lineCov">      34924 :                 if (!strcmp(defined_languages[i].name, lang_or_rfc_5646_code)) {</span>
+<span class="lineNum">    1305 </span><span class="lineNoCov">          0 :                         return i;</span>
+<span class="lineNum">    1306 </span>            :                 }
+<span class="lineNum">    1307 </span><span class="lineCov">      63956 :                 if ((len==3) &amp;&amp; !strnicmp(defined_languages[i].three_char_code, lang_or_rfc_5646_code, 3)) {</span>
+<span class="lineNum">    1308 </span><span class="lineCov">         69 :                         return i;</span>
+<span class="lineNum">    1309 </span>            :                 }
+<span class="lineNum">    1310 </span><span class="lineCov">      40747 :                 if ((len==2) &amp;&amp; !strnicmp(defined_languages[i].two_char_code, lang_or_rfc_5646_code, 2)) {</span>
+<span class="lineNum">    1311 </span><span class="lineCov">         47 :                         return i;</span>
+<span class="lineNum">    1312 </span>            :                 }
+<span class="lineNum">    1313 </span>            :         }
+<span class="lineNum">    1314 </span><span class="lineNoCov">          0 :         return -1;</span>
+<span class="lineNum">    1315 </span><span class="lineCov">        116 : }</span>
+<a name="1316"><span class="lineNum">    1316 </span>            : </a>
+<span class="lineNum">    1317 </span>            : GF_EXPORT
+<span class="lineNum">    1318 </span>            : const char *gf_lang_get_name(u32 idx)
+<span class="lineNum">    1319 </span>            : {
+<span class="lineNum">    1320 </span><span class="lineCov">        190 :         if (idx&gt;=sizeof(defined_languages) / sizeof(struct lang_def)) return NULL;</span>
+<span class="lineNum">    1321 </span><span class="lineCov">         95 :         return defined_languages[idx].name;</span>
+<span class="lineNum">    1322 </span><span class="lineCov">         95 : }</span>
+<a name="1323"><span class="lineNum">    1323 </span>            : </a>
+<span class="lineNum">    1324 </span>            : GF_EXPORT
+<span class="lineNum">    1325 </span>            : const char *gf_lang_get_2cc(u32 idx)
+<span class="lineNum">    1326 </span>            : {
+<span class="lineNum">    1327 </span><span class="lineNoCov">          0 :         if (idx&gt;=sizeof(defined_languages) / sizeof(struct lang_def)) return NULL;</span>
+<span class="lineNum">    1328 </span><span class="lineNoCov">          0 :         return defined_languages[idx].two_char_code;</span>
+<span class="lineNum">    1329 </span><span class="lineNoCov">          0 : }</span>
+<a name="1330"><span class="lineNum">    1330 </span>            : </a>
+<span class="lineNum">    1331 </span>            : GF_EXPORT
+<span class="lineNum">    1332 </span>            : const char *gf_lang_get_3cc(u32 idx)
+<span class="lineNum">    1333 </span>            : {
+<span class="lineNum">    1334 </span><span class="lineCov">         42 :         if (idx&gt;=sizeof(defined_languages) / sizeof(struct lang_def)) return NULL;</span>
+<span class="lineNum">    1335 </span><span class="lineCov">         21 :         return defined_languages[idx].three_char_code;</span>
+<span class="lineNum">    1336 </span><span class="lineCov">         21 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

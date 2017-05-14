@@ -1,0 +1,159 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - /Users/travis/build/gpac/gpac/include/gpac/internal/vobsub.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../../../../index.html">top level</a> - <a href="index.html">Users/travis/build/gpac/gpac/include/gpac/internal</a> - vobsub.h<span style="font-size: 80%;"> (source / <a href="vobsub.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-05-14 22:31:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *                      GPAC - Multimedia Framework C SDK
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *                      Copyright (c) by  Falco (Ivan Vecera) 2006
+<span class="lineNum">       5 </span>            :  *                                      All rights reserved
+<span class="lineNum">       6 </span>            :  *
+<span class="lineNum">       7 </span>            :  *  This file is part of GPAC / Media Tools sub-project
+<span class="lineNum">       8 </span>            :  *
+<span class="lineNum">       9 </span>            :  *  GPAC is free software; you can redistribute it and/or modify
+<span class="lineNum">      10 </span>            :  *  it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">      11 </span>            :  *  the Free Software Foundation; either version 2, or (at your option)
+<span class="lineNum">      12 </span>            :  *  any later version.
+<span class="lineNum">      13 </span>            :  *
+<span class="lineNum">      14 </span>            :  *  GPAC is distributed in the hope that it will be useful,
+<span class="lineNum">      15 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      16 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      17 </span>            :  *  GNU Lesser General Public License for more details.
+<span class="lineNum">      18 </span>            :  *
+<span class="lineNum">      19 </span>            :  *  You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      20 </span>            :  *  License along with this library; see the file COPYING.  If not, write to
+<span class="lineNum">      21 </span>            :  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+<span class="lineNum">      22 </span>            :  *
+<span class="lineNum">      23 </span>            :  */
+<span class="lineNum">      24 </span>            : 
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : #ifndef _GF_VOBSUB_H_
+<span class="lineNum">      27 </span>            : #define _GF_VOBSUB_H_
+<span class="lineNum">      28 </span>            : 
+<span class="lineNum">      29 </span>            : #include &lt;gpac/tools.h&gt;
+<span class="lineNum">      30 </span>            : #include &lt;gpac/list.h&gt;
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            : #ifdef __cplusplus
+<span class="lineNum">      33 </span>            : extern &quot;C&quot; {
+<span class="lineNum">      34 </span>            : #endif
+<span class="lineNum">      35 </span>            : 
+<span class="lineNum">      36 </span>            : #define VOBSUBIDXVER 7
+<span class="lineNum">      37 </span>            : 
+<span class="lineNum">      38 </span>            : typedef struct _tag_vobsub_pos
+<span class="lineNum">      39 </span>            : {
+<span class="lineNum">      40 </span>            :         u64  filepos;
+<span class="lineNum">      41 </span>            :         u64  start;
+<span class="lineNum">      42 </span>            :         u64  stop;
+<span class="lineNum">      43 </span>            : } vobsub_pos;
+<span class="lineNum">      44 </span>            : 
+<span class="lineNum">      45 </span>            : typedef struct _tag_vobsub_lang
+<span class="lineNum">      46 </span>            : {
+<span class="lineNum">      47 </span>            :         u32      id;
+<span class="lineNum">      48 </span>            :         char    *name;
+<span class="lineNum">      49 </span>            :         GF_List *subpos;
+<span class="lineNum">      50 </span>            : } vobsub_lang;
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span>            : typedef struct _tag_vobsub_file
+<span class="lineNum">      53 </span>            : {
+<span class="lineNum">      54 </span>            :         u32         width;
+<span class="lineNum">      55 </span>            :         u32         height;
+<span class="lineNum">      56 </span>            :         u8          palette[16][4];
+<span class="lineNum">      57 </span>            :         u32         num_langs;
+<span class="lineNum">      58 </span>            :         vobsub_lang langs[32];
+<a name="59"><span class="lineNum">      59 </span>            : } vobsub_file;</a>
+<span class="lineNum">      60 </span>            : 
+<span class="lineNum">      61 </span>            : GFINLINE static void vobsub_trim_ext(char *filename)
+<span class="lineNum">      62 </span>            : {
+<span class="lineNum">      63 </span><span class="lineNoCov">          0 :         char *pos = strrchr(filename, '.');</span>
+<span class="lineNum">      64 </span>            : 
+<span class="lineNum">      65 </span><span class="lineNoCov">          0 :         if (pos != NULL) {</span>
+<span class="lineNum">      66 </span><span class="lineNoCov">          0 :                 if (!stricmp(pos, &quot;.idx&quot;) || !stricmp(pos, &quot;.sub&quot;)) {</span>
+<span class="lineNum">      67 </span><span class="lineNoCov">          0 :                         *pos = '\0';</span>
+<span class="lineNum">      68 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">      69 </span>            :         }
+<span class="lineNum">      70 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">      71 </span>            : 
+<span class="lineNum">      72 </span>            : s32    vobsub_lang_name(u16 id);
+<span class="lineNum">      73 </span>            : char  *vobsub_lang_id(char *name);
+<span class="lineNum">      74 </span>            : GF_Err vobsub_read_idx(FILE *file, vobsub_file *vobsub, int *version);
+<span class="lineNum">      75 </span>            : void   vobsub_free(vobsub_file *vobsub);
+<span class="lineNum">      76 </span>            : GF_Err vobsub_get_subpic_duration(char *data, u32 psize, u32 dsize, u32 *duration);
+<span class="lineNum">      77 </span>            : GF_Err vobsub_packetize_subpicture(FILE *fsub, u64 pts, char *data, u32 dataSize);
+<span class="lineNum">      78 </span>            : 
+<span class="lineNum">      79 </span>            : #ifdef __cplusplus
+<span class="lineNum">      80 </span>            : }
+<span class="lineNum">      81 </span>            : #endif
+<span class="lineNum">      82 </span>            : 
+<span class="lineNum">      83 </span>            : #endif /* _GF_VOBSUB_H_ */
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

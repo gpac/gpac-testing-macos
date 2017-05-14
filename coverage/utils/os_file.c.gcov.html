@@ -1,0 +1,847 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - utils/os_file.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">utils</a> - os_file.c<span style="font-size: 80%;"> (source / <a href="os_file.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">102</td>
+            <td class="headerCovTableEntry">156</td>
+            <td class="headerCovTableEntryLo">65.4 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-05-14 22:31:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">13</td>
+            <td class="headerCovTableEntry">19</td>
+            <td class="headerCovTableEntryLo">68.4 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *                      GPAC - Multimedia Framework C SDK
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *                      Authors: Jean Le Feuvre - Copyright (c) Telecom ParisTech 2000-2012
+<span class="lineNum">       5 </span>            :  *                               Romain Bouqueau - Copyright (c) Romain Bouqueau 2015
+<span class="lineNum">       6 </span>            :  *                                      All rights reserved
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  *  This file is part of GPAC / common tools sub-project
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  *  GPAC is free software; you can redistribute it and/or modify
+<span class="lineNum">      11 </span>            :  *  it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">      12 </span>            :  *  the Free Software Foundation; either version 2, or (at your option)
+<span class="lineNum">      13 </span>            :  *  any later version.
+<span class="lineNum">      14 </span>            :  *
+<span class="lineNum">      15 </span>            :  *  GPAC is distributed in the hope that it will be useful,
+<span class="lineNum">      16 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      17 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      18 </span>            :  *  GNU Lesser General Public License for more details.
+<span class="lineNum">      19 </span>            :  *
+<span class="lineNum">      20 </span>            :  *  You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      21 </span>            :  *  License along with this library; see the file COPYING.  If not, write to
+<span class="lineNum">      22 </span>            :  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+<span class="lineNum">      23 </span>            :  *
+<span class="lineNum">      24 </span>            :  */
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : #include &lt;gpac/tools.h&gt;
+<span class="lineNum">      27 </span>            : #include &lt;gpac/utf.h&gt;
+<span class="lineNum">      28 </span>            : 
+<span class="lineNum">      29 </span>            : #if defined(_WIN32_WCE)
+<span class="lineNum">      30 </span>            : 
+<span class="lineNum">      31 </span>            : #include &lt;winbase.h&gt;
+<span class="lineNum">      32 </span>            : #include &lt;tlhelp32.h&gt;
+<span class="lineNum">      33 </span>            : 
+<span class="lineNum">      34 </span>            : #elif defined(WIN32)
+<span class="lineNum">      35 </span>            : 
+<span class="lineNum">      36 </span>            : #include &lt;windows.h&gt;
+<span class="lineNum">      37 </span>            : #include &lt;direct.h&gt;
+<span class="lineNum">      38 </span>            : #include &lt;sys/stat.h&gt;
+<span class="lineNum">      39 </span>            : #include &lt;share.h&gt;
+<span class="lineNum">      40 </span>            : 
+<span class="lineNum">      41 </span>            : #else
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            : #include &lt;sys/stat.h&gt;
+<span class="lineNum">      44 </span>            : #include &lt;unistd.h&gt;
+<span class="lineNum">      45 </span>            : #include &lt;dirent.h&gt;
+<span class="lineNum">      46 </span>            : #include &lt;time.h&gt;
+<span class="lineNum">      47 </span>            : #include &lt;sys/time.h&gt;
+<span class="lineNum">      48 </span>            : 
+<span class="lineNum">      49 </span>            : #ifndef __BEOS__
+<span class="lineNum">      50 </span>            : #include &lt;errno.h&gt;
+<span class="lineNum">      51 </span>            : #endif
+<span class="lineNum">      52 </span>            : 
+<span class="lineNum">      53 </span>            : #endif
+<a name="54"><span class="lineNum">      54 </span>            : </a>
+<span class="lineNum">      55 </span>            : 
+<span class="lineNum">      56 </span>            : GF_Err gf_rmdir(char *DirPathName)
+<span class="lineNum">      57 </span>            : {
+<span class="lineNum">      58 </span>            : #if defined (_WIN32_WCE)
+<span class="lineNum">      59 </span>            :         TCHAR swzName[MAX_PATH];
+<span class="lineNum">      60 </span>            :         BOOL res;
+<span class="lineNum">      61 </span>            :         CE_CharToWide(DirPathName, swzName);
+<span class="lineNum">      62 </span>            :         res = RemoveDirectory(swzName);
+<span class="lineNum">      63 </span>            :         if (! res) {
+<span class="lineNum">      64 </span>            :                 int err = GetLastError();
+<span class="lineNum">      65 </span>            :                 GF_LOG(GF_LOG_ERROR, GF_LOG_CORE, (&quot;Cannot delete directory %s: last error %d\n&quot;, DirPathName, err ));
+<span class="lineNum">      66 </span>            :         }
+<span class="lineNum">      67 </span>            : #elif defined (WIN32)
+<span class="lineNum">      68 </span>            :         int res = rmdir(DirPathName);
+<span class="lineNum">      69 </span>            :         if (res==-1) {
+<span class="lineNum">      70 </span>            :                 int err = GetLastError();
+<span class="lineNum">      71 </span>            :                 GF_LOG(GF_LOG_ERROR, GF_LOG_CORE, (&quot;Cannot delete directory %s: last error %d\n&quot;, DirPathName, err ));
+<span class="lineNum">      72 </span>            :                 return GF_IO_ERR;
+<span class="lineNum">      73 </span>            :         }
+<span class="lineNum">      74 </span>            : #else
+<span class="lineNum">      75 </span><span class="lineNoCov">          0 :         int res = rmdir(DirPathName);</span>
+<span class="lineNum">      76 </span><span class="lineNoCov">          0 :         if (res==-1) {</span>
+<span class="lineNum">      77 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_CORE, (&quot;Cannot delete directory %s: last error %d\n&quot;, DirPathName, errno  ));</span>
+<span class="lineNum">      78 </span><span class="lineNoCov">          0 :                 return GF_IO_ERR;</span>
+<span class="lineNum">      79 </span>            :         }
+<span class="lineNum">      80 </span>            : #endif
+<span class="lineNum">      81 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">      82 </span><span class="lineNoCov">          0 : }</span>
+<a name="83"><span class="lineNum">      83 </span>            : </a>
+<span class="lineNum">      84 </span>            : GF_EXPORT
+<span class="lineNum">      85 </span>            : GF_Err gf_mkdir(char* DirPathName)
+<span class="lineNum">      86 </span>            : {
+<span class="lineNum">      87 </span>            : #if defined (_WIN32_WCE)
+<span class="lineNum">      88 </span>            :         TCHAR swzName[MAX_PATH];
+<span class="lineNum">      89 </span>            :         BOOL res;
+<span class="lineNum">      90 </span>            :         CE_CharToWide(DirPathName, swzName);
+<span class="lineNum">      91 </span>            :         res = CreateDirectory(swzName, NULL);
+<span class="lineNum">      92 </span>            :         if (! res) {
+<span class="lineNum">      93 </span>            :                 int err = GetLastError();
+<span class="lineNum">      94 </span>            :                 GF_LOG(GF_LOG_ERROR, GF_LOG_CORE, (&quot;Cannot create directory %s: last error %d\n&quot;, DirPathName, err ));
+<span class="lineNum">      95 </span>            :         }
+<span class="lineNum">      96 </span>            : #elif defined (WIN32)
+<span class="lineNum">      97 </span>            :         int res = mkdir(DirPathName);
+<span class="lineNum">      98 </span>            :         if (res==-1) {
+<span class="lineNum">      99 </span>            :                 int err = GetLastError();
+<span class="lineNum">     100 </span>            :                 GF_LOG(GF_LOG_ERROR, GF_LOG_CORE, (&quot;Cannot create directory %s: last error %d\n&quot;, DirPathName, err ));
+<span class="lineNum">     101 </span>            :         }
+<span class="lineNum">     102 </span>            : #else
+<span class="lineNum">     103 </span><span class="lineCov">          4 :         int res = mkdir(DirPathName, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);</span>
+<span class="lineNum">     104 </span><span class="lineCov">          2 :         if (res==-1) {</span>
+<span class="lineNum">     105 </span><span class="lineNoCov">          0 :                 if(errno == 17) {</span>
+<span class="lineNum">     106 </span><span class="lineNoCov">          0 :                         GF_LOG(GF_LOG_ERROR, GF_LOG_CORE, (&quot;Cannot create directory %s, it already exists: last error %d \n&quot;, DirPathName, errno ));</span>
+<span class="lineNum">     107 </span><span class="lineNoCov">          0 :                         return GF_BAD_PARAM;</span>
+<span class="lineNum">     108 </span>            :                 } else {
+<span class="lineNum">     109 </span><span class="lineNoCov">          0 :                         GF_LOG(GF_LOG_ERROR, GF_LOG_CORE, (&quot;Cannot create directory %s: last error %d\n&quot;, DirPathName, errno ));</span>
+<span class="lineNum">     110 </span><span class="lineNoCov">          0 :                         return GF_IO_ERR;</span>
+<span class="lineNum">     111 </span>            :                 }
+<span class="lineNum">     112 </span>            :         }
+<span class="lineNum">     113 </span>            : #endif
+<span class="lineNum">     114 </span><span class="lineCov">          2 :         return GF_OK;</span>
+<span class="lineNum">     115 </span><span class="lineCov">          2 : }</span>
+<span class="lineNum">     116 </span>            : 
+<a name="117"><span class="lineNum">     117 </span>            : </a>
+<span class="lineNum">     118 </span>            : GF_EXPORT
+<span class="lineNum">     119 </span>            : Bool gf_dir_exists(char* DirPathName)
+<span class="lineNum">     120 </span>            : {
+<span class="lineNum">     121 </span>            : #if defined (_WIN32_WCE)
+<span class="lineNum">     122 </span>            :         TCHAR swzName[MAX_PATH];
+<span class="lineNum">     123 </span>            :         BOOL res;
+<span class="lineNum">     124 </span>            :         DWORD att;
+<span class="lineNum">     125 </span>            :         CE_CharToWide(DirPathName, swzName);
+<span class="lineNum">     126 </span>            :         att = GetFileAttributes(swzName);
+<span class="lineNum">     127 </span>            :         return (att != INVALID_FILE_ATTRIBUTES &amp;&amp; (att &amp; FILE_ATTRIBUTE_DIRECTORY)) ? GF_TRUE : GF_FALSE;
+<span class="lineNum">     128 </span>            : #elif defined (WIN32)
+<span class="lineNum">     129 </span>            :         DWORD att = GetFileAttributes(DirPathName);
+<span class="lineNum">     130 </span>            :         return (att != INVALID_FILE_ATTRIBUTES &amp;&amp; (att &amp; FILE_ATTRIBUTE_DIRECTORY)) ? GF_TRUE : GF_FALSE;
+<span class="lineNum">     131 </span>            : #else
+<span class="lineNum">     132 </span><span class="lineCov">         24 :         DIR* dir = opendir(DirPathName);</span>
+<span class="lineNum">     133 </span><span class="lineCov">         14 :         if (!dir) return GF_FALSE;</span>
+<span class="lineNum">     134 </span><span class="lineCov">         10 :         closedir(dir);</span>
+<span class="lineNum">     135 </span><span class="lineCov">         10 :         return GF_TRUE;</span>
+<span class="lineNum">     136 </span>            : #endif
+<a name="137"><span class="lineNum">     137 </span>            :         return GF_FALSE;</a>
+<span class="lineNum">     138 </span><span class="lineCov">         12 : }</span>
+<span class="lineNum">     139 </span>            : static Bool delete_dir(void *cbck, char *item_name, char *item_path, GF_FileEnumInfo *file_info)
+<span class="lineNum">     140 </span>            : {
+<span class="lineNum">     141 </span><span class="lineNoCov">          0 :         Bool directory_clean_mode = *(Bool*)cbck;</span>
+<span class="lineNum">     142 </span>            : 
+<span class="lineNum">     143 </span><span class="lineNoCov">          0 :         if(directory_clean_mode) {</span>
+<span class="lineNum">     144 </span><span class="lineNoCov">          0 :                 gf_cleanup_dir(item_path);</span>
+<span class="lineNum">     145 </span><span class="lineNoCov">          0 :                 gf_rmdir(item_path);</span>
+<span class="lineNum">     146 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     147 </span><span class="lineNoCov">          0 :                 gf_delete_file(item_path);</span>
+<span class="lineNum">     148 </span>            :         }
+<span class="lineNum">     149 </span><span class="lineNoCov">          0 :         return GF_FALSE;</span>
+<a name="150"><span class="lineNum">     150 </span>            : }</a>
+<span class="lineNum">     151 </span>            : 
+<span class="lineNum">     152 </span>            : GF_Err gf_cleanup_dir(char* DirPathName)
+<span class="lineNum">     153 </span>            : {
+<span class="lineNum">     154 </span><span class="lineNoCov">          0 :         Bool directory_clean_mode;</span>
+<span class="lineNum">     155 </span>            : 
+<span class="lineNum">     156 </span><span class="lineNoCov">          0 :         directory_clean_mode = GF_TRUE;</span>
+<span class="lineNum">     157 </span><span class="lineNoCov">          0 :         gf_enum_directory(DirPathName, GF_TRUE, delete_dir, &amp;directory_clean_mode, NULL);</span>
+<span class="lineNum">     158 </span><span class="lineNoCov">          0 :         directory_clean_mode = GF_FALSE;</span>
+<span class="lineNum">     159 </span><span class="lineNoCov">          0 :         gf_enum_directory(DirPathName, GF_FALSE, delete_dir, &amp;directory_clean_mode, NULL);</span>
+<span class="lineNum">     160 </span>            : 
+<span class="lineNum">     161 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">     162 </span><span class="lineNoCov">          0 : }</span>
+<a name="163"><span class="lineNum">     163 </span>            : </a>
+<span class="lineNum">     164 </span>            : GF_EXPORT
+<span class="lineNum">     165 </span>            : GF_Err gf_delete_file(const char *fileName)
+<span class="lineNum">     166 </span>            : {
+<span class="lineNum">     167 </span><span class="lineCov">        140 :         if (!fileName) {</span>
+<span class="lineNum">     168 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_WARNING, GF_LOG_CORE, (&quot;gf_delete_file deletes nothing - ignoring\n&quot;));</span>
+<span class="lineNum">     169 </span><span class="lineNoCov">          0 :                 return GF_OK;</span>
+<span class="lineNum">     170 </span>            :         }
+<span class="lineNum">     171 </span>            : #if defined(_WIN32_WCE)
+<span class="lineNum">     172 </span>            :         TCHAR swzName[MAX_PATH];
+<span class="lineNum">     173 </span>            :         CE_CharToWide((char*)fileName, swzName);
+<span class="lineNum">     174 </span>            :         return (DeleteFile(swzName)==0) ? GF_IO_ERR : GF_OK;
+<span class="lineNum">     175 </span>            : #elif defined(WIN32)
+<span class="lineNum">     176 </span>            :         /* success if != 0 */
+<span class="lineNum">     177 </span>            :         return (DeleteFile(fileName)==0) ? GF_IO_ERR : GF_OK;
+<span class="lineNum">     178 </span>            : #else
+<span class="lineNum">     179 </span>            :         /* success is == 0 */
+<span class="lineNum">     180 </span><span class="lineCov">         70 :         return ( remove(fileName) == 0) ? GF_OK : GF_IO_ERR;</span>
+<span class="lineNum">     181 </span>            : #endif
+<span class="lineNum">     182 </span><span class="lineCov">         70 : }</span>
+<span class="lineNum">     183 </span>            : 
+<span class="lineNum">     184 </span>            : #ifndef WIN32
+<span class="lineNum">     185 </span>            : /**
+<span class="lineNum">     186 </span>            :  * Remove existing single-quote from a single-quoted string.
+<a name="187"><span class="lineNum">     187 </span>            :  * The caller is responsible for deallocating the returns string with gf_free()</a>
+<span class="lineNum">     188 </span>            :  */
+<span class="lineNum">     189 </span>            : static char* gf_sanetize_single_quoted_string(const char *src) {
+<span class="lineNum">     190 </span>            :         int i, j;
+<span class="lineNum">     191 </span><span class="lineCov">        184 :         char *out = (char*)gf_malloc(4*strlen(src)+3);</span>
+<span class="lineNum">     192 </span><span class="lineCov">         92 :         out[0] = '\'';</span>
+<span class="lineNum">     193 </span><span class="lineCov">       6964 :         for (i=0, j=1; (out[j]=src[i]); ++i, ++j) {</span>
+<span class="lineNum">     194 </span><span class="lineCov">       3390 :                 if (src[i]=='\'') {</span>
+<span class="lineNum">     195 </span><span class="lineNoCov">          0 :                         out[++j]='\\';</span>
+<span class="lineNum">     196 </span><span class="lineNoCov">          0 :                         out[++j]='\'';</span>
+<span class="lineNum">     197 </span><span class="lineNoCov">          0 :                         out[++j]='\'';</span>
+<span class="lineNum">     198 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     199 </span>            :         }
+<span class="lineNum">     200 </span><span class="lineCov">         92 :         out[j++] = '\'';</span>
+<span class="lineNum">     201 </span><span class="lineCov">         92 :         out[j++] = 0;</span>
+<span class="lineNum">     202 </span><span class="lineCov">         92 :         return out;</span>
+<span class="lineNum">     203 </span>            : }
+<span class="lineNum">     204 </span>            : #endif
+<span class="lineNum">     205 </span>            : 
+<span class="lineNum">     206 </span>            : #if defined(GPAC_IPHONE) &amp;&amp; (__IPHONE_OS_VERSION_MAX_ALLOWED &gt;= 80000)
+<span class="lineNum">     207 </span>            : #include &lt;spawn.h&gt;
+<span class="lineNum">     208 </span>            : extern char **environ;
+<span class="lineNum">     209 </span>            : #endif
+<a name="210"><span class="lineNum">     210 </span>            : </a>
+<span class="lineNum">     211 </span>            : GF_EXPORT
+<span class="lineNum">     212 </span>            : Bool gf_file_exists(const char *fileName)
+<span class="lineNum">     213 </span>            : {
+<span class="lineNum">     214 </span><span class="lineNoCov">          0 :         FILE *f = gf_fopen(fileName, &quot;r&quot;);</span>
+<span class="lineNum">     215 </span><span class="lineNoCov">          0 :         if (f) {</span>
+<span class="lineNum">     216 </span><span class="lineNoCov">          0 :                 gf_fclose(f);</span>
+<span class="lineNum">     217 </span><span class="lineNoCov">          0 :                 return GF_TRUE;</span>
+<span class="lineNum">     218 </span>            :         }
+<span class="lineNum">     219 </span><span class="lineNoCov">          0 :         return GF_FALSE;</span>
+<span class="lineNum">     220 </span><span class="lineNoCov">          0 : }</span>
+<a name="221"><span class="lineNum">     221 </span>            : </a>
+<span class="lineNum">     222 </span>            : GF_EXPORT
+<span class="lineNum">     223 </span>            : GF_Err gf_move_file(const char *fileName, const char *newFileName)
+<span class="lineNum">     224 </span>            : {
+<span class="lineNum">     225 </span>            : #if defined(_WIN32_WCE)
+<span class="lineNum">     226 </span>            :         TCHAR swzName[MAX_PATH];
+<span class="lineNum">     227 </span>            :         TCHAR swzNewName[MAX_PATH];
+<span class="lineNum">     228 </span>            :         CE_CharToWide((char*)fileName, swzName);
+<span class="lineNum">     229 </span>            :         CE_CharToWide((char*)newFileName, swzNewName);
+<span class="lineNum">     230 </span>            :         return (MoveFile(swzName, swzNewName) == 0 ) ? GF_IO_ERR : GF_OK;
+<span class="lineNum">     231 </span>            : #elif defined(WIN32)
+<span class="lineNum">     232 </span>            :         /* success if != 0 */
+<span class="lineNum">     233 </span>            :         return (MoveFile(fileName, newFileName) == 0 ) ? GF_IO_ERR : GF_OK;
+<span class="lineNum">     234 </span>            : #else
+<span class="lineNum">     235 </span>            :         GF_Err e = GF_IO_ERR;
+<span class="lineNum">     236 </span><span class="lineCov">         92 :         char cmd[1024], *arg1, *arg2;</span>
+<span class="lineNum">     237 </span><span class="lineCov">         46 :         if (!fileName || !newFileName)</span>
+<span class="lineNum">     238 </span><span class="lineNoCov">          0 :                 return GF_IO_ERR;</span>
+<span class="lineNum">     239 </span><span class="lineCov">         46 :         arg1 = gf_sanetize_single_quoted_string(fileName);</span>
+<span class="lineNum">     240 </span><span class="lineCov">         46 :         arg2 = gf_sanetize_single_quoted_string(newFileName);</span>
+<span class="lineNum">     241 </span><span class="lineCov">         46 :         if (snprintf(cmd, sizeof cmd, &quot;mv %s %s&quot;, arg1, arg2) &gt;= sizeof cmd) goto error;</span>
+<span class="lineNum">     242 </span>            : 
+<span class="lineNum">     243 </span>            : #if defined(GPAC_IPHONE) &amp;&amp; (__IPHONE_OS_VERSION_MAX_ALLOWED &gt;= 80000)
+<span class="lineNum">     244 </span>            :         {
+<span class="lineNum">     245 </span>            :                 pid_t pid;
+<span class="lineNum">     246 </span>            :                 char *argv[3];
+<span class="lineNum">     247 </span>            :                 argv[0] = &quot;mv&quot;;
+<span class="lineNum">     248 </span>            :                 argv[1] = cmd;
+<span class="lineNum">     249 </span>            :                 argv[2] = NULL;
+<span class="lineNum">     250 </span>            :                 posix_spawn(&amp;pid, argv[0], NULL, NULL, argv, environ);
+<span class="lineNum">     251 </span>            :                 waitpid(pid, NULL, 0);
+<span class="lineNum">     252 </span>            :         }
+<span class="lineNum">     253 </span>            : #else
+<span class="lineNum">     254 </span><span class="lineCov">         46 :         e = (system(cmd) == 0) ? GF_OK : GF_IO_ERR;</span>
+<span class="lineNum">     255 </span>            : #endif
+<span class="lineNum">     256 </span>            :         
+<span class="lineNum">     257 </span>            : error:
+<span class="lineNum">     258 </span><span class="lineCov">         46 :         gf_free(arg1);</span>
+<span class="lineNum">     259 </span><span class="lineCov">         46 :         gf_free(arg2);</span>
+<span class="lineNum">     260 </span><span class="lineCov">         46 :         return e;</span>
+<span class="lineNum">     261 </span>            : #endif
+<span class="lineNum">     262 </span><span class="lineCov">         46 : }</span>
+<a name="263"><span class="lineNum">     263 </span>            : </a>
+<span class="lineNum">     264 </span>            : GF_EXPORT
+<span class="lineNum">     265 </span>            : u64 gf_file_modification_time(const char *filename)
+<span class="lineNum">     266 </span>            : {
+<span class="lineNum">     267 </span>            : #if defined(_WIN32_WCE)
+<span class="lineNum">     268 </span>            :         WCHAR _file[GF_MAX_PATH];
+<span class="lineNum">     269 </span>            :         WIN32_FIND_DATA FindData;
+<span class="lineNum">     270 </span>            :         HANDLE fh;
+<span class="lineNum">     271 </span>            :         ULARGE_INTEGER uli;
+<span class="lineNum">     272 </span>            :         ULONGLONG time_ms;
+<span class="lineNum">     273 </span>            :         BOOL ret;
+<span class="lineNum">     274 </span>            :         CE_CharToWide((char *) filename, _file);
+<span class="lineNum">     275 </span>            :         fh = FindFirstFile(_file, &amp;FindData);
+<span class="lineNum">     276 </span>            :         if (fh == INVALID_HANDLE_VALUE) return 0;
+<span class="lineNum">     277 </span>            :         uli.LowPart = FindData.ftLastWriteTime.dwLowDateTime;
+<span class="lineNum">     278 </span>            :         uli.HighPart = FindData.ftLastWriteTime.dwHighDateTime;
+<span class="lineNum">     279 </span>            :         ret = FindClose(fh);
+<span class="lineNum">     280 </span>            :         if (!ret) {
+<span class="lineNum">     281 </span>            :                 DWORD err = GetLastError();
+<span class="lineNum">     282 </span>            :                 GF_LOG(GF_LOG_ERROR, GF_LOG_CORE, (&quot;[core] FindClose() in gf_file_modification_time() returned the following error code: %d\n&quot;, err));
+<span class="lineNum">     283 </span>            :         }
+<span class="lineNum">     284 </span>            :         time_ms = uli.QuadPart/10000;
+<span class="lineNum">     285 </span>            :         return time_ms;
+<span class="lineNum">     286 </span>            : #elif defined(WIN32) &amp;&amp; !defined(__GNUC__)
+<span class="lineNum">     287 </span>            :         struct _stat64 sb;
+<span class="lineNum">     288 </span>            :         if (_stat64(filename, &amp;sb) != 0) return 0;
+<span class="lineNum">     289 </span>            :         return sb.st_mtime;
+<span class="lineNum">     290 </span>            : #else
+<span class="lineNum">     291 </span><span class="lineNoCov">          0 :         struct stat sb;</span>
+<span class="lineNum">     292 </span><span class="lineNoCov">          0 :         if (stat(filename, &amp;sb) != 0) return 0;</span>
+<span class="lineNum">     293 </span><span class="lineNoCov">          0 :         return sb.st_mtime;</span>
+<span class="lineNum">     294 </span>            : #endif
+<span class="lineNum">     295 </span>            :         return 0;
+<span class="lineNum">     296 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     297 </span>            : 
+<a name="298"><span class="lineNum">     298 </span>            : static u32 gpac_file_handles = 0;</a>
+<span class="lineNum">     299 </span>            : GF_EXPORT
+<span class="lineNum">     300 </span>            : u32 gf_file_handles_count()
+<span class="lineNum">     301 </span>            : {
+<span class="lineNum">     302 </span><span class="lineCov">       7308 :         return gpac_file_handles;</span>
+<span class="lineNum">     303 </span>            : }
+<a name="304"><span class="lineNum">     304 </span>            : </a>
+<span class="lineNum">     305 </span>            : GF_EXPORT
+<span class="lineNum">     306 </span>            : FILE *gf_temp_file_new(char ** const fileName)
+<span class="lineNum">     307 </span>            : {
+<span class="lineNum">     308 </span>            :         FILE *res = NULL;
+<span class="lineNum">     309 </span>            : #if defined(_WIN32_WCE)
+<span class="lineNum">     310 </span>            :         TCHAR pPath[MAX_PATH+1];
+<span class="lineNum">     311 </span>            :         TCHAR pTemp[MAX_PATH+1];
+<span class="lineNum">     312 </span>            :         if (!GetTempPath(MAX_PATH, pPath)) {
+<span class="lineNum">     313 </span>            :                 pPath[0] = '.';
+<span class="lineNum">     314 </span>            :                 pPath[1] = '.';
+<span class="lineNum">     315 </span>            :         }
+<span class="lineNum">     316 </span>            :         if (GetTempFileName(pPath, TEXT(&quot;git&quot;), 0, pTemp))
+<span class="lineNum">     317 </span>            :                 res = _wfopen(pTemp, TEXT(&quot;w+b&quot;));
+<span class="lineNum">     318 </span>            : #elif defined(WIN32)
+<span class="lineNum">     319 </span>            :         char tmp[MAX_PATH];
+<span class="lineNum">     320 </span>            :         res = tmpfile();
+<span class="lineNum">     321 </span>            :         if (!res) {
+<span class="lineNum">     322 </span>            :                 GF_LOG(GF_LOG_INFO, GF_LOG_CORE, (&quot;[Win32] system failure for tmpfile(): 0x%08x\n&quot;, GetLastError()));
+<span class="lineNum">     323 </span>            : 
+<span class="lineNum">     324 </span>            :                 /*tmpfile() may fail under vista ...*/
+<span class="lineNum">     325 </span>            :                 if (GetEnvironmentVariable(&quot;TEMP&quot;, tmp, MAX_PATH)) {
+<span class="lineNum">     326 </span>            :                         char tmp2[MAX_PATH], *t_file;
+<span class="lineNum">     327 </span>            :                         gf_rand_init(GF_FALSE);
+<span class="lineNum">     328 </span>            :                         sprintf(tmp2, &quot;gpac_%08x_&quot;, gf_rand());
+<span class="lineNum">     329 </span>            :                         t_file = tempnam(tmp, tmp2);
+<span class="lineNum">     330 </span>            :                         res = gf_fopen(t_file, &quot;w+b&quot;);
+<span class="lineNum">     331 </span>            :                         if (res) {
+<span class="lineNum">     332 </span>            :                                 gpac_file_handles--;
+<span class="lineNum">     333 </span>            :                                 if (fileName) {
+<span class="lineNum">     334 </span>            :                                         *fileName = gf_strdup(t_file);
+<span class="lineNum">     335 </span>            :                                 } else {
+<span class="lineNum">     336 </span>            :                                         GF_LOG(GF_LOG_WARNING, GF_LOG_CORE, (&quot;[Win32] temporary file %s won't be deleted - contact the GPAC team\n&quot;, t_file));
+<span class="lineNum">     337 </span>            :                                 }
+<span class="lineNum">     338 </span>            :                         }
+<span class="lineNum">     339 </span>            :                         free(t_file);
+<span class="lineNum">     340 </span>            :                 }
+<span class="lineNum">     341 </span>            :         }
+<span class="lineNum">     342 </span>            : #else
+<span class="lineNum">     343 </span><span class="lineCov">       2574 :         res = tmpfile();</span>
+<span class="lineNum">     344 </span>            : #endif
+<span class="lineNum">     345 </span>            : 
+<span class="lineNum">     346 </span><span class="lineCov">       1287 :         if (res) {</span>
+<span class="lineNum">     347 </span><span class="lineCov">       1287 :                 gpac_file_handles++;</span>
+<span class="lineNum">     348 </span><span class="lineCov">       1287 :         }</span>
+<span class="lineNum">     349 </span><span class="lineCov">       1287 :         return res;</span>
+<span class="lineNum">     350 </span>            : }
+<span class="lineNum">     351 </span>            : 
+<a name="352"><span class="lineNum">     352 </span>            : /*enumerate directories*/</a>
+<span class="lineNum">     353 </span>            : GF_EXPORT
+<span class="lineNum">     354 </span>            : GF_Err gf_enum_directory(const char *dir, Bool enum_directory, gf_enum_dir_item enum_dir_fct, void *cbck, const char *filter)
+<span class="lineNum">     355 </span>            : {
+<span class="lineNum">     356 </span><span class="lineCov">         12 :         char item_path[GF_MAX_PATH];</span>
+<span class="lineNum">     357 </span><span class="lineCov">          6 :         GF_FileEnumInfo file_info;</span>
+<span class="lineNum">     358 </span>            : 
+<span class="lineNum">     359 </span>            : #if defined(_WIN32_WCE)
+<span class="lineNum">     360 </span>            :         char _path[GF_MAX_PATH];
+<span class="lineNum">     361 </span>            :         unsigned short path[GF_MAX_PATH];
+<span class="lineNum">     362 </span>            :         unsigned short w_filter[GF_MAX_PATH];
+<span class="lineNum">     363 </span>            :         char file[GF_MAX_PATH];
+<span class="lineNum">     364 </span>            : #else
+<span class="lineNum">     365 </span><span class="lineCov">          6 :         char path[GF_MAX_PATH], *file;</span>
+<span class="lineNum">     366 </span>            : #endif
+<span class="lineNum">     367 </span>            : 
+<span class="lineNum">     368 </span>            : #ifdef WIN32
+<span class="lineNum">     369 </span>            :         WIN32_FIND_DATA FindData;
+<span class="lineNum">     370 </span>            :         HANDLE SearchH;
+<span class="lineNum">     371 </span>            : #else
+<span class="lineNum">     372 </span>            :         DIR *the_dir;
+<span class="lineNum">     373 </span>            :         struct dirent* the_file;
+<span class="lineNum">     374 </span><span class="lineCov">          6 :         struct stat st;</span>
+<span class="lineNum">     375 </span>            : #endif
+<span class="lineNum">     376 </span>            : 
+<span class="lineNum">     377 </span><span class="lineCov">          6 :         if (!dir || !enum_dir_fct) return GF_BAD_PARAM;</span>
+<span class="lineNum">     378 </span>            : 
+<span class="lineNum">     379 </span><span class="lineCov">         14 :         if (filter &amp;&amp; (!strcmp(filter, &quot;*&quot;) || !filter[0])) filter=NULL;</span>
+<span class="lineNum">     380 </span>            : 
+<span class="lineNum">     381 </span><span class="lineCov">          6 :         memset(&amp;file_info, 0, sizeof(GF_FileEnumInfo) );</span>
+<span class="lineNum">     382 </span>            : 
+<span class="lineNum">     383 </span><span class="lineCov">          6 :         if (!strcmp(dir, &quot;/&quot;)) {</span>
+<span class="lineNum">     384 </span>            : #if defined(WIN32) &amp;&amp; !defined(_WIN32_WCE)
+<span class="lineNum">     385 </span>            :                 u32 len;
+<span class="lineNum">     386 </span>            :                 char *drives, *volume;
+<span class="lineNum">     387 </span>            :                 len = GetLogicalDriveStrings(0, NULL);
+<span class="lineNum">     388 </span>            :                 drives = (char*)gf_malloc(sizeof(char)*(len+1));
+<span class="lineNum">     389 </span>            :                 drives[0]=0;
+<span class="lineNum">     390 </span>            :                 GetLogicalDriveStrings(len, drives);
+<span class="lineNum">     391 </span>            :                 len = (u32) strlen(drives);
+<span class="lineNum">     392 </span>            :                 volume = drives;
+<span class="lineNum">     393 </span>            :                 file_info.directory = GF_TRUE;
+<span class="lineNum">     394 </span>            :                 file_info.drive = GF_TRUE;
+<span class="lineNum">     395 </span>            :                 while (len) {
+<span class="lineNum">     396 </span>            :                         enum_dir_fct(cbck, volume, &quot;&quot;, &amp;file_info);
+<span class="lineNum">     397 </span>            :                         volume += len+1;
+<span class="lineNum">     398 </span>            :                         len = (u32) strlen(volume);
+<span class="lineNum">     399 </span>            :                 }
+<span class="lineNum">     400 </span>            :                 gf_free(drives);
+<span class="lineNum">     401 </span>            :                 return GF_OK;
+<span class="lineNum">     402 </span>            : #elif defined(__SYMBIAN32__)
+<span class="lineNum">     403 </span>            :                 RFs iFs;
+<span class="lineNum">     404 </span>            :                 TDriveList aList;
+<span class="lineNum">     405 </span>            :                 iFs.Connect();
+<span class="lineNum">     406 </span>            :                 iFs.DriveList(aList);
+<span class="lineNum">     407 </span>            :                 for (TInt i=0; i&lt;KMaxDrives; i++) {
+<span class="lineNum">     408 </span>            :                         if (aList[i]) {
+<span class="lineNum">     409 </span>            :                                 char szDrive[10];
+<span class="lineNum">     410 </span>            :                                 TChar aDrive;
+<span class="lineNum">     411 </span>            :                                 iFs.DriveToChar(i, aDrive);
+<span class="lineNum">     412 </span>            :                                 sprintf(szDrive, &quot;%c:&quot;, (TUint)aDrive);
+<span class="lineNum">     413 </span>            :                                 enum_dir_fct(cbck, szDrive, &quot;&quot;, &amp;file_info);
+<span class="lineNum">     414 </span>            :                         }
+<span class="lineNum">     415 </span>            :                 }
+<span class="lineNum">     416 </span>            :                 iFs.Close();
+<span class="lineNum">     417 </span>            :                 FlushItemList();
+<span class="lineNum">     418 </span>            :                 return GF_OK;
+<span class="lineNum">     419 </span>            : #endif
+<span class="lineNum">     420 </span>            :         }
+<span class="lineNum">     421 </span>            : 
+<span class="lineNum">     422 </span>            : 
+<span class="lineNum">     423 </span>            : #if defined (_WIN32_WCE)
+<span class="lineNum">     424 </span>            :         switch (dir[strlen(dir) - 1]) {
+<span class="lineNum">     425 </span>            :         case '/':
+<span class="lineNum">     426 </span>            :         case '\\':
+<span class="lineNum">     427 </span>            :                 sprintf(_path, &quot;%s*&quot;, dir);
+<span class="lineNum">     428 </span>            :                 break;
+<span class="lineNum">     429 </span>            :         default:
+<span class="lineNum">     430 </span>            :                 sprintf(_path, &quot;%s%c*&quot;, dir, GF_PATH_SEPARATOR);
+<span class="lineNum">     431 </span>            :                 break;
+<span class="lineNum">     432 </span>            :         }
+<span class="lineNum">     433 </span>            :         CE_CharToWide(_path, path);
+<span class="lineNum">     434 </span>            :         CE_CharToWide((char *)filter, w_filter);
+<span class="lineNum">     435 </span>            : #elif defined(WIN32)
+<span class="lineNum">     436 </span>            :         switch (dir[strlen(dir) - 1]) {
+<span class="lineNum">     437 </span>            :         case '/':
+<span class="lineNum">     438 </span>            :         case '\\':
+<span class="lineNum">     439 </span>            :                 sprintf(path, &quot;%s*&quot;, dir);
+<span class="lineNum">     440 </span>            :                 break;
+<span class="lineNum">     441 </span>            :         default:
+<span class="lineNum">     442 </span>            :                 sprintf(path, &quot;%s%c*&quot;, dir, GF_PATH_SEPARATOR);
+<span class="lineNum">     443 </span>            :                 break;
+<span class="lineNum">     444 </span>            :         }
+<span class="lineNum">     445 </span>            : #else
+<span class="lineNum">     446 </span><span class="lineCov">          6 :         strcpy(path, dir);</span>
+<span class="lineNum">     447 </span><span class="lineCov">          9 :         if (path[strlen(path)-1] != '/') strcat(path, &quot;/&quot;);</span>
+<span class="lineNum">     448 </span>            : #endif
+<span class="lineNum">     449 </span>            : 
+<span class="lineNum">     450 </span>            : #ifdef WIN32
+<span class="lineNum">     451 </span>            :         SearchH= FindFirstFile(path, &amp;FindData);
+<span class="lineNum">     452 </span>            :         if (SearchH == INVALID_HANDLE_VALUE) return GF_IO_ERR;
+<span class="lineNum">     453 </span>            : 
+<span class="lineNum">     454 </span>            : #if defined (_WIN32_WCE)
+<span class="lineNum">     455 </span>            :         _path[strlen(_path)-1] = 0;
+<span class="lineNum">     456 </span>            : #else
+<span class="lineNum">     457 </span>            :         path[strlen(path)-1] = 0;
+<span class="lineNum">     458 </span>            : #endif
+<span class="lineNum">     459 </span>            : 
+<span class="lineNum">     460 </span>            :         while (SearchH != INVALID_HANDLE_VALUE) {
+<span class="lineNum">     461 </span>            : 
+<span class="lineNum">     462 </span>            : #else
+<span class="lineNum">     463 </span>            : 
+<span class="lineNum">     464 </span><span class="lineCov">          6 :         the_dir = opendir(path);</span>
+<span class="lineNum">     465 </span><span class="lineCov">          6 :         if (the_dir == NULL) {</span>
+<span class="lineNum">     466 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_CORE, (&quot;[Core] Cannot open directory %s for enumeration: %d\n&quot;, path, errno));</span>
+<span class="lineNum">     467 </span><span class="lineNoCov">          0 :                 return GF_IO_ERR;</span>
+<span class="lineNum">     468 </span>            :         }
+<span class="lineNum">     469 </span><span class="lineCov">          6 :         the_file = readdir(the_dir);</span>
+<span class="lineNum">     470 </span><span class="lineCov">       1008 :         while (the_file) {</span>
+<span class="lineNum">     471 </span>            : 
+<span class="lineNum">     472 </span>            : #endif
+<span class="lineNum">     473 </span>            : 
+<span class="lineNum">     474 </span><span class="lineCov">        498 :                 memset(&amp;file_info, 0, sizeof(GF_FileEnumInfo) );</span>
+<span class="lineNum">     475 </span>            : 
+<span class="lineNum">     476 </span>            : 
+<span class="lineNum">     477 </span>            : #if defined (_WIN32_WCE)
+<span class="lineNum">     478 </span>            :                 if (!wcscmp(FindData.cFileName, _T(&quot;.&quot;) )) goto next;
+<span class="lineNum">     479 </span>            :                 if (!wcscmp(FindData.cFileName, _T(&quot;..&quot;) )) goto next;
+<span class="lineNum">     480 </span>            : #elif defined(WIN32)
+<span class="lineNum">     481 </span>            :                 if (!strcmp(FindData.cFileName, &quot;.&quot;)) goto next;
+<span class="lineNum">     482 </span>            :                 if (!strcmp(FindData.cFileName, &quot;..&quot;)) goto next;
+<span class="lineNum">     483 </span>            : #else
+<span class="lineNum">     484 </span><span class="lineCov">        498 :                 if (!strcmp(the_file-&gt;d_name, &quot;..&quot;)) goto next;</span>
+<span class="lineNum">     485 </span><span class="lineCov">        492 :                 if (the_file-&gt;d_name[0] == '.') goto next;</span>
+<span class="lineNum">     486 </span>            : #endif
+<span class="lineNum">     487 </span>            : 
+<span class="lineNum">     488 </span>            : #ifdef WIN32
+<span class="lineNum">     489 </span>            :                 file_info.directory = (FindData.dwFileAttributes &amp; FILE_ATTRIBUTE_DIRECTORY) ? GF_TRUE : GF_FALSE;
+<span class="lineNum">     490 </span>            :                 if (!enum_directory &amp;&amp; file_info.directory) goto next;
+<span class="lineNum">     491 </span>            :                 if (enum_directory &amp;&amp; !file_info.directory) goto next;
+<span class="lineNum">     492 </span>            : #endif
+<span class="lineNum">     493 </span>            : 
+<span class="lineNum">     494 </span><span class="lineCov">        486 :                 if (filter) {</span>
+<span class="lineNum">     495 </span>            : #if defined (_WIN32_WCE)
+<span class="lineNum">     496 </span>            :                         short ext[30];
+<span class="lineNum">     497 </span>            :                         short *sep = wcsrchr(FindData.cFileName, (wchar_t) '.');
+<span class="lineNum">     498 </span>            :                         if (!sep) goto next;
+<span class="lineNum">     499 </span>            :                         wcscpy(ext, sep+1);
+<span class="lineNum">     500 </span>            :                         wcslwr(ext);
+<span class="lineNum">     501 </span>            :                         if (!wcsstr(w_filter, ext)) goto next;
+<span class="lineNum">     502 </span>            : #elif defined(WIN32)
+<span class="lineNum">     503 </span>            :                         char ext[30];
+<span class="lineNum">     504 </span>            :                         char *sep = strrchr(FindData.cFileName, '.');
+<span class="lineNum">     505 </span>            :                         if (!sep) goto next;
+<span class="lineNum">     506 </span>            :                         strcpy(ext, sep+1);
+<span class="lineNum">     507 </span>            :                         strlwr(ext);
+<span class="lineNum">     508 </span>            :                         if (!strstr(filter, ext)) goto next;
+<span class="lineNum">     509 </span>            : #else
+<span class="lineNum">     510 </span><span class="lineCov">        252 :                         char ext[30];</span>
+<span class="lineNum">     511 </span><span class="lineCov">        252 :                         char *sep = strrchr(the_file-&gt;d_name, '.');</span>
+<span class="lineNum">     512 </span><span class="lineCov">        252 :                         if (!sep) goto next;</span>
+<span class="lineNum">     513 </span><span class="lineCov">        252 :                         strcpy(ext, sep+1);</span>
+<span class="lineNum">     514 </span><span class="lineCov">        252 :                         strlwr(ext);</span>
+<span class="lineNum">     515 </span><span class="lineCov">        294 :                         if (!strstr(filter, sep+1)) goto next;</span>
+<span class="lineNum">     516 </span>            : #endif
+<span class="lineNum">     517 </span><span class="lineCov">       1156 :                 }</span>
+<span class="lineNum">     518 </span>            : 
+<span class="lineNum">     519 </span>            : #if defined(WIN32)
+<span class="lineNum">     520 </span>            :                 file_info.hidden = (FindData.dwFileAttributes &amp; FILE_ATTRIBUTE_HIDDEN) ? GF_TRUE : GF_FALSE;
+<span class="lineNum">     521 </span>            :                 file_info.system = (FindData.dwFileAttributes &amp; FILE_ATTRIBUTE_SYSTEM) ? GF_TRUE : GF_FALSE;
+<span class="lineNum">     522 </span>            :                 file_info.size = MAXDWORD;
+<span class="lineNum">     523 </span>            :                 file_info.size += 1;
+<span class="lineNum">     524 </span>            :                 file_info.size *= FindData.nFileSizeHigh;
+<span class="lineNum">     525 </span>            :                 file_info.size += FindData.nFileSizeLow;
+<span class="lineNum">     526 </span>            :                 file_info.last_modified = (u64) ((*(LONGLONG *) &amp;FindData.ftLastWriteTime - TIMESPEC_TO_FILETIME_OFFSET) / 10000000);
+<span class="lineNum">     527 </span>            : #endif
+<span class="lineNum">     528 </span>            : 
+<span class="lineNum">     529 </span>            : #if defined (_WIN32_WCE)
+<span class="lineNum">     530 </span>            :                 CE_WideToChar(FindData.cFileName, file);
+<span class="lineNum">     531 </span>            :                 strcpy(item_path, _path);
+<span class="lineNum">     532 </span>            :                 strcat(item_path, file);
+<span class="lineNum">     533 </span>            : #elif defined(WIN32)
+<span class="lineNum">     534 </span>            :                 strcpy(item_path, path);
+<span class="lineNum">     535 </span>            :                 strcat(item_path, FindData.cFileName);
+<span class="lineNum">     536 </span>            :                 file = FindData.cFileName;
+<span class="lineNum">     537 </span>            : #else
+<span class="lineNum">     538 </span><span class="lineCov">        444 :                 strcpy(item_path, path);</span>
+<span class="lineNum">     539 </span><span class="lineCov">        444 :                 strcat(item_path, the_file-&gt;d_name);</span>
+<span class="lineNum">     540 </span><span class="lineCov">        444 :                 GF_LOG(GF_LOG_DEBUG, GF_LOG_CORE, (&quot;[Core] Checking file %s for enum\n&quot;, item_path));</span>
+<span class="lineNum">     541 </span>            : 
+<span class="lineNum">     542 </span><span class="lineCov">        444 :                 if (stat( item_path, &amp;st ) != 0) goto next;</span>
+<span class="lineNum">     543 </span>            : 
+<span class="lineNum">     544 </span><span class="lineCov">        444 :                 file_info.directory = ((st.st_mode &amp; S_IFMT) == S_IFDIR) ? GF_TRUE : GF_FALSE;</span>
+<span class="lineNum">     545 </span><span class="lineCov">        667 :                 if (enum_directory &amp;&amp; !file_info.directory) goto next;</span>
+<span class="lineNum">     546 </span><span class="lineCov">        447 :                 if (!enum_directory &amp;&amp; file_info.directory) goto next;</span>
+<span class="lineNum">     547 </span>            : 
+<span class="lineNum">     548 </span><span class="lineCov">        218 :                 file_info.size = st.st_size;</span>
+<span class="lineNum">     549 </span>            : 
+<span class="lineNum">     550 </span>            :                 {
+<span class="lineNum">     551 </span><span class="lineCov">        218 :                         struct tm _t = * gmtime(&amp; st.st_mtime);</span>
+<span class="lineNum">     552 </span><span class="lineCov">        218 :                         file_info.last_modified = mktime(&amp;_t);</span>
+<span class="lineNum">     553 </span><span class="lineCov">        218 :                 }</span>
+<span class="lineNum">     554 </span>            :                 file = the_file-&gt;d_name;
+<span class="lineNum">     555 </span><span class="lineCov">        436 :                 if (file &amp;&amp; file[0]=='.') file_info.hidden = 1;</span>
+<span class="lineNum">     556 </span>            : 
+<span class="lineNum">     557 </span><span class="lineCov">        218 :                 if (file_info.directory) {</span>
+<span class="lineNum">     558 </span><span class="lineCov">          5 :                         char * parent_name = strrchr(item_path, '/');</span>
+<span class="lineNum">     559 </span><span class="lineCov">          5 :                         if (!parent_name) {</span>
+<span class="lineNum">     560 </span><span class="lineNoCov">          0 :                                 file_info.drive = GF_TRUE;</span>
+<span class="lineNum">     561 </span><span class="lineNoCov">          0 :                         } else {</span>
+<span class="lineNum">     562 </span><span class="lineCov">          5 :                                 struct stat st_parent;</span>
+<span class="lineNum">     563 </span><span class="lineCov">          5 :                                 parent_name[0] = 0;</span>
+<span class="lineNum">     564 </span><span class="lineCov">          5 :                                 if (stat(item_path, &amp;st_parent) == 0)  {</span>
+<span class="lineNum">     565 </span><span class="lineCov">         15 :                                         if ((st.st_dev != st_parent.st_dev) || ((st.st_dev == st_parent.st_dev) &amp;&amp; (st.st_ino == st_parent.st_ino))) {</span>
+<span class="lineNum">     566 </span><span class="lineNoCov">          0 :                                                 file_info.drive = GF_TRUE;</span>
+<span class="lineNum">     567 </span><span class="lineNoCov">          0 :                                         }</span>
+<span class="lineNum">     568 </span>            :                                 }
+<span class="lineNum">     569 </span><span class="lineCov">          5 :                                 parent_name[0] = '/';</span>
+<span class="lineNum">     570 </span><span class="lineCov">          5 :                         }</span>
+<span class="lineNum">     571 </span><span class="lineCov">          5 :                 }</span>
+<span class="lineNum">     572 </span>            : #endif
+<span class="lineNum">     573 </span><span class="lineCov">        218 :                 if (enum_dir_fct(cbck, file, item_path, &amp;file_info)) {</span>
+<span class="lineNum">     574 </span>            : #ifdef WIN32
+<span class="lineNum">     575 </span>            :                         BOOL ret = FindClose(SearchH);
+<span class="lineNum">     576 </span>            :                         if (!ret) {
+<span class="lineNum">     577 </span>            :                                 DWORD err = GetLastError();
+<span class="lineNum">     578 </span>            :                                 GF_LOG(GF_LOG_ERROR, GF_LOG_CORE, (&quot;[core] FindClose() in gf_enum_directory() returned(1) the following error code: %d\n&quot;, err));
+<span class="lineNum">     579 </span>            :                         }
+<span class="lineNum">     580 </span>            : #endif
+<span class="lineNum">     581 </span>            :                         break;
+<span class="lineNum">     582 </span>            :                 }
+<span class="lineNum">     583 </span>            : 
+<span class="lineNum">     584 </span>            : next:
+<span class="lineNum">     585 </span>            : #ifdef WIN32
+<span class="lineNum">     586 </span>            :                 if (!FindNextFile(SearchH, &amp;FindData)) {
+<span class="lineNum">     587 </span>            :                         BOOL ret = FindClose(SearchH);
+<span class="lineNum">     588 </span>            :                         if (!ret) {
+<span class="lineNum">     589 </span>            :                                 DWORD err = GetLastError();
+<span class="lineNum">     590 </span>            :                                 GF_LOG(GF_LOG_ERROR, GF_LOG_CORE, (&quot;[core] FindClose() in gf_enum_directory() returned(2) the following error code: %d\n&quot;, err));
+<span class="lineNum">     591 </span>            :                         }
+<span class="lineNum">     592 </span>            :                         break;
+<span class="lineNum">     593 </span>            :                 }
+<span class="lineNum">     594 </span>            : #else
+<span class="lineNum">     595 </span><span class="lineCov">        498 :                 the_file = readdir(the_dir);</span>
+<span class="lineNum">     596 </span>            : #endif
+<span class="lineNum">     597 </span>            :         }
+<span class="lineNum">     598 </span>            : #ifndef WIN32
+<span class="lineNum">     599 </span><span class="lineCov">          6 :         closedir(the_dir);</span>
+<span class="lineNum">     600 </span>            : #endif
+<span class="lineNum">     601 </span><span class="lineCov">          6 :         return GF_OK;</span>
+<span class="lineNum">     602 </span><span class="lineCov">          6 : }</span>
+<a name="603"><span class="lineNum">     603 </span>            : </a>
+<span class="lineNum">     604 </span>            : GF_EXPORT
+<span class="lineNum">     605 </span>            : u64 gf_ftell(FILE *fp)
+<span class="lineNum">     606 </span>            : {
+<span class="lineNum">     607 </span>            : #if defined(_WIN32_WCE)
+<span class="lineNum">     608 </span>            :         return (u64) ftell(fp);
+<span class="lineNum">     609 </span>            : #elif defined(GPAC_CONFIG_WIN32) &amp;&amp; !defined(__CYGWIN__)        /* mingw or cygwin */
+<span class="lineNum">     610 </span>            : #if (_FILE_OFFSET_BITS &gt;= 64)
+<span class="lineNum">     611 </span>            :         return (u64) ftello64(fp);
+<span class="lineNum">     612 </span>            : #else
+<span class="lineNum">     613 </span>            :         return (u64) ftell(fp);
+<span class="lineNum">     614 </span>            : #endif
+<span class="lineNum">     615 </span>            : #elif defined(WIN32)
+<span class="lineNum">     616 </span>            :         return (u64) _ftelli64(fp);
+<span class="lineNum">     617 </span>            : #elif defined(GPAC_CONFIG_LINUX) &amp;&amp; !defined(GPAC_ANDROID)
+<span class="lineNum">     618 </span>            :         return (u64) ftello64(fp);
+<span class="lineNum">     619 </span>            : #elif (defined(GPAC_CONFIG_FREEBSD) || defined(GPAC_CONFIG_DARWIN))
+<span class="lineNum">     620 </span><span class="lineCov">     136682 :         return (u64) ftello(fp);</span>
+<span class="lineNum">     621 </span>            : #else
+<span class="lineNum">     622 </span>            :         return (u64) ftell(fp);
+<span class="lineNum">     623 </span>            : #endif
+<span class="lineNum">     624 </span>            : }
+<a name="625"><span class="lineNum">     625 </span>            : </a>
+<span class="lineNum">     626 </span>            : GF_EXPORT
+<span class="lineNum">     627 </span>            : u64 gf_fseek(FILE *fp, s64 offset, s32 whence)
+<span class="lineNum">     628 </span>            : {
+<span class="lineNum">     629 </span>            : #if defined(_WIN32_WCE)
+<span class="lineNum">     630 </span>            :         return (u64) fseek(fp, (s32) offset, whence);
+<span class="lineNum">     631 </span>            : #elif defined(GPAC_CONFIG_WIN32) &amp;&amp; !defined(__CYGWIN__)        /* mingw or cygwin */
+<span class="lineNum">     632 </span>            : #if (_FILE_OFFSET_BITS &gt;= 64)
+<span class="lineNum">     633 </span>            :         return (u64) fseeko64(fp, offset, whence);
+<span class="lineNum">     634 </span>            : #else
+<span class="lineNum">     635 </span>            :         return (u64) fseek(fp, (s32) offset, whence);
+<span class="lineNum">     636 </span>            : #endif
+<span class="lineNum">     637 </span>            : #elif defined(WIN32)
+<span class="lineNum">     638 </span>            :         return (u64) _fseeki64(fp, offset, whence);
+<span class="lineNum">     639 </span>            : #elif defined(GPAC_CONFIG_LINUX) &amp;&amp; !defined(GPAC_ANDROID)
+<span class="lineNum">     640 </span>            :         return fseeko64(fp, (off64_t) offset, whence);
+<span class="lineNum">     641 </span>            : #elif (defined(GPAC_CONFIG_FREEBSD) || defined(GPAC_CONFIG_DARWIN))
+<span class="lineNum">     642 </span><span class="lineCov">    2348250 :         return fseeko(fp, (off_t) offset, whence);</span>
+<span class="lineNum">     643 </span>            : #else
+<span class="lineNum">     644 </span>            :         return fseek(fp, (s32) offset, whence);
+<span class="lineNum">     645 </span>            : #endif
+<span class="lineNum">     646 </span>            : }
+<a name="647"><span class="lineNum">     647 </span>            : </a>
+<span class="lineNum">     648 </span>            : GF_EXPORT
+<span class="lineNum">     649 </span>            : FILE *gf_fopen(const char *file_name, const char *mode)
+<span class="lineNum">     650 </span>            : {
+<span class="lineNum">     651 </span>            :         FILE *res = NULL;
+<span class="lineNum">     652 </span>            : 
+<span class="lineNum">     653 </span>            : #if defined(WIN32)
+<span class="lineNum">     654 </span>            :         Bool is_create;
+<span class="lineNum">     655 </span>            :         is_create = (strchr(mode, 'w') == NULL) ? GF_FALSE : GF_TRUE;
+<span class="lineNum">     656 </span>            :         if (!is_create) {
+<span class="lineNum">     657 </span>            :                 if (strchr(mode, 'a')) {
+<span class="lineNum">     658 </span>            :                         res = fopen(file_name, &quot;rb&quot;);
+<span class="lineNum">     659 </span>            :                         if (res) {
+<span class="lineNum">     660 </span>            :                                 fclose(res);
+<span class="lineNum">     661 </span>            :                                 res = fopen(file_name, mode);
+<span class="lineNum">     662 </span>            :                         }
+<span class="lineNum">     663 </span>            :                 } else {
+<span class="lineNum">     664 </span>            :                         res = fopen(file_name, mode);
+<span class="lineNum">     665 </span>            :                 }
+<span class="lineNum">     666 </span>            :         }
+<span class="lineNum">     667 </span>            :         if (!res) {
+<span class="lineNum">     668 </span>            :                 const char *str_src;
+<span class="lineNum">     669 </span>            :                 wchar_t *wname;
+<span class="lineNum">     670 </span>            :                 wchar_t *wmode;
+<span class="lineNum">     671 </span>            :                 size_t len;
+<span class="lineNum">     672 </span>            :                 size_t len_res;
+<span class="lineNum">     673 </span>            :                 if (!is_create) {
+<span class="lineNum">     674 </span>            :                         GF_LOG(GF_LOG_INFO, GF_LOG_CORE, (&quot;[Core] Could not open file %s mode %s in UTF-8 mode, trying UTF-16\n&quot;, file_name, mode));
+<span class="lineNum">     675 </span>            :                 }
+<span class="lineNum">     676 </span>            :                 len = (strlen(file_name) + 1)*sizeof(wchar_t);
+<span class="lineNum">     677 </span>            :                 wname = (wchar_t *)gf_malloc(len);
+<span class="lineNum">     678 </span>            :                 str_src = file_name;
+<span class="lineNum">     679 </span>            :                 len_res = gf_utf8_mbstowcs(wname, len, &amp;str_src);
+<span class="lineNum">     680 </span>            :                 if (len_res == -1) {
+<span class="lineNum">     681 </span>            :                         return NULL;
+<span class="lineNum">     682 </span>            :                 }
+<span class="lineNum">     683 </span>            :                 len = (strlen(mode) + 1)*sizeof(wchar_t);
+<span class="lineNum">     684 </span>            :                 wmode = (wchar_t *)gf_malloc(len);
+<span class="lineNum">     685 </span>            :                 str_src = mode;
+<span class="lineNum">     686 </span>            :                 len_res = gf_utf8_mbstowcs(wmode, len, &amp;str_src);
+<span class="lineNum">     687 </span>            :                 if (len_res == -1) {
+<span class="lineNum">     688 </span>            :                         return NULL;
+<span class="lineNum">     689 </span>            :                 }
+<span class="lineNum">     690 </span>            : 
+<span class="lineNum">     691 </span>            :                 res = _wfsopen(wname, wmode, _SH_DENYNO);
+<span class="lineNum">     692 </span>            :                 gf_free(wname);
+<span class="lineNum">     693 </span>            :                 gf_free(wmode);
+<span class="lineNum">     694 </span>            :         }
+<span class="lineNum">     695 </span>            : #elif defined(GPAC_CONFIG_LINUX) &amp;&amp; !defined(GPAC_ANDROID)
+<span class="lineNum">     696 </span>            :         res = fopen64(file_name, mode);
+<span class="lineNum">     697 </span>            : #elif (defined(GPAC_CONFIG_FREEBSD) || defined(GPAC_CONFIG_DARWIN))
+<span class="lineNum">     698 </span><span class="lineCov">      32796 :         res = fopen(file_name, mode);</span>
+<span class="lineNum">     699 </span>            : #else
+<span class="lineNum">     700 </span>            :         res = fopen(file_name, mode);
+<span class="lineNum">     701 </span>            : #endif
+<span class="lineNum">     702 </span>            : 
+<span class="lineNum">     703 </span><span class="lineCov">      16398 :         if (res) {</span>
+<span class="lineNum">     704 </span><span class="lineCov">      15824 :                 gpac_file_handles++;</span>
+<span class="lineNum">     705 </span><span class="lineCov">      15824 :                 GF_LOG(GF_LOG_DEBUG, GF_LOG_CORE, (&quot;[Core] file %s opened in mode %s - %d file handles\n&quot;, file_name, mode, gpac_file_handles));</span>
+<span class="lineNum">     706 </span>            :         } else {
+<span class="lineNum">     707 </span><span class="lineCov">       1148 :                 if (strchr(mode, 'w') || strchr(mode, 'a')) {</span>
+<span class="lineNum">     708 </span>            : #if defined(WIN32)
+<span class="lineNum">     709 </span>            :                         u32 err = GetLastError();
+<span class="lineNum">     710 </span>            :                         GF_LOG(GF_LOG_ERROR, GF_LOG_CORE, (&quot;[Core] system failure for file opening of %s in mode %s: 0x%08x\n&quot;, file_name, mode, err));
+<span class="lineNum">     711 </span>            : #else
+<span class="lineNum">     712 </span><span class="lineNoCov">          0 :                         GF_LOG(GF_LOG_ERROR, GF_LOG_CORE, (&quot;[Core] system failure for file opening of %s in mode %s: %d\n&quot;, file_name, mode, errno));</span>
+<span class="lineNum">     713 </span>            : #endif
+<span class="lineNum">     714 </span>            :                 }
+<span class="lineNum">     715 </span>            :         }
+<span class="lineNum">     716 </span><span class="lineCov">      16398 :         return res;</span>
+<span class="lineNum">     717 </span>            : }
+<a name="718"><span class="lineNum">     718 </span>            : </a>
+<span class="lineNum">     719 </span>            : GF_EXPORT
+<span class="lineNum">     720 </span>            : s32 gf_fclose(FILE *file)
+<span class="lineNum">     721 </span>            : {
+<span class="lineNum">     722 </span><span class="lineCov">      34222 :         if (file) {</span>
+<span class="lineNum">     723 </span>            :                 assert(gpac_file_handles);
+<span class="lineNum">     724 </span><span class="lineCov">      17111 :                 gpac_file_handles--;</span>
+<span class="lineNum">     725 </span><span class="lineCov">      17111 :         }</span>
+<span class="lineNum">     726 </span><span class="lineCov">      17111 :         return fclose(file);</span>
+<span class="lineNum">     727 </span>            : }
+<span class="lineNum">     728 </span>            : 
+<span class="lineNum">     729 </span>            : #if (_POSIX_C_SOURCE &gt;= 200112L || _XOPEN_SOURCE &gt;= 600) &amp;&amp; ! defined(_GNU_SOURCE) &amp;&amp; !defined(WIN32)
+<span class="lineNum">     730 </span>            : #define HAVE_STRERROR_R 1
+<span class="lineNum">     731 </span>            : #endif
+<a name="732"><span class="lineNum">     732 </span>            : </a>
+<span class="lineNum">     733 </span>            : GF_EXPORT
+<span class="lineNum">     734 </span>            : size_t gf_fread(void *ptr, size_t size, size_t nmemb, FILE *stream) {
+<span class="lineNum">     735 </span><span class="lineNoCov">          0 :         return fread(ptr, size, nmemb, stream);</span>
+<span class="lineNum">     736 </span>            : }
+<a name="737"><span class="lineNum">     737 </span>            : </a>
+<span class="lineNum">     738 </span>            : GF_EXPORT
+<span class="lineNum">     739 </span>            : size_t gf_fwrite(const void *ptr, size_t size, size_t nmemb,
+<span class="lineNum">     740 </span>            :                  FILE *stream)
+<span class="lineNum">     741 </span>            : {
+<span class="lineNum">     742 </span><span class="lineCov">    1915630 :         size_t result = fwrite(ptr, size, nmemb, stream);</span>
+<span class="lineNum">     743 </span><span class="lineCov">     957815 :         if (result != nmemb) {</span>
+<span class="lineNum">     744 </span>            : #ifdef _WIN32_WCE
+<span class="lineNum">     745 </span>            :                 GF_LOG(GF_LOG_ERROR, GF_LOG_CORE, (&quot;Error writing data: %d blocks to write but %d blocks written\n&quot;, nmemb, result));
+<span class="lineNum">     746 </span>            : #else
+<span class="lineNum">     747 </span>            : #if defined WIN32 &amp;&amp; !defined(GPAC_CONFIG_WIN32)
+<span class="lineNum">     748 </span>            :                 errno_t errno_save;
+<span class="lineNum">     749 </span>            :                 _get_errno(&amp;errno_save);
+<span class="lineNum">     750 </span>            : #else
+<span class="lineNum">     751 </span><span class="lineNoCov">          0 :                 int errno_save = errno;</span>
+<span class="lineNum">     752 </span>            : #endif
+<span class="lineNum">     753 </span>            :                 //if (errno_save!=0)
+<span class="lineNum">     754 </span>            :                 {
+<span class="lineNum">     755 </span>            : #ifdef HAVE_STRERROR_R
+<span class="lineNum">     756 </span>            : #define ERRSTR_BUF_SIZE 256
+<span class="lineNum">     757 </span>            :                         char errstr[ERRSTR_BUF_SIZE];
+<span class="lineNum">     758 </span>            :                         if(strerror_r(errno_save, errstr, ERRSTR_BUF_SIZE) != 0)
+<span class="lineNum">     759 </span>            :                         {
+<span class="lineNum">     760 </span>            :                                 strerror_r(0, errstr, ERRSTR_BUF_SIZE);
+<span class="lineNum">     761 </span>            :                         }
+<span class="lineNum">     762 </span>            : #else
+<span class="lineNum">     763 </span><span class="lineNoCov">          0 :                         char *errstr = (char*)strerror(errno_save);</span>
+<span class="lineNum">     764 </span>            : #endif
+<span class="lineNum">     765 </span><span class="lineNoCov">          0 :                         GF_LOG(GF_LOG_ERROR, GF_LOG_CORE, (&quot;Error writing data (%s): %d blocks to write but %d blocks written\n&quot;, errstr, nmemb, result));</span>
+<span class="lineNum">     766 </span>            :                 }
+<span class="lineNum">     767 </span>            : #endif
+<span class="lineNum">     768 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     769 </span><span class="lineCov">     957815 :         return result;</span>
+<span class="lineNum">     770 </span>            : }
+<span class="lineNum">     771 </span>            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

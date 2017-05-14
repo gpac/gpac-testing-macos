@@ -1,0 +1,13 @@
+*** mp4box-rtp-mpeg4p2-mp3 logs (GPAC version 0.6.2-DEV-revUNKNOWN-HEAD ) - test date 14/05/2017 22:28:45 ***
+
+
+*** Subtest "streamer-init": executing "MP4Box -noprog -for-test  -mem-track -rtp -run-for=0 -sdp=/Users/travis/build/gpac/gpac/tests/results/temp/session.sdp  -ifce=127.0.0.1 /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4" ***
+Starting streaming /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4 to 127.0.0.1:7000
+[32m[FileStreamer] SDP file generated
+[0m
+
+*** Subtest "streamer-run": executing "MP4Box -noprog -for-test  -mem-track -rtp -run-for=6 -sdp=/Users/travis/build/gpac/gpac/tests/results/temp/session.sdp  -ifce=127.0.0.1 /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4" ***
+Starting streaming /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4 to 127.0.0.1:7000
+[32m[FileStreamer] SDP file generated
+[0m[32m[FileStreamer] RTP session /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4 initialized - time origin set to 5526
+[0m

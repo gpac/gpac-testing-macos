@@ -1,0 +1,859 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - terminal/mpeg4_inline.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">terminal</a> - mpeg4_inline.c<span style="font-size: 80%;"> (source / <a href="mpeg4_inline.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">83</td>
+            <td class="headerCovTableEntry">439</td>
+            <td class="headerCovTableEntryLo">18.9 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-05-14 22:31:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntry">23</td>
+            <td class="headerCovTableEntryLo">30.4 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *                      GPAC - Multimedia Framework C SDK
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *                      Authors: Jean Le Feuvre
+<span class="lineNum">       5 </span>            :  *                      Copyright (c) Telecom ParisTech 2000-2012
+<span class="lineNum">       6 </span>            :  *                                      All rights reserved
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  *  This file is part of GPAC / Media terminal sub-project
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  *  GPAC is free software; you can redistribute it and/or modify
+<span class="lineNum">      11 </span>            :  *  it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">      12 </span>            :  *  the Free Software Foundation; either version 2, or (at your option)
+<span class="lineNum">      13 </span>            :  *  any later version.
+<span class="lineNum">      14 </span>            :  *
+<span class="lineNum">      15 </span>            :  *  GPAC is distributed in the hope that it will be useful,
+<span class="lineNum">      16 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      17 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      18 </span>            :  *  GNU Lesser General Public License for more details.
+<span class="lineNum">      19 </span>            :  *
+<span class="lineNum">      20 </span>            :  *  You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      21 </span>            :  *  License along with this library; see the file COPYING.  If not, write to
+<span class="lineNum">      22 </span>            :  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+<span class="lineNum">      23 </span>            :  *
+<span class="lineNum">      24 </span>            :  */
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : 
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span>            : /*for OD service types*/
+<span class="lineNum">      29 </span>            : #include &lt;gpac/constants.h&gt;
+<span class="lineNum">      30 </span>            : /*for URL concatenation*/
+<span class="lineNum">      31 </span>            : #include &lt;gpac/network.h&gt;
+<span class="lineNum">      32 </span>            : #include &lt;gpac/internal/terminal_dev.h&gt;
+<span class="lineNum">      33 </span>            : #include &quot;media_control.h&quot;
+<span class="lineNum">      34 </span>            : #include &lt;gpac/compositor.h&gt;
+<span class="lineNum">      35 </span>            : #include &lt;gpac/nodes_x3d.h&gt;
+<span class="lineNum">      36 </span>            : #include &lt;gpac/crypt.h&gt;
+<span class="lineNum">      37 </span>            : 
+<span class="lineNum">      38 </span>            : /*SVG properties*/
+<span class="lineNum">      39 </span>            : #ifndef GPAC_DISABLE_SVG
+<span class="lineNum">      40 </span>            : #include &lt;gpac/scenegraph_svg.h&gt;
+<span class="lineNum">      41 </span>            : #endif
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            : 
+<span class="lineNum">      44 </span>            : 
+<a name="45"><span class="lineNum">      45 </span>            : #ifndef GPAC_DISABLE_VRML</a>
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span>            : void gf_inline_restart(GF_Scene *scene)
+<span class="lineNum">      48 </span>            : {
+<span class="lineNum">      49 </span><span class="lineNoCov">          0 :         scene-&gt;needs_restart = 1;</span>
+<span class="lineNum">      50 </span><span class="lineNoCov">          0 :         gf_term_invalidate_compositor(scene-&gt;root_od-&gt;term);</span>
+<span class="lineNum">      51 </span><span class="lineNoCov">          0 : }</span>
+<a name="52"><span class="lineNum">      52 </span>            : </a>
+<span class="lineNum">      53 </span>            : 
+<span class="lineNum">      54 </span>            : static Bool gf_inline_set_scene(M_Inline *root)
+<span class="lineNum">      55 </span>            : {
+<span class="lineNum">      56 </span>            :         GF_MediaObject *mo;
+<span class="lineNum">      57 </span>            :         GF_Scene *parent;
+<span class="lineNum">      58 </span><span class="lineCov">         22 :         GF_SceneGraph *graph = gf_node_get_graph((GF_Node *) root);</span>
+<span class="lineNum">      59 </span><span class="lineCov">         11 :         parent = (GF_Scene *)gf_sg_get_private(graph);</span>
+<span class="lineNum">      60 </span><span class="lineCov">         11 :         if (!parent) return GF_FALSE;</span>
+<span class="lineNum">      61 </span>            : 
+<span class="lineNum">      62 </span><span class="lineCov">         11 :         mo = gf_scene_get_media_object_ex(parent, &amp;root-&gt;url, GF_MEDIA_OBJECT_SCENE, GF_FALSE, NULL, GF_FALSE, (GF_Node*)root);</span>
+<span class="lineNum">      63 </span><span class="lineCov">         13 :         if (!mo) return GF_FALSE;</span>
+<span class="lineNum">      64 </span>            :         //invalidate as soon as we have an mo (eg something is attached to the scene)
+<span class="lineNum">      65 </span><span class="lineCov">          9 :         gf_term_invalidate_compositor(parent-&gt;root_od-&gt;term);</span>
+<span class="lineNum">      66 </span>            : 
+<span class="lineNum">      67 </span><span class="lineCov">          9 :         if (!mo-&gt;odm) return GF_FALSE;</span>
+<span class="lineNum">      68 </span>            : 
+<span class="lineNum">      69 </span><span class="lineCov">          9 :         if (!mo-&gt;odm-&gt;subscene) {</span>
+<span class="lineNum">      70 </span><span class="lineNoCov">          0 :                 gf_term_invalidate_compositor(parent-&gt;root_od-&gt;term);</span>
+<span class="lineNum">      71 </span><span class="lineNoCov">          0 :                 return GF_FALSE;</span>
+<span class="lineNum">      72 </span>            :         }
+<span class="lineNum">      73 </span>            :         /*assign inline scene as private stack of inline node, and remember inline node for event propagation*/
+<span class="lineNum">      74 </span><span class="lineCov">          9 :         gf_node_set_private((GF_Node *)root, mo-&gt;odm-&gt;subscene);</span>
+<span class="lineNum">      75 </span><span class="lineCov">          9 :         mo-&gt;odm-&gt;subscene-&gt;object_attached = GF_TRUE;</span>
+<span class="lineNum">      76 </span>            : 
+<span class="lineNum">      77 </span>            :         /*play*/
+<span class="lineNum">      78 </span><span class="lineCov">          9 :         gf_mo_play(mo, 0, -1, GF_FALSE);</span>
+<span class="lineNum">      79 </span>            : 
+<span class="lineNum">      80 </span><span class="lineCov">          9 :         return GF_TRUE;</span>
+<a name="81"><span class="lineNum">      81 </span><span class="lineCov">         11 : }</span></a>
+<span class="lineNum">      82 </span>            : 
+<span class="lineNum">      83 </span>            : void gf_inline_on_modified(GF_Node *node)
+<span class="lineNum">      84 </span>            : {
+<span class="lineNum">      85 </span>            :         u32 ODID;
+<span class="lineNum">      86 </span>            :         GF_MediaObject *mo;
+<span class="lineNum">      87 </span><span class="lineCov">         58 :         M_Inline *pInline = (M_Inline *) node;</span>
+<span class="lineNum">      88 </span><span class="lineCov">         29 :         GF_Scene *scene = (GF_Scene *)gf_node_get_private(node);</span>
+<span class="lineNum">      89 </span>            : 
+<span class="lineNum">      90 </span><span class="lineCov">         29 :         ODID = gf_mo_get_od_id(&amp;pInline-&gt;url);</span>
+<span class="lineNum">      91 </span><span class="lineCov">         29 :         if (scene) {</span>
+<span class="lineNum">      92 </span><span class="lineNoCov">          0 :                 mo = (scene-&gt;root_od) ? scene-&gt;root_od-&gt;mo : NULL;</span>
+<span class="lineNum">      93 </span>            : 
+<span class="lineNum">      94 </span>            :                 /*disconnect current inline if we're the last one using it (same as regular OD session leave/join)*/
+<span class="lineNum">      95 </span><span class="lineNoCov">          0 :                 if (mo) {</span>
+<span class="lineNum">      96 </span>            :                         Bool changed = GF_TRUE;
+<span class="lineNum">      97 </span><span class="lineNoCov">          0 :                         if (ODID != GF_MEDIA_EXTERNAL_ID) {</span>
+<span class="lineNum">      98 </span><span class="lineNoCov">          0 :                                 if (ODID &amp;&amp; (ODID==scene-&gt;root_od-&gt;OD-&gt;objectDescriptorID)) changed = GF_FALSE;</span>
+<span class="lineNum">      99 </span>            :                         } else {
+<span class="lineNum">     100 </span><span class="lineNoCov">          0 :                                 if (gf_mo_is_same_url(mo, &amp;pInline-&gt;url, NULL, 0) ) changed = GF_FALSE;</span>
+<span class="lineNum">     101 </span>            :                         }
+<span class="lineNum">     102 </span><span class="lineNoCov">          0 :                         if (mo-&gt;num_open) {</span>
+<span class="lineNum">     103 </span><span class="lineNoCov">          0 :                                 if (!changed) return;</span>
+<span class="lineNum">     104 </span>            : 
+<span class="lineNum">     105 </span><span class="lineNoCov">          0 :                                 gf_scene_notify_event(scene, GF_EVENT_UNLOAD, node, NULL, GF_OK, GF_TRUE);</span>
+<span class="lineNum">     106 </span><span class="lineNoCov">          0 :                                 gf_node_dirty_parents(node);</span>
+<span class="lineNum">     107 </span><span class="lineNoCov">          0 :                                 gf_mo_event_target_remove_by_node(mo, node);</span>
+<span class="lineNum">     108 </span>            : 
+<span class="lineNum">     109 </span>            :                                 /*reset the scene pointer as it may get destroyed*/
+<span class="lineNum">     110 </span><span class="lineNoCov">          0 :                                 switch (gf_node_get_tag(node)) {</span>
+<span class="lineNum">     111 </span>            :                                 case TAG_MPEG4_Inline:
+<span class="lineNum">     112 </span>            : #ifndef GPAC_DISABLE_X3D
+<span class="lineNum">     113 </span>            :                                 case TAG_X3D_Inline:
+<span class="lineNum">     114 </span>            : #endif
+<span class="lineNum">     115 </span><span class="lineNoCov">          0 :                                         gf_node_set_private(node, NULL);</span>
+<span class="lineNum">     116 </span><span class="lineNoCov">          0 :                                         break;</span>
+<span class="lineNum">     117 </span>            :                                 }
+<span class="lineNum">     118 </span>            : 
+<span class="lineNum">     119 </span><span class="lineNoCov">          0 :                                 scene-&gt;object_attached = GF_FALSE;</span>
+<span class="lineNum">     120 </span><span class="lineNoCov">          0 :                                 mo-&gt;num_open --;</span>
+<span class="lineNum">     121 </span><span class="lineNoCov">          0 :                                 if (!mo-&gt;num_open) {</span>
+<span class="lineNum">     122 </span><span class="lineNoCov">          0 :                                         if (ODID == GF_MEDIA_EXTERNAL_ID) {</span>
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 :                                                 GF_Scene *parent = scene-&gt;root_od-&gt;parentscene;</span>
+<span class="lineNum">     124 </span>            :                                                 /*!!! THIS WILL DESTROY THE INLINE SCENE OBJECT !!!*/
+<span class="lineNum">     125 </span><span class="lineNoCov">          0 :                                                 gf_odm_disconnect(scene-&gt;root_od, GF_TRUE);</span>
+<span class="lineNum">     126 </span>            :                                                 /*and force removal of the media object*/
+<span class="lineNum">     127 </span><span class="lineNoCov">          0 :                                                 if (parent) {</span>
+<span class="lineNum">     128 </span><span class="lineNoCov">          0 :                                                         if (gf_list_del_item(parent-&gt;scene_objects, mo)&gt;=0) {</span>
+<span class="lineNum">     129 </span><span class="lineNoCov">          0 :                                                                 gf_sg_vrml_mf_reset(&amp;mo-&gt;URLs, GF_SG_VRML_MFURL);</span>
+<span class="lineNum">     130 </span><span class="lineNoCov">          0 :                                                                 gf_mo_del(mo);</span>
+<span class="lineNum">     131 </span><span class="lineNoCov">          0 :                                                         }</span>
+<span class="lineNum">     132 </span>            :                                                 }
+<span class="lineNum">     133 </span><span class="lineNoCov">          0 :                                         } else {</span>
+<span class="lineNum">     134 </span><span class="lineNoCov">          0 :                                                 gf_term_lock_media_queue(scene-&gt;root_od-&gt;term, GF_TRUE);</span>
+<span class="lineNum">     135 </span>            : 
+<span class="lineNum">     136 </span>            :                                                 /*external media are completely unloaded, except addons which are only declared once */
+<span class="lineNum">     137 </span><span class="lineNoCov">          0 :                                                 if (!scene-&gt;root_od-&gt;addon &amp;&amp; (scene-&gt;root_od-&gt;OD-&gt;objectDescriptorID==GF_MEDIA_EXTERNAL_ID)) {</span>
+<span class="lineNum">     138 </span><span class="lineNoCov">          0 :                                                         scene-&gt;root_od-&gt;action_type = GF_ODM_ACTION_DELETE;</span>
+<span class="lineNum">     139 </span><span class="lineNoCov">          0 :                                                 } else {</span>
+<span class="lineNum">     140 </span><span class="lineNoCov">          0 :                                                         scene-&gt;root_od-&gt;action_type = GF_ODM_ACTION_STOP;</span>
+<span class="lineNum">     141 </span>            :                                                 }
+<span class="lineNum">     142 </span><span class="lineNoCov">          0 :                                                 if (gf_list_find(scene-&gt;root_od-&gt;term-&gt;media_queue, scene-&gt;root_od)&lt;0)</span>
+<span class="lineNum">     143 </span><span class="lineNoCov">          0 :                                                         gf_list_add(scene-&gt;root_od-&gt;term-&gt;media_queue, scene-&gt;root_od);</span>
+<span class="lineNum">     144 </span>            : 
+<span class="lineNum">     145 </span><span class="lineNoCov">          0 :                                                 gf_term_lock_media_queue(scene-&gt;root_od-&gt;term, GF_FALSE);</span>
+<span class="lineNum">     146 </span>            :                                         }
+<span class="lineNum">     147 </span>            :                                 }
+<span class="lineNum">     148 </span>            :                         }
+<span class="lineNum">     149 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     150 </span>            :         }
+<span class="lineNum">     151 </span>            :         /*force a redraw and load scene at next pass - we cannot load the scene now because
+<span class="lineNum">     152 </span>            :                 - we can be in a JS call (eg JS mutex blocked)
+<span class="lineNum">     153 </span>            :                 - locating scene objects matching the new url needs exclusive access to the MediaObject list, achieved with the term net mutex
+<span class="lineNum">     154 </span>            :                 - another service may already be setting up objects (eg exclusive access to the net mutex grabbed), which can trigger event forwarding
+<span class="lineNum">     155 </span>            :                 - some event forwarders may request JS context (eg access to JS mutex)
+<span class="lineNum">     156 </span>            : 
+<span class="lineNum">     157 </span>            :                 In such a case we would end up in a deadlock - this needs urgent fixing ...
+<span class="lineNum">     158 </span>            :         */
+<span class="lineNum">     159 </span><span class="lineCov">         29 :         if (ODID) {</span>
+<span class="lineNum">     160 </span>            :                 /*if no parent we must process the url change as we may not be traversed later on (not in the scene tree)*/
+<span class="lineNum">     161 </span><span class="lineCov">         27 :                 if (gf_node_get_parent(node, 0)==NULL) {</span>
+<span class="lineNum">     162 </span><span class="lineCov">          4 :                         gf_inline_set_scene(pInline);</span>
+<span class="lineNum">     163 </span><span class="lineCov">          4 :                 } else {</span>
+<span class="lineNum">     164 </span><span class="lineCov">         23 :                         gf_node_dirty_parents(node);</span>
+<span class="lineNum">     165 </span>            :                 }
+<span class="lineNum">     166 </span>            :         }
+<a name="167"><span class="lineNum">     167 </span><span class="lineCov">         58 : }</span></a>
+<span class="lineNum">     168 </span>            : 
+<span class="lineNum">     169 </span>            : static void gf_inline_check_restart(GF_Scene *scene)
+<span class="lineNum">     170 </span>            : {
+<span class="lineNum">     171 </span>            :         /*no ctrl if no duration*/
+<span class="lineNum">     172 </span><span class="lineNoCov">          0 :         if (!scene-&gt;duration) return;</span>
+<span class="lineNum">     173 </span><span class="lineNoCov">          0 :         if (!scene-&gt;needs_restart) gf_odm_check_segment_switch(scene-&gt;root_od);</span>
+<span class="lineNum">     174 </span><span class="lineNoCov">          0 :         if (scene-&gt;needs_restart) return;</span>
+<span class="lineNum">     175 </span>            : 
+<span class="lineNum">     176 </span><span class="lineNoCov">          0 :         if (scene-&gt;root_od-&gt;media_ctrl &amp;&amp; scene-&gt;root_od-&gt;media_ctrl-&gt;control-&gt;loop) {</span>
+<span class="lineNum">     177 </span><span class="lineNoCov">          0 :                 GF_Clock *ck = gf_odm_get_media_clock(scene-&gt;root_od);</span>
+<span class="lineNum">     178 </span><span class="lineNoCov">          0 :                 if (ck-&gt;has_seen_eos) {</span>
+<span class="lineNum">     179 </span><span class="lineNoCov">          0 :                         u32 now = gf_clock_time(ck);</span>
+<span class="lineNum">     180 </span><span class="lineNoCov">          0 :                         u64 dur = scene-&gt;duration;</span>
+<span class="lineNum">     181 </span><span class="lineNoCov">          0 :                         if (scene-&gt;root_od-&gt;media_ctrl-&gt;current_seg) {</span>
+<span class="lineNum">     182 </span>            :                                 /*only process when all segments are played*/
+<span class="lineNum">     183 </span><span class="lineNoCov">          0 :                                 if (gf_list_count(scene-&gt;root_od-&gt;media_ctrl-&gt;seg) &lt;= scene-&gt;root_od-&gt;media_ctrl-&gt;current_seg) {</span>
+<span class="lineNum">     184 </span><span class="lineNoCov">          0 :                                         scene-&gt;needs_restart = 1;</span>
+<span class="lineNum">     185 </span><span class="lineNoCov">          0 :                                         scene-&gt;root_od-&gt;media_ctrl-&gt;current_seg = 0;</span>
+<span class="lineNum">     186 </span><span class="lineNoCov">          0 :                                 }</span>
+<span class="lineNum">     187 </span>            :                         }
+<span class="lineNum">     188 </span>            :                         else {
+<span class="lineNum">     189 </span><span class="lineNoCov">          0 :                                 Double s, e;</span>
+<span class="lineNum">     190 </span><span class="lineNoCov">          0 :                                 s = now;</span>
+<span class="lineNum">     191 </span><span class="lineNoCov">          0 :                                 s/=1000;</span>
+<span class="lineNum">     192 </span><span class="lineNoCov">          0 :                                 e = -1;</span>
+<span class="lineNum">     193 </span><span class="lineNoCov">          0 :                                 MC_GetRange(scene-&gt;root_od-&gt;media_ctrl, &amp;s, &amp;e);</span>
+<span class="lineNum">     194 </span><span class="lineNoCov">          0 :                                 if ((e&gt;=0) &amp;&amp; (e&lt;GF_MAX_FLOAT)) dur = (u32) (e*1000);</span>
+<span class="lineNum">     195 </span><span class="lineNoCov">          0 :                                 if (dur&lt;=now) {</span>
+<span class="lineNum">     196 </span><span class="lineNoCov">          0 :                                         scene-&gt;needs_restart = 1;</span>
+<span class="lineNum">     197 </span><span class="lineNoCov">          0 :                                         scene-&gt;root_od-&gt;media_ctrl-&gt;current_seg = 0;</span>
+<span class="lineNum">     198 </span><span class="lineNoCov">          0 :                                 } else {</span>
+<span class="lineNum">     199 </span>            :                                         /*trigger render until to watch for restart...*/
+<span class="lineNum">     200 </span><span class="lineNoCov">          0 :                                         gf_term_invalidate_compositor(scene-&gt;root_od-&gt;term);</span>
+<span class="lineNum">     201 </span>            :                                 }
+<span class="lineNum">     202 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     203 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     204 </span><span class="lineNoCov">          0 :         }</span>
+<a name="205"><span class="lineNum">     205 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     206 </span>            : 
+<span class="lineNum">     207 </span>            : void gf_scene_mpeg4_inline_check_restart(GF_Scene *scene)
+<span class="lineNum">     208 </span>            : {
+<span class="lineNum">     209 </span><span class="lineNoCov">          0 :         gf_inline_check_restart(scene);</span>
+<span class="lineNum">     210 </span>            :         
+<span class="lineNum">     211 </span><span class="lineNoCov">          0 :         if (scene-&gt;needs_restart) {</span>
+<span class="lineNum">     212 </span><span class="lineNoCov">          0 :                 gf_term_invalidate_compositor(scene-&gt;root_od-&gt;term);</span>
+<span class="lineNum">     213 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     214 </span>            :         }
+<a name="215"><span class="lineNum">     215 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     216 </span>            : 
+<span class="lineNum">     217 </span>            : void gf_scene_mpeg4_inline_restart(GF_Scene *scene)
+<span class="lineNum">     218 </span>            : {
+<span class="lineNum">     219 </span>            :         u32 current_seg = 0;
+<span class="lineNum">     220 </span>            : 
+<span class="lineNum">     221 </span><span class="lineNoCov">          0 :         if (scene-&gt;root_od-&gt;media_ctrl) current_seg = scene-&gt;root_od-&gt;media_ctrl-&gt;current_seg;</span>
+<span class="lineNum">     222 </span>            : 
+<span class="lineNum">     223 </span><span class="lineNoCov">          0 :         if (scene-&gt;is_dynamic_scene) {</span>
+<span class="lineNum">     224 </span>            :                 s64 from = 0;
+<span class="lineNum">     225 </span><span class="lineNoCov">          0 :                 if (scene-&gt;root_od-&gt;media_ctrl) {</span>
+<span class="lineNum">     226 </span><span class="lineNoCov">          0 :                         if (scene-&gt;root_od-&gt;media_ctrl-&gt;media_stop&lt;=0) {</span>
+<span class="lineNum">     227 </span><span class="lineNoCov">          0 :                                 from = (s64) (scene-&gt;root_od-&gt;media_ctrl-&gt;media_stop * 1000) - 1;</span>
+<span class="lineNum">     228 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     229 </span><span class="lineNoCov">          0 :                         else if (scene-&gt;root_od-&gt;media_ctrl-&gt;media_start&gt;=0) {</span>
+<span class="lineNum">     230 </span><span class="lineNoCov">          0 :                                 scene-&gt;root_od-&gt;media_ctrl-&gt;current_seg = current_seg;</span>
+<span class="lineNum">     231 </span><span class="lineNoCov">          0 :                                 from = (s64) (scene-&gt;root_od-&gt;media_ctrl-&gt;media_start * 1000);</span>
+<span class="lineNum">     232 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     233 </span>            :                 }
+<span class="lineNum">     234 </span><span class="lineNoCov">          0 :                 gf_scene_restart_dynamic(scene, from, 0, 0);</span>
+<span class="lineNum">     235 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     236 </span>            :                 /*we cannot use gf_mo_restart since it only sets the needs_restart for inline scenes.
+<span class="lineNum">     237 </span>            :                 The rational is that gf_mo_restart can be called from the parent scene (OK) or from the scene itself, in
+<span class="lineNum">     238 </span>            :                 which case shutting down the graph would crash the compositor. We therefore need two render passes to
+<span class="lineNum">     239 </span>            :                 safely restart an inline scene*/
+<span class="lineNum">     240 </span>            : 
+<span class="lineNum">     241 </span>            :                 /*1- stop main object from playing but don't disconnect channels*/
+<span class="lineNum">     242 </span><span class="lineNoCov">          0 :                 gf_odm_stop(scene-&gt;root_od, GF_TRUE);</span>
+<span class="lineNum">     243 </span>            :                 /*2- close all ODs inside the scene and reset the graph*/
+<span class="lineNum">     244 </span><span class="lineNoCov">          0 :                 gf_scene_disconnect(scene, GF_FALSE);</span>
+<span class="lineNum">     245 </span><span class="lineNoCov">          0 :                 if (scene-&gt;root_od-&gt;media_ctrl) scene-&gt;root_od-&gt;media_ctrl-&gt;current_seg = current_seg;</span>
+<span class="lineNum">     246 </span>            :                 /*3- restart the scene*/
+<span class="lineNum">     247 </span><span class="lineNoCov">          0 :                 gf_odm_start(scene-&gt;root_od, 0);</span>
+<span class="lineNum">     248 </span>            :         }
+<a name="249"><span class="lineNum">     249 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     250 </span>            : 
+<span class="lineNum">     251 </span>            : static void gf_inline_traverse(GF_Node *n, void *rs, Bool is_destroy)
+<span class="lineNum">     252 </span>            : {
+<span class="lineNum">     253 </span>            :         MFURL *current_url;
+<span class="lineNum">     254 </span><span class="lineCov">         80 :         GF_Scene *scene = (GF_Scene *)gf_node_get_private(n);</span>
+<span class="lineNum">     255 </span>            : 
+<span class="lineNum">     256 </span><span class="lineCov">         40 :         if (is_destroy) {</span>
+<span class="lineNum">     257 </span>            :                 GF_MediaObject *mo;
+<span class="lineNum">     258 </span><span class="lineCov">         49 :                 if (!scene) return;</span>
+<span class="lineNum">     259 </span><span class="lineCov">         27 :                 mo = scene-&gt;root_od ? scene-&gt;root_od-&gt;mo : NULL;</span>
+<span class="lineNum">     260 </span>            : 
+<span class="lineNum">     261 </span><span class="lineCov">          9 :                 gf_scene_notify_event(scene, GF_EVENT_UNLOAD, n, NULL, GF_OK, GF_TRUE);</span>
+<span class="lineNum">     262 </span><span class="lineCov">          9 :                 if (!mo) return;</span>
+<span class="lineNum">     263 </span><span class="lineCov">          9 :                 gf_mo_event_target_remove_by_node(mo, n);</span>
+<span class="lineNum">     264 </span>            : 
+<span class="lineNum">     265 </span>            :                 /*disconnect current inline if we're the last one using it (same as regular OD session leave/join)*/
+<span class="lineNum">     266 </span><span class="lineCov">          9 :                 if (mo-&gt;num_open) {</span>
+<span class="lineNum">     267 </span><span class="lineCov">          9 :                         mo-&gt;num_open --;</span>
+<span class="lineNum">     268 </span><span class="lineCov">          9 :                         if (!mo-&gt;num_open) {</span>
+<span class="lineNum">     269 </span><span class="lineCov">          9 :                                 gf_term_lock_media_queue(scene-&gt;root_od-&gt;term, GF_TRUE);</span>
+<span class="lineNum">     270 </span>            : 
+<span class="lineNum">     271 </span>            :                                 /*this is unspecified in the spec: whenever an inline not using the
+<span class="lineNum">     272 </span>            :                                 OD framework is destroyed, destroy the associated resource*/
+<span class="lineNum">     273 </span><span class="lineCov">          9 :                                 if (mo-&gt;OD_ID == GF_MEDIA_EXTERNAL_ID) {</span>
+<span class="lineNum">     274 </span>            :                                         /*get parent scene and remove MediaObject in case the ressource
+<span class="lineNum">     275 </span>            :                                         gets re-requested later on*/
+<span class="lineNum">     276 </span><span class="lineCov">          9 :                                         GF_Scene *parent_scene = (GF_Scene *)gf_sg_get_private(gf_node_get_graph((GF_Node *) n) );</span>
+<span class="lineNum">     277 </span><span class="lineCov">          9 :                                         if (gf_list_del_item(parent_scene-&gt;scene_objects, mo)&gt;=0) {</span>
+<span class="lineNum">     278 </span><span class="lineCov">          9 :                                                 gf_sg_vrml_mf_reset(&amp;mo-&gt;URLs, GF_SG_VRML_MFURL);</span>
+<span class="lineNum">     279 </span><span class="lineCov">          9 :                                                 if (mo-&gt;odm) {</span>
+<span class="lineNum">     280 </span><span class="lineCov">          9 :                                                         gf_odm_reset_media_control(mo-&gt;odm, 1);</span>
+<span class="lineNum">     281 </span><span class="lineCov">          9 :                                                         mo-&gt;odm-&gt;mo = NULL;</span>
+<span class="lineNum">     282 </span><span class="lineCov">          9 :                                                 }</span>
+<span class="lineNum">     283 </span><span class="lineCov">          9 :                                                 gf_mo_del(mo);</span>
+<span class="lineNum">     284 </span><span class="lineCov">          9 :                                         }</span>
+<span class="lineNum">     285 </span><span class="lineCov">          9 :                                         scene-&gt;root_od-&gt;action_type = GF_ODM_ACTION_DELETE;</span>
+<span class="lineNum">     286 </span><span class="lineCov">          9 :                                         gf_list_add(scene-&gt;root_od-&gt;term-&gt;media_queue, scene-&gt;root_od);</span>
+<span class="lineNum">     287 </span><span class="lineCov">          9 :                                 } else {</span>
+<span class="lineNum">     288 </span><span class="lineNoCov">          0 :                                         scene-&gt;root_od-&gt;action_type = GF_ODM_ACTION_SCENE_DISCONNECT;</span>
+<span class="lineNum">     289 </span><span class="lineNoCov">          0 :                                         gf_list_add(scene-&gt;root_od-&gt;term-&gt;media_queue, scene-&gt;root_od);</span>
+<span class="lineNum">     290 </span>            :                                 }
+<span class="lineNum">     291 </span><span class="lineCov">          9 :                                 gf_term_lock_media_queue(scene-&gt;root_od-&gt;term, GF_FALSE);</span>
+<span class="lineNum">     292 </span><span class="lineCov">          9 :                         }</span>
+<span class="lineNum">     293 </span>            :                 }
+<span class="lineNum">     294 </span><span class="lineCov">          9 :                 return;</span>
+<span class="lineNum">     295 </span>            :         }
+<span class="lineNum">     296 </span>            : 
+<span class="lineNum">     297 </span>            : 
+<span class="lineNum">     298 </span>            :         //if no private scene is associated     get the node parent graph, retrieve the IS and find the OD
+<span class="lineNum">     299 </span><span class="lineCov">         11 :         if (!scene) {</span>
+<span class="lineNum">     300 </span><span class="lineCov">          7 :                 M_Inline *inl = (M_Inline *)n;</span>
+<span class="lineNum">     301 </span><span class="lineCov">          7 :                 gf_inline_set_scene(inl);</span>
+<span class="lineNum">     302 </span><span class="lineCov">          7 :                 scene = (GF_Scene *)gf_node_get_private(n);</span>
+<span class="lineNum">     303 </span><span class="lineCov">          7 :                 if (!scene) {</span>
+<span class="lineNum">     304 </span>            :                         /*just like protos, we must invalidate parent graph until attached*/
+<span class="lineNum">     305 </span><span class="lineCov">          2 :                         if (inl-&gt;url.count) {</span>
+<span class="lineNum">     306 </span><span class="lineCov">          6 :                                 if (!inl-&gt;url.vals[0].OD_ID &amp;&amp; (!inl-&gt;url.vals[0].url || !strlen(inl-&gt;url.vals[0].url) ) ) {</span>
+<span class="lineNum">     307 </span><span class="lineCov">          2 :                                         gf_sg_vrml_mf_reset(&amp;inl-&gt;url, GF_SG_VRML_MFURL);</span>
+<span class="lineNum">     308 </span><span class="lineCov">          2 :                                 } else {</span>
+<span class="lineNum">     309 </span><span class="lineNoCov">          0 :                                         gf_node_dirty_set(n, 0, GF_TRUE);</span>
+<span class="lineNum">     310 </span>            :                                 }
+<span class="lineNum">     311 </span>            :                         }
+<span class="lineNum">     312 </span><span class="lineCov">          2 :                         return;</span>
+<span class="lineNum">     313 </span>            :                 }
+<span class="lineNum">     314 </span><span class="lineCov">          5 :         }</span>
+<span class="lineNum">     315 </span>            : 
+<span class="lineNum">     316 </span>            :         /*if not attached return (attaching the graph cannot be done in render since render is not called while unattached :) */
+<span class="lineNum">     317 </span><span class="lineCov">          9 :         if (!scene-&gt;graph_attached) {</span>
+<span class="lineNum">     318 </span>            :                 /*just like protos, we must invalidate parent graph until attached*/
+<span class="lineNum">     319 </span><span class="lineCov">          9 :                 gf_node_dirty_set(n, 0, GF_TRUE);</span>
+<span class="lineNum">     320 </span>            :                 //and request bew anim frame until attached
+<span class="lineNum">     321 </span><span class="lineCov">          9 :                 if (scene-&gt;object_attached)</span>
+<span class="lineNum">     322 </span><span class="lineCov">          9 :                         gf_term_invalidate_compositor(scene-&gt;root_od-&gt;term);</span>
+<span class="lineNum">     323 </span><span class="lineCov">          9 :                 return;</span>
+<span class="lineNum">     324 </span>            :         }
+<span class="lineNum">     325 </span>            :         /*clear dirty flags for any sub-inlines, bitmaps or protos*/
+<span class="lineNum">     326 </span><span class="lineNoCov">          0 :         gf_node_dirty_clear(n, 0);</span>
+<span class="lineNum">     327 </span>            : 
+<span class="lineNum">     328 </span><span class="lineNoCov">          0 :         current_url = scene-&gt;current_url;</span>
+<span class="lineNum">     329 </span><span class="lineNoCov">          0 :         scene-&gt;current_url = &amp; ((M_Inline*)n)-&gt;url;</span>
+<span class="lineNum">     330 </span><span class="lineNoCov">          0 :         gf_sc_traverse_subscene(scene-&gt;root_od-&gt;term-&gt;compositor, n, scene-&gt;graph, rs);</span>
+<span class="lineNum">     331 </span><span class="lineNoCov">          0 :         scene-&gt;current_url = current_url;</span>
+<span class="lineNum">     332 </span>            : 
+<span class="lineNum">     333 </span>            :         //do we have to restart for next frame ? If so let's do it
+<span class="lineNum">     334 </span><span class="lineNoCov">          0 :         gf_inline_check_restart(scene);</span>
+<span class="lineNum">     335 </span>            : 
+<span class="lineNum">     336 </span>            :         /*if we need to restart, shutdown graph and do it*/
+<span class="lineNum">     337 </span><span class="lineNoCov">          0 :         if (scene-&gt;needs_restart) {</span>
+<span class="lineNum">     338 </span>            :                 /*special case: scene change*/
+<span class="lineNum">     339 </span><span class="lineNoCov">          0 :                 if (scene-&gt;needs_restart==2) {</span>
+<span class="lineNum">     340 </span><span class="lineNoCov">          0 :                         scene-&gt;needs_restart = 0;</span>
+<span class="lineNum">     341 </span><span class="lineNoCov">          0 :                         gf_inline_on_modified(n);</span>
+<span class="lineNum">     342 </span><span class="lineNoCov">          0 :                         return;</span>
+<span class="lineNum">     343 </span>            :                 }
+<span class="lineNum">     344 </span>            : 
+<span class="lineNum">     345 </span>            :                 scene-&gt;needs_restart = 0;
+<span class="lineNum">     346 </span><span class="lineNoCov">          0 :                 gf_term_lock_media_queue(scene-&gt;root_od-&gt;term, GF_TRUE);</span>
+<span class="lineNum">     347 </span><span class="lineNoCov">          0 :                 scene-&gt;root_od-&gt;action_type = GF_ODM_ACTION_SCENE_INLINE_RESTART;</span>
+<span class="lineNum">     348 </span><span class="lineNoCov">          0 :                 gf_list_add(scene-&gt;root_od-&gt;term-&gt;media_queue, scene-&gt;root_od);</span>
+<span class="lineNum">     349 </span><span class="lineNoCov">          0 :                 gf_term_lock_media_queue(scene-&gt;root_od-&gt;term, GF_FALSE);</span>
+<span class="lineNum">     350 </span>            : 
+<span class="lineNum">     351 </span><span class="lineNoCov">          0 :                 gf_node_dirty_set(n, 0, GF_TRUE);</span>
+<span class="lineNum">     352 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     353 </span>            :         }
+<span class="lineNum">     354 </span>            : 
+<span class="lineNum">     355 </span><span class="lineCov">         40 : }</span>
+<a name="356"><span class="lineNum">     356 </span>            : </a>
+<span class="lineNum">     357 </span>            : 
+<span class="lineNum">     358 </span>            : static Bool gf_inline_is_hardcoded_proto(GF_Terminal *term, MFURL *url)
+<span class="lineNum">     359 </span>            : {
+<span class="lineNum">     360 </span>            :         u32 i;
+<span class="lineNum">     361 </span><span class="lineCov">         72 :         for (i=0; i&lt;url-&gt;count; i++) {</span>
+<span class="lineNum">     362 </span><span class="lineCov">         24 :                 if (!url-&gt;vals[i].url) continue;</span>
+<span class="lineNum">     363 </span><span class="lineCov">         48 :                 if (strstr(url-&gt;vals[i].url, &quot;urn:inet:gpac:builtin&quot;)) return GF_TRUE;</span>
+<span class="lineNum">     364 </span>            : 
+<span class="lineNum">     365 </span><span class="lineNoCov">          0 :                 if (gf_sc_uri_is_hardcoded_proto(term-&gt;compositor, url-&gt;vals[i].url))</span>
+<span class="lineNum">     366 </span><span class="lineNoCov">          0 :                         return GF_TRUE;</span>
+<span class="lineNum">     367 </span>            :         }
+<span class="lineNum">     368 </span><span class="lineNoCov">          0 :         return GF_FALSE;</span>
+<a name="369"><span class="lineNum">     369 </span><span class="lineCov">         24 : }</span></a>
+<span class="lineNum">     370 </span>            : 
+<span class="lineNum">     371 </span>            : GF_SceneGraph *gf_inline_get_proto_lib(void *_is, MFURL *lib_url)
+<span class="lineNum">     372 </span>            : {
+<span class="lineNum">     373 </span>            :         GF_ProtoLink *pl;
+<span class="lineNum">     374 </span><span class="lineCov">         48 :         u32 i;</span>
+<span class="lineNum">     375 </span><span class="lineCov">         24 :         GF_Scene *scene = (GF_Scene *) _is;</span>
+<span class="lineNum">     376 </span><span class="lineCov">         48 :         if (!scene || !lib_url-&gt;count) return NULL;</span>
+<span class="lineNum">     377 </span>            : 
+<span class="lineNum">     378 </span><span class="lineCov">         48 :         if (gf_inline_is_hardcoded_proto(scene-&gt;root_od-&gt;term, lib_url)) return (void *) GF_SG_INTERNAL_PROTO;</span>
+<span class="lineNum">     379 </span>            : 
+<span class="lineNum">     380 </span><span class="lineNoCov">          0 :         i=0;</span>
+<span class="lineNum">     381 </span><span class="lineNoCov">          0 :         while ((pl = (GF_ProtoLink*)gf_list_enum(scene-&gt;extern_protos, &amp;i))) {</span>
+<span class="lineNum">     382 </span>            :                 /*not ready yet*/
+<span class="lineNum">     383 </span><span class="lineNoCov">          0 :                 if (!pl-&gt;mo || !pl-&gt;mo-&gt;odm || ! pl-&gt;mo-&gt;odm-&gt;net_service) continue;</span>
+<span class="lineNum">     384 </span>            : 
+<span class="lineNum">     385 </span><span class="lineNoCov">          0 :                 if (gf_mo_get_od_id(pl-&gt;url) != GF_MEDIA_EXTERNAL_ID) {</span>
+<span class="lineNum">     386 </span><span class="lineNoCov">          0 :                         if (gf_mo_get_od_id(pl-&gt;url) == gf_mo_get_od_id(lib_url)) {</span>
+<span class="lineNum">     387 </span><span class="lineNoCov">          0 :                                 if (!pl-&gt;mo-&gt;odm || !pl-&gt;mo-&gt;odm-&gt;subscene) return NULL;</span>
+<span class="lineNum">     388 </span><span class="lineNoCov">          0 :                                 return pl-&gt;mo-&gt;odm-&gt;subscene-&gt;graph;</span>
+<span class="lineNum">     389 </span>            :                         }
+<span class="lineNum">     390 </span>            :                 }
+<span class="lineNum">     391 </span>            :         }
+<span class="lineNum">     392 </span>            : 
+<span class="lineNum">     393 </span>            :         /*for string URL based protos, recursively check until top if the proto lib is not already present*/
+<span class="lineNum">     394 </span><span class="lineNoCov">          0 :         if (lib_url-&gt;vals[0].url) {</span>
+<span class="lineNum">     395 </span>            :                 GF_Scene *check_scene = scene;
+<span class="lineNum">     396 </span><span class="lineNoCov">          0 :                 while (check_scene) {</span>
+<span class="lineNum">     397 </span><span class="lineNoCov">          0 :                         i=0;</span>
+<span class="lineNum">     398 </span><span class="lineNoCov">          0 :                         while ((pl = (GF_ProtoLink*)gf_list_enum(check_scene-&gt;extern_protos, &amp;i))) {</span>
+<span class="lineNum">     399 </span>            :                                 char *url1, *url2;
+<span class="lineNum">     400 </span>            :                                 Bool ok;
+<span class="lineNum">     401 </span><span class="lineNoCov">          0 :                                 if (!pl-&gt;mo || !pl-&gt;mo-&gt;odm) continue;</span>
+<span class="lineNum">     402 </span><span class="lineNoCov">          0 :                                 if (! pl-&gt;mo-&gt;odm-&gt;net_service) continue;</span>
+<span class="lineNum">     403 </span><span class="lineNoCov">          0 :                                 if (gf_mo_get_od_id(pl-&gt;url) != GF_MEDIA_EXTERNAL_ID) continue;</span>
+<span class="lineNum">     404 </span>            :                                 /*not the same url*/
+<span class="lineNum">     405 </span><span class="lineNoCov">          0 :                                 if (!gf_mo_is_same_url(pl-&gt;mo, lib_url, NULL, 0)) continue;</span>
+<span class="lineNum">     406 </span>            :                                 /*check the url path is the same*/
+<span class="lineNum">     407 </span><span class="lineNoCov">          0 :                                 url1 = gf_url_concatenate(pl-&gt;mo-&gt;odm-&gt;net_service-&gt;url, lib_url-&gt;vals[0].url);</span>
+<span class="lineNum">     408 </span><span class="lineNoCov">          0 :                                 url2 = gf_url_concatenate(scene-&gt;root_od-&gt;net_service-&gt;url, lib_url-&gt;vals[0].url);</span>
+<span class="lineNum">     409 </span>            :                                 ok = GF_FALSE;
+<span class="lineNum">     410 </span><span class="lineNoCov">          0 :                                 if (url1 &amp;&amp; url2 &amp;&amp; !strcmp(url1, url2)) ok=GF_TRUE;</span>
+<span class="lineNum">     411 </span><span class="lineNoCov">          0 :                                 if (url1) gf_free(url1);</span>
+<span class="lineNum">     412 </span><span class="lineNoCov">          0 :                                 if (url2) gf_free(url2);</span>
+<span class="lineNum">     413 </span><span class="lineNoCov">          0 :                                 if (!ok) continue;</span>
+<span class="lineNum">     414 </span><span class="lineNoCov">          0 :                                 if (!pl-&gt;mo-&gt;odm || !pl-&gt;mo-&gt;odm-&gt;subscene) return NULL;</span>
+<span class="lineNum">     415 </span><span class="lineNoCov">          0 :                                 return pl-&gt;mo-&gt;odm-&gt;subscene-&gt;graph;</span>
+<span class="lineNum">     416 </span>            :                         }
+<span class="lineNum">     417 </span><span class="lineNoCov">          0 :                         check_scene = check_scene-&gt;root_od-&gt;parentscene;</span>
+<span class="lineNum">     418 </span>            :                 }
+<span class="lineNum">     419 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     420 </span>            : 
+<span class="lineNum">     421 </span>            :         /*not found, let's try to load it*/
+<span class="lineNum">     422 </span>            : 
+<span class="lineNum">     423 </span><span class="lineNoCov">          0 :         if (!lib_url || !lib_url-&gt;count) return NULL;</span>
+<span class="lineNum">     424 </span>            : 
+<span class="lineNum">     425 </span>            :         /*internal, don't waste ressources*/
+<span class="lineNum">     426 </span><span class="lineNoCov">          0 :         if (gf_inline_is_hardcoded_proto(scene-&gt;root_od-&gt;term, lib_url)) return NULL;</span>
+<span class="lineNum">     427 </span>            : 
+<span class="lineNum">     428 </span><span class="lineNoCov">          0 :         i=0;</span>
+<span class="lineNum">     429 </span><span class="lineNoCov">          0 :         while ((pl = (GF_ProtoLink*)gf_list_enum(scene-&gt;extern_protos, &amp;i)) ) {</span>
+<span class="lineNum">     430 </span><span class="lineNoCov">          0 :                 if (pl-&gt;url == lib_url) return NULL;</span>
+<span class="lineNum">     431 </span><span class="lineNoCov">          0 :                 if (pl-&gt;url-&gt;vals[0].OD_ID &amp;&amp; (pl-&gt;url-&gt;vals[0].OD_ID == lib_url-&gt;vals[0].OD_ID)) return NULL;</span>
+<span class="lineNum">     432 </span><span class="lineNoCov">          0 :                 if (pl-&gt;url-&gt;vals[0].url &amp;&amp; lib_url-&gt;vals[0].url &amp;&amp; !stricmp(pl-&gt;url-&gt;vals[0].url, lib_url-&gt;vals[0].url) ) return NULL;</span>
+<span class="lineNum">     433 </span>            :         }
+<span class="lineNum">     434 </span><span class="lineNoCov">          0 :         pl = (GF_ProtoLink*)gf_malloc(sizeof(GF_ProtoLink));</span>
+<span class="lineNum">     435 </span><span class="lineNoCov">          0 :         pl-&gt;url = lib_url;</span>
+<span class="lineNum">     436 </span><span class="lineNoCov">          0 :         gf_list_add(scene-&gt;extern_protos, pl);</span>
+<span class="lineNum">     437 </span><span class="lineNoCov">          0 :         pl-&gt;mo = gf_scene_get_media_object(scene, lib_url, GF_MEDIA_OBJECT_SCENE, GF_FALSE);</span>
+<span class="lineNum">     438 </span>            :         /*this may already be destroyed*/
+<span class="lineNum">     439 </span><span class="lineNoCov">          0 :         if (pl-&gt;mo) gf_mo_play(pl-&gt;mo, 0, -1, GF_FALSE);</span>
+<span class="lineNum">     440 </span>            : 
+<span class="lineNum">     441 </span>            :         /*and return NULL*/
+<span class="lineNum">     442 </span><span class="lineNoCov">          0 :         return NULL;</span>
+<a name="443"><span class="lineNum">     443 </span><span class="lineCov">         24 : }</span></a>
+<span class="lineNum">     444 </span>            : 
+<span class="lineNum">     445 </span>            : Bool gf_inline_is_protolib_object(GF_Scene *scene, GF_ObjectManager *odm)
+<span class="lineNum">     446 </span>            : {
+<span class="lineNum">     447 </span><span class="lineNoCov">          0 :         u32 i;</span>
+<span class="lineNum">     448 </span>            :         GF_ProtoLink *pl;
+<span class="lineNum">     449 </span><span class="lineNoCov">          0 :         i=0;</span>
+<span class="lineNum">     450 </span><span class="lineNoCov">          0 :         while ((pl = (GF_ProtoLink*)gf_list_enum(scene-&gt;extern_protos, &amp;i))) {</span>
+<span class="lineNum">     451 </span><span class="lineNoCov">          0 :                 if (pl-&gt;mo-&gt;odm == odm) return GF_TRUE;</span>
+<span class="lineNum">     452 </span>            :         }
+<span class="lineNum">     453 </span><span class="lineNoCov">          0 :         return GF_FALSE;</span>
+<span class="lineNum">     454 </span><span class="lineNoCov">          0 : }</span>
+<a name="455"><span class="lineNum">     455 </span>            : </a>
+<span class="lineNum">     456 </span>            : GF_EXPORT
+<span class="lineNum">     457 </span>            : Bool gf_inline_is_default_viewpoint(GF_Node *node)
+<span class="lineNum">     458 </span>            : {
+<span class="lineNum">     459 </span>            :         const char *nname, *seg_name;
+<span class="lineNum">     460 </span><span class="lineNoCov">          0 :         GF_SceneGraph *sg = gf_node_get_graph(node);</span>
+<span class="lineNum">     461 </span><span class="lineNoCov">          0 :         GF_Scene *scene = sg ? (GF_Scene *) gf_sg_get_private(sg) : NULL;</span>
+<span class="lineNum">     462 </span><span class="lineNoCov">          0 :         if (!scene) return GF_FALSE;</span>
+<span class="lineNum">     463 </span>            : 
+<span class="lineNum">     464 </span><span class="lineNoCov">          0 :         nname = gf_node_get_name(node);</span>
+<span class="lineNum">     465 </span><span class="lineNoCov">          0 :         if (!nname) return GF_FALSE;</span>
+<span class="lineNum">     466 </span>            : 
+<span class="lineNum">     467 </span>            :         /*check any viewpoint*/
+<span class="lineNum">     468 </span><span class="lineNoCov">          0 :         seg_name = strrchr(scene-&gt;root_od-&gt;net_service-&gt;url, '#');</span>
+<span class="lineNum">     469 </span>            : 
+<span class="lineNum">     470 </span>            :         /*check the URL of the parent*/
+<span class="lineNum">     471 </span><span class="lineNoCov">          0 :         if (!seg_name &amp;&amp; scene-&gt;current_url) {</span>
+<span class="lineNum">     472 </span><span class="lineNoCov">          0 :                 if (scene-&gt;current_url-&gt;count &amp;&amp; scene-&gt;current_url-&gt;vals[0].url)</span>
+<span class="lineNum">     473 </span><span class="lineNoCov">          0 :                         seg_name = strrchr(scene-&gt;current_url-&gt;vals[0].url, '#');</span>
+<span class="lineNum">     474 </span><span class="lineNoCov">          0 :         } else if (!seg_name &amp;&amp; scene-&gt;root_od-&gt;mo &amp;&amp; scene-&gt;root_od-&gt;mo-&gt;URLs.count &amp;&amp; scene-&gt;root_od-&gt;mo-&gt;URLs.vals[0].url) {</span>
+<span class="lineNum">     475 </span><span class="lineNoCov">          0 :                 seg_name = strrchr(scene-&gt;root_od-&gt;mo-&gt;URLs.vals[0].url, '#');</span>
+<span class="lineNum">     476 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     477 </span><span class="lineNoCov">          0 :         if (!seg_name) return GF_FALSE;</span>
+<span class="lineNum">     478 </span><span class="lineNoCov">          0 :         seg_name += 1;</span>
+<span class="lineNum">     479 </span>            :         /*look for a media segment with this name - if none found, this is a viewpoint name*/
+<span class="lineNum">     480 </span><span class="lineNoCov">          0 :         if (gf_odm_find_segment(scene-&gt;root_od, (char *) seg_name) != NULL) return GF_FALSE;</span>
+<span class="lineNum">     481 </span>            : 
+<span class="lineNum">     482 </span><span class="lineNoCov">          0 :         return (!strcmp(nname, seg_name) ? GF_TRUE : GF_FALSE);</span>
+<span class="lineNum">     483 </span><span class="lineNoCov">          0 : }</span>
+<a name="484"><span class="lineNum">     484 </span>            : </a>
+<span class="lineNum">     485 </span>            : 
+<span class="lineNum">     486 </span>            : void gf_init_inline(GF_Scene *scene, GF_Node *node)
+<span class="lineNum">     487 </span>            : {
+<span class="lineNum">     488 </span><span class="lineCov">         58 :         gf_node_set_callback_function(node, gf_inline_traverse);</span>
+<a name="489"><span class="lineNum">     489 </span><span class="lineCov">         29 : }</span></a>
+<span class="lineNum">     490 </span>            : 
+<span class="lineNum">     491 </span>            : static GF_Config *storage_get_cfg(M_Storage *storage)
+<span class="lineNum">     492 </span>            : {
+<span class="lineNum">     493 </span>            :         GF_Scene *scene;
+<span class="lineNum">     494 </span><span class="lineNoCov">          0 :         scene = (GF_Scene *)gf_node_get_private((GF_Node*)storage);</span>
+<span class="lineNum">     495 </span><span class="lineNoCov">          0 :         return scene-&gt;root_od-&gt;term-&gt;user-&gt;config;</span>
+<a name="496"><span class="lineNum">     496 </span>            : }</a>
+<span class="lineNum">     497 </span>            : 
+<span class="lineNum">     498 </span>            : static char *storage_get_section(M_Storage *storage)
+<span class="lineNum">     499 </span>            : {
+<span class="lineNum">     500 </span>            :         GF_Scene *scene;
+<span class="lineNum">     501 </span>            :         char *szPath;
+<span class="lineNum">     502 </span><span class="lineNoCov">          0 :         u8 hash[20];</span>
+<span class="lineNum">     503 </span><span class="lineNoCov">          0 :         char name[50];</span>
+<span class="lineNum">     504 </span>            :         u32 i;
+<span class="lineNum">     505 </span>            :         size_t len;
+<span class="lineNum">     506 </span>            : 
+<span class="lineNum">     507 </span><span class="lineNoCov">          0 :         scene = (GF_Scene *)gf_node_get_private((GF_Node*)storage);</span>
+<span class="lineNum">     508 </span>            : 
+<span class="lineNum">     509 </span><span class="lineNoCov">          0 :         len = strlen(scene-&gt;root_od-&gt;net_service-&gt;url)+strlen(storage-&gt;name.buffer)+2;</span>
+<span class="lineNum">     510 </span><span class="lineNoCov">          0 :         szPath = (char *)gf_malloc(sizeof(char)* len);</span>
+<span class="lineNum">     511 </span><span class="lineNoCov">          0 :         strcpy(szPath, scene-&gt;root_od-&gt;net_service-&gt;url);</span>
+<span class="lineNum">     512 </span><span class="lineNoCov">          0 :         strcat(szPath, &quot;@&quot;);</span>
+<span class="lineNum">     513 </span><span class="lineNoCov">          0 :         strcat(szPath, storage-&gt;name.buffer);</span>
+<span class="lineNum">     514 </span><span class="lineNoCov">          0 :         gf_sha1_csum((u8*)szPath, (u32) strlen(szPath), hash);</span>
+<span class="lineNum">     515 </span><span class="lineNoCov">          0 :         gf_free(szPath);</span>
+<span class="lineNum">     516 </span>            : 
+<span class="lineNum">     517 </span><span class="lineNoCov">          0 :         strcpy(name, &quot;@cache=&quot;);</span>
+<span class="lineNum">     518 </span><span class="lineNoCov">          0 :         for (i=0; i&lt;20; i++) {</span>
+<span class="lineNum">     519 </span><span class="lineNoCov">          0 :                 char t[3];</span>
+<span class="lineNum">     520 </span><span class="lineNoCov">          0 :                 t[2] = 0;</span>
+<span class="lineNum">     521 </span><span class="lineNoCov">          0 :                 sprintf(t, &quot;%02X&quot;, hash[i]);</span>
+<span class="lineNum">     522 </span><span class="lineNoCov">          0 :                 strcat(name, t);</span>
+<span class="lineNum">     523 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     524 </span><span class="lineNoCov">          0 :         return gf_strdup(name);</span>
+<a name="525"><span class="lineNum">     525 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     526 </span>            : 
+<span class="lineNum">     527 </span>            : static void storage_parse_sf(void *ptr, u32 fieldType, char *opt)
+<span class="lineNum">     528 </span>            : {
+<span class="lineNum">     529 </span><span class="lineNoCov">          0 :         Float v1, v2, v3;</span>
+<span class="lineNum">     530 </span><span class="lineNoCov">          0 :         switch (fieldType) {</span>
+<span class="lineNum">     531 </span>            :         case GF_SG_VRML_SFBOOL:
+<span class="lineNum">     532 </span><span class="lineNoCov">          0 :                 sscanf(opt, &quot;%d&quot;, ((SFBool *)ptr));</span>
+<span class="lineNum">     533 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     534 </span>            :         case GF_SG_VRML_SFINT32:
+<span class="lineNum">     535 </span><span class="lineNoCov">          0 :                 sscanf(opt, &quot;%d&quot;,  ((SFInt32 *)ptr) );</span>
+<span class="lineNum">     536 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     537 </span>            :         case GF_SG_VRML_SFTIME:
+<span class="lineNum">     538 </span><span class="lineNoCov">          0 :                 sscanf(opt, &quot;%lf&quot;, ((SFTime *)ptr) );</span>
+<span class="lineNum">     539 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     540 </span>            :         case GF_SG_VRML_SFFLOAT:
+<span class="lineNum">     541 </span><span class="lineNoCov">          0 :                 sscanf(opt, &quot;%g&quot;, &amp;v1);</span>
+<span class="lineNum">     542 </span><span class="lineNoCov">          0 :                 * (SFFloat *)ptr = FLT2FIX(v1);</span>
+<span class="lineNum">     543 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     544 </span>            :         case GF_SG_VRML_SFVEC2F:
+<span class="lineNum">     545 </span><span class="lineNoCov">          0 :                 sscanf(opt, &quot;%g %g&quot;, &amp;v1, &amp;v2);</span>
+<span class="lineNum">     546 </span><span class="lineNoCov">          0 :                 ((SFVec2f*)ptr)-&gt;x = FLT2FIX(v1);</span>
+<span class="lineNum">     547 </span><span class="lineNoCov">          0 :                 ((SFVec2f*)ptr)-&gt;y = FLT2FIX(v2);</span>
+<span class="lineNum">     548 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     549 </span>            :         case GF_SG_VRML_SFVEC3F:
+<span class="lineNum">     550 </span><span class="lineNoCov">          0 :                 sscanf(opt, &quot;%g %g %g&quot;, &amp;v1, &amp;v2, &amp;v3);</span>
+<span class="lineNum">     551 </span><span class="lineNoCov">          0 :                 ((SFVec3f*)ptr)-&gt;x = FLT2FIX(v1);</span>
+<span class="lineNum">     552 </span><span class="lineNoCov">          0 :                 ((SFVec3f*)ptr)-&gt;y = FLT2FIX(v2);</span>
+<span class="lineNum">     553 </span><span class="lineNoCov">          0 :                 ((SFVec3f*)ptr)-&gt;z = FLT2FIX(v3);</span>
+<span class="lineNum">     554 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     555 </span>            :         case GF_SG_VRML_SFSTRING:
+<span class="lineNum">     556 </span><span class="lineNoCov">          0 :                 if ( ((SFString *)ptr)-&gt;buffer) gf_free(((SFString *)ptr)-&gt;buffer);</span>
+<span class="lineNum">     557 </span><span class="lineNoCov">          0 :                 ((SFString *)ptr)-&gt;buffer = gf_strdup(opt);</span>
+<span class="lineNum">     558 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     559 </span>            :         default:
+<span class="lineNum">     560 </span>            :                 break;
+<span class="lineNum">     561 </span>            :         }
+<a name="562"><span class="lineNum">     562 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     563 </span>            : 
+<span class="lineNum">     564 </span>            : static void gf_storage_load(M_Storage *storage)
+<span class="lineNum">     565 </span>            : {
+<span class="lineNum">     566 </span>            :         const char *opt;
+<span class="lineNum">     567 </span><span class="lineNoCov">          0 :         char szID[20];</span>
+<span class="lineNum">     568 </span>            :         u32 i, count;
+<span class="lineNum">     569 </span><span class="lineNoCov">          0 :         u32 sec, exp, frac;</span>
+<span class="lineNum">     570 </span><span class="lineNoCov">          0 :         GF_Config *cfg = storage_get_cfg(storage);</span>
+<span class="lineNum">     571 </span><span class="lineNoCov">          0 :         char *section = storage_get_section(storage);</span>
+<span class="lineNum">     572 </span><span class="lineNoCov">          0 :         if (!cfg || !section) return;</span>
+<span class="lineNum">     573 </span>            : 
+<span class="lineNum">     574 </span><span class="lineNoCov">          0 :         if (!gf_cfg_get_key_count(cfg, section)) {</span>
+<span class="lineNum">     575 </span><span class="lineNoCov">          0 :                 gf_free(section);</span>
+<span class="lineNum">     576 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     577 </span>            :         }
+<span class="lineNum">     578 </span><span class="lineNoCov">          0 :         opt = gf_cfg_get_key(cfg, section, &quot;expireAfterNTP&quot;);</span>
+<span class="lineNum">     579 </span><span class="lineNoCov">          0 :         gf_net_get_ntp(&amp;sec, &amp;frac);</span>
+<span class="lineNum">     580 </span><span class="lineNoCov">          0 :         sscanf(opt, &quot;%u&quot;, &amp;exp);</span>
+<span class="lineNum">     581 </span><span class="lineNoCov">          0 :         if (exp &amp;&amp; (exp&lt;=sec)) {</span>
+<span class="lineNum">     582 </span><span class="lineNoCov">          0 :                 gf_cfg_del_section(cfg, section);</span>
+<span class="lineNum">     583 </span><span class="lineNoCov">          0 :                 gf_free(section);</span>
+<span class="lineNum">     584 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     585 </span>            :         }
+<span class="lineNum">     586 </span>            : 
+<span class="lineNum">     587 </span><span class="lineNoCov">          0 :         count = gf_cfg_get_key_count(cfg, section)-1;</span>
+<span class="lineNum">     588 </span><span class="lineNoCov">          0 :         if (!count || (count!=storage-&gt;storageList.count)) {</span>
+<span class="lineNum">     589 </span><span class="lineNoCov">          0 :                 gf_cfg_del_section(cfg, section);</span>
+<span class="lineNum">     590 </span><span class="lineNoCov">          0 :                 gf_free(section);</span>
+<span class="lineNum">     591 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     592 </span>            :         }
+<span class="lineNum">     593 </span>            : 
+<span class="lineNum">     594 </span><span class="lineNoCov">          0 :         for (i=0; i&lt;count; i++) {</span>
+<span class="lineNum">     595 </span><span class="lineNoCov">          0 :                 GF_FieldInfo info;</span>
+<span class="lineNum">     596 </span><span class="lineNoCov">          0 :                 sprintf(szID, &quot;%d&quot;, i);</span>
+<span class="lineNum">     597 </span><span class="lineNoCov">          0 :                 opt = gf_cfg_get_key(cfg, section, szID);</span>
+<span class="lineNum">     598 </span><span class="lineNoCov">          0 :                 if (!opt) break;</span>
+<span class="lineNum">     599 </span><span class="lineNoCov">          0 :                 if (!storage-&gt;storageList.vals[i].node) break;</span>
+<span class="lineNum">     600 </span><span class="lineNoCov">          0 :                 if (gf_node_get_field(storage-&gt;storageList.vals[i].node, storage-&gt;storageList.vals[i].fieldIndex, &amp;info) != GF_OK) break;</span>
+<span class="lineNum">     601 </span>            : 
+<span class="lineNum">     602 </span><span class="lineNoCov">          0 :                 if (gf_sg_vrml_is_sf_field(info.fieldType)) {</span>
+<span class="lineNum">     603 </span><span class="lineNoCov">          0 :                         storage_parse_sf(info.far_ptr, info.fieldType, (char *) opt);</span>
+<span class="lineNum">     604 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     605 </span><span class="lineNoCov">          0 :                         u32 sftype = gf_sg_vrml_get_sf_type(info.fieldType);</span>
+<span class="lineNum">     606 </span>            :                         char *sep, *val;
+<span class="lineNum">     607 </span><span class="lineNoCov">          0 :                         void *slot;</span>
+<span class="lineNum">     608 </span><span class="lineNoCov">          0 :                         gf_sg_vrml_mf_reset(info.far_ptr, info.fieldType);</span>
+<span class="lineNum">     609 </span><span class="lineNoCov">          0 :                         while (1) {</span>
+<span class="lineNum">     610 </span><span class="lineNoCov">          0 :                                 val = (char *)strchr(opt, '\'');</span>
+<span class="lineNum">     611 </span><span class="lineNoCov">          0 :                                 sep = val ? strchr(val+1, '\'') : NULL;</span>
+<span class="lineNum">     612 </span><span class="lineNoCov">          0 :                                 if (!val || !sep) break;</span>
+<span class="lineNum">     613 </span>            : 
+<span class="lineNum">     614 </span><span class="lineNoCov">          0 :                                 sep[0] = 0;</span>
+<span class="lineNum">     615 </span><span class="lineNoCov">          0 :                                 gf_sg_vrml_mf_append(info.far_ptr, info.fieldType, &amp;slot);</span>
+<span class="lineNum">     616 </span><span class="lineNoCov">          0 :                                 storage_parse_sf(slot, sftype, val+1);</span>
+<span class="lineNum">     617 </span><span class="lineNoCov">          0 :                                 sep[0] = '\'';</span>
+<span class="lineNum">     618 </span><span class="lineNoCov">          0 :                                 opt = sep+1;</span>
+<span class="lineNum">     619 </span>            :                         }
+<span class="lineNum">     620 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     621 </span><span class="lineNoCov">          0 :                 gf_node_changed(storage-&gt;storageList.vals[i].node, &amp;info);</span>
+<span class="lineNum">     622 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     623 </span><span class="lineNoCov">          0 :         gf_free(section);</span>
+<a name="624"><span class="lineNum">     624 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     625 </span>            : 
+<span class="lineNum">     626 </span>            : char *storage_serialize_sf(void *ptr, u32 fieldType)
+<span class="lineNum">     627 </span>            : {
+<span class="lineNum">     628 </span><span class="lineNoCov">          0 :         char szVal[50];</span>
+<span class="lineNum">     629 </span><span class="lineNoCov">          0 :         switch (fieldType) {</span>
+<span class="lineNum">     630 </span>            :         case GF_SG_VRML_SFBOOL:
+<span class="lineNum">     631 </span><span class="lineNoCov">          0 :                 sprintf(szVal, &quot;%d&quot;, *((SFBool *)ptr) ? 1 : 0);</span>
+<span class="lineNum">     632 </span><span class="lineNoCov">          0 :                 return gf_strdup(szVal);</span>
+<span class="lineNum">     633 </span>            :         case GF_SG_VRML_SFINT32:
+<span class="lineNum">     634 </span><span class="lineNoCov">          0 :                 sprintf(szVal, &quot;%d&quot;,  *((SFInt32 *)ptr) );</span>
+<span class="lineNum">     635 </span><span class="lineNoCov">          0 :                 return gf_strdup(szVal);</span>
+<span class="lineNum">     636 </span>            :         case GF_SG_VRML_SFTIME:
+<span class="lineNum">     637 </span><span class="lineNoCov">          0 :                 sprintf(szVal, &quot;%g&quot;, *((SFTime *)ptr) );</span>
+<span class="lineNum">     638 </span><span class="lineNoCov">          0 :                 return gf_strdup(szVal);</span>
+<span class="lineNum">     639 </span>            :         case GF_SG_VRML_SFFLOAT:
+<span class="lineNum">     640 </span><span class="lineNoCov">          0 :                 sprintf(szVal, &quot;%g&quot;, FIX2FLT( *((SFFloat *)ptr) ) );</span>
+<span class="lineNum">     641 </span><span class="lineNoCov">          0 :                 return gf_strdup(szVal);</span>
+<span class="lineNum">     642 </span>            :         case GF_SG_VRML_SFVEC2F:
+<span class="lineNum">     643 </span><span class="lineNoCov">          0 :                 sprintf(szVal, &quot;%g %g&quot;, FIX2FLT( ((SFVec2f *)ptr)-&gt;x), FIX2FLT( ((SFVec2f *)ptr)-&gt;y) );</span>
+<span class="lineNum">     644 </span><span class="lineNoCov">          0 :                 return gf_strdup(szVal);</span>
+<span class="lineNum">     645 </span>            :         case GF_SG_VRML_SFVEC3F:
+<span class="lineNum">     646 </span><span class="lineNoCov">          0 :                 sprintf(szVal, &quot;%g %g %g&quot;, FIX2FLT( ((SFVec3f *)ptr)-&gt;x), FIX2FLT( ((SFVec3f *)ptr)-&gt;y) , FIX2FLT( ((SFVec3f *)ptr)-&gt;z) );</span>
+<span class="lineNum">     647 </span><span class="lineNoCov">          0 :                 return gf_strdup(szVal);</span>
+<span class="lineNum">     648 </span>            :         case GF_SG_VRML_SFSTRING:
+<span class="lineNum">     649 </span><span class="lineNoCov">          0 :                 return gf_strdup( ((SFString *)ptr)-&gt;buffer ? ((SFString *)ptr)-&gt;buffer : &quot;&quot;);</span>
+<span class="lineNum">     650 </span>            : 
+<span class="lineNum">     651 </span>            :         default:
+<span class="lineNum">     652 </span>            :                 break;
+<span class="lineNum">     653 </span>            :         }
+<span class="lineNum">     654 </span><span class="lineNoCov">          0 :         return NULL;</span>
+<a name="655"><span class="lineNum">     655 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     656 </span>            : 
+<span class="lineNum">     657 </span>            : void gf_storage_save(M_Storage *storage)
+<span class="lineNum">     658 </span>            : {
+<span class="lineNum">     659 </span><span class="lineNoCov">          0 :         char szID[20];</span>
+<span class="lineNum">     660 </span>            :         u32 i, j;
+<span class="lineNum">     661 </span><span class="lineNoCov">          0 :         GF_Config *cfg = storage_get_cfg(storage);</span>
+<span class="lineNum">     662 </span><span class="lineNoCov">          0 :         char *section = storage_get_section(storage);</span>
+<span class="lineNum">     663 </span><span class="lineNoCov">          0 :         if (!cfg || !section) return;</span>
+<span class="lineNum">     664 </span>            : 
+<span class="lineNum">     665 </span><span class="lineNoCov">          0 :         gf_cfg_del_section(cfg, section);</span>
+<span class="lineNum">     666 </span>            : 
+<span class="lineNum">     667 </span><span class="lineNoCov">          0 :         if (storage-&gt;expireAfter) {</span>
+<span class="lineNum">     668 </span><span class="lineNoCov">          0 :                 u32 sec, frac;</span>
+<span class="lineNum">     669 </span><span class="lineNoCov">          0 :                 char szNTP[100];</span>
+<span class="lineNum">     670 </span><span class="lineNoCov">          0 :                 gf_net_get_ntp(&amp;sec, &amp;frac);</span>
+<span class="lineNum">     671 </span><span class="lineNoCov">          0 :                 sec += storage-&gt;expireAfter;</span>
+<span class="lineNum">     672 </span><span class="lineNoCov">          0 :                 sprintf(szNTP, &quot;%u&quot;, sec);</span>
+<span class="lineNum">     673 </span><span class="lineNoCov">          0 :                 gf_cfg_set_key(cfg, section, &quot;expireAfterNTP&quot;, szNTP);</span>
+<span class="lineNum">     674 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     675 </span><span class="lineNoCov">          0 :                 gf_cfg_set_key(cfg, section, &quot;expireAfterNTP&quot;, &quot;0&quot;);</span>
+<span class="lineNum">     676 </span>            :         }
+<span class="lineNum">     677 </span>            : 
+<span class="lineNum">     678 </span><span class="lineNoCov">          0 :         for (i=0; i&lt;storage-&gt;storageList.count; i++) {</span>
+<span class="lineNum">     679 </span>            :                 char *val;
+<span class="lineNum">     680 </span><span class="lineNoCov">          0 :                 GF_FieldInfo info;</span>
+<span class="lineNum">     681 </span><span class="lineNoCov">          0 :                 sprintf(szID, &quot;%d&quot;, i);</span>
+<span class="lineNum">     682 </span>            : 
+<span class="lineNum">     683 </span><span class="lineNoCov">          0 :                 if (!storage-&gt;storageList.vals[i].node) break;</span>
+<span class="lineNum">     684 </span><span class="lineNoCov">          0 :                 if (gf_node_get_field(storage-&gt;storageList.vals[i].node, storage-&gt;storageList.vals[i].fieldIndex, &amp;info) != GF_OK) break;</span>
+<span class="lineNum">     685 </span>            : 
+<span class="lineNum">     686 </span><span class="lineNoCov">          0 :                 if (gf_sg_vrml_is_sf_field(info.fieldType)) {</span>
+<span class="lineNum">     687 </span><span class="lineNoCov">          0 :                         val = storage_serialize_sf(info.far_ptr, info.fieldType);</span>
+<span class="lineNum">     688 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     689 </span>            :                         //u32 sftype = gf_sg_vrml_get_sf_type(info.fieldType);
+<span class="lineNum">     690 </span>            :                         char *slotval;
+<span class="lineNum">     691 </span><span class="lineNoCov">          0 :                         void *slot;</span>
+<span class="lineNum">     692 </span>            :                         val = NULL;
+<span class="lineNum">     693 </span><span class="lineNoCov">          0 :                         for (j=0; j&lt;((GenMFField *)info.far_ptr)-&gt;count; j++) {</span>
+<span class="lineNum">     694 </span><span class="lineNoCov">          0 :                                 if (gf_sg_vrml_mf_get_item(info.far_ptr, info.fieldType, &amp;slot, j) != GF_OK) break;</span>
+<span class="lineNum">     695 </span><span class="lineNoCov">          0 :                                 slotval = storage_serialize_sf(info.far_ptr, info.fieldType);</span>
+<span class="lineNum">     696 </span><span class="lineNoCov">          0 :                                 if (!slotval) break;</span>
+<span class="lineNum">     697 </span><span class="lineNoCov">          0 :                                 if (val) {</span>
+<span class="lineNum">     698 </span><span class="lineNoCov">          0 :                                         val = (char *)gf_realloc(val, strlen(val) + 3 + strlen((const char *)slot));</span>
+<span class="lineNum">     699 </span><span class="lineNoCov">          0 :                                 } else {</span>
+<span class="lineNum">     700 </span><span class="lineNoCov">          0 :                                         val = (char *)gf_malloc(3 + strlen((const char *)slot));</span>
+<span class="lineNum">     701 </span><span class="lineNoCov">          0 :                                         val[0] = 0;</span>
+<span class="lineNum">     702 </span>            :                                 }
+<span class="lineNum">     703 </span><span class="lineNoCov">          0 :                                 strcat(val, &quot;'&quot;);</span>
+<span class="lineNum">     704 </span><span class="lineNoCov">          0 :                                 strcat(val, slotval);</span>
+<span class="lineNum">     705 </span><span class="lineNoCov">          0 :                                 strcat(val, &quot;'&quot;);</span>
+<span class="lineNum">     706 </span><span class="lineNoCov">          0 :                                 gf_free(slot);</span>
+<span class="lineNum">     707 </span>            :                         }
+<span class="lineNum">     708 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     709 </span><span class="lineNoCov">          0 :                 if (val) {</span>
+<span class="lineNum">     710 </span><span class="lineNoCov">          0 :                         gf_cfg_set_key(cfg, section, szID, val);</span>
+<span class="lineNum">     711 </span><span class="lineNoCov">          0 :                         gf_free(val);</span>
+<span class="lineNum">     712 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     713 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     714 </span><span class="lineNoCov">          0 :         gf_free(section);</span>
+<span class="lineNum">     715 </span><span class="lineNoCov">          0 : }</span>
+<a name="716"><span class="lineNum">     716 </span>            : </a>
+<span class="lineNum">     717 </span>            : 
+<span class="lineNum">     718 </span>            : static void gf_storage_traverse(GF_Node *n, void *rs, Bool is_destroy)
+<span class="lineNum">     719 </span>            : {
+<span class="lineNum">     720 </span><span class="lineNoCov">          0 :         if (is_destroy) {</span>
+<span class="lineNum">     721 </span><span class="lineNoCov">          0 :                 GF_Scene *scene = (GF_Scene *)gf_node_get_private(n);</span>
+<span class="lineNum">     722 </span><span class="lineNoCov">          0 :                 GF_ClientService *net_service = scene-&gt;root_od-&gt;net_service;</span>
+<span class="lineNum">     723 </span><span class="lineNoCov">          0 :                 while (scene-&gt;root_od-&gt;parentscene) {</span>
+<span class="lineNum">     724 </span><span class="lineNoCov">          0 :                         if (scene-&gt;root_od-&gt;parentscene-&gt;root_od-&gt;net_service != net_service)</span>
+<span class="lineNum">     725 </span>            :                                 break;
+<span class="lineNum">     726 </span>            :                         scene = scene-&gt;root_od-&gt;parentscene;
+<span class="lineNum">     727 </span>            :                 }
+<span class="lineNum">     728 </span><span class="lineNoCov">          0 :                 gf_list_del_item(scene-&gt;storages, n);</span>
+<span class="lineNum">     729 </span><span class="lineNoCov">          0 :         }</span>
+<a name="730"><span class="lineNum">     730 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     731 </span>            : 
+<span class="lineNum">     732 </span>            : static void on_force_restore(GF_Node *n, struct _route *_route)
+<span class="lineNum">     733 </span>            : {
+<a name="734"><span class="lineNum">     734 </span><span class="lineNoCov">          0 :         gf_storage_load((M_Storage *)n);</span></a>
+<span class="lineNum">     735 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     736 </span>            : static void on_force_save(GF_Node *n, struct _route *_route)
+<span class="lineNum">     737 </span>            : {
+<span class="lineNum">     738 </span><span class="lineNoCov">          0 :         gf_storage_save((M_Storage *)n);</span>
+<a name="739"><span class="lineNum">     739 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     740 </span>            : 
+<span class="lineNum">     741 </span>            : void gf_scene_init_storage(GF_Scene *scene, GF_Node *node)
+<span class="lineNum">     742 </span>            : {
+<span class="lineNum">     743 </span>            :         GF_ClientService *net_service;
+<span class="lineNum">     744 </span><span class="lineNoCov">          0 :         M_Storage *storage = (M_Storage *) node;</span>
+<span class="lineNum">     745 </span>            : 
+<span class="lineNum">     746 </span><span class="lineNoCov">          0 :         if (!storage-&gt;name.buffer || !strlen(storage-&gt;name.buffer) ) return;</span>
+<span class="lineNum">     747 </span><span class="lineNoCov">          0 :         if (!storage-&gt;storageList.count) return;</span>
+<span class="lineNum">     748 </span>            : 
+<span class="lineNum">     749 </span><span class="lineNoCov">          0 :         storage-&gt;on_forceSave = on_force_save;</span>
+<span class="lineNum">     750 </span><span class="lineNoCov">          0 :         storage-&gt;on_forceRestore = on_force_restore;</span>
+<span class="lineNum">     751 </span><span class="lineNoCov">          0 :         gf_node_set_callback_function(node, gf_storage_traverse);</span>
+<span class="lineNum">     752 </span><span class="lineNoCov">          0 :         gf_node_set_private(node, scene);</span>
+<span class="lineNum">     753 </span>            : 
+<span class="lineNum">     754 </span><span class="lineNoCov">          0 :         net_service = scene-&gt;root_od-&gt;net_service;</span>
+<span class="lineNum">     755 </span><span class="lineNoCov">          0 :         while (scene-&gt;root_od-&gt;parentscene) {</span>
+<span class="lineNum">     756 </span><span class="lineNoCov">          0 :                 if (scene-&gt;root_od-&gt;parentscene-&gt;root_od-&gt;net_service != net_service)</span>
+<span class="lineNum">     757 </span>            :                         break;
+<span class="lineNum">     758 </span>            :                 scene = scene-&gt;root_od-&gt;parentscene;
+<span class="lineNum">     759 </span>            :         }
+<span class="lineNum">     760 </span><span class="lineNoCov">          0 :         gf_list_add(scene-&gt;storages, node);</span>
+<span class="lineNum">     761 </span><span class="lineNoCov">          0 :         if (storage-&gt;_auto) gf_storage_load(storage);</span>
+<span class="lineNum">     762 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     763 </span>            : 
+<a name="764"><span class="lineNum">     764 </span>            : #endif</a>
+<span class="lineNum">     765 </span>            : 
+<span class="lineNum">     766 </span>            : GF_Node *gf_scene_get_keynav(GF_SceneGraph *sg, GF_Node *sensor)
+<span class="lineNum">     767 </span>            : {
+<span class="lineNum">     768 </span>            : #ifndef GPAC_DISABLE_VRML
+<span class="lineNum">     769 </span>            :         u32 i, count;
+<span class="lineNum">     770 </span><span class="lineCov">          2 :         GF_Scene *scene = (GF_Scene *)gf_sg_get_private(sg);</span>
+<span class="lineNum">     771 </span><span class="lineCov">          1 :         if (!scene) return NULL;</span>
+<span class="lineNum">     772 </span><span class="lineCov">          3 :         if (!sensor) return (GF_Node *)gf_list_get(scene-&gt;keynavigators, 0);</span>
+<span class="lineNum">     773 </span>            : 
+<span class="lineNum">     774 </span><span class="lineCov">          1 :         count = gf_list_count(scene-&gt;keynavigators);</span>
+<span class="lineNum">     775 </span><span class="lineNoCov">          0 :         for (i=0; i&lt;count; i++) {</span>
+<span class="lineNum">     776 </span><span class="lineNoCov">          0 :                 M_KeyNavigator *kn = (M_KeyNavigator *)gf_list_get(scene-&gt;keynavigators, i);</span>
+<span class="lineNum">     777 </span><span class="lineNoCov">          0 :                 if (kn-&gt;sensor==sensor) return (GF_Node *) kn;</span>
+<span class="lineNum">     778 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     779 </span>            : #endif
+<span class="lineNum">     780 </span><span class="lineNoCov">          0 :         return NULL;</span>
+<span class="lineNum">     781 </span><span class="lineCov">          1 : }</span>
+<span class="lineNum">     782 </span>            : 
+<span class="lineNum">     783 </span>            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,39 @@
+*** laser-stz_animate_choice2 logs (GPAC version 0.6.2-DEV-revUNKNOWN-HEAD ) - test date 14/05/2017 22:24:41 ***
+
+
+*** Subtest "LSR2MP4": executing "MP4Box -noprog -for-test  -mem-track  -mp4 /Users/travis/build/gpac/gpac/tests/media/laser/stz_animate_choice2.xml" ***
+[32m[Parser] LASeR Scene Parsing: /Users/travis/build/gpac/gpac/tests/media/laser/stz_animate_choice2.xml
+[0m[32m[Parser] Scene parsed and Scene Graph built in 1 ms
+[0m[33m[LASeR] unsupported anim type 85 - skipping
+[0mSaving to /Users/travis/build/gpac/gpac/tests/media/laser/stz_animate_choice2.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "LSR2SAF": executing "MP4Box -noprog -for-test  -mem-track  -saf /Users/travis/build/gpac/gpac/tests/media/laser/stz_animate_choice2.xml" ***
+[32m[Parser] LASeR Scene Parsing: /Users/travis/build/gpac/gpac/tests/media/laser/stz_animate_choice2.xml
+[0m[32m[Parser] Scene parsed and Scene Graph built in 1 ms
+[0m[33m[LASeR] unsupported anim type 85 - skipping
+[0m[33mSAF: Multiplexing 1 tracks
+[0m[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "MP42LSR": executing "MP4Box -noprog -for-test  -mem-track -lsr /Users/travis/build/gpac/gpac/tests/media/laser/stz_animate_choice2.mp4 -out test1.lsr" ***
+[32mMPEG-4 LASeR Scene Parsing
+[0mScene loaded - dumping 1 systems streams
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "SAF2LSR": executing "MP4Box -noprog -for-test  -mem-track -lsr /Users/travis/build/gpac/gpac/tests/media/laser/stz_animate_choice2.saf -out test2.lsr" ***
+[32mImporting SAF stream 1: LASeR Scene
+[0m[32mMPEG-4 LASeR Scene Parsing
+[0mScene loaded - dumping 1 systems streams
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m

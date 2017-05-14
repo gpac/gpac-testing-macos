@@ -1,0 +1,94 @@
+*** dash-ts logs (GPAC version 0.6.2-DEV-revUNKNOWN-HEAD ) - test date 14/05/2017 22:23:52 ***
+
+
+*** Subtest "ts-for-dash-input-preparation": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/external_media/counter/counter-10mn_I25_baseline_1280x720_512kbps.264 -add /Users/travis/build/gpac/gpac/tests/external_media/counter/counter-10mn_audio.aac -new /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4" ***
+[33mCannot find file /Users/travis/build/gpac/gpac/tests/external_media/counter/counter-10mn_I25_baseline_1280x720_512kbps.264
+[0mError importing /Users/travis/build/gpac/gpac/tests/external_media/counter/counter-10mn_I25_baseline_1280x720_512kbps.264: Requested URL is not valid or cannot be found
+
+
+*** Subtest "ts-for-dash-input-preparation-2": executing "MP42TS  -mem-track -src /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4 -dst-file=/Users/travis/build/gpac/gpac/tests/results/temp/file.ts" ***
+Error opening /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4 - no such file.
+Error: No Programs are available
+GPAC version 0.6.2-DEV-revUNKNOWN-HEAD
+GPAC Copyright (c) Telecom ParisTech 2000-2014
+GPAC Configuration: --extra-cflags= --enable-mem-track --enable-gcov
+Features: GPAC_64_BITS GPAC_MEMORY_TRACKING GPAC_HAS_SPIDERMONKEY GPAC_HAS_JPEG GPAC_HAS_PNG 
+
+mp42ts <inputs> <destinations> [options]
+
+Inputs:
+-src filename[:OPTS]   specifies an input file used for a TS service
+                        * currently only supports ISO files and SDP files
+                        * can be used several times, once for each program
+By default each source is a program in a TS. 
+Source options are colon-separated list of options, as follows:
+ID=N                   specifies the program ID for this source.
+             All sources with the same ID will be added to the same program
+name=STR               program name, as used in DVB service description table
+provider=STR           provider name, as used in DVB service description table
+
+-prog filename        same as -src filename
+
+Destinations:
+Several destinations may be specified as follows, at least one is mandatory
+-dst-udp UDP_address:port (multicast or unicast)
+-dst-rtp RTP_address:port
+-dst-file filename
+The following parameters may be specified when -dst-file is used
+-segment-dir dir       server local directory to store segments (ends with a '/')
+-segment-duration dur  segment duration in seconds
+-segment-manifest file m3u8 file basename
+-segment-http-prefix p client address for accessing server segments
+-segment-number n      number of segments to list in the manifest
+
+Basic options:
+-rate R                specifies target rate in kbps of the multiplex (optional)
+-real-time             specifies the muxer will work in real-time mode
+                        * if not specified, the muxer will generate the TS as quickly as possible
+                        * automatically set for SDP or BT input
+-pcr-init V            sets initial value V for PCR - if not set, random value is used
+-pcr-offset V          offsets all timestamps from PCR by V, in 90kHz. Default value is computed based on input media.
+-psi-rate V            sets PSI refresh rate V in ms (default 100ms).
+                        * If 0, PSI data is only send once at the beginning or before each IDR when -rap option is set.
+                        * This should be set to 0 for DASH streams.
+-time n                request the muxer to stop after n ms
+-single-au             forces 1 PES = 1 AU (disabled by default)
+-multi-au              forces 1 PES = N AU for all streams (disabled by default).
+                        By default, audio streams pack N AUs in one PES but video and systems data use 1 AU per PES.
+-rap                   forces RAP/IDR to be aligned with PES start for video streams (disabled by default)
+                          in this mode, PAT, PMT and PCR will be inserted before the first TS packet of the RAP PES
+-flush-rap             same as -rap but flushes all other streams (sends remaining PES packets) before inserting PAT/PMT
+-nb-pack N             specifies to pack up to N TS packets together before sending on network or writing to file
+-pcr-ms N              sets max interval in ms between 2 PCR. Default is 100 ms or at each PES header
+-force-pcr-only        allows sending PCR-only packets to enforce the requested PCR rate - STILL EXPERIMENTAL.
+-ttl N                 specifies Time-To-Live for multicast. Default is 1.
+-ifce IPIFCE           specifies default IP interface to use. Default is IF_ANY.
+-temi [URL]            Inserts TEMI time codes in adaptation field. URL is optional, and can be a number for external timeline IDs
+-temi-delay DelayMS    Specifies delay between two TEMI url descriptors (default is 1000)
+-temi-offset OffsetMS  Specifies an offset in ms to add to TEMI (by default TEMI starts at 0)
+-temi-noloop           Do not restart the TEMI timeline at the end of the source
+-temi2 ID              Inserts a secondary TEMI time codes in adaptation field of the audio PID if any. ID shall be set to the desired external timeline IDs
+-insert-ntp            Inserts NTP timestamp in TEMI timeline descriptor
+-sdt-rate MS           Gives the SDT carrousel rate in milliseconds. If 0 (default), SDT is not sent
+
+MPEG-4/T-DMB options:
+-bifs-src filename          update file: must be either an .sdp or a .bt file
+-audio url             may be mp3/udp or aac/http (shoutcast/icecast)
+-video url             shall be a raw h264 frame
+-mpeg4-carousel n      carousel period in ms
+-mpeg4 or -4on2        forces usage of MPEG-4 signaling (IOD and SL Config)
+-4over2                same as -4on2 and uses PMT to carry OD Updates
+-bifs-pes              carries BIFS over PES instead of sections
+-bifs-pes-ex           carries BIFS over PES without writing timestamps in SL
+
+Misc options
+-mem-track             enables memory tracker
+-mem-track-stack       enables memory tracker stack dumping
+-logs                  set log tools and levels, formatted as a ':'-separated list of toolX[:toolZ]@levelX
+-h or -help            print this screen
+
+
+
+*** Subtest "ts-dash": executing "MP4Box -noprog -for-test  -mem-track -dash 1000 /Users/travis/build/gpac/gpac/tests/results/temp/file.ts -out /Users/travis/build/gpac/gpac/tests/results/temp/file.mpd" ***
+DASH Setup Error: Requested URL is not valid or cannot be found
+

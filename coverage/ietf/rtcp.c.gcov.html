@@ -1,0 +1,677 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - ietf/rtcp.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">ietf</a> - rtcp.c<span style="font-size: 80%;"> (source / <a href="rtcp.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">69</td>
+            <td class="headerCovTableEntry">233</td>
+            <td class="headerCovTableEntryLo">29.6 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-05-14 22:31:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntryLo">33.3 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *                      GPAC - Multimedia Framework C SDK
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *                      Authors: Jean Le Feuvre
+<span class="lineNum">       5 </span>            :  *                      Copyright (c) Telecom ParisTech 2000-2012
+<span class="lineNum">       6 </span>            :  *                                      All rights reserved
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  *  This file is part of GPAC / IETF RTP/RTSP/SDP sub-project
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  *  GPAC is free software; you can redistribute it and/or modify
+<span class="lineNum">      11 </span>            :  *  it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">      12 </span>            :  *  the Free Software Foundation; either version 2, or (at your option)
+<span class="lineNum">      13 </span>            :  *  any later version.
+<span class="lineNum">      14 </span>            :  *
+<span class="lineNum">      15 </span>            :  *  GPAC is distributed in the hope that it will be useful,
+<span class="lineNum">      16 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      17 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      18 </span>            :  *  GNU Lesser General Public License for more details.
+<span class="lineNum">      19 </span>            :  *
+<span class="lineNum">      20 </span>            :  *  You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      21 </span>            :  *  License along with this library; see the file COPYING.  If not, write to
+<span class="lineNum">      22 </span>            :  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+<span class="lineNum">      23 </span>            :  *
+<span class="lineNum">      24 </span>            :  */
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : 
+<span class="lineNum">      27 </span>            : #include &lt;gpac/internal/ietf_dev.h&gt;
+<span class="lineNum">      28 </span>            : 
+<span class="lineNum">      29 </span>            : #ifndef GPAC_DISABLE_STREAMING
+<span class="lineNum">      30 </span>            : 
+<span class="lineNum">      31 </span>            : #include &lt;gpac/bitstream.h&gt;
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span>            : #ifndef _WIN32_WCE
+<span class="lineNum">      34 </span>            : #include &lt;time.h&gt;
+<span class="lineNum">      35 </span>            : #endif
+<a name="36"><span class="lineNum">      36 </span>            : </a>
+<span class="lineNum">      37 </span>            : GF_EXPORT
+<span class="lineNum">      38 </span>            : u32 gf_rtp_read_rtcp(GF_RTPChannel *ch, char *buffer, u32 buffer_size)
+<span class="lineNum">      39 </span>            : {
+<span class="lineNum">      40 </span>            :         GF_Err e;
+<span class="lineNum">      41 </span><span class="lineNoCov">          0 :         u32 res;</span>
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            :         //only if the socket exist (otherwise RTSP interleaved channel)
+<span class="lineNum">      44 </span><span class="lineNoCov">          0 :         if (!ch || !ch-&gt;rtcp) return 0;</span>
+<span class="lineNum">      45 </span>            : 
+<span class="lineNum">      46 </span><span class="lineNoCov">          0 :         e = gf_sk_receive(ch-&gt;rtcp, buffer, buffer_size, 0, &amp;res);</span>
+<span class="lineNum">      47 </span><span class="lineNoCov">          0 :         if (e) return 0;</span>
+<span class="lineNum">      48 </span><span class="lineNoCov">          0 :         return res;</span>
+<span class="lineNum">      49 </span><span class="lineNoCov">          0 : }</span>
+<a name="50"><span class="lineNum">      50 </span>            : </a>
+<span class="lineNum">      51 </span>            : GF_EXPORT
+<span class="lineNum">      52 </span>            : GF_Err gf_rtp_decode_rtcp(GF_RTPChannel *ch, char *pck, u32 pck_size, Bool *has_sr)
+<span class="lineNum">      53 </span>            : {
+<span class="lineNum">      54 </span>            :         GF_RTCPHeader rtcp_hdr;
+<span class="lineNum">      55 </span>            :         GF_BitStream *bs;
+<span class="lineNum">      56 </span><span class="lineNoCov">          0 :         char sdes_buffer[300];</span>
+<span class="lineNum">      57 </span>            :         u32 i, sender_ssrc, cur_ssrc, val, sdes_type, sdes_len, res, first;
+<span class="lineNum">      58 </span>            :         GF_Err e = GF_OK;
+<span class="lineNum">      59 </span>            : 
+<span class="lineNum">      60 </span><span class="lineNoCov">          0 :         if (has_sr) *has_sr = GF_FALSE;</span>
+<span class="lineNum">      61 </span>            : 
+<span class="lineNum">      62 </span>            :         //bad RTCP packet
+<span class="lineNum">      63 </span><span class="lineNoCov">          0 :         if (pck_size &lt; 4 ) return GF_NON_COMPLIANT_BITSTREAM;</span>
+<span class="lineNum">      64 </span><span class="lineNoCov">          0 :         bs = gf_bs_new(pck, pck_size, GF_BITSTREAM_READ);</span>
+<span class="lineNum">      65 </span>            : 
+<span class="lineNum">      66 </span>            :         first = 1;
+<span class="lineNum">      67 </span><span class="lineNoCov">          0 :         while (pck_size) {</span>
+<span class="lineNum">      68 </span>            :                 //global header
+<span class="lineNum">      69 </span><span class="lineNoCov">          0 :                 rtcp_hdr.Version = gf_bs_read_int(bs, 2);</span>
+<span class="lineNum">      70 </span><span class="lineNoCov">          0 :                 if (rtcp_hdr.Version != 2 ) {</span>
+<span class="lineNum">      71 </span><span class="lineNoCov">          0 :                         gf_bs_del(bs);</span>
+<span class="lineNum">      72 </span><span class="lineNoCov">          0 :                         return GF_NOT_SUPPORTED;</span>
+<span class="lineNum">      73 </span>            :                 }
+<span class="lineNum">      74 </span><span class="lineNoCov">          0 :                 rtcp_hdr.Padding = gf_bs_read_int(bs, 1);</span>
+<span class="lineNum">      75 </span><span class="lineNoCov">          0 :                 rtcp_hdr.Count = gf_bs_read_int(bs, 5);</span>
+<span class="lineNum">      76 </span><span class="lineNoCov">          0 :                 rtcp_hdr.PayloadType = gf_bs_read_u8(bs);</span>
+<span class="lineNum">      77 </span><span class="lineNoCov">          0 :                 rtcp_hdr.Length = 1 + gf_bs_read_u16(bs);</span>
+<span class="lineNum">      78 </span>            : 
+<span class="lineNum">      79 </span>            :                 //check pck size
+<span class="lineNum">      80 </span><span class="lineNoCov">          0 :                 if (pck_size &lt; (u32) rtcp_hdr.Length * 4) {</span>
+<span class="lineNum">      81 </span><span class="lineNoCov">          0 :                         gf_bs_del(bs);</span>
+<span class="lineNum">      82 </span>            :                         //we return OK
+<span class="lineNum">      83 </span><span class="lineNoCov">          0 :                         return GF_CORRUPTED_DATA;</span>
+<span class="lineNum">      84 </span>            :                 }
+<span class="lineNum">      85 </span>            :                 //substract this RTCP pck size
+<span class="lineNum">      86 </span><span class="lineNoCov">          0 :                 pck_size -= rtcp_hdr.Length * 4;</span>
+<span class="lineNum">      87 </span>            : 
+<span class="lineNum">      88 </span>            :                 /*we read the RTCP header*/
+<span class="lineNum">      89 </span><span class="lineNoCov">          0 :                 rtcp_hdr.Length -= 1;</span>
+<span class="lineNum">      90 </span>            : 
+<span class="lineNum">      91 </span>            :                 //in all RTCP Compounds (&gt;1 pck), the first RTCP report SHALL be SR or RR without padding
+<span class="lineNum">      92 </span><span class="lineNoCov">          0 :                 if (first) {</span>
+<span class="lineNum">      93 </span><span class="lineNoCov">          0 :                         if ( ( (rtcp_hdr.PayloadType!=200) &amp;&amp; (rtcp_hdr.PayloadType!=201) )</span>
+<span class="lineNum">      94 </span><span class="lineNoCov">          0 :                                 || rtcp_hdr.Padding</span>
+<span class="lineNum">      95 </span>            :                            ) {
+<span class="lineNum">      96 </span><span class="lineNoCov">          0 :                                 gf_bs_del(bs);</span>
+<span class="lineNum">      97 </span><span class="lineNoCov">          0 :                                 GF_LOG(GF_LOG_WARNING, GF_LOG_RTP, (&quot;[RTCP] Corrupted RTCP packet: payload type %d (200 or 201 expected) - Padding %d (0 expected)\n&quot;, rtcp_hdr.PayloadType, rtcp_hdr.Padding));</span>
+<span class="lineNum">      98 </span><span class="lineNoCov">          0 :                                 return GF_CORRUPTED_DATA;</span>
+<span class="lineNum">      99 </span>            :                         }
+<span class="lineNum">     100 </span>            :                         first = 0;
+<span class="lineNum">     101 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     102 </span>            : 
+<span class="lineNum">     103 </span>            :                 //specific extensions
+<span class="lineNum">     104 </span><span class="lineNoCov">          0 :                 switch (rtcp_hdr.PayloadType) {</span>
+<span class="lineNum">     105 </span>            :                 //Sender report - we assume there's only one sender
+<span class="lineNum">     106 </span>            :                 case 200:
+<span class="lineNum">     107 </span>            :                         /*sender ssrc*/
+<span class="lineNum">     108 </span><span class="lineNoCov">          0 :                         sender_ssrc = gf_bs_read_u32(bs);</span>
+<span class="lineNum">     109 </span><span class="lineNoCov">          0 :                         rtcp_hdr.Length -= 1;</span>
+<span class="lineNum">     110 </span>            :                         /*not for us...*/
+<span class="lineNum">     111 </span><span class="lineNoCov">          0 :                         if (ch-&gt;SenderSSRC &amp;&amp; (ch-&gt;SenderSSRC != sender_ssrc)) break;</span>
+<span class="lineNum">     112 </span>            : 
+<span class="lineNum">     113 </span><span class="lineNoCov">          0 :                         if (ch-&gt;first_SR) {</span>
+<span class="lineNum">     114 </span><span class="lineNoCov">          0 :                                 ch-&gt;first_SR = 0;</span>
+<span class="lineNum">     115 </span><span class="lineNoCov">          0 :                                 gf_rtp_get_next_report_time(ch);</span>
+<span class="lineNum">     116 </span><span class="lineNoCov">          0 :                                 ch-&gt;SenderSSRC = sender_ssrc;</span>
+<span class="lineNum">     117 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     118 </span><span class="lineNoCov">          0 :                         ch-&gt;last_report_time = gf_rtp_get_report_time();</span>
+<span class="lineNum">     119 </span>            : 
+<span class="lineNum">     120 </span><span class="lineNoCov">          0 :                         ch-&gt;last_SR_NTP_sec = gf_bs_read_u32(bs);</span>
+<span class="lineNum">     121 </span><span class="lineNoCov">          0 :                         ch-&gt;last_SR_NTP_frac = gf_bs_read_u32(bs);</span>
+<span class="lineNum">     122 </span><span class="lineNoCov">          0 :                         ch-&gt;last_SR_rtp_time = gf_bs_read_u32(bs);</span>
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 :                         /*nb_pck =  */gf_bs_read_u32(bs);</span>
+<span class="lineNum">     124 </span><span class="lineNoCov">          0 :                         /*nb_bytes =*/gf_bs_read_u32(bs);</span>
+<span class="lineNum">     125 </span>            : 
+<span class="lineNum">     126 </span><span class="lineNoCov">          0 :                         rtcp_hdr.Length -= 5;</span>
+<span class="lineNum">     127 </span><span class="lineNoCov">          0 :                         if (has_sr) *has_sr = GF_TRUE;</span>
+<span class="lineNum">     128 </span>            : 
+<span class="lineNum">     129 </span>            : #ifndef GPAC_DISABLE_LOG
+<span class="lineNum">     130 </span><span class="lineNoCov">          0 :                         if (gf_log_tool_level_on(GF_LOG_RTP, GF_LOG_INFO))  {</span>
+<span class="lineNum">     131 </span>            : #ifndef _WIN32_WCE
+<span class="lineNum">     132 </span><span class="lineNoCov">          0 :                                 time_t gtime = ch-&gt;last_SR_NTP_sec - GF_NTP_SEC_1900_TO_1970;</span>
+<span class="lineNum">     133 </span><span class="lineNoCov">          0 :                                 const char *ascTime = asctime(gmtime(&amp;gtime));</span>
+<span class="lineNum">     134 </span>            : #else
+<span class="lineNum">     135 </span>            :                                 const char *ascTime = &quot;Not Available&quot;;
+<span class="lineNum">     136 </span>            : #endif
+<span class="lineNum">     137 </span><span class="lineNoCov">          0 :                                 GF_LOG(GF_LOG_INFO, GF_LOG_RTP, (&quot;[RTP] RTCP SR: SSRC %d - RTP Time %d - Nb Pck %d - Nb Bytes %d - Time %s\n&quot;,</span>
+<span class="lineNum">     138 </span>            :                                                                  ch-&gt;SenderSSRC,
+<span class="lineNum">     139 </span>            :                                                                  ch-&gt;last_SR_rtp_time,
+<span class="lineNum">     140 </span>            :                                                                  ch-&gt;total_pck,
+<span class="lineNum">     141 </span>            :                                                                  ch-&gt;total_bytes,
+<span class="lineNum">     142 </span>            :                                                                  ascTime
+<span class="lineNum">     143 </span>            :                                                                 ));
+<span class="lineNum">     144 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     145 </span>            : #endif
+<span class="lineNum">     146 </span>            : 
+<span class="lineNum">     147 </span>            :                         //common encoding for SR and RR
+<span class="lineNum">     148 </span>            :                         goto process_reports;
+<span class="lineNum">     149 </span>            : 
+<span class="lineNum">     150 </span>            : 
+<span class="lineNum">     151 </span>            :                 case 201:
+<span class="lineNum">     152 </span>            :                         //sender ssrc
+<span class="lineNum">     153 </span><span class="lineNoCov">          0 :                         /*sender_ssrc = */gf_bs_read_u32(bs);</span>
+<span class="lineNum">     154 </span><span class="lineNoCov">          0 :                         rtcp_hdr.Length -= 1;</span>
+<span class="lineNum">     155 </span>            : 
+<span class="lineNum">     156 </span>            : process_reports:
+<span class="lineNum">     157 </span>            : 
+<span class="lineNum">     158 </span>            : #if 0
+<span class="lineNum">     159 </span>            :                         //process all reports - we actually don't since we do not handle sources
+<span class="lineNum">     160 </span>            :                         //to add
+<span class="lineNum">     161 </span>            :                         for (i=0; i&lt;rtcp_hdr.Count; i++) {
+<span class="lineNum">     162 </span>            :                                 //ssrc slot
+<span class="lineNum">     163 </span>            :                                 cur_ssrc = gf_bs_read_u32(bs);
+<span class="lineNum">     164 </span>            :                                 //frac lost
+<span class="lineNum">     165 </span>            :                                 gf_bs_read_u8(bs);
+<span class="lineNum">     166 </span>            :                                 //cumulative lost
+<span class="lineNum">     167 </span>            :                                 gf_bs_read_u24(bs);
+<span class="lineNum">     168 </span>            :                                 //extended seq num
+<span class="lineNum">     169 </span>            :                                 gf_bs_read_u32(bs);
+<span class="lineNum">     170 </span>            :                                 //jitter
+<span class="lineNum">     171 </span>            :                                 gf_bs_read_u32(bs);
+<span class="lineNum">     172 </span>            :                                 //LSR
+<span class="lineNum">     173 </span>            :                                 gf_bs_read_u32(bs);
+<span class="lineNum">     174 </span>            :                                 //DLSR
+<span class="lineNum">     175 </span>            :                                 gf_bs_read_u32(bs);
+<span class="lineNum">     176 </span>            : 
+<span class="lineNum">     177 </span>            :                                 rtcp_hdr.Length -= 6;
+<span class="lineNum">     178 </span>            :                         }
+<span class="lineNum">     179 </span>            :                         //remaining bytes? we skip (this includes padding and crypto - not supported)
+<span class="lineNum">     180 </span>            : #endif
+<span class="lineNum">     181 </span>            :                         break;
+<span class="lineNum">     182 </span>            : 
+<span class="lineNum">     183 </span>            :                 //SDES
+<span class="lineNum">     184 </span>            :                 case 202:
+<span class="lineNum">     185 </span><span class="lineNoCov">          0 :                         for (i=0; i&lt;rtcp_hdr.Count; i++) {</span>
+<span class="lineNum">     186 </span><span class="lineNoCov">          0 :                                 /*cur_ssrc = */gf_bs_read_u32(bs);</span>
+<span class="lineNum">     187 </span><span class="lineNoCov">          0 :                                 rtcp_hdr.Length -= 1;</span>
+<span class="lineNum">     188 </span>            : 
+<span class="lineNum">     189 </span>            :                                 val = 0;
+<span class="lineNum">     190 </span><span class="lineNoCov">          0 :                                 while (1) {</span>
+<span class="lineNum">     191 </span><span class="lineNoCov">          0 :                                         sdes_type = gf_bs_read_u8(bs);</span>
+<span class="lineNum">     192 </span><span class="lineNoCov">          0 :                                         val += 1;</span>
+<span class="lineNum">     193 </span><span class="lineNoCov">          0 :                                         if (!sdes_type) break;</span>
+<span class="lineNum">     194 </span><span class="lineNoCov">          0 :                                         sdes_len = gf_bs_read_u8(bs);</span>
+<span class="lineNum">     195 </span><span class="lineNoCov">          0 :                                         val += 1;</span>
+<span class="lineNum">     196 </span><span class="lineNoCov">          0 :                                         gf_bs_read_data(bs, sdes_buffer, sdes_len);</span>
+<span class="lineNum">     197 </span><span class="lineNoCov">          0 :                                         sdes_buffer[sdes_len] = 0;</span>
+<span class="lineNum">     198 </span><span class="lineNoCov">          0 :                                         val += sdes_len;</span>
+<span class="lineNum">     199 </span>            :                                 }
+<span class="lineNum">     200 </span>            : 
+<span class="lineNum">     201 </span>            :                                 //re-align on 32bit
+<span class="lineNum">     202 </span><span class="lineNoCov">          0 :                                 res = val%4;</span>
+<span class="lineNum">     203 </span><span class="lineNoCov">          0 :                                 if (res) {</span>
+<span class="lineNum">     204 </span><span class="lineNoCov">          0 :                                         gf_bs_skip_bytes(bs, (4-res));</span>
+<span class="lineNum">     205 </span><span class="lineNoCov">          0 :                                         val = val/4 + 1;</span>
+<span class="lineNum">     206 </span><span class="lineNoCov">          0 :                                 } else {</span>
+<span class="lineNum">     207 </span><span class="lineNoCov">          0 :                                         val = val/4;</span>
+<span class="lineNum">     208 </span>            :                                 }
+<span class="lineNum">     209 </span><span class="lineNoCov">          0 :                                 rtcp_hdr.Length -= val;</span>
+<span class="lineNum">     210 </span>            :                         }
+<span class="lineNum">     211 </span>            :                         break;
+<span class="lineNum">     212 </span>            : 
+<span class="lineNum">     213 </span>            :                 //BYE packet - close the channel - we work with 1 SSRC only */
+<span class="lineNum">     214 </span>            :                 case 203:
+<span class="lineNum">     215 </span><span class="lineNoCov">          0 :                         for (i=0; i&lt;rtcp_hdr.Count; i++) {</span>
+<span class="lineNum">     216 </span><span class="lineNoCov">          0 :                                 cur_ssrc = gf_bs_read_u32(bs);</span>
+<span class="lineNum">     217 </span><span class="lineNoCov">          0 :                                 rtcp_hdr.Length -= 1;</span>
+<span class="lineNum">     218 </span><span class="lineNoCov">          0 :                                 if (ch-&gt;SenderSSRC == cur_ssrc) {</span>
+<span class="lineNum">     219 </span>            :                                         e = GF_EOS;
+<span class="lineNum">     220 </span><span class="lineNoCov">          0 :                                         break;</span>
+<span class="lineNum">     221 </span>            :                                 }
+<span class="lineNum">     222 </span>            :                         }
+<span class="lineNum">     223 </span>            :                         //extra info - skip it
+<span class="lineNum">     224 </span><span class="lineNoCov">          0 :                         while (rtcp_hdr.Length) {</span>
+<span class="lineNum">     225 </span><span class="lineNoCov">          0 :                                 gf_bs_read_u32(bs);</span>
+<span class="lineNum">     226 </span><span class="lineNoCov">          0 :                                 rtcp_hdr.Length -= 1;</span>
+<span class="lineNum">     227 </span>            :                         }
+<span class="lineNum">     228 </span>            :                         break;
+<span class="lineNum">     229 </span>            :                 /*
+<span class="lineNum">     230 </span>            :                                 //APP packet
+<span class="lineNum">     231 </span>            :                                 case 204:
+<span class="lineNum">     232 </span>            : 
+<span class="lineNum">     233 </span>            : 
+<span class="lineNum">     234 </span>            :                                         //sender ssrc
+<span class="lineNum">     235 </span>            :                                         sender_ssrc = gf_bs_read_u32(bs);
+<span class="lineNum">     236 </span>            :                                         //ASCI 4 char type
+<span class="lineNum">     237 </span>            :                                         gf_bs_read_u8(bs);
+<span class="lineNum">     238 </span>            :                                         gf_bs_read_u8(bs);
+<span class="lineNum">     239 </span>            :                                         gf_bs_read_u8(bs);
+<span class="lineNum">     240 </span>            :                                         gf_bs_read_u8(bs);
+<span class="lineNum">     241 </span>            : 
+<span class="lineNum">     242 </span>            :                                         rtcp_hdr.Length -= 2;
+<span class="lineNum">     243 </span>            : 
+<span class="lineNum">     244 </span>            :                                         //till endd of pck
+<span class="lineNum">     245 </span>            :                                         gf_bs_read_data(bs, sdes_buffer, rtcp_hdr.Length*4);
+<span class="lineNum">     246 </span>            :                                         rtcp_hdr.Length = 0;
+<span class="lineNum">     247 </span>            :                                         break;
+<span class="lineNum">     248 </span>            :                 */
+<span class="lineNum">     249 </span>            :                 default:
+<span class="lineNum">     250 </span>            :                         //read all till end
+<span class="lineNum">     251 </span><span class="lineNoCov">          0 :                         gf_bs_read_data(bs, sdes_buffer, rtcp_hdr.Length*4);</span>
+<span class="lineNum">     252 </span>            :                         rtcp_hdr.Length = 0;
+<span class="lineNum">     253 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     254 </span>            :                 }
+<span class="lineNum">     255 </span>            :                 //WE SHALL CONSUME EVERYTHING otherwise the packet is bad
+<span class="lineNum">     256 </span><span class="lineNoCov">          0 :                 if (rtcp_hdr.Length) {</span>
+<span class="lineNum">     257 </span><span class="lineNoCov">          0 :                         gf_bs_del(bs);</span>
+<span class="lineNum">     258 </span><span class="lineNoCov">          0 :                         return GF_CORRUPTED_DATA;</span>
+<span class="lineNum">     259 </span>            :                 }
+<span class="lineNum">     260 </span>            :         }
+<span class="lineNum">     261 </span>            : 
+<span class="lineNum">     262 </span><span class="lineNoCov">          0 :         gf_bs_del(bs);</span>
+<span class="lineNum">     263 </span><span class="lineNoCov">          0 :         return e;</span>
+<a name="264"><span class="lineNum">     264 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     265 </span>            : 
+<span class="lineNum">     266 </span>            : u32 gf_rtp_get_ntp_frac(u32 sec, u32 frac)
+<span class="lineNum">     267 </span>            : {
+<span class="lineNum">     268 </span><span class="lineNoCov">          0 :         return ( ((sec  &amp; 0x0000ffff) &lt;&lt; 16) |  ((frac &amp; 0xffff0000) &gt;&gt; 16));</span>
+<a name="269"><span class="lineNum">     269 </span>            : }</a>
+<span class="lineNum">     270 </span>            : 
+<span class="lineNum">     271 </span>            : static u32 RTCP_FormatReport(GF_RTPChannel *ch, GF_BitStream *bs, u32 NTP_Time)
+<span class="lineNum">     272 </span>            : {
+<span class="lineNum">     273 </span><span class="lineCov">         22 :         u32 length, is_sr, sec, frac, expected, val, size;</span>
+<span class="lineNum">     274 </span>            :         s32 extended, expect_diff, loss_diff;
+<span class="lineNum">     275 </span>            :         Double f;
+<span class="lineNum">     276 </span>            : 
+<span class="lineNum">     277 </span><span class="lineCov">         11 :         is_sr = ch-&gt;pck_sent_since_last_sr ? 1 : 0;</span>
+<span class="lineNum">     278 </span>            : 
+<span class="lineNum">     279 </span><span class="lineCov">         11 :         if (ch-&gt;forced_ntp_sec) {</span>
+<span class="lineNum">     280 </span><span class="lineCov">         11 :                 sec = ch-&gt;forced_ntp_sec;</span>
+<span class="lineNum">     281 </span><span class="lineCov">         11 :                 frac = ch-&gt;forced_ntp_frac;</span>
+<span class="lineNum">     282 </span>            :                 is_sr = 1;
+<span class="lineNum">     283 </span><span class="lineCov">         11 :         } else {</span>
+<span class="lineNum">     284 </span><span class="lineNoCov">          0 :                 gf_net_get_ntp(&amp;sec, &amp;frac);</span>
+<span class="lineNum">     285 </span>            :         }
+<span class="lineNum">     286 </span>            : 
+<span class="lineNum">     287 </span>            :         //common header
+<span class="lineNum">     288 </span>            :         //version
+<span class="lineNum">     289 </span><span class="lineCov">         11 :         gf_bs_write_int(bs, 2, 2);</span>
+<span class="lineNum">     290 </span>            :         //padding - reports are aligned
+<span class="lineNum">     291 </span><span class="lineCov">         11 :         gf_bs_write_int(bs, 0, 1);</span>
+<span class="lineNum">     292 </span>            :         //count - only one for now in RR, 0 in sender mode
+<span class="lineNum">     293 </span><span class="lineCov">         11 :         gf_bs_write_int(bs, !is_sr, 5);</span>
+<span class="lineNum">     294 </span>            :         //if we have sent stuff send an SR, otherwise an RR. We need to determine whether
+<span class="lineNum">     295 </span>            :         //we are active or not
+<span class="lineNum">     296 </span>            :         //type
+<span class="lineNum">     297 </span><span class="lineCov">         11 :         gf_bs_write_u8(bs, is_sr ? 200 : 201);</span>
+<span class="lineNum">     298 </span>            :         //length = (num of 32bit words in full pck) - 1
+<span class="lineNum">     299 </span>            :         //we're updating only one ssrc for now in RR and none in SR
+<span class="lineNum">     300 </span><span class="lineCov">         11 :         length = is_sr ? 6 : (1 + 6 * 1);</span>
+<span class="lineNum">     301 </span><span class="lineCov">         11 :         gf_bs_write_u16(bs, length);</span>
+<span class="lineNum">     302 </span>            : 
+<span class="lineNum">     303 </span>            :         //sender SSRC
+<span class="lineNum">     304 </span><span class="lineCov">         11 :         gf_bs_write_u32(bs, ch-&gt;SSRC);</span>
+<span class="lineNum">     305 </span>            : 
+<span class="lineNum">     306 </span>            :         size = 8;
+<span class="lineNum">     307 </span>            : 
+<span class="lineNum">     308 </span>            : 
+<span class="lineNum">     309 </span>            :         //SenderReport part
+<span class="lineNum">     310 </span><span class="lineCov">         11 :         if (is_sr) {</span>
+<span class="lineNum">     311 </span>            :                 //sender time
+<span class="lineNum">     312 </span><span class="lineCov">         11 :                 gf_bs_write_u32(bs, sec);</span>
+<span class="lineNum">     313 </span><span class="lineCov">         11 :                 gf_bs_write_u32(bs, frac);</span>
+<span class="lineNum">     314 </span>            :                 //RTP time at this time
+<span class="lineNum">     315 </span><span class="lineCov">         11 :                 f = 1000 * (sec - ch-&gt;last_pck_ntp_sec);</span>
+<span class="lineNum">     316 </span><span class="lineCov">         11 :                 f += ((frac - ch-&gt;last_pck_ntp_frac) &gt;&gt; 4) / 0x10000;</span>
+<span class="lineNum">     317 </span><span class="lineCov">         11 :                 f /= 1000;</span>
+<span class="lineNum">     318 </span><span class="lineCov">         11 :                 f *= ch-&gt;TimeScale;</span>
+<span class="lineNum">     319 </span><span class="lineCov">         11 :                 val = (u32) f + ch-&gt;last_pck_ts;</span>
+<span class="lineNum">     320 </span><span class="lineCov">         11 :                 gf_bs_write_u32(bs, val);</span>
+<span class="lineNum">     321 </span>            :                 //num pck sent
+<span class="lineNum">     322 </span><span class="lineCov">         11 :                 gf_bs_write_u32(bs, ch-&gt;num_pck_sent);</span>
+<span class="lineNum">     323 </span>            :                 //num payload bytes sent
+<span class="lineNum">     324 </span><span class="lineCov">         11 :                 gf_bs_write_u32(bs, ch-&gt;num_payload_bytes);</span>
+<span class="lineNum">     325 </span>            : 
+<span class="lineNum">     326 </span>            : 
+<span class="lineNum">     327 </span>            :                 size += 20;
+<span class="lineNum">     328 </span>            :                 //nota: as we only support single-way channels we are done for SR...
+<span class="lineNum">     329 </span><span class="lineCov">         11 :                 return size;</span>
+<span class="lineNum">     330 </span>            :         }
+<span class="lineNum">     331 </span>            :         //loop through all our sources (1) and send information...
+<span class="lineNum">     332 </span><span class="lineNoCov">          0 :         gf_bs_write_u32(bs, ch-&gt;SenderSSRC);</span>
+<span class="lineNum">     333 </span>            : 
+<span class="lineNum">     334 </span>            :         //Fraction lost and cumulative lost
+<span class="lineNum">     335 </span><span class="lineNoCov">          0 :         extended = ( (ch-&gt;num_sn_loops &lt;&lt; 16) | ch-&gt;last_pck_sn);</span>
+<span class="lineNum">     336 </span><span class="lineNoCov">          0 :         expected = extended - ch-&gt;rtp_first_SN;</span>
+<span class="lineNum">     337 </span><span class="lineNoCov">          0 :         expect_diff = expected - ch-&gt;tot_num_pck_expected;</span>
+<span class="lineNum">     338 </span><span class="lineNoCov">          0 :         loss_diff = expect_diff - ch-&gt;last_num_pck_rcv;</span>
+<span class="lineNum">     339 </span>            : 
+<span class="lineNum">     340 </span><span class="lineNoCov">          0 :         if (!expect_diff || (loss_diff &lt;= 0)) loss_diff = 0;</span>
+<span class="lineNum">     341 </span><span class="lineNoCov">          0 :         else loss_diff = (loss_diff&lt;&lt;8) / expect_diff;</span>
+<span class="lineNum">     342 </span>            : 
+<span class="lineNum">     343 </span><span class="lineNoCov">          0 :         gf_bs_write_u8(bs, loss_diff);</span>
+<span class="lineNum">     344 </span>            : 
+<span class="lineNum">     345 </span>            :         //update and write cumulative loss
+<span class="lineNum">     346 </span><span class="lineNoCov">          0 :         ch-&gt;tot_num_pck_rcv += ch-&gt;last_num_pck_rcv;</span>
+<span class="lineNum">     347 </span><span class="lineNoCov">          0 :         ch-&gt;tot_num_pck_expected = expected;</span>
+<span class="lineNum">     348 </span><span class="lineNoCov">          0 :         gf_bs_write_u24(bs, (expected - ch-&gt;tot_num_pck_rcv));</span>
+<span class="lineNum">     349 </span>            : 
+<span class="lineNum">     350 </span>            :         //Extend sequence number
+<span class="lineNum">     351 </span><span class="lineNoCov">          0 :         gf_bs_write_u32(bs, extended);</span>
+<span class="lineNum">     352 </span>            : 
+<span class="lineNum">     353 </span>            : 
+<span class="lineNum">     354 </span>            :         //Jitter
+<span class="lineNum">     355 </span>            :         //RTP specs annexe A.8
+<span class="lineNum">     356 </span><span class="lineNoCov">          0 :         gf_bs_write_u32(bs, ( ch-&gt;Jitter &gt;&gt; 4));</span>
+<span class="lineNum">     357 </span>            :         //LSR
+<span class="lineNum">     358 </span><span class="lineNoCov">          0 :         val = ch-&gt;last_SR_NTP_sec ? gf_rtp_get_ntp_frac(ch-&gt;last_SR_NTP_sec, ch-&gt;last_SR_NTP_frac) : 0;</span>
+<span class="lineNum">     359 </span><span class="lineNoCov">          0 :         gf_bs_write_u32(bs, val);</span>
+<span class="lineNum">     360 </span>            : 
+<span class="lineNum">     361 </span>            :         // DLSR
+<span class="lineNum">     362 </span><span class="lineNoCov">          0 :         gf_bs_write_u32(bs, (NTP_Time - ch-&gt;last_report_time));</span>
+<span class="lineNum">     363 </span>            : 
+<span class="lineNum">     364 </span>            : 
+<span class="lineNum">     365 </span>            : #ifndef GPAC_DISABLE_LOG
+<span class="lineNum">     366 </span><span class="lineNoCov">          0 :         if (gf_log_tool_level_on(GF_LOG_RTP, GF_LOG_DEBUG))  {</span>
+<span class="lineNum">     367 </span>            : #ifndef _WIN32_WCE
+<span class="lineNum">     368 </span><span class="lineNoCov">          0 :                 time_t gtime = ch-&gt;last_SR_NTP_sec - GF_NTP_SEC_1900_TO_1970;</span>
+<span class="lineNum">     369 </span><span class="lineNoCov">          0 :                 const char *ascTime = asctime(gmtime(&amp;gtime));</span>
+<span class="lineNum">     370 </span>            : #else
+<span class="lineNum">     371 </span>            :                 const char *ascTime = &quot;Not Available&quot;;
+<span class="lineNum">     372 </span>            : #endif
+<span class="lineNum">     373 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_DEBUG, GF_LOG_RTP, (&quot;[RTP] RTCP-RR\t%d\t%d\t%d\t%d\t%d\t%s\n&quot;,</span>
+<span class="lineNum">     374 </span>            :                                                   ch-&gt;SSRC,
+<span class="lineNum">     375 </span>            :                                                   ch-&gt;Jitter &gt;&gt; 4,
+<span class="lineNum">     376 </span>            :                                                   extended,
+<span class="lineNum">     377 </span>            :                                                   expect_diff,
+<span class="lineNum">     378 </span>            :                                                   loss_diff,
+<span class="lineNum">     379 </span>            :                                                   ascTime
+<span class="lineNum">     380 </span>            :                                                  ));
+<span class="lineNum">     381 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     382 </span>            : #endif
+<span class="lineNum">     383 </span>            : 
+<span class="lineNum">     384 </span>            :         size += 24;
+<span class="lineNum">     385 </span><span class="lineNoCov">          0 :         return size;</span>
+<span class="lineNum">     386 </span><span class="lineCov">         11 : }</span>
+<a name="387"><span class="lineNum">     387 </span>            : </a>
+<span class="lineNum">     388 </span>            : 
+<span class="lineNum">     389 </span>            : static u32 RTCP_FormatSDES(GF_RTPChannel *ch, GF_BitStream *bs)
+<span class="lineNum">     390 </span>            : {
+<span class="lineNum">     391 </span>            :         u32 length, padd;
+<span class="lineNum">     392 </span>            : 
+<span class="lineNum">     393 </span>            :         //we start with header and SSRC: 2x32 bits word
+<span class="lineNum">     394 </span>            :         length = 8;
+<span class="lineNum">     395 </span>            :         //ten only send one CName item is type (1byte) , len (1byte), data (len byte) +  NULL marker (0 on 1 byte) at the end of the item list
+<span class="lineNum">     396 </span><span class="lineCov">         22 :         length += 2 + (u32) strlen(ch-&gt;CName) + 1;</span>
+<span class="lineNum">     397 </span>            :         //we padd the end of the content to 32-bit boundary, and set length to the number of 32 bit words
+<span class="lineNum">     398 </span><span class="lineCov">         11 :         padd = length % 4;</span>
+<span class="lineNum">     399 </span><span class="lineCov">         11 :         if (padd*4 != 0) {</span>
+<span class="lineNum">     400 </span>            :                 //padding octets
+<span class="lineNum">     401 </span><span class="lineCov">         11 :                 padd = 4 - padd;</span>
+<span class="lineNum">     402 </span><span class="lineCov">         11 :                 length = length/4 + 1;</span>
+<span class="lineNum">     403 </span><span class="lineCov">         11 :         } else {</span>
+<span class="lineNum">     404 </span>            :                 padd = 0;
+<span class="lineNum">     405 </span><span class="lineNoCov">          0 :                 length = length/4;</span>
+<span class="lineNum">     406 </span>            :         }
+<span class="lineNum">     407 </span>            : 
+<span class="lineNum">     408 </span>            :         //common part as usual
+<span class="lineNum">     409 </span><span class="lineCov">         11 :         gf_bs_write_int(bs, 2, 2);</span>
+<span class="lineNum">     410 </span>            :         //notify padding? according to RFC1889 &quot;In a compound RTCP packet, padding should
+<span class="lineNum">     411 </span>            :         //only be required on the last individual packet because the compound packet is
+<span class="lineNum">     412 </span>            :         //encrypted as a whole&quot; -&gt; we write it without notifying it (this is a bit messy in
+<span class="lineNum">     413 </span>            :         //the spec IMO)
+<span class="lineNum">     414 </span><span class="lineCov">         11 :         gf_bs_write_int(bs, 0, 1);</span>
+<span class="lineNum">     415 </span>            :         //report count is one
+<span class="lineNum">     416 </span><span class="lineCov">         11 :         gf_bs_write_int(bs, 1, 5);</span>
+<span class="lineNum">     417 </span>            :         //SDES pck type
+<span class="lineNum">     418 </span><span class="lineCov">         11 :         gf_bs_write_u8(bs, 202);</span>
+<span class="lineNum">     419 </span>            :         //write length minus one
+<span class="lineNum">     420 </span><span class="lineCov">         11 :         gf_bs_write_u16(bs, length - 1);</span>
+<span class="lineNum">     421 </span>            : 
+<span class="lineNum">     422 </span>            :         //SSRC
+<span class="lineNum">     423 </span><span class="lineCov">         11 :         gf_bs_write_u32(bs, ch-&gt;SSRC);</span>
+<span class="lineNum">     424 </span>            : 
+<span class="lineNum">     425 </span>            :         //CNAME type
+<span class="lineNum">     426 </span><span class="lineCov">         11 :         gf_bs_write_u8(bs, 1);</span>
+<span class="lineNum">     427 </span>            :         //length and cname
+<span class="lineNum">     428 </span><span class="lineCov">         11 :         gf_bs_write_u8(bs, (u32) strlen(ch-&gt;CName));</span>
+<span class="lineNum">     429 </span><span class="lineCov">         11 :         gf_bs_write_data(bs, ch-&gt;CName, (u32) strlen(ch-&gt;CName));</span>
+<span class="lineNum">     430 </span>            : 
+<span class="lineNum">     431 </span><span class="lineCov">         11 :         gf_bs_write_u8(bs, 0);</span>
+<span class="lineNum">     432 </span>            : 
+<span class="lineNum">     433 </span>            :         //32-align field with 0
+<span class="lineNum">     434 </span><span class="lineCov">         11 :         gf_bs_write_int(bs, 0, 8*padd);</span>
+<span class="lineNum">     435 </span><span class="lineCov">         11 :         return (length + 1)*4;</span>
+<span class="lineNum">     436 </span>            : }
+<a name="437"><span class="lineNum">     437 </span>            : </a>
+<span class="lineNum">     438 </span>            : 
+<span class="lineNum">     439 </span>            : static u32 RTCP_FormatBYE(GF_RTPChannel *ch, GF_BitStream *bs)
+<span class="lineNum">     440 </span>            : {
+<span class="lineNum">     441 </span>            :         //version
+<span class="lineNum">     442 </span><span class="lineNoCov">          0 :         gf_bs_write_int(bs, 2, 2);</span>
+<span class="lineNum">     443 </span>            :         //no padding
+<span class="lineNum">     444 </span><span class="lineNoCov">          0 :         gf_bs_write_int(bs, 0, 1);</span>
+<span class="lineNum">     445 </span>            :         //count - only one for now
+<span class="lineNum">     446 </span><span class="lineNoCov">          0 :         gf_bs_write_int(bs, 1, 5);</span>
+<span class="lineNum">     447 </span>            :         //type=BYE
+<span class="lineNum">     448 </span><span class="lineNoCov">          0 :         gf_bs_write_u8(bs, 203);</span>
+<span class="lineNum">     449 </span>            :         //length = (num of 32bit words in full pck) - 1
+<span class="lineNum">     450 </span><span class="lineNoCov">          0 :         gf_bs_write_u16(bs, 1);</span>
+<span class="lineNum">     451 </span>            : 
+<span class="lineNum">     452 </span>            :         //sender SSRC
+<span class="lineNum">     453 </span><span class="lineNoCov">          0 :         gf_bs_write_u32(bs, ch-&gt;SSRC);</span>
+<span class="lineNum">     454 </span><span class="lineNoCov">          0 :         return 8;</span>
+<span class="lineNum">     455 </span>            : }
+<a name="456"><span class="lineNum">     456 </span>            : </a>
+<span class="lineNum">     457 </span>            : GF_EXPORT
+<span class="lineNum">     458 </span>            : GF_Err gf_rtp_send_bye(GF_RTPChannel *ch,
+<span class="lineNum">     459 </span>            :                        GF_Err (*RTP_TCPCallback)(void *cbk, char *pck, u32 pck_size),
+<span class="lineNum">     460 </span>            :                        void *rtsp_cbk)
+<span class="lineNum">     461 </span>            : {
+<span class="lineNum">     462 </span>            :         GF_BitStream *bs;
+<span class="lineNum">     463 </span><span class="lineNoCov">          0 :         u32 report_size;</span>
+<span class="lineNum">     464 </span><span class="lineNoCov">          0 :         char *report_buf;</span>
+<span class="lineNum">     465 </span>            :         GF_Err e = GF_OK;
+<span class="lineNum">     466 </span>            : 
+<span class="lineNum">     467 </span><span class="lineNoCov">          0 :         bs = gf_bs_new(NULL, 0, GF_BITSTREAM_WRITE);</span>
+<span class="lineNum">     468 </span>            : 
+<span class="lineNum">     469 </span>            :         /*k were received/sent send the RR/SR - note we don't wait for next Repor and force its emission now*/
+<span class="lineNum">     470 </span><span class="lineNoCov">          0 :         if (ch-&gt;last_num_pck_rcv || ch-&gt;pck_sent_since_last_sr) {</span>
+<span class="lineNum">     471 </span><span class="lineNoCov">          0 :                 RTCP_FormatReport(ch, bs, gf_rtp_get_report_time());</span>
+<span class="lineNum">     472 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     473 </span>            : 
+<span class="lineNum">     474 </span>            :         //always send SDES (CNAME shall be sent at each RTCP)
+<span class="lineNum">     475 </span><span class="lineNoCov">          0 :         RTCP_FormatSDES(ch, bs);</span>
+<span class="lineNum">     476 </span>            : 
+<span class="lineNum">     477 </span>            :         //send BYE
+<span class="lineNum">     478 </span><span class="lineNoCov">          0 :         RTCP_FormatBYE(ch, bs);</span>
+<span class="lineNum">     479 </span>            : 
+<span class="lineNum">     480 </span>            : 
+<span class="lineNum">     481 </span><span class="lineNoCov">          0 :         report_buf = NULL;</span>
+<span class="lineNum">     482 </span><span class="lineNoCov">          0 :         report_size = 0;</span>
+<span class="lineNum">     483 </span><span class="lineNoCov">          0 :         gf_bs_get_content(bs, &amp;report_buf, &amp;report_size);</span>
+<span class="lineNum">     484 </span><span class="lineNoCov">          0 :         gf_bs_del(bs);</span>
+<span class="lineNum">     485 </span>            : 
+<span class="lineNum">     486 </span><span class="lineNoCov">          0 :         if (ch-&gt;rtcp) {</span>
+<span class="lineNum">     487 </span><span class="lineNoCov">          0 :                 e = gf_sk_send(ch-&gt;rtcp, report_buf, report_size);</span>
+<span class="lineNum">     488 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     489 </span><span class="lineNoCov">          0 :                 if (RTP_TCPCallback)</span>
+<span class="lineNum">     490 </span><span class="lineNoCov">          0 :                         e = RTP_TCPCallback(rtsp_cbk, report_buf, report_size);</span>
+<span class="lineNum">     491 </span>            :                 else
+<span class="lineNum">     492 </span>            :                         e = GF_BAD_PARAM;
+<span class="lineNum">     493 </span>            :         }
+<span class="lineNum">     494 </span><span class="lineNoCov">          0 :         gf_free(report_buf);</span>
+<span class="lineNum">     495 </span><span class="lineNoCov">          0 :         return e;</span>
+<span class="lineNum">     496 </span><span class="lineNoCov">          0 : }</span>
+<a name="497"><span class="lineNum">     497 </span>            : </a>
+<span class="lineNum">     498 </span>            : GF_EXPORT
+<span class="lineNum">     499 </span>            : GF_Err gf_rtp_send_rtcp_report(GF_RTPChannel *ch,
+<span class="lineNum">     500 </span>            :                                GF_Err (*RTP_TCPCallback)(void *cbk, char *pck, u32 pck_size),
+<span class="lineNum">     501 </span>            :                                void *rtsp_cbk)
+<span class="lineNum">     502 </span>            : {
+<span class="lineNum">     503 </span><span class="lineCov">       1948 :         u32 Time, report_size;</span>
+<span class="lineNum">     504 </span>            :         GF_BitStream *bs;
+<span class="lineNum">     505 </span><span class="lineCov">        974 :         char *report_buf;</span>
+<span class="lineNum">     506 </span>            :         GF_Err e = GF_OK;
+<span class="lineNum">     507 </span>            : 
+<span class="lineNum">     508 </span>            :         /*skip first SR when acting as a receiver*/
+<span class="lineNum">     509 </span><span class="lineCov">        974 :         if (!ch-&gt;forced_ntp_sec &amp;&amp; ch-&gt;first_SR) return GF_OK;</span>
+<span class="lineNum">     510 </span><span class="lineCov">        974 :         Time = gf_rtp_get_report_time();</span>
+<span class="lineNum">     511 </span><span class="lineCov">       1937 :         if ( Time &lt; ch-&gt;next_report_time) return GF_OK;</span>
+<span class="lineNum">     512 </span>            : 
+<span class="lineNum">     513 </span><span class="lineCov">         11 :         bs = gf_bs_new(NULL, 0, GF_BITSTREAM_WRITE);</span>
+<span class="lineNum">     514 </span>            : 
+<span class="lineNum">     515 </span>            :         //pck were received/sent send the RR/SR
+<span class="lineNum">     516 </span><span class="lineCov">         28 :         if (ch-&gt;last_num_pck_rcv || ch-&gt;pck_sent_since_last_sr || ch-&gt;forced_ntp_sec) {</span>
+<span class="lineNum">     517 </span><span class="lineCov">         11 :                 RTCP_FormatReport(ch, bs, Time);</span>
+<span class="lineNum">     518 </span><span class="lineCov">         11 :         }</span>
+<span class="lineNum">     519 </span>            : 
+<span class="lineNum">     520 </span>            :         //always send SDES (CNAME shall be sent at each RTCP)
+<span class="lineNum">     521 </span><span class="lineCov">         11 :         RTCP_FormatSDES(ch, bs);</span>
+<span class="lineNum">     522 </span>            : 
+<span class="lineNum">     523 </span>            : 
+<span class="lineNum">     524 </span>            :         //get content
+<span class="lineNum">     525 </span><span class="lineCov">         11 :         report_buf = NULL;</span>
+<span class="lineNum">     526 </span><span class="lineCov">         11 :         report_size = 0;</span>
+<span class="lineNum">     527 </span><span class="lineCov">         11 :         gf_bs_get_content(bs, &amp;report_buf, &amp;report_size);</span>
+<span class="lineNum">     528 </span><span class="lineCov">         11 :         gf_bs_del(bs);</span>
+<span class="lineNum">     529 </span>            : 
+<span class="lineNum">     530 </span>            : 
+<span class="lineNum">     531 </span><span class="lineCov">         11 :         if (ch-&gt;rtcp) {</span>
+<span class="lineNum">     532 </span><span class="lineCov">         11 :                 e = gf_sk_send(ch-&gt;rtcp, report_buf, report_size);</span>
+<span class="lineNum">     533 </span><span class="lineCov">         11 :         } else {</span>
+<span class="lineNum">     534 </span><span class="lineNoCov">          0 :                 if (RTP_TCPCallback)</span>
+<span class="lineNum">     535 </span><span class="lineNoCov">          0 :                         e = RTP_TCPCallback(rtsp_cbk, report_buf, report_size);</span>
+<span class="lineNum">     536 </span>            :                 else
+<span class="lineNum">     537 </span>            :                         e = GF_BAD_PARAM;
+<span class="lineNum">     538 </span>            :         }
+<span class="lineNum">     539 </span>            : 
+<span class="lineNum">     540 </span><span class="lineCov">         11 :         ch-&gt;rtcp_bytes_sent += report_size;</span>
+<span class="lineNum">     541 </span>            : 
+<span class="lineNum">     542 </span><span class="lineCov">         11 :         gf_free(report_buf);</span>
+<span class="lineNum">     543 </span>            : 
+<span class="lineNum">     544 </span><span class="lineCov">         11 :         if (!e) {</span>
+<span class="lineNum">     545 </span>            :                 //Update the channel record if no error - otherwise next RTCP will triger an RR
+<span class="lineNum">     546 </span><span class="lineCov">         11 :                 ch-&gt;last_num_pck_rcv = ch-&gt;last_num_pck_expected = ch-&gt;last_num_pck_loss = 0;</span>
+<span class="lineNum">     547 </span><span class="lineCov">         11 :                 GF_LOG(GF_LOG_DEBUG, GF_LOG_RTP, (&quot;[RTCP] SSRC %d: sending RTCP report\n&quot;, ch-&gt;SSRC));</span>
+<span class="lineNum">     548 </span>            :         }
+<span class="lineNum">     549 </span>            :         else {
+<span class="lineNum">     550 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_DEBUG, GF_LOG_RTP, (&quot;[RTCP] SSRC %d: error when sending RTCP report\n&quot;, ch-&gt;SSRC));</span>
+<span class="lineNum">     551 </span>            :         }
+<span class="lineNum">     552 </span><span class="lineCov">         11 :         gf_rtp_get_next_report_time(ch);</span>
+<span class="lineNum">     553 </span><span class="lineCov">         11 :         return e;</span>
+<span class="lineNum">     554 </span><span class="lineCov">        974 : }</span>
+<span class="lineNum">     555 </span>            : 
+<span class="lineNum">     556 </span>            : 
+<span class="lineNum">     557 </span>            : 
+<span class="lineNum">     558 </span>            : #define RTCP_SAFE_FREE(p) if (p) gf_free(p);    \
+<span class="lineNum">     559 </span>            :                                         p = NULL;
+<a name="560"><span class="lineNum">     560 </span>            : </a>
+<span class="lineNum">     561 </span>            : GF_EXPORT
+<span class="lineNum">     562 </span>            : GF_Err gf_rtp_set_info_rtcp(GF_RTPChannel *ch, u32 InfoCode, char *info_string)
+<span class="lineNum">     563 </span>            : {
+<span class="lineNum">     564 </span><span class="lineNoCov">          0 :         if (!ch) return GF_BAD_PARAM;</span>
+<span class="lineNum">     565 </span>            : 
+<span class="lineNum">     566 </span><span class="lineNoCov">          0 :         switch (InfoCode) {</span>
+<span class="lineNum">     567 </span>            :         case GF_RTCP_INFO_NAME:
+<span class="lineNum">     568 </span><span class="lineNoCov">          0 :                 RTCP_SAFE_FREE(ch-&gt;s_name);</span>
+<span class="lineNum">     569 </span><span class="lineNoCov">          0 :                 if (info_string) ch-&gt;s_name = gf_strdup(info_string);</span>
+<span class="lineNum">     570 </span>            :                 break;
+<span class="lineNum">     571 </span>            :         case GF_RTCP_INFO_EMAIL:
+<span class="lineNum">     572 </span><span class="lineNoCov">          0 :                 RTCP_SAFE_FREE(ch-&gt;s_email);</span>
+<span class="lineNum">     573 </span><span class="lineNoCov">          0 :                 if (info_string) ch-&gt;s_email = gf_strdup(info_string);</span>
+<span class="lineNum">     574 </span>            :                 break;
+<span class="lineNum">     575 </span>            :         case GF_RTCP_INFO_PHONE:
+<span class="lineNum">     576 </span><span class="lineNoCov">          0 :                 RTCP_SAFE_FREE(ch-&gt;s_phone);</span>
+<span class="lineNum">     577 </span><span class="lineNoCov">          0 :                 if (info_string) ch-&gt;s_phone = gf_strdup(info_string);</span>
+<span class="lineNum">     578 </span>            :                 break;
+<span class="lineNum">     579 </span>            :         case GF_RTCP_INFO_LOCATION:
+<span class="lineNum">     580 </span><span class="lineNoCov">          0 :                 RTCP_SAFE_FREE(ch-&gt;s_location);</span>
+<span class="lineNum">     581 </span><span class="lineNoCov">          0 :                 if (info_string) ch-&gt;s_location = gf_strdup(info_string);</span>
+<span class="lineNum">     582 </span>            :                 break;
+<span class="lineNum">     583 </span>            :         case GF_RTCP_INFO_TOOL:
+<span class="lineNum">     584 </span><span class="lineNoCov">          0 :                 RTCP_SAFE_FREE(ch-&gt;s_tool);</span>
+<span class="lineNum">     585 </span><span class="lineNoCov">          0 :                 if (info_string) ch-&gt;s_tool = gf_strdup(info_string);</span>
+<span class="lineNum">     586 </span>            :                 break;
+<span class="lineNum">     587 </span>            :         case GF_RTCP_INFO_NOTE:
+<span class="lineNum">     588 </span><span class="lineNoCov">          0 :                 RTCP_SAFE_FREE(ch-&gt;s_note);</span>
+<span class="lineNum">     589 </span><span class="lineNoCov">          0 :                 if (info_string) ch-&gt;s_note = gf_strdup(info_string);</span>
+<span class="lineNum">     590 </span>            :                 break;
+<span class="lineNum">     591 </span>            :         case GF_RTCP_INFO_PRIV:
+<span class="lineNum">     592 </span><span class="lineNoCov">          0 :                 RTCP_SAFE_FREE(ch-&gt;s_priv);</span>
+<span class="lineNum">     593 </span><span class="lineNoCov">          0 :                 if (info_string) ch-&gt;s_name = gf_strdup(info_string);</span>
+<span class="lineNum">     594 </span>            :                 break;
+<span class="lineNum">     595 </span>            :         default:
+<span class="lineNum">     596 </span><span class="lineNoCov">          0 :                 return GF_BAD_PARAM;</span>
+<span class="lineNum">     597 </span>            :         }
+<span class="lineNum">     598 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">     599 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     600 </span>            : 
+<span class="lineNum">     601 </span>            : #endif /*GPAC_DISABLE_STREAMING*/
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

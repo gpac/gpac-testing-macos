@@ -1,0 +1,7 @@
+*** NHMLSubs logs (GPAC version 0.6.2-DEV-revUNKNOWN-HEAD ) - test date 14/05/2017 22:29:15 ***
+
+
+*** Subtest "create-nhml_ttml": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/media/ttml/ttml.nhml -new /Users/travis/build/gpac/gpac/tests/results/temp/nhml_ttml.mp4" ***
+[33mCannot find NHML file /Users/travis/build/gpac/gpac/tests/media/ttml/ttml.nhml
+[0mError importing /Users/travis/build/gpac/gpac/tests/media/ttml/ttml.nhml: Requested URL is not valid or cannot be found
+

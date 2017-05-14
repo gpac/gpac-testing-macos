@@ -1,0 +1,523 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - compositor/svg_filters.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">compositor</a> - svg_filters.c<span style="font-size: 80%;"> (source / <a href="svg_filters.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">246</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-05-14 22:31:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *                      GPAC - Multimedia Framework C SDK
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *                      Authors: Jean le Feuvre
+<span class="lineNum">       5 </span>            :  *                      Copyright (c) Telecom ParisTech 2005-2012
+<span class="lineNum">       6 </span>            :  *                                      All rights reserved
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  *  This file is part of GPAC / Scene Compositor sub-project
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  *  GPAC is free software; you can redistribute it and/or modify
+<span class="lineNum">      11 </span>            :  *  it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">      12 </span>            :  *  the Free Software Foundation; either version 2, or (at your option)
+<span class="lineNum">      13 </span>            :  *  any later version.
+<span class="lineNum">      14 </span>            :  *
+<span class="lineNum">      15 </span>            :  *  GPAC is distributed in the hope that it will be useful,
+<span class="lineNum">      16 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      17 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      18 </span>            :  *  GNU Lesser General Public License for more details.
+<span class="lineNum">      19 </span>            :  *
+<span class="lineNum">      20 </span>            :  *  You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      21 </span>            :  *  License along with this library; see the file COPYING.  If not, write to
+<span class="lineNum">      22 </span>            :  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+<span class="lineNum">      23 </span>            :  *
+<span class="lineNum">      24 </span>            :  */
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : #include &quot;visual_manager.h&quot;
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span>            : #ifndef GPAC_DISABLE_SVG
+<span class="lineNum">      29 </span>            : #include &quot;nodes_stacks.h&quot;
+<span class="lineNum">      30 </span>            : #include &quot;texturing.h&quot;
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            : typedef struct
+<span class="lineNum">      33 </span>            : {
+<span class="lineNum">      34 </span>            :         GF_TextureHandler txh;
+<span class="lineNum">      35 </span>            :         Drawable *drawable;
+<span class="lineNum">      36 </span>            :         u8 *data;
+<span class="lineNum">      37 </span>            :         u32 alloc_size;
+<span class="lineNum">      38 </span>            : } GF_FilterStack;
+<span class="lineNum">      39 </span>            : 
+<a name="40"><span class="lineNum">      40 </span>            : </a>
+<span class="lineNum">      41 </span>            : 
+<span class="lineNum">      42 </span>            : void apply_feComponentTransfer(GF_Node *node, GF_TextureHandler *source, GF_Rect *region)
+<span class="lineNum">      43 </span>            : {
+<span class="lineNum">      44 </span><span class="lineNoCov">          0 :         GF_ChildNodeItem *l = ((GF_ParentNode*)node)-&gt;children;</span>
+<span class="lineNum">      45 </span><span class="lineNoCov">          0 :         while (l) {</span>
+<span class="lineNum">      46 </span>            :                 SVG_Filter_TransferType type = SVG_FILTER_TRANSFER_IDENTITY;
+<span class="lineNum">      47 </span>            :                 u32 i, j;
+<span class="lineNum">      48 </span>            :                 GF_List *table = NULL;
+<span class="lineNum">      49 </span>            :                 Fixed slope = FIX_ONE;
+<span class="lineNum">      50 </span>            :                 Fixed intercept = 0;
+<span class="lineNum">      51 </span>            :                 Fixed amplitude = 1;
+<span class="lineNum">      52 </span>            :                 Fixed exponent = 1;
+<span class="lineNum">      53 </span>            :                 Fixed offset = 0;
+<span class="lineNum">      54 </span>            :                 char *ptr = NULL;
+<span class="lineNum">      55 </span>            :                 /*FIXME: unused u32 tag = gf_node_get_tag(l-&gt;node);*/
+<span class="lineNum">      56 </span><span class="lineNoCov">          0 :                 GF_DOMAttribute *att = ((SVG_Element *)l-&gt;node)-&gt;attributes;</span>
+<span class="lineNum">      57 </span>            : 
+<span class="lineNum">      58 </span><span class="lineNoCov">          0 :                 while (att) {</span>
+<span class="lineNum">      59 </span><span class="lineNoCov">          0 :                         switch (att-&gt;tag) {</span>
+<span class="lineNum">      60 </span>            :                         case TAG_SVG_ATT_filter_transfer_type:
+<span class="lineNum">      61 </span><span class="lineNoCov">          0 :                                 type = *(u8*)att-&gt;data;</span>
+<span class="lineNum">      62 </span><span class="lineNoCov">          0 :                                 break;</span>
+<span class="lineNum">      63 </span>            :                         case TAG_SVG_ATT_filter_table_values:
+<span class="lineNum">      64 </span><span class="lineNoCov">          0 :                                 table = *(GF_List **)att-&gt;data;</span>
+<span class="lineNum">      65 </span><span class="lineNoCov">          0 :                                 break;</span>
+<span class="lineNum">      66 </span>            :                         case TAG_SVG_ATT_slope:
+<span class="lineNum">      67 </span><span class="lineNoCov">          0 :                                 slope = ((SVG_Number *)att-&gt;data)-&gt;value;</span>
+<span class="lineNum">      68 </span><span class="lineNoCov">          0 :                                 break;</span>
+<span class="lineNum">      69 </span>            :                         case TAG_SVG_ATT_filter_intercept:
+<span class="lineNum">      70 </span><span class="lineNoCov">          0 :                                 intercept = ((SVG_Number *)att-&gt;data)-&gt;value;</span>
+<span class="lineNum">      71 </span><span class="lineNoCov">          0 :                                 break;</span>
+<span class="lineNum">      72 </span>            :                         case TAG_SVG_ATT_filter_amplitude:
+<span class="lineNum">      73 </span><span class="lineNoCov">          0 :                                 amplitude = ((SVG_Number *)att-&gt;data)-&gt;value;</span>
+<span class="lineNum">      74 </span><span class="lineNoCov">          0 :                                 break;</span>
+<span class="lineNum">      75 </span>            :                         case TAG_SVG_ATT_filter_exponent:
+<span class="lineNum">      76 </span><span class="lineNoCov">          0 :                                 exponent = ((SVG_Number *)att-&gt;data)-&gt;value;</span>
+<span class="lineNum">      77 </span><span class="lineNoCov">          0 :                                 break;</span>
+<span class="lineNum">      78 </span>            :                         case TAG_SVG_ATT_offset:
+<span class="lineNum">      79 </span><span class="lineNoCov">          0 :                                 offset = ((SVG_Number *)att-&gt;data)-&gt;value;</span>
+<span class="lineNum">      80 </span><span class="lineNoCov">          0 :                                 break;</span>
+<span class="lineNum">      81 </span>            :                         }
+<span class="lineNum">      82 </span><span class="lineNoCov">          0 :                         att = att-&gt;next;</span>
+<span class="lineNum">      83 </span>            :                 }
+<span class="lineNum">      84 </span><span class="lineNoCov">          0 :                 if (type==SVG_FILTER_TRANSFER_IDENTITY) {</span>
+<span class="lineNum">      85 </span><span class="lineNoCov">          0 :                         l = l-&gt;next;</span>
+<span class="lineNum">      86 </span><span class="lineNoCov">          0 :                         continue;</span>
+<span class="lineNum">      87 </span>            :                 }
+<span class="lineNum">      88 </span><span class="lineNoCov">          0 :                 switch (gf_node_get_tag(l-&gt;node)) {</span>
+<span class="lineNum">      89 </span>            :                 case TAG_SVG_feFuncR:
+<span class="lineNum">      90 </span><span class="lineNoCov">          0 :                         if (source-&gt;pixelformat==GF_PIXEL_RGBA) ptr = source-&gt;data;</span>
+<span class="lineNum">      91 </span><span class="lineNoCov">          0 :                         else ptr = source-&gt;data+2;</span>
+<span class="lineNum">      92 </span>            :                         break;
+<span class="lineNum">      93 </span>            :                 case TAG_SVG_feFuncG:
+<span class="lineNum">      94 </span><span class="lineNoCov">          0 :                         if (source-&gt;pixelformat==GF_PIXEL_RGBA) ptr = source-&gt;data+1;</span>
+<span class="lineNum">      95 </span>            :                         else ptr = source-&gt;data+1;
+<span class="lineNum">      96 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">      97 </span>            :                 case TAG_SVG_feFuncB:
+<span class="lineNum">      98 </span><span class="lineNoCov">          0 :                         if (source-&gt;pixelformat==GF_PIXEL_RGBA) ptr = source-&gt;data+2;</span>
+<span class="lineNum">      99 </span>            :                         else ptr = source-&gt;data;
+<span class="lineNum">     100 </span>            :                         break;
+<span class="lineNum">     101 </span>            :                 case TAG_SVG_feFuncA:
+<span class="lineNum">     102 </span><span class="lineNoCov">          0 :                         if (source-&gt;pixelformat==GF_PIXEL_RGBA) ptr = source-&gt;data+3;</span>
+<span class="lineNum">     103 </span>            :                         else ptr = source-&gt;data+3;
+<span class="lineNum">     104 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     105 </span>            :                 }
+<span class="lineNum">     106 </span>            : 
+<span class="lineNum">     107 </span><span class="lineNoCov">          0 :                 if ((type==SVG_FILTER_TRANSFER_LINEAR) &amp;&amp; (intercept || (slope!=FIX_ONE)) ) {</span>
+<span class="lineNum">     108 </span><span class="lineNoCov">          0 :                         intercept *= 255;</span>
+<span class="lineNum">     109 </span>            :                         assert( ptr );
+<span class="lineNum">     110 </span><span class="lineNoCov">          0 :                         for (i=0; i&lt;source-&gt;height; i++) {</span>
+<span class="lineNum">     111 </span><span class="lineNoCov">          0 :                                 for (j=0; j&lt;source-&gt;width; j++) {</span>
+<span class="lineNum">     112 </span><span class="lineNoCov">          0 :                                         Fixed p = (*ptr) * slope + intercept;</span>
+<span class="lineNum">     113 </span><span class="lineNoCov">          0 :                                         ptr[0] = (u8) MIN(MAX(0, p), 255);</span>
+<span class="lineNum">     114 </span><span class="lineNoCov">          0 :                                         ptr += 4;</span>
+<span class="lineNum">     115 </span>            :                                 }
+<span class="lineNum">     116 </span>            :                         }
+<span class="lineNum">     117 </span><span class="lineNoCov">          0 :                 } else if (type==SVG_FILTER_TRANSFER_GAMMA) {</span>
+<span class="lineNum">     118 </span>            :                         assert( ptr );
+<span class="lineNum">     119 </span><span class="lineNoCov">          0 :                         for (i=0; i&lt;source-&gt;height; i++) {</span>
+<span class="lineNum">     120 </span><span class="lineNoCov">          0 :                                 for (j=0; j&lt;source-&gt;width; j++) {</span>
+<span class="lineNum">     121 </span><span class="lineNoCov">          0 :                                         Fixed p = 255 * gf_mulfix(amplitude,  FLT2FIX( pow( INT2FIX(*ptr)/255, FIX2FLT(exponent) ) ) ) + offset;</span>
+<span class="lineNum">     122 </span><span class="lineNoCov">          0 :                                         ptr[0] = (u8) MIN(MAX(0, p), 255);</span>
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 :                                         ptr += 4;</span>
+<span class="lineNum">     124 </span>            :                                 }
+<span class="lineNum">     125 </span>            :                         }
+<span class="lineNum">     126 </span><span class="lineNoCov">          0 :                 } else if ((type==SVG_FILTER_TRANSFER_TABLE) &amp;&amp; table &amp;&amp; (gf_list_count(table)&gt;=2) ) {</span>
+<span class="lineNum">     127 </span><span class="lineNoCov">          0 :                         u32 count = gf_list_count(table);</span>
+<span class="lineNum">     128 </span><span class="lineNoCov">          0 :                         u32 N = count-1;</span>
+<span class="lineNum">     129 </span>            :                         assert( ptr );
+<span class="lineNum">     130 </span><span class="lineNoCov">          0 :                         for (i=0; i&lt;source-&gt;height; i++) {</span>
+<span class="lineNum">     131 </span><span class="lineNoCov">          0 :                                 for (j=0; j&lt;source-&gt;width; j++) {</span>
+<span class="lineNum">     132 </span>            :                                         SVG_Number *vk, *vk1;
+<span class="lineNum">     133 </span><span class="lineNoCov">          0 :                                         Fixed p = INT2FIX(ptr[0]) / 255;</span>
+<span class="lineNum">     134 </span><span class="lineNoCov">          0 :                                         Fixed pN = p*N;</span>
+<span class="lineNum">     135 </span><span class="lineNoCov">          0 :                                         u32 k = FIX2INT(p*N);</span>
+<span class="lineNum">     136 </span><span class="lineNoCov">          0 :                                         if (k==N) k--;</span>
+<span class="lineNum">     137 </span><span class="lineNoCov">          0 :                                         vk = gf_list_get(table, k);</span>
+<span class="lineNum">     138 </span><span class="lineNoCov">          0 :                                         vk1 = gf_list_get(table, k+1);</span>
+<span class="lineNum">     139 </span><span class="lineNoCov">          0 :                                         p = 255 * ( vk-&gt;value + gf_mulfix( pN - INT2FIX(k), (vk1-&gt;value - vk-&gt;value)) );</span>
+<span class="lineNum">     140 </span><span class="lineNoCov">          0 :                                         ptr[0] = (u8) MIN(MAX(0, p), 255);</span>
+<span class="lineNum">     141 </span><span class="lineNoCov">          0 :                                         ptr += 4;</span>
+<span class="lineNum">     142 </span>            :                                 }
+<span class="lineNum">     143 </span>            :                         }
+<span class="lineNum">     144 </span><span class="lineNoCov">          0 :                 } else if ((type==SVG_FILTER_TRANSFER_DISCRETE) &amp;&amp; table &amp;&amp; gf_list_count(table) ) {</span>
+<span class="lineNum">     145 </span><span class="lineNoCov">          0 :                         u32 count = gf_list_count(table);</span>
+<span class="lineNum">     146 </span>            :                         assert( ptr );
+<span class="lineNum">     147 </span><span class="lineNoCov">          0 :                         for (i=0; i&lt;source-&gt;height; i++) {</span>
+<span class="lineNum">     148 </span><span class="lineNoCov">          0 :                                 for (j=0; j&lt;source-&gt;width; j++) {</span>
+<span class="lineNum">     149 </span>            :                                         SVG_Number *vk;
+<span class="lineNum">     150 </span><span class="lineNoCov">          0 :                                         Fixed p = INT2FIX(ptr[0]) / 255;</span>
+<span class="lineNum">     151 </span><span class="lineNoCov">          0 :                                         Fixed pN = p*count;</span>
+<span class="lineNum">     152 </span>            :                                         u32 k = 0;
+<span class="lineNum">     153 </span><span class="lineNoCov">          0 :                                         while (k&lt;count) {</span>
+<span class="lineNum">     154 </span><span class="lineNoCov">          0 :                                                 if ((s32)k+1&gt;pN) break;</span>
+<span class="lineNum">     155 </span><span class="lineNoCov">          0 :                                                 k++;</span>
+<span class="lineNum">     156 </span>            :                                         }
+<span class="lineNum">     157 </span><span class="lineNoCov">          0 :                                         if (k) k--;</span>
+<span class="lineNum">     158 </span><span class="lineNoCov">          0 :                                         vk = gf_list_get(table, k);</span>
+<span class="lineNum">     159 </span><span class="lineNoCov">          0 :                                         p = 255 * vk-&gt;value;</span>
+<span class="lineNum">     160 </span><span class="lineNoCov">          0 :                                         ptr[0] = (u8) MIN(MAX(0, p), 255);</span>
+<span class="lineNum">     161 </span><span class="lineNoCov">          0 :                                         ptr += 4;</span>
+<span class="lineNum">     162 </span>            :                                 }
+<span class="lineNum">     163 </span>            :                         }
+<span class="lineNum">     164 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     165 </span><span class="lineNoCov">          0 :                 l = l-&gt;next;</span>
+<span class="lineNum">     166 </span><span class="lineNoCov">          0 :         }</span>
+<a name="167"><span class="lineNum">     167 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     168 </span>            : 
+<span class="lineNum">     169 </span>            : void svg_filter_apply(GF_Node *node, GF_TextureHandler *source, GF_Rect *region)
+<span class="lineNum">     170 </span>            : {
+<span class="lineNum">     171 </span><span class="lineNoCov">          0 :         GF_ChildNodeItem *l = ((GF_ParentNode*)node)-&gt;children;</span>
+<span class="lineNum">     172 </span>            : 
+<span class="lineNum">     173 </span><span class="lineNoCov">          0 :         while (l) {</span>
+<span class="lineNum">     174 </span><span class="lineNoCov">          0 :                 switch (gf_node_get_tag(l-&gt;node)) {</span>
+<span class="lineNum">     175 </span>            :                 case TAG_SVG_feComponentTransfer:
+<span class="lineNum">     176 </span><span class="lineNoCov">          0 :                         apply_feComponentTransfer(l-&gt;node, source, region);</span>
+<span class="lineNum">     177 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     178 </span>            :                 }
+<span class="lineNum">     179 </span><span class="lineNoCov">          0 :                 l = l-&gt;next;</span>
+<span class="lineNum">     180 </span>            :         }
+<span class="lineNum">     181 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     182 </span>            : 
+<span class="lineNum">     183 </span>            : /*
+<span class="lineNum">     184 </span>            :         This is a crude draft implementation of filter. The main drawback is that we don't cache any data.
+<a name="185"><span class="lineNum">     185 </span>            :         We should be able to check for changes in the sub-group or in the filter</a>
+<span class="lineNum">     186 </span>            : */
+<span class="lineNum">     187 </span>            : void svg_draw_filter(GF_Node *filter, GF_Node *node, GF_TraverseState *tr_state)
+<span class="lineNum">     188 </span>            : {
+<span class="lineNum">     189 </span><span class="lineNoCov">          0 :         GF_IRect rc1, rc2;</span>
+<span class="lineNum">     190 </span>            : 
+<span class="lineNum">     191 </span>            : #ifndef GPAC_DISABLE_3D
+<span class="lineNum">     192 </span>            :         u32 type_3d;
+<span class="lineNum">     193 </span>            : #endif
+<span class="lineNum">     194 </span>            :         u32 prev_flags;
+<span class="lineNum">     195 </span><span class="lineNoCov">          0 :         GF_IRect txrc;</span>
+<span class="lineNum">     196 </span>            :         Fixed scale_x, scale_y, temp_x, temp_y;
+<span class="lineNum">     197 </span>            :         DrawableContext *ctx, *child_ctx;
+<span class="lineNum">     198 </span>            :         GF_SURFACE offscreen_surface, old_surf;
+<span class="lineNum">     199 </span><span class="lineNoCov">          0 :         GF_Rect bounds, local_bounds, rc;</span>
+<span class="lineNum">     200 </span><span class="lineNoCov">          0 :         GF_Matrix2D backup;</span>
+<span class="lineNum">     201 </span><span class="lineNoCov">          0 :         SVGAllAttributes all_atts;</span>
+<span class="lineNum">     202 </span><span class="lineNoCov">          0 :         GF_FilterStack *st = gf_node_get_private(filter);</span>
+<span class="lineNum">     203 </span>            :         assert(tr_state-&gt;traversing_mode==TRAVERSE_SORT);
+<span class="lineNum">     204 </span>            : 
+<span class="lineNum">     205 </span>            :         /*store the current transform matrix, create a new one for group_cache*/
+<span class="lineNum">     206 </span><span class="lineNoCov">          0 :         gf_mx2d_copy(backup, tr_state-&gt;transform);</span>
+<span class="lineNum">     207 </span><span class="lineNoCov">          0 :         gf_mx2d_init(tr_state-&gt;transform);</span>
+<span class="lineNum">     208 </span>            : 
+<span class="lineNum">     209 </span><span class="lineNoCov">          0 :         gf_node_allow_cyclic_traverse(node);</span>
+<span class="lineNum">     210 </span><span class="lineNoCov">          0 :         tr_state-&gt;traversing_mode = TRAVERSE_GET_BOUNDS;</span>
+<span class="lineNum">     211 </span><span class="lineNoCov">          0 :         tr_state-&gt;bounds.width = tr_state-&gt;bounds.height = 0;</span>
+<span class="lineNum">     212 </span><span class="lineNoCov">          0 :         gf_node_traverse(node, tr_state);</span>
+<span class="lineNum">     213 </span>            : 
+<span class="lineNum">     214 </span><span class="lineNoCov">          0 :         local_bounds = bounds = tr_state-&gt;bounds;</span>
+<span class="lineNum">     215 </span>            :         /*compute bounds in final coordinate system - this ensures that the cache has the correct anti aliasing*/
+<span class="lineNum">     216 </span><span class="lineNoCov">          0 :         gf_mx2d_apply_rect(&amp;backup, &amp;bounds);</span>
+<span class="lineNum">     217 </span><span class="lineNoCov">          0 :         txrc = gf_rect_pixelize(&amp;bounds);</span>
+<span class="lineNum">     218 </span><span class="lineNoCov">          0 :         if (txrc.width%2) txrc.width++;</span>
+<span class="lineNum">     219 </span><span class="lineNoCov">          0 :         if (txrc.height%2) txrc.height++;</span>
+<span class="lineNum">     220 </span><span class="lineNoCov">          0 :         bounds = gf_rect_ft(&amp;txrc);</span>
+<span class="lineNum">     221 </span>            : 
+<span class="lineNum">     222 </span><span class="lineNoCov">          0 :         tr_state-&gt;traversing_mode = TRAVERSE_SORT;</span>
+<span class="lineNum">     223 </span>            : 
+<span class="lineNum">     224 </span><span class="lineNoCov">          0 :         gf_mx2d_copy(tr_state-&gt;transform, backup);</span>
+<span class="lineNum">     225 </span>            : 
+<span class="lineNum">     226 </span><span class="lineNoCov">          0 :         if (!bounds.width || !bounds.height) {</span>
+<span class="lineNum">     227 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     228 </span>            :         }
+<span class="lineNum">     229 </span>            : 
+<span class="lineNum">     230 </span>            :         /*create a context */
+<span class="lineNum">     231 </span><span class="lineNoCov">          0 :         ctx = drawable_init_context_svg(st-&gt;drawable, tr_state);</span>
+<span class="lineNum">     232 </span><span class="lineNoCov">          0 :         if (!ctx) return;</span>
+<span class="lineNum">     233 </span>            : 
+<span class="lineNum">     234 </span>            :         /*setup texture */
+<span class="lineNum">     235 </span><span class="lineNoCov">          0 :         st-&gt;txh.height = txrc.height;</span>
+<span class="lineNum">     236 </span><span class="lineNoCov">          0 :         st-&gt;txh.width = txrc.width;</span>
+<span class="lineNum">     237 </span>            : 
+<span class="lineNum">     238 </span><span class="lineNoCov">          0 :         st-&gt;txh.stride = txrc.width * 4;</span>
+<span class="lineNum">     239 </span><span class="lineNoCov">          0 :         st-&gt;txh.pixelformat = GF_PIXEL_ARGB;</span>
+<span class="lineNum">     240 </span>            : #ifndef GPAC_DISABLE_3D
+<span class="lineNum">     241 </span><span class="lineNoCov">          0 :         if (tr_state-&gt;visual-&gt;type_3d) st-&gt;txh.pixelformat = GF_PIXEL_RGBA;</span>
+<span class="lineNum">     242 </span>            : #endif
+<span class="lineNum">     243 </span><span class="lineNoCov">          0 :         st-&gt;txh.transparent = 1;</span>
+<span class="lineNum">     244 </span>            : 
+<span class="lineNum">     245 </span><span class="lineNoCov">          0 :         if (st-&gt;txh.stride * st-&gt;txh.height &gt; st-&gt;alloc_size) {</span>
+<span class="lineNum">     246 </span><span class="lineNoCov">          0 :                 st-&gt;alloc_size = st-&gt;txh.stride * st-&gt;txh.height;</span>
+<span class="lineNum">     247 </span><span class="lineNoCov">          0 :                 st-&gt;data = (u8*)gf_realloc(st-&gt;data, sizeof(u8) * st-&gt;alloc_size);</span>
+<span class="lineNum">     248 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     249 </span><span class="lineNoCov">          0 :         memset(st-&gt;data, 0x0, sizeof(char) * st-&gt;txh.stride * st-&gt;txh.height);</span>
+<span class="lineNum">     250 </span><span class="lineNoCov">          0 :         st-&gt;txh.data = (char *) st-&gt;data;</span>
+<span class="lineNum">     251 </span>            :         /*setup geometry (rectangle matching the bounds of the object)
+<span class="lineNum">     252 </span>            :         Warning, we want to center the cached bitmap at the center of the screen (main visual)*/
+<span class="lineNum">     253 </span><span class="lineNoCov">          0 :         gf_path_reset(st-&gt;drawable-&gt;path);</span>
+<span class="lineNum">     254 </span>            : 
+<span class="lineNum">     255 </span><span class="lineNoCov">          0 :         gf_path_add_rect_center(st-&gt;drawable-&gt;path,</span>
+<span class="lineNum">     256 </span><span class="lineNoCov">          0 :                                 bounds.x + bounds.width/2,</span>
+<span class="lineNum">     257 </span><span class="lineNoCov">          0 :                                 bounds.y - bounds.height/2,</span>
+<span class="lineNum">     258 </span>            :                                 bounds.width,
+<span class="lineNum">     259 </span>            :                                 bounds.height);
+<span class="lineNum">     260 </span>            : 
+<span class="lineNum">     261 </span>            : 
+<span class="lineNum">     262 </span><span class="lineNoCov">          0 :         old_surf = tr_state-&gt;visual-&gt;raster_surface;</span>
+<span class="lineNum">     263 </span><span class="lineNoCov">          0 :         offscreen_surface = tr_state-&gt;visual-&gt;compositor-&gt;rasterizer-&gt;surface_new(tr_state-&gt;visual-&gt;compositor-&gt;rasterizer, tr_state-&gt;visual-&gt;center_coords);</span>
+<span class="lineNum">     264 </span><span class="lineNoCov">          0 :         tr_state-&gt;visual-&gt;raster_surface = offscreen_surface;</span>
+<span class="lineNum">     265 </span>            : 
+<span class="lineNum">     266 </span><span class="lineNoCov">          0 :         gf_mx2d_copy(backup, tr_state-&gt;transform);</span>
+<span class="lineNum">     267 </span><span class="lineNoCov">          0 :         gf_mx2d_init(tr_state-&gt;transform);</span>
+<span class="lineNum">     268 </span>            : 
+<span class="lineNum">     269 </span>            :         /*attach the buffer to visual*/
+<span class="lineNum">     270 </span><span class="lineNoCov">          0 :         tr_state-&gt;visual-&gt;compositor-&gt;rasterizer-&gt;surface_attach_to_buffer(offscreen_surface, st-&gt;txh.data,</span>
+<span class="lineNum">     271 </span><span class="lineNoCov">          0 :                 st-&gt;txh.width,</span>
+<span class="lineNum">     272 </span><span class="lineNoCov">          0 :                 st-&gt;txh.height,</span>
+<span class="lineNum">     273 </span>            :                 0,
+<span class="lineNum">     274 </span><span class="lineNoCov">          0 :                 st-&gt;txh.stride,</span>
+<span class="lineNum">     275 </span><span class="lineNoCov">          0 :                 st-&gt;txh.pixelformat);</span>
+<span class="lineNum">     276 </span>            : 
+<span class="lineNum">     277 </span><span class="lineNoCov">          0 :         prev_flags = tr_state-&gt;immediate_draw;</span>
+<span class="lineNum">     278 </span><span class="lineNoCov">          0 :         tr_state-&gt;immediate_draw = 1;</span>
+<span class="lineNum">     279 </span><span class="lineNoCov">          0 :         tr_state-&gt;traversing_mode = TRAVERSE_SORT;</span>
+<span class="lineNum">     280 </span><span class="lineNoCov">          0 :         tr_state-&gt;in_svg_filter = 1;</span>
+<span class="lineNum">     281 </span>            : 
+<span class="lineNum">     282 </span>            :         /*recompute the bounds with the final scaling used*/
+<span class="lineNum">     283 </span><span class="lineNoCov">          0 :         scale_x = gf_divfix(bounds.width, local_bounds.width);</span>
+<span class="lineNum">     284 </span><span class="lineNoCov">          0 :         scale_y = gf_divfix(bounds.height, local_bounds.height);</span>
+<span class="lineNum">     285 </span><span class="lineNoCov">          0 :         gf_mx2d_init(tr_state-&gt;transform);</span>
+<span class="lineNum">     286 </span><span class="lineNoCov">          0 :         gf_mx2d_add_scale(&amp;tr_state-&gt;transform, scale_x, scale_y);</span>
+<span class="lineNum">     287 </span>            : 
+<span class="lineNum">     288 </span><span class="lineNoCov">          0 :         rc = local_bounds;</span>
+<span class="lineNum">     289 </span><span class="lineNoCov">          0 :         gf_mx2d_apply_rect(&amp;tr_state-&gt;transform, &amp;rc);</span>
+<span class="lineNum">     290 </span>            : 
+<span class="lineNum">     291 </span>            :         /*centered the bitmap on the visual*/
+<span class="lineNum">     292 </span><span class="lineNoCov">          0 :         if (tr_state-&gt;visual-&gt;center_coords) {</span>
+<span class="lineNum">     293 </span><span class="lineNoCov">          0 :                 temp_x = -rc.x - rc.width/2;</span>
+<span class="lineNum">     294 </span><span class="lineNoCov">          0 :                 temp_y = rc.height/2 - rc.y;</span>
+<span class="lineNum">     295 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     296 </span>            :                 temp_x = -rc.x;
+<span class="lineNum">     297 </span><span class="lineNoCov">          0 :                 temp_y = rc.height - rc.y;</span>
+<span class="lineNum">     298 </span>            :         }
+<span class="lineNum">     299 </span><span class="lineNoCov">          0 :         gf_mx2d_add_translation(&amp;tr_state-&gt;transform, temp_x, temp_y);</span>
+<span class="lineNum">     300 </span>            : 
+<span class="lineNum">     301 </span>            : 
+<span class="lineNum">     302 </span><span class="lineNoCov">          0 :         rc1 = tr_state-&gt;visual-&gt;surf_rect;</span>
+<span class="lineNum">     303 </span><span class="lineNoCov">          0 :         rc2 = tr_state-&gt;visual-&gt;top_clipper;</span>
+<span class="lineNum">     304 </span><span class="lineNoCov">          0 :         tr_state-&gt;visual-&gt;surf_rect.width = st-&gt;txh.width;</span>
+<span class="lineNum">     305 </span><span class="lineNoCov">          0 :         tr_state-&gt;visual-&gt;surf_rect.height = st-&gt;txh.height;</span>
+<span class="lineNum">     306 </span><span class="lineNoCov">          0 :         if (tr_state-&gt;visual-&gt;center_coords) {</span>
+<span class="lineNum">     307 </span><span class="lineNoCov">          0 :                 tr_state-&gt;visual-&gt;surf_rect.y = st-&gt;txh.height/2;</span>
+<span class="lineNum">     308 </span><span class="lineNoCov">          0 :                 tr_state-&gt;visual-&gt;surf_rect.x = -1 * (s32) st-&gt;txh.width/2;</span>
+<span class="lineNum">     309 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     310 </span><span class="lineNoCov">          0 :                 tr_state-&gt;visual-&gt;surf_rect.y = st-&gt;txh.height;</span>
+<span class="lineNum">     311 </span><span class="lineNoCov">          0 :                 tr_state-&gt;visual-&gt;surf_rect.x = 0;</span>
+<span class="lineNum">     312 </span>            :         }
+<span class="lineNum">     313 </span><span class="lineNoCov">          0 :         tr_state-&gt;visual-&gt;top_clipper = tr_state-&gt;visual-&gt;surf_rect;</span>
+<span class="lineNum">     314 </span>            : 
+<span class="lineNum">     315 </span>            : 
+<span class="lineNum">     316 </span>            : #ifndef GPAC_DISABLE_3D
+<span class="lineNum">     317 </span><span class="lineNoCov">          0 :         type_3d = tr_state-&gt;visual-&gt;type_3d;</span>
+<span class="lineNum">     318 </span><span class="lineNoCov">          0 :         tr_state-&gt;visual-&gt;type_3d=0;</span>
+<span class="lineNum">     319 </span>            : #endif
+<span class="lineNum">     320 </span>            : 
+<span class="lineNum">     321 </span><span class="lineNoCov">          0 :         if (prev_flags) gf_node_allow_cyclic_traverse(node);</span>
+<span class="lineNum">     322 </span><span class="lineNoCov">          0 :         gf_node_traverse(node, tr_state);</span>
+<span class="lineNum">     323 </span>            : 
+<span class="lineNum">     324 </span><span class="lineNoCov">          0 :         child_ctx = ctx-&gt;next;</span>
+<span class="lineNum">     325 </span><span class="lineNoCov">          0 :         while (child_ctx &amp;&amp; child_ctx-&gt;drawable) {</span>
+<span class="lineNum">     326 </span><span class="lineNoCov">          0 :                 drawable_reset_bounds(child_ctx-&gt;drawable, tr_state-&gt;visual);</span>
+<span class="lineNum">     327 </span><span class="lineNoCov">          0 :                 child_ctx-&gt;drawable = NULL;</span>
+<span class="lineNum">     328 </span><span class="lineNoCov">          0 :                 child_ctx = child_ctx-&gt;next;</span>
+<span class="lineNum">     329 </span>            :         }
+<span class="lineNum">     330 </span><span class="lineNoCov">          0 :         tr_state-&gt;visual-&gt;cur_context = ctx;</span>
+<span class="lineNum">     331 </span>            : 
+<span class="lineNum">     332 </span>            : 
+<span class="lineNum">     333 </span>            :         /*restore state and destroy whatever needs to be cleaned*/
+<span class="lineNum">     334 </span><span class="lineNoCov">          0 :         tr_state-&gt;in_svg_filter = 0;</span>
+<span class="lineNum">     335 </span><span class="lineNoCov">          0 :         tr_state-&gt;immediate_draw = prev_flags;</span>
+<span class="lineNum">     336 </span><span class="lineNoCov">          0 :         tr_state-&gt;visual-&gt;compositor-&gt;rasterizer-&gt;surface_delete(offscreen_surface);</span>
+<span class="lineNum">     337 </span><span class="lineNoCov">          0 :         tr_state-&gt;visual-&gt;raster_surface = old_surf;</span>
+<span class="lineNum">     338 </span><span class="lineNoCov">          0 :         tr_state-&gt;traversing_mode = TRAVERSE_SORT;</span>
+<span class="lineNum">     339 </span><span class="lineNoCov">          0 :         tr_state-&gt;visual-&gt;surf_rect = rc1;</span>
+<span class="lineNum">     340 </span><span class="lineNoCov">          0 :         tr_state-&gt;visual-&gt;top_clipper = rc2;</span>
+<span class="lineNum">     341 </span>            : #ifndef GPAC_DISABLE_3D
+<span class="lineNum">     342 </span><span class="lineNoCov">          0 :         tr_state-&gt;visual-&gt;type_3d = type_3d ;</span>
+<span class="lineNum">     343 </span>            : #endif
+<span class="lineNum">     344 </span>            : 
+<span class="lineNum">     345 </span>            :         /*update texture*/
+<span class="lineNum">     346 </span><span class="lineNoCov">          0 :         st-&gt;txh.transparent = 1;</span>
+<span class="lineNum">     347 </span><span class="lineNoCov">          0 :         st-&gt;txh.flags |= GF_SR_TEXTURE_NO_GL_FLIP;</span>
+<span class="lineNum">     348 </span><span class="lineNoCov">          0 :         gf_sc_texture_set_data(&amp;st-&gt;txh);</span>
+<span class="lineNum">     349 </span>            : #ifndef GPAC_DISABLE_3D
+<span class="lineNum">     350 </span><span class="lineNoCov">          0 :         if (tr_state-&gt;visual-&gt;type_3d)</span>
+<span class="lineNum">     351 </span><span class="lineNoCov">          0 :                 gf_sc_texture_push_image(&amp;st-&gt;txh, 0, 0);</span>
+<span class="lineNum">     352 </span>            :         else
+<span class="lineNum">     353 </span>            : #endif
+<span class="lineNum">     354 </span><span class="lineNoCov">          0 :                 gf_sc_texture_push_image(&amp;st-&gt;txh, 0, 1);</span>
+<span class="lineNum">     355 </span>            : 
+<span class="lineNum">     356 </span><span class="lineNoCov">          0 :         ctx-&gt;flags |= CTX_NO_ANTIALIAS;</span>
+<span class="lineNum">     357 </span><span class="lineNoCov">          0 :         ctx-&gt;aspect.fill_color = 0;</span>
+<span class="lineNum">     358 </span><span class="lineNoCov">          0 :         ctx-&gt;aspect.line_color = 0xFF000000;</span>
+<span class="lineNum">     359 </span><span class="lineNoCov">          0 :         ctx-&gt;aspect.fill_texture = &amp;st-&gt;txh;</span>
+<span class="lineNum">     360 </span><span class="lineNoCov">          0 :         ctx-&gt;flags |= CTX_TEXTURE_DIRTY;</span>
+<span class="lineNum">     361 </span>            : 
+<span class="lineNum">     362 </span>            :         /*get the filter region*/
+<span class="lineNum">     363 </span><span class="lineNoCov">          0 :         bounds = local_bounds;</span>
+<span class="lineNum">     364 </span><span class="lineNoCov">          0 :         gf_svg_flatten_attributes((SVG_Element *)filter, &amp;all_atts);</span>
+<span class="lineNum">     365 </span><span class="lineNoCov">          0 :         if (!all_atts.filterUnits || (*all_atts.filterUnits==SVG_GRADIENTUNITS_OBJECT)) {</span>
+<span class="lineNum">     366 </span>            :                 Fixed v;
+<span class="lineNum">     367 </span><span class="lineNoCov">          0 :                 v = all_atts.x ? all_atts.x-&gt;value : INT2FIX(-10);</span>
+<span class="lineNum">     368 </span><span class="lineNoCov">          0 :                 bounds.x += gf_mulfix(v, bounds.width);</span>
+<span class="lineNum">     369 </span><span class="lineNoCov">          0 :                 v = all_atts.y ? all_atts.y-&gt;value : INT2FIX(-10);</span>
+<span class="lineNum">     370 </span><span class="lineNoCov">          0 :                 bounds.y += gf_mulfix(v, bounds.height);</span>
+<span class="lineNum">     371 </span><span class="lineNoCov">          0 :                 v = all_atts.width ? all_atts.width-&gt;value : INT2FIX(120);</span>
+<span class="lineNum">     372 </span><span class="lineNoCov">          0 :                 bounds.width = gf_mulfix(v, bounds.width);</span>
+<span class="lineNum">     373 </span><span class="lineNoCov">          0 :                 v = all_atts.height ? all_atts.height-&gt;value : INT2FIX(120);</span>
+<span class="lineNum">     374 </span><span class="lineNoCov">          0 :                 bounds.height = gf_mulfix(v, bounds.height);</span>
+<span class="lineNum">     375 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     376 </span><span class="lineNoCov">          0 :                 bounds.x = all_atts.x ? all_atts.x-&gt;value : 0;</span>
+<span class="lineNum">     377 </span><span class="lineNoCov">          0 :                 bounds.y = all_atts.y ? all_atts.y-&gt;value : 0;</span>
+<span class="lineNum">     378 </span><span class="lineNoCov">          0 :                 bounds.width = all_atts.width ? all_atts.width-&gt;value : bounds.width;</span>
+<span class="lineNum">     379 </span><span class="lineNoCov">          0 :                 bounds.height = all_atts.height ? all_atts.height-&gt;value : 120;</span>
+<span class="lineNum">     380 </span>            :         }
+<span class="lineNum">     381 </span><span class="lineNoCov">          0 :         gf_mx2d_apply_rect(&amp;backup, &amp;bounds);</span>
+<span class="lineNum">     382 </span>            : 
+<span class="lineNum">     383 </span><span class="lineNoCov">          0 :         svg_filter_apply(filter, &amp;st-&gt;txh, &amp;bounds);</span>
+<span class="lineNum">     384 </span>            : 
+<span class="lineNum">     385 </span>            : 
+<span class="lineNum">     386 </span>            : #ifndef GPAC_DISABLE_3D
+<span class="lineNum">     387 </span><span class="lineNoCov">          0 :         if (tr_state-&gt;visual-&gt;type_3d) {</span>
+<span class="lineNum">     388 </span><span class="lineNoCov">          0 :                 if (!st-&gt;drawable-&gt;mesh) {</span>
+<span class="lineNum">     389 </span><span class="lineNoCov">          0 :                         st-&gt;drawable-&gt;mesh = new_mesh();</span>
+<span class="lineNum">     390 </span><span class="lineNoCov">          0 :                         mesh_from_path(st-&gt;drawable-&gt;mesh, st-&gt;drawable-&gt;path);</span>
+<span class="lineNum">     391 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     392 </span><span class="lineNoCov">          0 :                 visual_3d_draw_from_context(tr_state-&gt;ctx, tr_state);</span>
+<span class="lineNum">     393 </span><span class="lineNoCov">          0 :                 ctx-&gt;drawable = NULL;</span>
+<span class="lineNum">     394 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     395 </span>            :         }
+<span class="lineNum">     396 </span>            : #endif
+<span class="lineNum">     397 </span>            : 
+<span class="lineNum">     398 </span>            :         /*we computed the texture in final screen coordinate, so use the identity matrix for the context*/
+<span class="lineNum">     399 </span><span class="lineNoCov">          0 :         gf_mx2d_init(tr_state-&gt;transform);</span>
+<span class="lineNum">     400 </span><span class="lineNoCov">          0 :         drawable_finalize_sort(ctx, tr_state, NULL);</span>
+<span class="lineNum">     401 </span><span class="lineNoCov">          0 :         gf_mx2d_copy(tr_state-&gt;transform, backup);</span>
+<a name="402"><span class="lineNum">     402 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     403 </span>            : 
+<span class="lineNum">     404 </span>            : static void svg_traverse_filter(GF_Node *node, void *rs, Bool is_destroy)
+<span class="lineNum">     405 </span>            : {
+<span class="lineNum">     406 </span><span class="lineNoCov">          0 :         GF_TraverseState *tr_state = (GF_TraverseState *)rs;</span>
+<span class="lineNum">     407 </span><span class="lineNoCov">          0 :         GF_FilterStack *st = gf_node_get_private(node);</span>
+<span class="lineNum">     408 </span><span class="lineNoCov">          0 :         if (is_destroy) {</span>
+<span class="lineNum">     409 </span><span class="lineNoCov">          0 :                 drawable_del(st-&gt;drawable);</span>
+<span class="lineNum">     410 </span><span class="lineNoCov">          0 :                 if (st-&gt;data) gf_free(st-&gt;data);</span>
+<span class="lineNum">     411 </span><span class="lineNoCov">          0 :                 st-&gt;txh.data = NULL;</span>
+<span class="lineNum">     412 </span><span class="lineNoCov">          0 :                 gf_sc_texture_release(&amp;st-&gt;txh);</span>
+<span class="lineNum">     413 </span><span class="lineNoCov">          0 :                 gf_sc_texture_destroy(&amp;st-&gt;txh);</span>
+<span class="lineNum">     414 </span><span class="lineNoCov">          0 :                 gf_free(st);</span>
+<span class="lineNum">     415 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     416 </span>            :         }
+<span class="lineNum">     417 </span>            : 
+<span class="lineNum">     418 </span><span class="lineNoCov">          0 :         if (tr_state-&gt;traversing_mode==TRAVERSE_DRAW_2D) {</span>
+<span class="lineNum">     419 </span><span class="lineNoCov">          0 :                 if (! tr_state-&gt;visual-&gt;DrawBitmap(tr_state-&gt;visual, tr_state, tr_state-&gt;ctx)) {</span>
+<span class="lineNum">     420 </span><span class="lineNoCov">          0 :                         visual_2d_texture_path(tr_state-&gt;visual, st-&gt;drawable-&gt;path, tr_state-&gt;ctx, tr_state);</span>
+<span class="lineNum">     421 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     422 </span>            :         }
+<a name="423"><span class="lineNum">     423 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     424 </span>            : 
+<span class="lineNum">     425 </span>            : void compositor_init_svg_filter(GF_Compositor *compositor, GF_Node *node)
+<span class="lineNum">     426 </span>            : {
+<span class="lineNum">     427 </span>            :         GF_FilterStack *stack;
+<span class="lineNum">     428 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(stack, GF_FilterStack);</span>
+<span class="lineNum">     429 </span><span class="lineNoCov">          0 :         if (!stack) {</span>
+<span class="lineNum">     430 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_COMPOSE, (&quot;[Compositor] Failed to allocate svg filter stack\n&quot;));</span>
+<span class="lineNum">     431 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     432 </span>            :         }
+<span class="lineNum">     433 </span><span class="lineNoCov">          0 :         gf_node_set_private(node, stack);</span>
+<span class="lineNum">     434 </span><span class="lineNoCov">          0 :         gf_node_set_callback_function(node, svg_traverse_filter);</span>
+<span class="lineNum">     435 </span>            : 
+<span class="lineNum">     436 </span>            : 
+<span class="lineNum">     437 </span><span class="lineNoCov">          0 :         gf_sc_texture_setup(&amp;stack-&gt;txh, compositor, node);</span>
+<span class="lineNum">     438 </span><span class="lineNoCov">          0 :         stack-&gt;drawable = drawable_new();</span>
+<span class="lineNum">     439 </span>            :         /*draw the cache through traverse callback*/
+<span class="lineNum">     440 </span><span class="lineNoCov">          0 :         stack-&gt;drawable-&gt;flags |= DRAWABLE_USE_TRAVERSE_DRAW;</span>
+<span class="lineNum">     441 </span><span class="lineNoCov">          0 :         stack-&gt;drawable-&gt;node = node;</span>
+<span class="lineNum">     442 </span><span class="lineNoCov">          0 :         gf_sc_texture_allocate(&amp;stack-&gt;txh);</span>
+<span class="lineNum">     443 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     444 </span>            : 
+<span class="lineNum">     445 </span>            : #endif
+<span class="lineNum">     446 </span>            : 
+<span class="lineNum">     447 </span>            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

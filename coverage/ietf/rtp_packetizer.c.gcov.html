@@ -1,0 +1,689 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - ietf/rtp_packetizer.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">ietf</a> - rtp_packetizer.c<span style="font-size: 80%;"> (source / <a href="rtp_packetizer.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">164</td>
+            <td class="headerCovTableEntry">338</td>
+            <td class="headerCovTableEntryLo">48.5 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-05-14 22:31:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntryMed">85.7 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *                      GPAC - Multimedia Framework C SDK
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *                      Authors: Jean Le Feuvre
+<span class="lineNum">       5 </span>            :  *                      Copyright (c) Telecom ParisTech 2000-2012
+<span class="lineNum">       6 </span>            :  *                                      All rights reserved
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  *  This file is part of GPAC / IETF RTP/RTSP/SDP sub-project
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  *  GPAC is free software; you can redistribute it and/or modify
+<span class="lineNum">      11 </span>            :  *  it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">      12 </span>            :  *  the Free Software Foundation; either version 2, or (at your option)
+<span class="lineNum">      13 </span>            :  *  any later version.
+<span class="lineNum">      14 </span>            :  *
+<span class="lineNum">      15 </span>            :  *  GPAC is distributed in the hope that it will be useful,
+<span class="lineNum">      16 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      17 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      18 </span>            :  *  GNU Lesser General Public License for more details.
+<span class="lineNum">      19 </span>            :  *
+<span class="lineNum">      20 </span>            :  *  You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      21 </span>            :  *  License along with this library; see the file COPYING.  If not, write to
+<span class="lineNum">      22 </span>            :  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+<span class="lineNum">      23 </span>            :  *
+<span class="lineNum">      24 </span>            :  */
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : #include &lt;gpac/internal/ietf_dev.h&gt;
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span>            : #ifndef GPAC_DISABLE_STREAMING
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : #include &lt;gpac/constants.h&gt;
+<span class="lineNum">      31 </span>            : #include &lt;gpac/maths.h&gt;
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span>            : void InitSL_RTP(GF_SLConfig *slc);
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span>            : 
+<span class="lineNum">      36 </span>            : 
+<a name="37"><span class="lineNum">      37 </span>            : </a>
+<span class="lineNum">      38 </span>            : GF_EXPORT
+<span class="lineNum">      39 </span>            : GP_RTPPacketizer *gf_rtp_builder_new(u32 rtp_payt, GF_SLConfig *slc, u32 flags,
+<span class="lineNum">      40 </span>            :                                      void *cbk_obj,
+<span class="lineNum">      41 </span>            :                                      void (*OnNewPacket)(void *cbk, GF_RTPHeader *header),
+<span class="lineNum">      42 </span>            :                                      void (*OnPacketDone)(void *cbk, GF_RTPHeader *header),
+<span class="lineNum">      43 </span>            :                                      void (*OnDataReference)(void *cbk, u32 payload_size, u32 offset_from_orig),
+<span class="lineNum">      44 </span>            :                                      void (*OnData)(void *cbk, char *data, u32 data_size, Bool is_head)
+<span class="lineNum">      45 </span>            :                                     )
+<span class="lineNum">      46 </span>            : {
+<span class="lineNum">      47 </span>            :         GP_RTPPacketizer *tmp;
+<span class="lineNum">      48 </span><span class="lineCov">         42 :         if (!rtp_payt || !cbk_obj | !OnPacketDone) return NULL;</span>
+<span class="lineNum">      49 </span>            : 
+<span class="lineNum">      50 </span><span class="lineCov">         28 :         GF_SAFEALLOC(tmp, GP_RTPPacketizer);</span>
+<span class="lineNum">      51 </span><span class="lineCov">         14 :         if (!tmp) return NULL;</span>
+<span class="lineNum">      52 </span>            : 
+<span class="lineNum">      53 </span><span class="lineCov">         28 :         if (slc) {</span>
+<span class="lineNum">      54 </span><span class="lineCov">         28 :                 memcpy(&amp;tmp-&gt;sl_config, slc, sizeof(GF_SLConfig));</span>
+<span class="lineNum">      55 </span><span class="lineCov">         14 :         } else {</span>
+<span class="lineNum">      56 </span><span class="lineNoCov">          0 :                 memset(&amp;tmp-&gt;sl_config, 0, sizeof(GF_SLConfig));</span>
+<span class="lineNum">      57 </span><span class="lineNoCov">          0 :                 tmp-&gt;sl_config.useTimestampsFlag = 1;</span>
+<span class="lineNum">      58 </span><span class="lineNoCov">          0 :                 tmp-&gt;sl_config.timestampLength = 32;</span>
+<span class="lineNum">      59 </span>            :         }
+<span class="lineNum">      60 </span><span class="lineCov">         14 :         tmp-&gt;OnNewPacket = OnNewPacket;</span>
+<span class="lineNum">      61 </span><span class="lineCov">         14 :         tmp-&gt;OnDataReference = OnDataReference;</span>
+<span class="lineNum">      62 </span><span class="lineCov">         14 :         tmp-&gt;OnData = OnData;</span>
+<span class="lineNum">      63 </span><span class="lineCov">         14 :         tmp-&gt;cbk_obj = cbk_obj;</span>
+<span class="lineNum">      64 </span><span class="lineCov">         14 :         tmp-&gt;OnPacketDone = OnPacketDone;</span>
+<span class="lineNum">      65 </span><span class="lineCov">         14 :         tmp-&gt;rtp_payt = rtp_payt;</span>
+<span class="lineNum">      66 </span><span class="lineCov">         14 :         tmp-&gt;flags = flags;</span>
+<span class="lineNum">      67 </span>            :         //default init
+<span class="lineNum">      68 </span><span class="lineCov">         14 :         tmp-&gt;sl_header.AU_sequenceNumber = 1;</span>
+<span class="lineNum">      69 </span><span class="lineCov">         14 :         tmp-&gt;sl_header.packetSequenceNumber = 1;</span>
+<span class="lineNum">      70 </span>            : 
+<span class="lineNum">      71 </span>            :         //we assume we start on a new AU
+<span class="lineNum">      72 </span><span class="lineCov">         14 :         tmp-&gt;sl_header.accessUnitStartFlag = 1;</span>
+<span class="lineNum">      73 </span><span class="lineCov">         14 :         return tmp;</span>
+<span class="lineNum">      74 </span><span class="lineCov">         14 : }</span>
+<a name="75"><span class="lineNum">      75 </span>            : </a>
+<span class="lineNum">      76 </span>            : GF_EXPORT
+<span class="lineNum">      77 </span>            : void gf_rtp_builder_del(GP_RTPPacketizer *builder)
+<span class="lineNum">      78 </span>            : {
+<span class="lineNum">      79 </span><span class="lineCov">         28 :         if (!builder) return;</span>
+<span class="lineNum">      80 </span>            : 
+<span class="lineNum">      81 </span><span class="lineCov">         15 :         if (builder-&gt;payload) gf_bs_del(builder-&gt;payload);</span>
+<span class="lineNum">      82 </span><span class="lineCov">         15 :         if (builder-&gt;pck_hdr) gf_bs_del(builder-&gt;pck_hdr);</span>
+<span class="lineNum">      83 </span><span class="lineCov">         14 :         gf_free(builder);</span>
+<span class="lineNum">      84 </span><span class="lineCov">         28 : }</span>
+<a name="85"><span class="lineNum">      85 </span>            : </a>
+<span class="lineNum">      86 </span>            : GF_EXPORT
+<span class="lineNum">      87 </span>            : GF_Err gf_rtp_builder_process(GP_RTPPacketizer *builder, char *data, u32 data_size, u8 IsAUEnd, u32 FullAUSize, u32 duration, u8 descIndex)
+<span class="lineNum">      88 </span>            : {
+<span class="lineNum">      89 </span><span class="lineCov">       4350 :         if (!builder) return GF_BAD_PARAM;</span>
+<span class="lineNum">      90 </span>            : 
+<span class="lineNum">      91 </span><span class="lineCov">       2175 :         switch (builder-&gt;rtp_payt) {</span>
+<span class="lineNum">      92 </span>            :         case GF_RTP_PAYT_MPEG4:
+<span class="lineNum">      93 </span><span class="lineCov">        415 :                 return gp_rtp_builder_do_mpeg4(builder, data, data_size, IsAUEnd, FullAUSize);</span>
+<span class="lineNum">      94 </span>            : #ifndef GPAC_DISABLE_AV_PARSERS
+<span class="lineNum">      95 </span>            :         case GF_RTP_PAYT_MPEG12_VIDEO:
+<span class="lineNum">      96 </span><span class="lineNoCov">          0 :                 return gp_rtp_builder_do_mpeg12_video(builder, data, data_size, IsAUEnd, FullAUSize);</span>
+<span class="lineNum">      97 </span>            : #endif
+<span class="lineNum">      98 </span>            :         case GF_RTP_PAYT_MPEG12_AUDIO:
+<span class="lineNum">      99 </span><span class="lineCov">        226 :                 return gp_rtp_builder_do_mpeg12_audio(builder, data, data_size, IsAUEnd, FullAUSize);</span>
+<span class="lineNum">     100 </span>            :         case GF_RTP_PAYT_H263:
+<span class="lineNum">     101 </span><span class="lineCov">         91 :                 return gp_rtp_builder_do_h263(builder, data, data_size, IsAUEnd, FullAUSize);</span>
+<span class="lineNum">     102 </span>            :         case GF_RTP_PAYT_AMR:
+<span class="lineNum">     103 </span>            :         case GF_RTP_PAYT_AMR_WB:
+<span class="lineNum">     104 </span><span class="lineCov">        289 :                 return gp_rtp_builder_do_amr(builder, data, data_size, IsAUEnd, FullAUSize);</span>
+<span class="lineNum">     105 </span>            :         case GF_RTP_PAYT_3GPP_TEXT:
+<span class="lineNum">     106 </span><span class="lineNoCov">          0 :                 return gp_rtp_builder_do_tx3g(builder, data, data_size, IsAUEnd, FullAUSize, duration, descIndex);</span>
+<span class="lineNum">     107 </span>            :         case GF_RTP_PAYT_H264_AVC:
+<span class="lineNum">     108 </span>            :         case GF_RTP_PAYT_H264_SVC:
+<span class="lineNum">     109 </span><span class="lineCov">        150 :                 return gp_rtp_builder_do_avc(builder, data, data_size, IsAUEnd, FullAUSize);</span>
+<span class="lineNum">     110 </span>            :         case GF_RTP_PAYT_QCELP:
+<span class="lineNum">     111 </span><span class="lineCov">       1004 :                 return gp_rtp_builder_do_qcelp(builder, data, data_size, IsAUEnd, FullAUSize);</span>
+<span class="lineNum">     112 </span>            :         case GF_RTP_PAYT_EVRC_SMV:
+<span class="lineNum">     113 </span><span class="lineNoCov">          0 :                 return gp_rtp_builder_do_smv(builder, data, data_size, IsAUEnd, FullAUSize);</span>
+<span class="lineNum">     114 </span>            :         case GF_RTP_PAYT_LATM:
+<span class="lineNum">     115 </span><span class="lineNoCov">          0 :                 return gp_rtp_builder_do_latm(builder, data, data_size, IsAUEnd, FullAUSize, duration);</span>
+<span class="lineNum">     116 </span>            :         case GF_RTP_PAYT_3GPP_DIMS:
+<span class="lineNum">     117 </span><span class="lineNoCov">          0 :                 return gp_rtp_builder_do_dims(builder, data, data_size, IsAUEnd, FullAUSize, duration);</span>
+<span class="lineNum">     118 </span>            :         case GF_RTP_PAYT_AC3:
+<span class="lineNum">     119 </span><span class="lineNoCov">          0 :                 return gp_rtp_builder_do_ac3(builder, data, data_size, IsAUEnd, FullAUSize);</span>
+<span class="lineNum">     120 </span>            :         case GF_RTP_PAYT_HEVC:
+<span class="lineNum">     121 </span>            :         case GF_RTP_PAYT_LHVC:
+<span class="lineNum">     122 </span><span class="lineNoCov">          0 :                 return gp_rtp_builder_do_hevc(builder, data, data_size, IsAUEnd, FullAUSize);</span>
+<span class="lineNum">     123 </span>            :         default:
+<span class="lineNum">     124 </span><span class="lineNoCov">          0 :                 return GF_NOT_SUPPORTED;</span>
+<span class="lineNum">     125 </span>            :         }
+<span class="lineNum">     126 </span><span class="lineCov">       2175 : }</span>
+<span class="lineNum">     127 </span>            : 
+<span class="lineNum">     128 </span>            : 
+<a name="129"><span class="lineNum">     129 </span>            : //Compute the #params of the slMap</a>
+<span class="lineNum">     130 </span>            : GF_EXPORT
+<span class="lineNum">     131 </span>            : void gf_rtp_builder_init(GP_RTPPacketizer *builder, u8 PayloadType, u32 PathMTU, u32 max_ptime,
+<span class="lineNum">     132 </span>            :                          u32 StreamType, u32 OTI, u32 PL_ID,
+<span class="lineNum">     133 </span>            :                          u32 avgSize, u32 maxSize,
+<span class="lineNum">     134 </span>            :                          u32 avgTS, u32 maxDTS,
+<span class="lineNum">     135 </span>            :                          u32 IV_length, u32 KI_length,
+<span class="lineNum">     136 </span>            :                          char *pref_mode)
+<span class="lineNum">     137 </span>            : {
+<span class="lineNum">     138 </span>            :         u32 k, ismacrypt_flags;
+<span class="lineNum">     139 </span>            : 
+<span class="lineNum">     140 </span><span class="lineCov">         28 :         memset(&amp;builder-&gt;slMap, 0, sizeof(GP_RTPSLMap));</span>
+<span class="lineNum">     141 </span><span class="lineCov">         14 :         builder-&gt;Path_MTU = PathMTU;</span>
+<span class="lineNum">     142 </span><span class="lineCov">         14 :         builder-&gt;PayloadType = PayloadType;</span>
+<span class="lineNum">     143 </span><span class="lineCov">         14 :         builder-&gt;slMap.StreamType = StreamType;</span>
+<span class="lineNum">     144 </span><span class="lineCov">         14 :         builder-&gt;slMap.ObjectTypeIndication = OTI;</span>
+<span class="lineNum">     145 </span><span class="lineCov">         14 :         builder-&gt;slMap.PL_ID = PL_ID;</span>
+<span class="lineNum">     146 </span><span class="lineCov">         14 :         builder-&gt;max_ptime = max_ptime;</span>
+<span class="lineNum">     147 </span><span class="lineCov">         16 :         if (pref_mode) strcpy(builder-&gt;slMap.mode, pref_mode);</span>
+<span class="lineNum">     148 </span>            : 
+<span class="lineNum">     149 </span>            : 
+<span class="lineNum">     150 </span>            :         //some cst vars
+<span class="lineNum">     151 </span><span class="lineCov">         14 :         builder-&gt;rtp_header.Version = 2;</span>
+<span class="lineNum">     152 </span><span class="lineCov">         14 :         builder-&gt;rtp_header.PayloadType = builder-&gt;PayloadType;</span>
+<span class="lineNum">     153 </span>            : 
+<span class="lineNum">     154 </span>            :         /*our max config is with 1 packet only (SingleSL)*/
+<span class="lineNum">     155 </span><span class="lineCov">         14 :         builder-&gt;first_sl_in_rtp = GF_TRUE;</span>
+<span class="lineNum">     156 </span>            :         /*no AUX data*/
+<span class="lineNum">     157 </span><span class="lineCov">         14 :         builder-&gt;slMap.AuxiliaryDataSizeLength = 0;</span>
+<span class="lineNum">     158 </span>            : 
+<span class="lineNum">     159 </span>            : 
+<span class="lineNum">     160 </span>            :         /*just compute max aggregation size*/
+<span class="lineNum">     161 </span><span class="lineCov">         14 :         switch (builder-&gt;rtp_payt) {</span>
+<span class="lineNum">     162 </span>            :         case GF_RTP_PAYT_QCELP:
+<span class="lineNum">     163 </span>            :         case GF_RTP_PAYT_EVRC_SMV:
+<span class="lineNum">     164 </span>            :         case GF_RTP_PAYT_AMR:
+<span class="lineNum">     165 </span>            :         case GF_RTP_PAYT_AMR_WB:
+<span class="lineNum">     166 </span>            :         {
+<span class="lineNum">     167 </span>            :                 u32 nb_pck = 1;
+<span class="lineNum">     168 </span>            :                 u32 block_size = 160;
+<span class="lineNum">     169 </span>            :                 /*compute max frames per packet - if no avg size, use max size per codec*/
+<span class="lineNum">     170 </span><span class="lineCov">          4 :                 if (builder-&gt;flags &amp; GP_RTP_PCK_USE_MULTI) {</span>
+<span class="lineNum">     171 </span><span class="lineNoCov">          0 :                         if (builder-&gt;rtp_payt == GF_RTP_PAYT_QCELP) {</span>
+<span class="lineNum">     172 </span><span class="lineNoCov">          0 :                                 if (!avgSize) avgSize = 35;</span>
+<span class="lineNum">     173 </span><span class="lineNoCov">          0 :                                 nb_pck = (PathMTU-1) / avgSize; /*one-byte header*/</span>
+<span class="lineNum">     174 </span><span class="lineNoCov">          0 :                                 if (nb_pck&gt;10) nb_pck=10;    /*cf RFC2658*/</span>
+<span class="lineNum">     175 </span><span class="lineNoCov">          0 :                         } else if (builder-&gt;rtp_payt == GF_RTP_PAYT_EVRC_SMV) {</span>
+<span class="lineNum">     176 </span><span class="lineNoCov">          0 :                                 if (!avgSize) avgSize = 23;</span>
+<span class="lineNum">     177 </span><span class="lineNoCov">          0 :                                 nb_pck = (PathMTU) / avgSize;</span>
+<span class="lineNum">     178 </span><span class="lineNoCov">          0 :                                 if (nb_pck&gt;32) nb_pck=32;    /*cf RFC3558*/</span>
+<span class="lineNum">     179 </span><span class="lineNoCov">          0 :                         } else if (builder-&gt;rtp_payt == GF_RTP_PAYT_AMR_WB) {</span>
+<span class="lineNum">     180 </span><span class="lineNoCov">          0 :                                 if (!avgSize) avgSize = 61;</span>
+<span class="lineNum">     181 </span><span class="lineNoCov">          0 :                                 nb_pck = (PathMTU-1) / avgSize;</span>
+<span class="lineNum">     182 </span>            :                                 block_size = 320;
+<span class="lineNum">     183 </span><span class="lineNoCov">          0 :                         } else {</span>
+<span class="lineNum">     184 </span><span class="lineNoCov">          0 :                                 if (!avgSize) avgSize = 32;</span>
+<span class="lineNum">     185 </span><span class="lineNoCov">          0 :                                 nb_pck = (PathMTU-1) / avgSize;</span>
+<span class="lineNum">     186 </span>            :                         }
+<span class="lineNum">     187 </span><span class="lineNoCov">          0 :                         if (max_ptime) {</span>
+<span class="lineNum">     188 </span><span class="lineNoCov">          0 :                                 u32 max_pck = max_ptime / block_size;</span>
+<span class="lineNum">     189 </span><span class="lineNoCov">          0 :                                 if (nb_pck &gt; max_pck) nb_pck = max_pck;</span>
+<span class="lineNum">     190 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     191 </span>            :                 }
+<span class="lineNum">     192 </span><span class="lineCov">          4 :                 if (nb_pck&lt;=1) {</span>
+<span class="lineNum">     193 </span><span class="lineCov">          4 :                         builder-&gt;flags &amp;= ~(GP_RTP_PCK_USE_MULTI|GP_RTP_PCK_USE_INTERLEAVING);</span>
+<span class="lineNum">     194 </span><span class="lineCov">          4 :                         builder-&gt;auh_size = 1;</span>
+<span class="lineNum">     195 </span><span class="lineCov">          4 :                 } else {</span>
+<span class="lineNum">     196 </span><span class="lineNoCov">          0 :                         builder-&gt;auh_size = nb_pck;</span>
+<span class="lineNum">     197 </span>            :                 }
+<span class="lineNum">     198 </span>            :                 /*remove all MPEG-4 and ISMA flags */
+<span class="lineNum">     199 </span><span class="lineCov">          4 :                 builder-&gt;flags &amp;= 0x07;</span>
+<span class="lineNum">     200 </span>            :         }
+<span class="lineNum">     201 </span><span class="lineCov">          4 :         return;</span>
+<span class="lineNum">     202 </span>            :         case GF_RTP_PAYT_LATM:
+<span class="lineNum">     203 </span>            :         case GF_RTP_PAYT_MPEG4:
+<span class="lineNum">     204 </span>            :                 break;
+<span class="lineNum">     205 </span>            :         default:
+<span class="lineNum">     206 </span>            :                 /*remove all MPEG-4 and ISMA flags */
+<span class="lineNum">     207 </span><span class="lineCov">          6 :                 builder-&gt;flags &amp;= 0x07;</span>
+<span class="lineNum">     208 </span>            :                 /*disable aggregation for visual streams, except for AVC where STAP/MTAP can be used*/
+<span class="lineNum">     209 </span><span class="lineCov">          6 :                 if (StreamType==GF_STREAM_VISUAL) {</span>
+<span class="lineNum">     210 </span><span class="lineCov">          4 :                         if ((OTI != GPAC_OTI_VIDEO_AVC) &amp;&amp; (OTI != GPAC_OTI_VIDEO_SVC) &amp;&amp; (OTI != GPAC_OTI_VIDEO_HEVC) &amp;&amp; (OTI != GPAC_OTI_VIDEO_LHVC)) {</span>
+<span class="lineNum">     211 </span><span class="lineCov">          2 :                                 builder-&gt;flags &amp;= ~GP_RTP_PCK_USE_MULTI;</span>
+<span class="lineNum">     212 </span><span class="lineCov">          2 :                         }</span>
+<span class="lineNum">     213 </span>            :                 }
+<span class="lineNum">     214 </span><span class="lineCov">          4 :                 else if (avgSize &amp;&amp; (PathMTU &lt;= avgSize) ) {</span>
+<span class="lineNum">     215 </span><span class="lineNoCov">          0 :                         builder-&gt;flags &amp;= ~GP_RTP_PCK_USE_MULTI;</span>
+<span class="lineNum">     216 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     217 </span><span class="lineCov">          6 :                 return;</span>
+<span class="lineNum">     218 </span>            :         }
+<span class="lineNum">     219 </span>            : 
+<span class="lineNum">     220 </span><span class="lineCov">          4 :         builder-&gt;slMap.IV_length = IV_length;</span>
+<span class="lineNum">     221 </span><span class="lineCov">          4 :         builder-&gt;slMap.KI_length = KI_length;</span>
+<span class="lineNum">     222 </span>            : 
+<span class="lineNum">     223 </span>            :         ismacrypt_flags = 0;
+<span class="lineNum">     224 </span><span class="lineCov">          4 :         if (builder-&gt;flags &amp; GP_RTP_PCK_SELECTIVE_ENCRYPTION) ismacrypt_flags |= GP_RTP_PCK_SELECTIVE_ENCRYPTION;</span>
+<span class="lineNum">     225 </span><span class="lineCov">          4 :         if (builder-&gt;flags &amp; GP_RTP_PCK_KEY_IDX_PER_AU) ismacrypt_flags |= GP_RTP_PCK_KEY_IDX_PER_AU;</span>
+<span class="lineNum">     226 </span>            : 
+<span class="lineNum">     227 </span>            :         /*mode setup*/
+<span class="lineNum">     228 </span><span class="lineCov">          4 :         if (!strnicmp(builder-&gt;slMap.mode, &quot;AAC&quot;, 3)) {</span>
+<span class="lineNum">     229 </span><span class="lineCov">          2 :                 builder-&gt;flags = GP_RTP_PCK_USE_MULTI | GP_RTP_PCK_SIGNAL_SIZE | GP_RTP_PCK_SIGNAL_AU_IDX | ismacrypt_flags;</span>
+<span class="lineNum">     230 </span>            :                 /*if (builder-&gt;flags &amp; GP_RTP_PCK_USE_INTERLEAVING) */
+<span class="lineNum">     231 </span><span class="lineCov">          2 :                 builder-&gt;slMap.ConstantDuration = avgTS;</span>
+<span class="lineNum">     232 </span>            : 
+<span class="lineNum">     233 </span>            :                 /*AAC LBR*/
+<span class="lineNum">     234 </span><span class="lineCov">          2 :                 if (maxSize &lt; 63) {</span>
+<span class="lineNum">     235 </span><span class="lineNoCov">          0 :                         strcpy(builder-&gt;slMap.mode, &quot;AAC-lbr&quot;);</span>
+<span class="lineNum">     236 </span><span class="lineNoCov">          0 :                         builder-&gt;slMap.IndexLength = builder-&gt;slMap.IndexDeltaLength = 2;</span>
+<span class="lineNum">     237 </span><span class="lineNoCov">          0 :                         builder-&gt;slMap.SizeLength = 6;</span>
+<span class="lineNum">     238 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     239 </span>            :                 /*AAC HBR*/
+<span class="lineNum">     240 </span>            :                 else {
+<span class="lineNum">     241 </span><span class="lineCov">          2 :                         strcpy(builder-&gt;slMap.mode, &quot;AAC-hbr&quot;);</span>
+<span class="lineNum">     242 </span><span class="lineCov">          2 :                         builder-&gt;slMap.IndexLength = builder-&gt;slMap.IndexDeltaLength = 3;</span>
+<span class="lineNum">     243 </span><span class="lineCov">          2 :                         builder-&gt;slMap.SizeLength = 13;</span>
+<span class="lineNum">     244 </span>            :                 }
+<span class="lineNum">     245 </span>            :                 goto check_header;
+<span class="lineNum">     246 </span>            :         }
+<span class="lineNum">     247 </span><span class="lineCov">          2 :         if (!strnicmp(builder-&gt;slMap.mode, &quot;CELP&quot;, 4)) {</span>
+<span class="lineNum">     248 </span>            :                 /*CELP-cbr*/
+<span class="lineNum">     249 </span><span class="lineNoCov">          0 :                 if (maxSize == avgSize) {</span>
+<span class="lineNum">     250 </span>            :                         /*reset flags (interleaving forbidden)*/
+<span class="lineNum">     251 </span><span class="lineNoCov">          0 :                         builder-&gt;flags = GP_RTP_PCK_USE_MULTI | ismacrypt_flags;</span>
+<span class="lineNum">     252 </span><span class="lineNoCov">          0 :                         strcpy(builder-&gt;slMap.mode, &quot;CELP-cbr&quot;);</span>
+<span class="lineNum">     253 </span><span class="lineNoCov">          0 :                         builder-&gt;slMap.ConstantSize = avgSize;</span>
+<span class="lineNum">     254 </span><span class="lineNoCov">          0 :                         builder-&gt;slMap.ConstantDuration = avgTS;</span>
+<span class="lineNum">     255 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     256 </span>            :                 /*CELP VBR*/
+<span class="lineNum">     257 </span>            :                 else {
+<span class="lineNum">     258 </span><span class="lineNoCov">          0 :                         strcpy(builder-&gt;slMap.mode, &quot;CELP-vbr&quot;);</span>
+<span class="lineNum">     259 </span><span class="lineNoCov">          0 :                         builder-&gt;slMap.IndexLength = builder-&gt;slMap.IndexDeltaLength = 2;</span>
+<span class="lineNum">     260 </span><span class="lineNoCov">          0 :                         builder-&gt;slMap.SizeLength = 6;</span>
+<span class="lineNum">     261 </span><span class="lineNoCov">          0 :                         /*if (builder-&gt;flags &amp; GP_RTP_PCK_USE_INTERLEAVING) */builder-&gt;slMap.ConstantDuration = avgTS;</span>
+<span class="lineNum">     262 </span><span class="lineNoCov">          0 :                         builder-&gt;flags = GP_RTP_PCK_USE_MULTI | GP_RTP_PCK_SIGNAL_SIZE | GP_RTP_PCK_SIGNAL_AU_IDX | ismacrypt_flags;</span>
+<span class="lineNum">     263 </span>            :                 }
+<span class="lineNum">     264 </span>            :                 goto check_header;
+<span class="lineNum">     265 </span>            :         }
+<span class="lineNum">     266 </span>            : 
+<span class="lineNum">     267 </span>            :         /*generic setup by flags*/
+<span class="lineNum">     268 </span>            : 
+<span class="lineNum">     269 </span>            :         /*size*/
+<span class="lineNum">     270 </span><span class="lineCov">          2 :         if (builder-&gt;flags &amp; GP_RTP_PCK_SIGNAL_SIZE) {</span>
+<span class="lineNum">     271 </span><span class="lineNoCov">          0 :                 if (avgSize==maxSize) {</span>
+<span class="lineNum">     272 </span><span class="lineNoCov">          0 :                         builder-&gt;slMap.SizeLength = 0;</span>
+<span class="lineNum">     273 </span><span class="lineNoCov">          0 :                         builder-&gt;slMap.ConstantSize = maxSize;</span>
+<span class="lineNum">     274 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     275 </span><span class="lineNoCov">          0 :                         builder-&gt;slMap.SizeLength = gf_get_bit_size(maxSize ? maxSize : PathMTU);</span>
+<span class="lineNum">     276 </span><span class="lineNoCov">          0 :                         builder-&gt;slMap.ConstantSize = 0;</span>
+<span class="lineNum">     277 </span>            :                 }
+<span class="lineNum">     278 </span>            :         } else {
+<span class="lineNum">     279 </span><span class="lineCov">          2 :                 builder-&gt;slMap.SizeLength = 0;</span>
+<span class="lineNum">     280 </span><span class="lineCov">          2 :                 if (builder-&gt;flags &amp; GP_RTP_PCK_USE_MULTI)</span>
+<span class="lineNum">     281 </span><span class="lineNoCov">          0 :                         builder-&gt;slMap.ConstantSize = (avgSize==maxSize) ? maxSize : 0;</span>
+<span class="lineNum">     282 </span>            :                 else
+<span class="lineNum">     283 </span><span class="lineCov">          2 :                         builder-&gt;slMap.ConstantSize = 0;</span>
+<span class="lineNum">     284 </span>            :         }
+<span class="lineNum">     285 </span>            : 
+<span class="lineNum">     286 </span>            :         /*single SL per RTP*/
+<span class="lineNum">     287 </span><span class="lineCov">          2 :         if (!(builder-&gt;flags &amp; GP_RTP_PCK_USE_MULTI)) {</span>
+<span class="lineNum">     288 </span><span class="lineCov">          2 :                 if ( builder-&gt;sl_config.AUSeqNumLength &amp;&amp; (builder-&gt;flags &amp; GP_RTP_PCK_SIGNAL_AU_IDX)) {</span>
+<span class="lineNum">     289 </span><span class="lineNoCov">          0 :                         builder-&gt;slMap.IndexLength = builder-&gt;sl_config.AUSeqNumLength;</span>
+<span class="lineNum">     290 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     291 </span><span class="lineCov">          2 :                         builder-&gt;slMap.IndexLength = 0;</span>
+<span class="lineNum">     292 </span>            :                 }
+<span class="lineNum">     293 </span>            :                 /*one packet per RTP so no delta*/
+<span class="lineNum">     294 </span><span class="lineCov">          2 :                 builder-&gt;slMap.IndexDeltaLength = 0;</span>
+<span class="lineNum">     295 </span><span class="lineCov">          2 :                 builder-&gt;slMap.IV_delta_length = 0;</span>
+<span class="lineNum">     296 </span>            : 
+<span class="lineNum">     297 </span>            :                 /*CTS Delta is always 0 since we have one SL packet per RTP*/
+<span class="lineNum">     298 </span><span class="lineCov">          2 :                 builder-&gt;slMap.CTSDeltaLength = 0;</span>
+<span class="lineNum">     299 </span>            : 
+<span class="lineNum">     300 </span>            :                 /*DTS Delta depends on the video type*/
+<span class="lineNum">     301 </span><span class="lineCov">          2 :                 if ((builder-&gt;flags &amp; GP_RTP_PCK_SIGNAL_TS) &amp;&amp; maxDTS )</span>
+<span class="lineNum">     302 </span><span class="lineNoCov">          0 :                         builder-&gt;slMap.DTSDeltaLength = gf_get_bit_size(maxDTS);</span>
+<span class="lineNum">     303 </span>            :                 else
+<span class="lineNum">     304 </span><span class="lineCov">          2 :                         builder-&gt;slMap.DTSDeltaLength = 0;</span>
+<span class="lineNum">     305 </span>            : 
+<span class="lineNum">     306 </span>            :                 /*RAP*/
+<span class="lineNum">     307 </span><span class="lineCov">          2 :                 if (builder-&gt;sl_config.useRandomAccessPointFlag &amp;&amp; (builder-&gt;flags &amp; GP_RTP_PCK_SIGNAL_RAP)) {</span>
+<span class="lineNum">     308 </span><span class="lineNoCov">          0 :                         builder-&gt;slMap.RandomAccessIndication = GF_TRUE;</span>
+<span class="lineNum">     309 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     310 </span><span class="lineCov">          2 :                         builder-&gt;slMap.RandomAccessIndication = GF_FALSE;</span>
+<span class="lineNum">     311 </span>            :                 }
+<span class="lineNum">     312 </span>            : 
+<span class="lineNum">     313 </span>            :                 /*stream state*/
+<span class="lineNum">     314 </span><span class="lineCov">          2 :                 if (builder-&gt;flags &amp; GP_RTP_PCK_SYSTEMS_CAROUSEL) {</span>
+<span class="lineNum">     315 </span><span class="lineNoCov">          0 :                         if (!builder-&gt;sl_config.AUSeqNumLength) builder-&gt;sl_config.AUSeqNumLength = 4;</span>
+<span class="lineNum">     316 </span><span class="lineNoCov">          0 :                         builder-&gt;slMap.StreamStateIndication = builder-&gt;sl_config.AUSeqNumLength;</span>
+<span class="lineNum">     317 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     318 </span>            :                 goto check_header;
+<span class="lineNum">     319 </span>            :         }
+<span class="lineNum">     320 </span>            : 
+<span class="lineNum">     321 </span>            :         /*this is the avg samples we can store per RTP packet*/
+<span class="lineNum">     322 </span><span class="lineNoCov">          0 :         k = PathMTU / avgSize;</span>
+<span class="lineNum">     323 </span><span class="lineNoCov">          0 :         if (k&lt;=1) {</span>
+<span class="lineNum">     324 </span><span class="lineNoCov">          0 :                 builder-&gt;flags &amp;= ~GP_RTP_PCK_USE_MULTI;</span>
+<span class="lineNum">     325 </span>            :                 /*keep TS signaling for B-frames (eg never default to M4V-ES when B-frames are present)*/
+<span class="lineNum">     326 </span>            :                 //builder-&gt;flags &amp;= ~GP_RTP_PCK_SIGNAL_TS;
+<span class="lineNum">     327 </span><span class="lineNoCov">          0 :                 builder-&gt;flags &amp;= ~GP_RTP_PCK_SIGNAL_SIZE;</span>
+<span class="lineNum">     328 </span><span class="lineNoCov">          0 :                 builder-&gt;flags &amp;= ~GP_RTP_PCK_SIGNAL_AU_IDX;</span>
+<span class="lineNum">     329 </span><span class="lineNoCov">          0 :                 builder-&gt;flags &amp;= ~GP_RTP_PCK_USE_INTERLEAVING;</span>
+<span class="lineNum">     330 </span><span class="lineNoCov">          0 :                 builder-&gt;flags &amp;= ~GP_RTP_PCK_KEY_IDX_PER_AU;</span>
+<span class="lineNum">     331 </span><span class="lineNoCov">          0 :                 gf_rtp_builder_init(builder, PayloadType, PathMTU, max_ptime, StreamType, OTI, PL_ID, avgSize, maxSize, avgTS, maxDTS, IV_length, KI_length, pref_mode);</span>
+<span class="lineNum">     332 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     333 </span>            :         }
+<span class="lineNum">     334 </span>            : 
+<span class="lineNum">     335 </span>            :         /*multiple SL per RTP - check if we have to send TS*/
+<span class="lineNum">     336 </span><span class="lineNoCov">          0 :         builder-&gt;slMap.ConstantDuration = builder-&gt;sl_config.CUDuration;</span>
+<span class="lineNum">     337 </span><span class="lineNoCov">          0 :         if (!builder-&gt;slMap.ConstantDuration) {</span>
+<span class="lineNum">     338 </span><span class="lineNoCov">          0 :                 builder-&gt;flags |= GP_RTP_PCK_SIGNAL_TS;</span>
+<span class="lineNum">     339 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     340 </span>            :         /*if we have a constant duration and are not writting TSs, make sure we write AU IDX when interleaving*/
+<span class="lineNum">     341 </span><span class="lineNoCov">          0 :         else if (! (builder-&gt;flags &amp; GP_RTP_PCK_SIGNAL_TS) &amp;&amp; (builder-&gt;flags &amp; GP_RTP_PCK_USE_INTERLEAVING)) {</span>
+<span class="lineNum">     342 </span><span class="lineNoCov">          0 :                 builder-&gt;flags |= GP_RTP_PCK_SIGNAL_AU_IDX;</span>
+<span class="lineNum">     343 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     344 </span>            : 
+<span class="lineNum">     345 </span><span class="lineNoCov">          0 :         if (builder-&gt;flags &amp; GP_RTP_PCK_SIGNAL_TS) {</span>
+<span class="lineNum">     346 </span>            :                 /*compute CTS delta*/
+<span class="lineNum">     347 </span><span class="lineNoCov">          0 :                 builder-&gt;slMap.CTSDeltaLength = gf_get_bit_size(k*avgTS);</span>
+<span class="lineNum">     348 </span>            : 
+<span class="lineNum">     349 </span>            :                 /*compute DTS delta. Delta is ALWAYS from the CTS of the same sample*/
+<span class="lineNum">     350 </span><span class="lineNoCov">          0 :                 if (maxDTS)</span>
+<span class="lineNum">     351 </span><span class="lineNoCov">          0 :                         builder-&gt;slMap.DTSDeltaLength = gf_get_bit_size(maxDTS);</span>
+<span class="lineNum">     352 </span>            :                 else
+<span class="lineNum">     353 </span><span class="lineNoCov">          0 :                         builder-&gt;slMap.DTSDeltaLength = 0;</span>
+<span class="lineNum">     354 </span>            :         }
+<span class="lineNum">     355 </span>            : 
+<span class="lineNum">     356 </span><span class="lineNoCov">          0 :         if ((builder-&gt;flags &amp; GP_RTP_PCK_SIGNAL_AU_IDX) &amp;&amp; builder-&gt;sl_config.AUSeqNumLength) {</span>
+<span class="lineNum">     357 </span><span class="lineNoCov">          0 :                 builder-&gt;slMap.IndexLength = builder-&gt;sl_config.AUSeqNumLength;</span>
+<span class="lineNum">     358 </span>            :                 /*and k-1 AUs in Delta*/
+<span class="lineNum">     359 </span><span class="lineNoCov">          0 :                 builder-&gt;slMap.IndexDeltaLength = (builder-&gt;flags &amp; GP_RTP_PCK_USE_INTERLEAVING) ? gf_get_bit_size(k-1) : 0;</span>
+<span class="lineNum">     360 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     361 </span><span class="lineNoCov">          0 :         else if (builder-&gt;flags &amp; GP_RTP_PCK_SYSTEMS_CAROUSEL) {</span>
+<span class="lineNum">     362 </span><span class="lineNoCov">          0 :                 if (!builder-&gt;sl_config.AUSeqNumLength) builder-&gt;sl_config.AUSeqNumLength = 4;</span>
+<span class="lineNum">     363 </span><span class="lineNoCov">          0 :                 builder-&gt;slMap.StreamStateIndication = builder-&gt;sl_config.AUSeqNumLength;</span>
+<span class="lineNum">     364 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     365 </span>            : 
+<span class="lineNum">     366 </span>            :         /*RAP*/
+<span class="lineNum">     367 </span><span class="lineNoCov">          0 :         if (builder-&gt;sl_config.useRandomAccessPointFlag &amp;&amp; (builder-&gt;flags &amp; GP_RTP_PCK_SIGNAL_RAP)) {</span>
+<span class="lineNum">     368 </span><span class="lineNoCov">          0 :                 builder-&gt;slMap.RandomAccessIndication = GF_TRUE;</span>
+<span class="lineNum">     369 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     370 </span><span class="lineNoCov">          0 :                 builder-&gt;slMap.RandomAccessIndication = GF_FALSE;</span>
+<span class="lineNum">     371 </span>            :         }
+<span class="lineNum">     372 </span>            : 
+<span class="lineNum">     373 </span>            : check_header:
+<span class="lineNum">     374 </span>            : 
+<span class="lineNum">     375 </span>            :         /*IV delta only if interleaving (otherwise reconstruction from IV is trivial)*/
+<span class="lineNum">     376 </span><span class="lineCov">          4 :         if (IV_length &amp;&amp; (builder-&gt;flags &amp; GP_RTP_PCK_USE_INTERLEAVING)) {</span>
+<span class="lineNum">     377 </span><span class="lineNoCov">          0 :                 builder-&gt;slMap.IV_delta_length = gf_get_bit_size(maxSize);</span>
+<span class="lineNum">     378 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     379 </span>            :         /*ISMACryp video mode*/
+<span class="lineNum">     380 </span><span class="lineCov">          6 :         if ((builder-&gt;slMap.StreamType==GF_STREAM_VISUAL) &amp;&amp; (builder-&gt;slMap.ObjectTypeIndication==GPAC_OTI_VIDEO_MPEG4_PART2)</span>
+<span class="lineNum">     381 </span><span class="lineCov">          4 :                 &amp;&amp; (builder-&gt;flags &amp; GP_RTP_PCK_SIGNAL_RAP) &amp;&amp; builder-&gt;slMap.IV_length</span>
+<span class="lineNum">     382 </span><span class="lineNoCov">          0 :                 &amp;&amp; !(builder-&gt;flags &amp; GP_RTP_PCK_SIGNAL_AU_IDX) &amp;&amp; !(builder-&gt;flags &amp; GP_RTP_PCK_SIGNAL_SIZE)</span>
+<span class="lineNum">     383 </span>            :                 /*shall have SignalTS*/
+<span class="lineNum">     384 </span><span class="lineNoCov">          0 :                 &amp;&amp; (builder-&gt;flags &amp; GP_RTP_PCK_SIGNAL_TS) &amp;&amp; !(builder-&gt;flags &amp; GP_RTP_PCK_USE_MULTI)</span>
+<span class="lineNum">     385 </span>            :            ) {
+<span class="lineNum">     386 </span><span class="lineNoCov">          0 :                 strcpy(builder-&gt;slMap.mode, &quot;mpeg4-video&quot;);</span>
+<span class="lineNum">     387 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     388 </span>            :         /*ISMACryp AVC video mode*/
+<span class="lineNum">     389 </span><span class="lineCov">          6 :         else if ((builder-&gt;slMap.StreamType==GF_STREAM_VISUAL) &amp;&amp; (builder-&gt;slMap.ObjectTypeIndication==GPAC_OTI_VIDEO_AVC)</span>
+<span class="lineNum">     390 </span><span class="lineCov">          2 :                  &amp;&amp; (builder-&gt;flags &amp; GP_RTP_PCK_SIGNAL_RAP) &amp;&amp; builder-&gt;slMap.IV_length</span>
+<span class="lineNum">     391 </span><span class="lineNoCov">          0 :                  &amp;&amp; !(builder-&gt;flags &amp; GP_RTP_PCK_SIGNAL_AU_IDX) &amp;&amp; !(builder-&gt;flags &amp; GP_RTP_PCK_SIGNAL_SIZE)</span>
+<span class="lineNum">     392 </span>            :                  /*shall have SignalTS*/
+<span class="lineNum">     393 </span><span class="lineNoCov">          0 :                  &amp;&amp; (builder-&gt;flags &amp; GP_RTP_PCK_SIGNAL_TS) &amp;&amp; !(builder-&gt;flags &amp; GP_RTP_PCK_USE_MULTI)</span>
+<span class="lineNum">     394 </span>            :                 ) {
+<span class="lineNum">     395 </span><span class="lineNoCov">          0 :                 strcpy(builder-&gt;slMap.mode, &quot;avc-video&quot;);</span>
+<span class="lineNum">     396 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     397 </span>            : 
+<span class="lineNum">     398 </span>            :         /*check if we use AU header or not*/
+<span class="lineNum">     399 </span><span class="lineCov">          6 :         if (!builder-&gt;slMap.SizeLength</span>
+<span class="lineNum">     400 </span><span class="lineCov">          6 :                 &amp;&amp; !builder-&gt;slMap.IndexLength</span>
+<span class="lineNum">     401 </span><span class="lineCov">          4 :                 &amp;&amp; !builder-&gt;slMap.IndexDeltaLength</span>
+<span class="lineNum">     402 </span><span class="lineCov">          4 :                 &amp;&amp; !builder-&gt;slMap.DTSDeltaLength</span>
+<span class="lineNum">     403 </span><span class="lineCov">          4 :                 &amp;&amp; !builder-&gt;slMap.CTSDeltaLength</span>
+<span class="lineNum">     404 </span><span class="lineCov">          4 :                 &amp;&amp; !builder-&gt;slMap.RandomAccessIndication</span>
+<span class="lineNum">     405 </span><span class="lineCov">          4 :                 &amp;&amp; !builder-&gt;slMap.IV_length</span>
+<span class="lineNum">     406 </span><span class="lineCov">          4 :                 &amp;&amp; !builder-&gt;slMap.KI_length</span>
+<span class="lineNum">     407 </span>            :            ) {
+<span class="lineNum">     408 </span><span class="lineCov">          2 :                 builder-&gt;has_AU_header = GF_FALSE;</span>
+<span class="lineNum">     409 </span><span class="lineCov">          2 :         } else {</span>
+<span class="lineNum">     410 </span><span class="lineCov">          2 :                 builder-&gt;has_AU_header = GF_TRUE;</span>
+<span class="lineNum">     411 </span>            :         }
+<a name="412"><span class="lineNum">     412 </span><span class="lineCov">         18 : }</span></a>
+<span class="lineNum">     413 </span>            : 
+<span class="lineNum">     414 </span>            : void gp_rtp_builder_set_cryp_info(GP_RTPPacketizer *builder, u64 IV, char *key_indicator, Bool is_encrypted)
+<span class="lineNum">     415 </span>            : {
+<span class="lineNum">     416 </span><span class="lineNoCov">          0 :         if (!key_indicator) {</span>
+<span class="lineNum">     417 </span><span class="lineNoCov">          0 :                 if (builder-&gt;key_indicator) {</span>
+<span class="lineNum">     418 </span>            :                         /*force flush if no provision for keyIndicator per AU*/
+<span class="lineNum">     419 </span><span class="lineNoCov">          0 :                         builder-&gt;force_flush = (builder-&gt;flags &amp; GP_RTP_PCK_KEY_IDX_PER_AU) ? GF_FALSE : GF_TRUE;</span>
+<span class="lineNum">     420 </span><span class="lineNoCov">          0 :                         gf_free(builder-&gt;key_indicator);</span>
+<span class="lineNum">     421 </span><span class="lineNoCov">          0 :                         builder-&gt;key_indicator = NULL;</span>
+<span class="lineNum">     422 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     423 </span><span class="lineNoCov">          0 :         } else if (!builder-&gt;key_indicator</span>
+<span class="lineNum">     424 </span><span class="lineNoCov">          0 :                    ||</span>
+<span class="lineNum">     425 </span><span class="lineNoCov">          0 :                    memcmp(builder-&gt;key_indicator, key_indicator, sizeof(char)*builder-&gt;slMap.KI_length)</span>
+<span class="lineNum">     426 </span>            :                   ) {
+<span class="lineNum">     427 </span>            :                 /*force flush if no provision for keyIndicator per AU*/
+<span class="lineNum">     428 </span><span class="lineNoCov">          0 :                 builder-&gt;force_flush = (builder-&gt;flags &amp; GP_RTP_PCK_KEY_IDX_PER_AU) ? GF_FALSE : GF_TRUE;</span>
+<span class="lineNum">     429 </span>            : 
+<span class="lineNum">     430 </span><span class="lineNoCov">          0 :                 if (!builder-&gt;key_indicator) builder-&gt;key_indicator = (char *) gf_malloc(sizeof(char)*builder-&gt;slMap.KI_length);</span>
+<span class="lineNum">     431 </span><span class="lineNoCov">          0 :                 memcpy(builder-&gt;key_indicator, key_indicator, sizeof(char)*builder-&gt;slMap.KI_length);</span>
+<span class="lineNum">     432 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     433 </span><span class="lineNoCov">          0 :         if (builder-&gt;IV != IV) {</span>
+<span class="lineNum">     434 </span><span class="lineNoCov">          0 :                 builder-&gt;IV = IV;</span>
+<span class="lineNum">     435 </span><span class="lineNoCov">          0 :                 if (builder-&gt;slMap.IV_delta_length &amp;&amp; (builder-&gt;slMap.IV_delta_length &lt; gf_get_bit_size((u32) (IV - builder-&gt;first_AU_IV) ))) {</span>
+<span class="lineNum">     436 </span><span class="lineNoCov">          0 :                         builder-&gt;first_AU_IV = IV;</span>
+<span class="lineNum">     437 </span><span class="lineNoCov">          0 :                         builder-&gt;force_flush = GF_TRUE;</span>
+<span class="lineNum">     438 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     439 </span>            :         }
+<span class="lineNum">     440 </span><span class="lineNoCov">          0 :         builder-&gt;is_encrypted = is_encrypted;</span>
+<span class="lineNum">     441 </span><span class="lineNoCov">          0 : }</span>
+<a name="442"><span class="lineNum">     442 </span>            : </a>
+<span class="lineNum">     443 </span>            : GF_EXPORT
+<span class="lineNum">     444 </span>            : Bool gf_rtp_builder_get_payload_name(GP_RTPPacketizer *rtpb, char *szPayloadName, char *szMediaName)
+<span class="lineNum">     445 </span>            : {
+<span class="lineNum">     446 </span><span class="lineCov">         32 :         u32 flags = rtpb-&gt;flags;</span>
+<span class="lineNum">     447 </span>            : 
+<span class="lineNum">     448 </span><span class="lineCov">         16 :         switch (rtpb-&gt;rtp_payt) {</span>
+<span class="lineNum">     449 </span>            :         case GF_RTP_PAYT_MPEG4:
+<span class="lineNum">     450 </span><span class="lineCov">          6 :                 if ((rtpb-&gt;slMap.StreamType==GF_STREAM_VISUAL) &amp;&amp; (rtpb-&gt;slMap.ObjectTypeIndication==GPAC_OTI_VIDEO_MPEG4_PART2)) {</span>
+<span class="lineNum">     451 </span><span class="lineCov">          2 :                         strcpy(szMediaName, &quot;video&quot;);</span>
+<span class="lineNum">     452 </span>            :                         /*ISMACryp video*/
+<span class="lineNum">     453 </span><span class="lineCov">          2 :                         if ( (flags &amp; GP_RTP_PCK_SIGNAL_RAP) &amp;&amp; rtpb-&gt;slMap.IV_length</span>
+<span class="lineNum">     454 </span><span class="lineNoCov">          0 :                                 &amp;&amp; !(flags &amp; GP_RTP_PCK_SIGNAL_AU_IDX) &amp;&amp; !(flags &amp; GP_RTP_PCK_SIGNAL_SIZE)</span>
+<span class="lineNum">     455 </span><span class="lineNoCov">          0 :                                 &amp;&amp; (flags &amp; GP_RTP_PCK_SIGNAL_TS) &amp;&amp; !(flags &amp; GP_RTP_PCK_USE_MULTI)</span>
+<span class="lineNum">     456 </span>            :                            )
+<span class="lineNum">     457 </span>            :                         {
+<span class="lineNum">     458 </span><span class="lineNoCov">          0 :                                 strcpy(szPayloadName, &quot;enc-mpeg4-generic&quot;);</span>
+<span class="lineNum">     459 </span><span class="lineNoCov">          0 :                                 return GF_TRUE;</span>
+<span class="lineNum">     460 </span>            :                         }
+<span class="lineNum">     461 </span>            :                         /*mpeg4-generic*/
+<span class="lineNum">     462 </span><span class="lineCov">          8 :                         if ( (flags &amp; GP_RTP_PCK_SIGNAL_RAP) || (flags &amp; GP_RTP_PCK_SIGNAL_AU_IDX) || (flags &amp; GP_RTP_PCK_SIGNAL_SIZE)</span>
+<span class="lineNum">     463 </span><span class="lineCov">          6 :                                 || (flags &amp; GP_RTP_PCK_SIGNAL_TS) || (flags &amp; GP_RTP_PCK_USE_MULTI) ) {</span>
+<span class="lineNum">     464 </span><span class="lineNoCov">          0 :                                 strcpy(szPayloadName, &quot;mpeg4-generic&quot;);</span>
+<span class="lineNum">     465 </span><span class="lineNoCov">          0 :                                 return GF_TRUE;</span>
+<span class="lineNum">     466 </span>            :                         } else {
+<span class="lineNum">     467 </span><span class="lineCov">          2 :                                 strcpy(szPayloadName, &quot;MP4V-ES&quot;);</span>
+<span class="lineNum">     468 </span><span class="lineCov">          2 :                                 return GF_TRUE;</span>
+<span class="lineNum">     469 </span>            :                         }
+<span class="lineNum">     470 </span>            :                 }
+<span class="lineNum">     471 </span>            :                 /*for all other types*/
+<span class="lineNum">     472 </span><span class="lineCov">          4 :                 if (rtpb-&gt;slMap.StreamType==GF_STREAM_AUDIO) strcpy(szMediaName, &quot;audio&quot;);</span>
+<span class="lineNum">     473 </span><span class="lineNoCov">          0 :                 else if (rtpb-&gt;slMap.StreamType==GF_STREAM_MPEGJ) strcpy(szMediaName, &quot;application&quot;);</span>
+<span class="lineNum">     474 </span><span class="lineNoCov">          0 :                 else strcpy(szMediaName, &quot;video&quot;);</span>
+<span class="lineNum">     475 </span><span class="lineCov">          2 :                 strcpy(szPayloadName, rtpb-&gt;slMap.IV_length ? &quot;enc-mpeg4-generic&quot; : &quot;mpeg4-generic&quot;);</span>
+<span class="lineNum">     476 </span><span class="lineCov">          2 :                 return GF_TRUE;</span>
+<span class="lineNum">     477 </span>            :         case GF_RTP_PAYT_MPEG12_VIDEO:
+<span class="lineNum">     478 </span><span class="lineNoCov">          0 :                 strcpy(szMediaName, &quot;video&quot;);</span>
+<span class="lineNum">     479 </span><span class="lineNoCov">          0 :                 strcpy(szPayloadName, &quot;MPV&quot;);</span>
+<span class="lineNum">     480 </span><span class="lineNoCov">          0 :                 return GF_TRUE;</span>
+<span class="lineNum">     481 </span>            :         case GF_RTP_PAYT_MPEG12_AUDIO:
+<span class="lineNum">     482 </span><span class="lineCov">          2 :                 strcpy(szMediaName, &quot;audio&quot;);</span>
+<span class="lineNum">     483 </span><span class="lineCov">          2 :                 strcpy(szPayloadName, &quot;MPA&quot;);</span>
+<span class="lineNum">     484 </span><span class="lineCov">          2 :                 return GF_TRUE;</span>
+<span class="lineNum">     485 </span>            :         case GF_RTP_PAYT_H263:
+<span class="lineNum">     486 </span><span class="lineCov">          2 :                 strcpy(szMediaName, &quot;video&quot;);</span>
+<span class="lineNum">     487 </span><span class="lineCov">          2 :                 strcpy(szPayloadName, &quot;H263-1998&quot;);</span>
+<span class="lineNum">     488 </span><span class="lineCov">          2 :                 return GF_TRUE;</span>
+<span class="lineNum">     489 </span>            :         case GF_RTP_PAYT_AMR:
+<span class="lineNum">     490 </span><span class="lineCov">          2 :                 strcpy(szMediaName, &quot;audio&quot;);</span>
+<span class="lineNum">     491 </span><span class="lineCov">          2 :                 strcpy(szPayloadName, &quot;AMR&quot;);</span>
+<span class="lineNum">     492 </span><span class="lineCov">          2 :                 return GF_TRUE;</span>
+<span class="lineNum">     493 </span>            :         case GF_RTP_PAYT_AMR_WB:
+<span class="lineNum">     494 </span><span class="lineNoCov">          0 :                 strcpy(szMediaName, &quot;audio&quot;);</span>
+<span class="lineNum">     495 </span><span class="lineNoCov">          0 :                 strcpy(szPayloadName, &quot;AMR-WB&quot;);</span>
+<span class="lineNum">     496 </span><span class="lineNoCov">          0 :                 return GF_TRUE;</span>
+<span class="lineNum">     497 </span>            :         case GF_RTP_PAYT_3GPP_TEXT:
+<span class="lineNum">     498 </span><span class="lineNoCov">          0 :                 strcpy(szMediaName, &quot;text&quot;);</span>
+<span class="lineNum">     499 </span><span class="lineNoCov">          0 :                 strcpy(szPayloadName, &quot;3gpp-tt&quot;);</span>
+<span class="lineNum">     500 </span><span class="lineNoCov">          0 :                 return GF_TRUE;</span>
+<span class="lineNum">     501 </span>            :         case GF_RTP_PAYT_H264_AVC:
+<span class="lineNum">     502 </span><span class="lineCov">          2 :                 strcpy(szMediaName, &quot;video&quot;);</span>
+<span class="lineNum">     503 </span><span class="lineCov">          2 :                 strcpy(szPayloadName, &quot;H264&quot;);</span>
+<span class="lineNum">     504 </span><span class="lineCov">          2 :                 return GF_TRUE;</span>
+<span class="lineNum">     505 </span>            :         case GF_RTP_PAYT_QCELP:
+<span class="lineNum">     506 </span><span class="lineCov">          4 :                 strcpy(szMediaName, &quot;audio&quot;);</span>
+<span class="lineNum">     507 </span><span class="lineCov">          4 :                 strcpy(szPayloadName, &quot;QCELP&quot;);</span>
+<span class="lineNum">     508 </span><span class="lineCov">          4 :                 return GF_TRUE;</span>
+<span class="lineNum">     509 </span>            :         case GF_RTP_PAYT_EVRC_SMV:
+<span class="lineNum">     510 </span><span class="lineNoCov">          0 :                 strcpy(szMediaName, &quot;audio&quot;);</span>
+<span class="lineNum">     511 </span><span class="lineNoCov">          0 :                 strcpy(szPayloadName, (rtpb-&gt;slMap.ObjectTypeIndication==0xA0) ? &quot;EVRC&quot; : &quot;SMV&quot;);</span>
+<span class="lineNum">     512 </span>            :                 /*header-free version*/
+<span class="lineNum">     513 </span><span class="lineNoCov">          0 :                 if (rtpb-&gt;auh_size&lt;=1) strcat(szPayloadName, &quot;0&quot;);</span>
+<span class="lineNum">     514 </span><span class="lineNoCov">          0 :                 return GF_TRUE;</span>
+<span class="lineNum">     515 </span>            :         case GF_RTP_PAYT_LATM:
+<span class="lineNum">     516 </span><span class="lineNoCov">          0 :                 strcpy(szMediaName, &quot;audio&quot;);</span>
+<span class="lineNum">     517 </span><span class="lineNoCov">          0 :                 strcpy(szPayloadName, &quot;MP4A-LATM&quot;);</span>
+<span class="lineNum">     518 </span><span class="lineNoCov">          0 :                 return GF_TRUE;</span>
+<span class="lineNum">     519 </span>            :         case GF_RTP_PAYT_3GPP_DIMS:
+<span class="lineNum">     520 </span><span class="lineNoCov">          0 :                 strcpy(szMediaName, &quot;video&quot;);</span>
+<span class="lineNum">     521 </span><span class="lineNoCov">          0 :                 strcpy(szPayloadName, &quot;richmedia+xml&quot;);</span>
+<span class="lineNum">     522 </span><span class="lineNoCov">          0 :                 return GF_TRUE;</span>
+<span class="lineNum">     523 </span>            :         case GF_RTP_PAYT_AC3:
+<span class="lineNum">     524 </span><span class="lineNoCov">          0 :                 strcpy(szMediaName, &quot;audio&quot;);</span>
+<span class="lineNum">     525 </span><span class="lineNoCov">          0 :                 strcpy(szPayloadName, &quot;ac3&quot;);</span>
+<span class="lineNum">     526 </span><span class="lineNoCov">          0 :                 return GF_TRUE;</span>
+<span class="lineNum">     527 </span>            :         case GF_RTP_PAYT_H264_SVC:
+<span class="lineNum">     528 </span><span class="lineNoCov">          0 :                 strcpy(szMediaName, &quot;video&quot;);</span>
+<span class="lineNum">     529 </span><span class="lineNoCov">          0 :                 strcpy(szPayloadName, &quot;H264-SVC&quot;);</span>
+<span class="lineNum">     530 </span><span class="lineNoCov">          0 :                 return GF_TRUE;</span>
+<span class="lineNum">     531 </span>            :         case GF_RTP_PAYT_HEVC:
+<span class="lineNum">     532 </span><span class="lineNoCov">          0 :                 strcpy(szMediaName, &quot;video&quot;);</span>
+<span class="lineNum">     533 </span><span class="lineNoCov">          0 :                 strcpy(szPayloadName, &quot;H265&quot;);</span>
+<span class="lineNum">     534 </span><span class="lineNoCov">          0 :                 return GF_TRUE;</span>
+<span class="lineNum">     535 </span>            :         case GF_RTP_PAYT_LHVC:
+<span class="lineNum">     536 </span><span class="lineNoCov">          0 :                 strcpy(szMediaName, &quot;video&quot;);</span>
+<span class="lineNum">     537 </span><span class="lineNoCov">          0 :                 strcpy(szPayloadName, &quot;H265-SHVC&quot;);</span>
+<span class="lineNum">     538 </span><span class="lineNoCov">          0 :                 return GF_TRUE;</span>
+<span class="lineNum">     539 </span>            :         default:
+<span class="lineNum">     540 </span><span class="lineNoCov">          0 :                 strcpy(szMediaName, &quot;&quot;);</span>
+<span class="lineNum">     541 </span><span class="lineNoCov">          0 :                 strcpy(szPayloadName, &quot;&quot;);</span>
+<span class="lineNum">     542 </span><span class="lineNoCov">          0 :                 return GF_FALSE;</span>
+<span class="lineNum">     543 </span>            :         }
+<span class="lineNum">     544 </span>            :         return GF_FALSE;
+<span class="lineNum">     545 </span><span class="lineCov">         16 : }</span>
+<span class="lineNum">     546 </span>            : 
+<a name="547"><span class="lineNum">     547 </span>            : </a>
+<span class="lineNum">     548 </span>            : GF_EXPORT
+<span class="lineNum">     549 </span>            : GF_Err gf_rtp_builder_format_sdp(GP_RTPPacketizer *builder, char *payload_name, char *sdpLine, char *dsi, u32 dsi_size)
+<span class="lineNum">     550 </span>            : {
+<span class="lineNum">     551 </span><span class="lineCov">          8 :         char buffer[20000], dsiString[20000];</span>
+<span class="lineNum">     552 </span>            :         u32 i, k;
+<span class="lineNum">     553 </span>            :         Bool is_first = GF_TRUE;
+<span class="lineNum">     554 </span>            : 
+<span class="lineNum">     555 </span><span class="lineCov">          4 :         if ((builder-&gt;rtp_payt!=GF_RTP_PAYT_MPEG4) &amp;&amp; (builder-&gt;rtp_payt!=GF_RTP_PAYT_LATM) ) return GF_BAD_PARAM;</span>
+<span class="lineNum">     556 </span>            : 
+<span class="lineNum">     557 </span>            : #define SDP_ADD_INT(_name, _val) { if (!is_first) strcat(sdpLine, &quot;; &quot;); sprintf(buffer, &quot;%s=%d&quot;, _name, _val); strcat(sdpLine, buffer); is_first = 0;}
+<span class="lineNum">     558 </span>            : #define SDP_ADD_STR(_name, _val) { if (!is_first) strcat(sdpLine, &quot;; &quot;); sprintf(buffer, &quot;%s=%s&quot;, _name, _val); strcat(sdpLine, buffer); is_first = 0;}
+<span class="lineNum">     559 </span>            : 
+<span class="lineNum">     560 </span><span class="lineCov">          4 :         sprintf(sdpLine, &quot;a=fmtp:%d &quot;, builder-&gt;PayloadType);</span>
+<span class="lineNum">     561 </span>            : 
+<span class="lineNum">     562 </span>            :         /*mandatory fields*/
+<span class="lineNum">     563 </span><span class="lineCov">         12 :         if (builder-&gt;slMap.PL_ID) SDP_ADD_INT(&quot;profile-level-id&quot;, builder-&gt;slMap.PL_ID);</span>
+<span class="lineNum">     564 </span>            : 
+<span class="lineNum">     565 </span><span class="lineCov">          4 :         if (builder-&gt;rtp_payt == GF_RTP_PAYT_LATM) SDP_ADD_INT(&quot;cpresent&quot;, 0);</span>
+<span class="lineNum">     566 </span>            : 
+<span class="lineNum">     567 </span><span class="lineCov">          4 :         if (dsi &amp;&amp; dsi_size) {</span>
+<span class="lineNum">     568 </span>            :                 k = 0;
+<span class="lineNum">     569 </span><span class="lineCov">        366 :                 for (i=0; i&lt;dsi_size; i++) {</span>
+<span class="lineNum">     570 </span><span class="lineCov">        240 :                         sprintf(&amp;dsiString[k], &quot;%02x&quot;, (unsigned char) dsi[i]);</span>
+<span class="lineNum">     571 </span><span class="lineCov">        118 :                         k+=2;</span>
+<span class="lineNum">     572 </span>            :                 }
+<span class="lineNum">     573 </span><span class="lineCov">          4 :                 dsiString[k] = 0;</span>
+<span class="lineNum">     574 </span><span class="lineCov">         12 :                 SDP_ADD_STR(&quot;config&quot;, dsiString);</span>
+<span class="lineNum">     575 </span><span class="lineCov">          4 :         }</span>
+<span class="lineNum">     576 </span><span class="lineCov">          8 :         if (!strcmp(payload_name, &quot;MP4V-ES&quot;) || (builder-&gt;rtp_payt == GF_RTP_PAYT_LATM) ) return GF_OK;</span>
+<span class="lineNum">     577 </span>            : 
+<span class="lineNum">     578 </span><span class="lineCov">          6 :         SDP_ADD_INT(&quot;streamType&quot;, builder-&gt;slMap.StreamType);</span>
+<span class="lineNum">     579 </span><span class="lineCov">          4 :         if (strcmp(builder-&gt;slMap.mode, &quot;&quot;) &amp;&amp; strcmp(builder-&gt;slMap.mode, &quot;default&quot;)) {</span>
+<span class="lineNum">     580 </span><span class="lineCov">          6 :                 SDP_ADD_STR(&quot;mode&quot;, builder-&gt;slMap.mode);</span>
+<span class="lineNum">     581 </span><span class="lineCov">          2 :         } else {</span>
+<span class="lineNum">     582 </span><span class="lineNoCov">          0 :                 SDP_ADD_STR(&quot;mode&quot;, &quot;generic&quot;);</span>
+<span class="lineNum">     583 </span>            :         }
+<span class="lineNum">     584 </span>            : 
+<span class="lineNum">     585 </span>            :         /*optional fields*/
+<span class="lineNum">     586 </span><span class="lineCov">          8 :         if (builder-&gt;slMap.ObjectTypeIndication) SDP_ADD_INT(&quot;objectType&quot;, builder-&gt;slMap.ObjectTypeIndication);</span>
+<span class="lineNum">     587 </span><span class="lineCov">          2 :         if (builder-&gt;slMap.ConstantSize) SDP_ADD_INT(&quot;constantSize&quot;, builder-&gt;slMap.ConstantSize);</span>
+<span class="lineNum">     588 </span><span class="lineCov">          8 :         if (builder-&gt;slMap.ConstantDuration) SDP_ADD_INT(&quot;constantDuration&quot;, builder-&gt;slMap.ConstantDuration);</span>
+<span class="lineNum">     589 </span><span class="lineCov">          2 :         if (builder-&gt;slMap.maxDisplacement) SDP_ADD_INT(&quot;maxDisplacement&quot;, builder-&gt;slMap.maxDisplacement);</span>
+<span class="lineNum">     590 </span><span class="lineCov">          2 :         if (builder-&gt;slMap.deinterleaveBufferSize) SDP_ADD_INT(&quot;de-interleaveBufferSize&quot;, builder-&gt;slMap.deinterleaveBufferSize);</span>
+<span class="lineNum">     591 </span><span class="lineCov">          8 :         if (builder-&gt;slMap.SizeLength) SDP_ADD_INT(&quot;sizeLength&quot;, builder-&gt;slMap.SizeLength);</span>
+<span class="lineNum">     592 </span><span class="lineCov">          8 :         if (builder-&gt;slMap.IndexLength) SDP_ADD_INT(&quot;indexLength&quot;, builder-&gt;slMap.IndexLength);</span>
+<span class="lineNum">     593 </span><span class="lineCov">          8 :         if (builder-&gt;slMap.IndexDeltaLength) SDP_ADD_INT(&quot;indexDeltaLength&quot;, builder-&gt;slMap.IndexDeltaLength);</span>
+<span class="lineNum">     594 </span><span class="lineCov">          2 :         if (builder-&gt;slMap.CTSDeltaLength) SDP_ADD_INT(&quot;CTSDeltaLength&quot;, builder-&gt;slMap.CTSDeltaLength);</span>
+<span class="lineNum">     595 </span><span class="lineCov">          2 :         if (builder-&gt;slMap.DTSDeltaLength) SDP_ADD_INT(&quot;DTSDeltaLength&quot;, builder-&gt;slMap.DTSDeltaLength);</span>
+<span class="lineNum">     596 </span><span class="lineCov">          2 :         if (builder-&gt;slMap.RandomAccessIndication) SDP_ADD_INT(&quot;randomAccessIndication&quot;, builder-&gt;slMap.RandomAccessIndication);</span>
+<span class="lineNum">     597 </span><span class="lineCov">          2 :         if (builder-&gt;slMap.StreamStateIndication) SDP_ADD_INT(&quot;streamStateIndication&quot;, builder-&gt;slMap.StreamStateIndication);</span>
+<span class="lineNum">     598 </span><span class="lineCov">          2 :         if (builder-&gt;slMap.AuxiliaryDataSizeLength) SDP_ADD_INT(&quot;auxiliaryDataSizeLength&quot;, builder-&gt;slMap.AuxiliaryDataSizeLength);</span>
+<span class="lineNum">     599 </span>            : 
+<span class="lineNum">     600 </span>            :         /*ISMACryp config*/
+<span class="lineNum">     601 </span><span class="lineCov">          2 :         if (builder-&gt;slMap.IV_length) {</span>
+<span class="lineNum">     602 </span>            :                 /*don't write default*/
+<span class="lineNum">     603 </span>            :                 /*SDP_ADD_STR(&quot;ISMACrypCryptoSuite&quot;, &quot;AES_CTR_128&quot;);*/
+<span class="lineNum">     604 </span><span class="lineNoCov">          0 :                 if (builder-&gt;flags &amp; GP_RTP_PCK_SELECTIVE_ENCRYPTION) SDP_ADD_INT(&quot;ISMACrypSelectiveEncryption&quot;, 1);</span>
+<span class="lineNum">     605 </span><span class="lineNoCov">          0 :                 SDP_ADD_INT(&quot;ISMACrypIVLength&quot;, builder-&gt;slMap.IV_length);</span>
+<span class="lineNum">     606 </span><span class="lineNoCov">          0 :                 if (builder-&gt;slMap.IV_delta_length) SDP_ADD_INT(&quot;ISMACrypDeltaIVLength&quot;, builder-&gt;slMap.IV_delta_length);</span>
+<span class="lineNum">     607 </span><span class="lineNoCov">          0 :                 if (builder-&gt;slMap.KI_length) SDP_ADD_INT(&quot;ISMACrypKeyIndicatorLength&quot;, builder-&gt;slMap.KI_length);</span>
+<span class="lineNum">     608 </span><span class="lineNoCov">          0 :                 if (builder-&gt;flags &amp; GP_RTP_PCK_KEY_IDX_PER_AU) SDP_ADD_INT(&quot;ISMACrypKeyIndicatorPerAU&quot;, 1);</span>
+<span class="lineNum">     609 </span>            :         }
+<span class="lineNum">     610 </span><span class="lineCov">          2 :         return GF_OK;</span>
+<span class="lineNum">     611 </span><span class="lineCov">          4 : }</span>
+<span class="lineNum">     612 </span>            : 
+<span class="lineNum">     613 </span>            : #endif /*GPAC_DISABLE_STREAMING*/
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

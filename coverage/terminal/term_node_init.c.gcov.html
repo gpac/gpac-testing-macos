@@ -1,0 +1,433 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - terminal/term_node_init.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">terminal</a> - term_node_init.c<span style="font-size: 80%;"> (source / <a href="term_node_init.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">33</td>
+            <td class="headerCovTableEntry">164</td>
+            <td class="headerCovTableEntryLo">20.1 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-05-14 22:31:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntryLo">40.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *                      GPAC - Multimedia Framework C SDK
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *                      Authors: Jean Le Feuvre
+<span class="lineNum">       5 </span>            :  *                      Copyright (c) Telecom ParisTech 2000-2012
+<span class="lineNum">       6 </span>            :  *                                      All rights reserved
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  *  This file is part of GPAC / Media terminal sub-project
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  *  GPAC is free software; you can redistribute it and/or modify
+<span class="lineNum">      11 </span>            :  *  it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">      12 </span>            :  *  the Free Software Foundation; either version 2, or (at your option)
+<span class="lineNum">      13 </span>            :  *  any later version.
+<span class="lineNum">      14 </span>            :  *
+<span class="lineNum">      15 </span>            :  *  GPAC is distributed in the hope that it will be useful,
+<span class="lineNum">      16 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      17 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      18 </span>            :  *  GNU Lesser General Public License for more details.
+<span class="lineNum">      19 </span>            :  *
+<span class="lineNum">      20 </span>            :  *  You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      21 </span>            :  *  License along with this library; see the file COPYING.  If not, write to
+<span class="lineNum">      22 </span>            :  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+<span class="lineNum">      23 </span>            :  *
+<span class="lineNum">      24 </span>            :  */
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : 
+<span class="lineNum">      27 </span>            : #include &lt;gpac/internal/terminal_dev.h&gt;
+<span class="lineNum">      28 </span>            : #include &lt;gpac/internal/compositor_dev.h&gt;
+<span class="lineNum">      29 </span>            : /*includes MPEG4 nodes + input sensor stack*/
+<span class="lineNum">      30 </span>            : #include &quot;input_sensor.h&quot;
+<span class="lineNum">      31 </span>            : /*includes X3D nodes for WorldInfo, Inline and Key/String sensors*/
+<span class="lineNum">      32 </span>            : #include &lt;gpac/nodes_x3d.h&gt;
+<span class="lineNum">      33 </span>            : #include &lt;gpac/nodes_svg.h&gt;
+<span class="lineNum">      34 </span>            : #include &lt;gpac/options.h&gt;
+<span class="lineNum">      35 </span>            : #ifndef GPAC_DISABLE_VRML
+<span class="lineNum">      36 </span>            : 
+<span class="lineNum">      37 </span>            : void InitMediaControl(GF_Scene *scene, GF_Node *node);
+<span class="lineNum">      38 </span>            : void MC_Modified(GF_Node *node);
+<span class="lineNum">      39 </span>            : 
+<span class="lineNum">      40 </span>            : void InitMediaSensor(GF_Scene *scene, GF_Node *node);
+<span class="lineNum">      41 </span>            : void MS_Modified(GF_Node *node);
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            : void gf_init_inline(GF_Scene *scene, GF_Node *node);
+<span class="lineNum">      44 </span>            : void gf_inline_on_modified(GF_Node *node);
+<span class="lineNum">      45 </span>            : 
+<span class="lineNum">      46 </span>            : void gf_scene_init_storage(GF_Scene *scene, GF_Node *node);
+<a name="47"><span class="lineNum">      47 </span>            : </a>
+<span class="lineNum">      48 </span>            : 
+<span class="lineNum">      49 </span>            : void TraverseWorldInfo(GF_Node *node, void *rs, Bool is_destroy)
+<span class="lineNum">      50 </span>            : {
+<span class="lineNum">      51 </span><span class="lineNoCov">          0 :         GF_Scene *scene = (GF_Scene *)gf_node_get_private(node);</span>
+<span class="lineNum">      52 </span><span class="lineNoCov">          0 :         scene-&gt;world_info = is_destroy ? NULL : (M_WorldInfo *) node;</span>
+<a name="53"><span class="lineNum">      53 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      54 </span>            : 
+<span class="lineNum">      55 </span>            : void TraverseKeyNavigator(GF_Node *node, void *rs, Bool is_destroy)
+<span class="lineNum">      56 </span>            : {
+<span class="lineNum">      57 </span><span class="lineNoCov">          0 :         if (is_destroy) {</span>
+<span class="lineNum">      58 </span><span class="lineNoCov">          0 :                 GF_Scene *scene = (GF_Scene *)gf_node_get_private(node);</span>
+<span class="lineNum">      59 </span><span class="lineNoCov">          0 :                 gf_list_del_item(scene-&gt;keynavigators, node);</span>
+<span class="lineNum">      60 </span><span class="lineNoCov">          0 :                 gf_sc_key_navigator_del(scene-&gt;root_od-&gt;term-&gt;compositor, node);</span>
+<span class="lineNum">      61 </span><span class="lineNoCov">          0 :         }</span>
+<a name="62"><span class="lineNum">      62 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      63 </span>            : 
+<span class="lineNum">      64 </span>            : void on_kn_set_focus(GF_Node*node, GF_Route *_route)
+<span class="lineNum">      65 </span>            : {
+<span class="lineNum">      66 </span><span class="lineNoCov">          0 :         GF_Scene *scene = (GF_Scene *)gf_node_get_private(node);</span>
+<span class="lineNum">      67 </span><span class="lineNoCov">          0 :         gf_sc_change_key_navigator(scene-&gt;root_od-&gt;term-&gt;compositor, node);</span>
+<a name="68"><span class="lineNum">      68 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      69 </span>            : 
+<span class="lineNum">      70 </span>            : void evaluate_term_cap(GF_Node *node, GF_Route *route)
+<span class="lineNum">      71 </span>            : {
+<span class="lineNum">      72 </span><span class="lineNoCov">          0 :         GF_SystemRTInfo rti;</span>
+<span class="lineNum">      73 </span>            :         Double fps;
+<span class="lineNum">      74 </span>            :         u32 height;
+<span class="lineNum">      75 </span><span class="lineNoCov">          0 :         Bool b_on;</span>
+<span class="lineNum">      76 </span><span class="lineNoCov">          0 :         u32 b_charge, b_level;</span>
+<span class="lineNum">      77 </span>            : 
+<span class="lineNum">      78 </span><span class="lineNoCov">          0 :         M_TermCap *tc = (M_TermCap *)node;</span>
+<span class="lineNum">      79 </span><span class="lineNoCov">          0 :         GF_Scene *scene = gf_node_get_private(node);</span>
+<span class="lineNum">      80 </span><span class="lineNoCov">          0 :         tc-&gt;value = 0;</span>
+<span class="lineNum">      81 </span><span class="lineNoCov">          0 :         switch (tc-&gt;capability) {</span>
+<span class="lineNum">      82 </span>            :         case 0: /*framerate*/
+<span class="lineNum">      83 </span><span class="lineNoCov">          0 :                 fps = gf_sc_get_fps(scene-&gt;root_od-&gt;term-&gt;compositor, 1);</span>
+<span class="lineNum">      84 </span><span class="lineNoCov">          0 :                 if (fps&lt;=5.0) tc-&gt;value = 1;</span>
+<span class="lineNum">      85 </span><span class="lineNoCov">          0 :                 else if (fps&lt;=10.0) tc-&gt;value = 2;</span>
+<span class="lineNum">      86 </span><span class="lineNoCov">          0 :                 else if (fps&lt;=20.0) tc-&gt;value = 3;</span>
+<span class="lineNum">      87 </span><span class="lineNoCov">          0 :                 else if (fps&lt;=40.0) tc-&gt;value = 4;</span>
+<span class="lineNum">      88 </span><span class="lineNoCov">          0 :                 else tc-&gt;value = 5;</span>
+<span class="lineNum">      89 </span>            :                 break;
+<span class="lineNum">      90 </span>            :         case 1: /*colordepth*/
+<span class="lineNum">      91 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">      92 </span>            :         case 2: /*screensize*/
+<span class="lineNum">      93 </span><span class="lineNoCov">          0 :                 height = scene-&gt;root_od-&gt;term-&gt;compositor-&gt;display_height;</span>
+<span class="lineNum">      94 </span><span class="lineNoCov">          0 :                 if (height&lt;200) tc-&gt;value = 1;</span>
+<span class="lineNum">      95 </span><span class="lineNoCov">          0 :                 else if (height&lt;400) tc-&gt;value = 2;</span>
+<span class="lineNum">      96 </span><span class="lineNoCov">          0 :                 else if (height&lt;800) tc-&gt;value = 3;</span>
+<span class="lineNum">      97 </span><span class="lineNoCov">          0 :                 else if (height&lt;1600) tc-&gt;value = 4;</span>
+<span class="lineNum">      98 </span>            :                 else tc-&gt;value = 4;
+<span class="lineNum">      99 </span>            :                 break;
+<span class="lineNum">     100 </span>            :         case 3: /*graphics hardware*/
+<span class="lineNum">     101 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     102 </span>            :         case 32:/*audio out format*/
+<span class="lineNum">     103 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     104 </span>            :         case 33:/*audio out format*/
+<span class="lineNum">     105 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     106 </span>            :         case 34:/*spatial audio cap*/
+<span class="lineNum">     107 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     108 </span>            :         case 64:/*CPU load*/
+<span class="lineNum">     109 </span><span class="lineNoCov">          0 :                 if (!gf_sys_get_rti(200, &amp;rti, 0) ) return;</span>
+<span class="lineNum">     110 </span><span class="lineNoCov">          0 :                 if (rti.total_cpu_usage&lt;20) tc-&gt;value = 1;</span>
+<span class="lineNum">     111 </span><span class="lineNoCov">          0 :                 else if (rti.total_cpu_usage&lt;40) tc-&gt;value = 2;</span>
+<span class="lineNum">     112 </span><span class="lineNoCov">          0 :                 else if (rti.total_cpu_usage&lt;60) tc-&gt;value = 3;</span>
+<span class="lineNum">     113 </span><span class="lineNoCov">          0 :                 else if (rti.total_cpu_usage&lt;80) tc-&gt;value = 4;</span>
+<span class="lineNum">     114 </span><span class="lineNoCov">          0 :                 else tc-&gt;value = 5;</span>
+<span class="lineNum">     115 </span>            :                 break;
+<span class="lineNum">     116 </span>            :         case 65:/*mem load*/
+<span class="lineNum">     117 </span><span class="lineNoCov">          0 :                 if (!gf_sys_get_rti(200, &amp;rti, GF_RTI_SYSTEM_MEMORY_ONLY) ) return;</span>
+<span class="lineNum">     118 </span><span class="lineNoCov">          0 :                 rti.physical_memory_avail /= 1024;</span>
+<span class="lineNum">     119 </span><span class="lineNoCov">          0 :                 if (rti.physical_memory_avail &lt; 100) tc-&gt;value = 1;</span>
+<span class="lineNum">     120 </span><span class="lineNoCov">          0 :                 else if (rti.physical_memory_avail &lt; 512) tc-&gt;value = 2;</span>
+<span class="lineNum">     121 </span><span class="lineNoCov">          0 :                 else if (rti.physical_memory_avail &lt; 2048) tc-&gt;value = 3;</span>
+<span class="lineNum">     122 </span><span class="lineNoCov">          0 :                 else if (rti.physical_memory_avail &lt; 8192) tc-&gt;value = 4;</span>
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 :                 else if (rti.physical_memory_avail &lt; 32768) tc-&gt;value = 5;</span>
+<span class="lineNum">     124 </span><span class="lineNoCov">          0 :                 else if (rti.physical_memory_avail &lt; 204800) tc-&gt;value = 6;</span>
+<span class="lineNum">     125 </span><span class="lineNoCov">          0 :                 else tc-&gt;value = 7;</span>
+<span class="lineNum">     126 </span>            :                 break;
+<span class="lineNum">     127 </span>            : 
+<span class="lineNum">     128 </span>            :         /*GPAC extensions*/
+<span class="lineNum">     129 </span>            :         case 100: /*display width*/
+<span class="lineNum">     130 </span><span class="lineNoCov">          0 :                 tc-&gt;value = scene-&gt;root_od-&gt;term-&gt;compositor-&gt;display_width;</span>
+<span class="lineNum">     131 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     132 </span>            :         case 101: /*display height*/
+<span class="lineNum">     133 </span><span class="lineNoCov">          0 :                 tc-&gt;value = scene-&gt;root_od-&gt;term-&gt;compositor-&gt;display_height;</span>
+<span class="lineNum">     134 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     135 </span>            :         case 102: /*frame rate*/
+<span class="lineNum">     136 </span><span class="lineNoCov">          0 :                 tc-&gt;value = (u32) gf_sc_get_fps(scene-&gt;root_od-&gt;term-&gt;compositor, 1);</span>
+<span class="lineNum">     137 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     138 </span>            :         case 103: /*total CPU*/
+<span class="lineNum">     139 </span><span class="lineNoCov">          0 :                 if (!gf_sys_get_rti(200, &amp;rti, 0) ) return;</span>
+<span class="lineNum">     140 </span><span class="lineNoCov">          0 :                 tc-&gt;value = rti.total_cpu_usage;</span>
+<span class="lineNum">     141 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     142 </span>            :         case 104: /*process CPU*/
+<span class="lineNum">     143 </span><span class="lineNoCov">          0 :                 if (!gf_sys_get_rti(200, &amp;rti, 0) ) return;</span>
+<span class="lineNum">     144 </span><span class="lineNoCov">          0 :                 tc-&gt;value = rti.process_cpu_usage;</span>
+<span class="lineNum">     145 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     146 </span>            :         case 106: /*total memory in kB*/
+<span class="lineNum">     147 </span><span class="lineNoCov">          0 :                 if (!gf_sys_get_rti(200, &amp;rti, GF_RTI_SYSTEM_MEMORY_ONLY) ) return;</span>
+<span class="lineNum">     148 </span><span class="lineNoCov">          0 :                 tc-&gt;value = (u32) (rti.physical_memory/1024);</span>
+<span class="lineNum">     149 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     150 </span>            :         case 107: /*total memory available in kB*/
+<span class="lineNum">     151 </span><span class="lineNoCov">          0 :                 if (!gf_sys_get_rti(200, &amp;rti, GF_RTI_SYSTEM_MEMORY_ONLY) ) return;</span>
+<span class="lineNum">     152 </span><span class="lineNoCov">          0 :                 tc-&gt;value = (u32) (rti.physical_memory_avail/1024);</span>
+<span class="lineNum">     153 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     154 </span>            :         case 108: /*process memory in kB*/
+<span class="lineNum">     155 </span><span class="lineNoCov">          0 :                 if (!gf_sys_get_rti(200, &amp;rti, 0) ) return;</span>
+<span class="lineNum">     156 </span><span class="lineNoCov">          0 :                 tc-&gt;value = (u32) (rti.process_memory/1024);</span>
+<span class="lineNum">     157 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     158 </span>            :         case 109: /*battery on/off*/
+<span class="lineNum">     159 </span><span class="lineNoCov">          0 :                 gf_sys_get_battery_state(&amp;b_on, &amp;b_charge, &amp;b_level, NULL, NULL);</span>
+<span class="lineNum">     160 </span><span class="lineNoCov">          0 :                 tc-&gt;value = b_on;</span>
+<span class="lineNum">     161 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     162 </span>            :         case 110: /*battery charging*/
+<span class="lineNum">     163 </span><span class="lineNoCov">          0 :                 gf_sys_get_battery_state(&amp;b_on, &amp;b_charge, &amp;b_level, NULL, NULL);</span>
+<span class="lineNum">     164 </span><span class="lineNoCov">          0 :                 tc-&gt;value = b_charge;</span>
+<span class="lineNum">     165 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     166 </span>            :         case 111: /*battery level*/
+<span class="lineNum">     167 </span><span class="lineNoCov">          0 :                 gf_sys_get_battery_state(&amp;b_on, &amp;b_charge, &amp;b_level, NULL, NULL);</span>
+<span class="lineNum">     168 </span><span class="lineNoCov">          0 :                 tc-&gt;value = b_level;</span>
+<span class="lineNum">     169 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     170 </span>            : 
+<span class="lineNum">     171 </span>            :         case 112: /*audio vol*/
+<span class="lineNum">     172 </span><span class="lineNoCov">          0 :                 tc-&gt;value = gf_sc_get_option(scene-&gt;root_od-&gt;term-&gt;compositor, GF_OPT_AUDIO_VOLUME);</span>
+<span class="lineNum">     173 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     174 </span>            :         case 113: /*audio pan*/
+<span class="lineNum">     175 </span><span class="lineNoCov">          0 :                 tc-&gt;value = gf_sc_get_option(scene-&gt;root_od-&gt;term-&gt;compositor, GF_OPT_AUDIO_PAN);</span>
+<span class="lineNum">     176 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     177 </span>            :         default:
+<span class="lineNum">     178 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     179 </span>            :         }
+<span class="lineNum">     180 </span><span class="lineNoCov">          0 :         gf_node_event_out(node, 2);</span>
+<a name="181"><span class="lineNum">     181 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     182 </span>            : 
+<span class="lineNum">     183 </span>            : static void InitTermCap(GF_Scene *scene, GF_Node *node)
+<span class="lineNum">     184 </span>            : {
+<span class="lineNum">     185 </span><span class="lineNoCov">          0 :         M_TermCap *tc = (M_TermCap *)node;</span>
+<span class="lineNum">     186 </span><span class="lineNoCov">          0 :         tc-&gt;on_evaluate = evaluate_term_cap;</span>
+<span class="lineNum">     187 </span><span class="lineNoCov">          0 :         gf_node_set_private(node, scene);</span>
+<span class="lineNum">     188 </span>            :         /*evaluate upon init (cf BIFS spec)*/
+<span class="lineNum">     189 </span><span class="lineNoCov">          0 :         evaluate_term_cap(node, NULL);</span>
+<span class="lineNum">     190 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     191 </span>            : 
+<span class="lineNum">     192 </span>            : #endif /*GPAC_DISABLE_VRML*/
+<span class="lineNum">     193 </span>            : 
+<a name="194"><span class="lineNum">     194 </span>            : </a>
+<span class="lineNum">     195 </span>            : #ifndef GPAC_DISABLE_SVG
+<span class="lineNum">     196 </span>            : static void svg_traverse_title(GF_Node *node, void *rs, Bool is_destroy)
+<span class="lineNum">     197 </span>            : {
+<span class="lineNum">     198 </span><span class="lineNoCov">          0 :         GF_Scene *scene = (GF_Scene *)gf_node_get_private(node);</span>
+<span class="lineNum">     199 </span><span class="lineNoCov">          0 :         scene-&gt;world_info = is_destroy ? NULL : node;</span>
+<span class="lineNum">     200 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     201 </span>            : #endif
+<a name="202"><span class="lineNum">     202 </span>            : </a>
+<span class="lineNum">     203 </span>            : 
+<span class="lineNum">     204 </span>            : void gf_term_on_node_init(void *_scene, GF_Node *node)
+<span class="lineNum">     205 </span>            : {
+<span class="lineNum">     206 </span><span class="lineCov">        854 :         GF_Scene *scene = (GF_Scene *)_scene;</span>
+<span class="lineNum">     207 </span><span class="lineCov">        427 :         if (!node || !scene) return;</span>
+<span class="lineNum">     208 </span>            : 
+<span class="lineNum">     209 </span><span class="lineCov">        854 :         switch (gf_node_get_tag(node)) {</span>
+<span class="lineNum">     210 </span>            : #ifndef GPAC_DISABLE_VRML
+<span class="lineNum">     211 </span>            : 
+<span class="lineNum">     212 </span>            :         case TAG_MPEG4_Inline:
+<span class="lineNum">     213 </span>            : #ifndef GPAC_DISABLE_X3D
+<span class="lineNum">     214 </span>            :         case TAG_X3D_Inline:
+<span class="lineNum">     215 </span>            : #endif
+<span class="lineNum">     216 </span><span class="lineCov">         29 :                 gf_init_inline(scene, node);</span>
+<span class="lineNum">     217 </span><span class="lineCov">         29 :                 break;</span>
+<span class="lineNum">     218 </span>            :         case TAG_MPEG4_MediaBuffer:
+<span class="lineNum">     219 </span>            :                 break;
+<span class="lineNum">     220 </span>            :         case TAG_MPEG4_MediaControl:
+<span class="lineNum">     221 </span><span class="lineCov">          1 :                 InitMediaControl(scene, node);</span>
+<span class="lineNum">     222 </span><span class="lineCov">          1 :                 break;</span>
+<span class="lineNum">     223 </span>            :         case TAG_MPEG4_MediaSensor:
+<span class="lineNum">     224 </span><span class="lineCov">          1 :                 InitMediaSensor(scene, node);</span>
+<span class="lineNum">     225 </span><span class="lineCov">          1 :                 break;</span>
+<span class="lineNum">     226 </span>            :         case TAG_MPEG4_InputSensor:
+<span class="lineNum">     227 </span><span class="lineNoCov">          0 :                 InitInputSensor(scene, node);</span>
+<span class="lineNum">     228 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     229 </span>            : 
+<span class="lineNum">     230 </span>            :         /*BIFS nodes, get back to codec, but filter externProtos*/
+<span class="lineNum">     231 </span>            :         case TAG_MPEG4_Conditional:
+<span class="lineNum">     232 </span>            :                 break;
+<span class="lineNum">     233 </span>            :         case TAG_MPEG4_QuantizationParameter:
+<span class="lineNum">     234 </span>            :                 break;
+<span class="lineNum">     235 </span>            :         /*world info is stored at the inline scene level*/
+<span class="lineNum">     236 </span>            :         case TAG_MPEG4_WorldInfo:
+<span class="lineNum">     237 </span>            : #ifndef GPAC_DISABLE_X3D
+<span class="lineNum">     238 </span>            :         case TAG_X3D_WorldInfo:
+<span class="lineNum">     239 </span>            : #endif
+<span class="lineNum">     240 </span><span class="lineNoCov">          0 :                 gf_node_set_callback_function(node, TraverseWorldInfo);</span>
+<span class="lineNum">     241 </span><span class="lineNoCov">          0 :                 gf_node_set_private(node, scene);</span>
+<span class="lineNum">     242 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     243 </span>            : 
+<span class="lineNum">     244 </span>            : #ifndef GPAC_DISABLE_X3D
+<span class="lineNum">     245 </span>            :         case TAG_X3D_KeySensor:
+<span class="lineNum">     246 </span><span class="lineNoCov">          0 :                 InitKeySensor(scene, node);</span>
+<span class="lineNum">     247 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     248 </span>            :         case TAG_X3D_StringSensor:
+<span class="lineNum">     249 </span><span class="lineNoCov">          0 :                 InitStringSensor(scene, node);</span>
+<span class="lineNum">     250 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     251 </span>            : #endif
+<span class="lineNum">     252 </span>            : 
+<span class="lineNum">     253 </span>            :         case TAG_MPEG4_TermCap:
+<span class="lineNum">     254 </span><span class="lineNoCov">          0 :                 InitTermCap(scene, node);</span>
+<span class="lineNum">     255 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     256 </span>            : 
+<span class="lineNum">     257 </span>            :         case TAG_MPEG4_Storage:
+<span class="lineNum">     258 </span><span class="lineNoCov">          0 :                 gf_scene_init_storage(scene, node);</span>
+<span class="lineNum">     259 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     260 </span>            : 
+<span class="lineNum">     261 </span>            :         case TAG_MPEG4_KeyNavigator:
+<span class="lineNum">     262 </span><span class="lineNoCov">          0 :                 gf_node_set_callback_function(node, TraverseKeyNavigator);</span>
+<span class="lineNum">     263 </span><span class="lineNoCov">          0 :                 gf_node_set_private(node, scene);</span>
+<span class="lineNum">     264 </span><span class="lineNoCov">          0 :                 gf_list_add(scene-&gt;keynavigators, node);</span>
+<span class="lineNum">     265 </span><span class="lineNoCov">          0 :                 ((M_KeyNavigator*)node)-&gt;on_setFocus = on_kn_set_focus;</span>
+<span class="lineNum">     266 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     267 </span>            : 
+<span class="lineNum">     268 </span>            : #endif
+<span class="lineNum">     269 </span>            : 
+<span class="lineNum">     270 </span>            : 
+<span class="lineNum">     271 </span>            : #ifndef GPAC_DISABLE_SVG
+<span class="lineNum">     272 </span>            :         case TAG_SVG_title:
+<span class="lineNum">     273 </span><span class="lineNoCov">          0 :                 gf_node_set_callback_function(node, svg_traverse_title);</span>
+<span class="lineNum">     274 </span><span class="lineNoCov">          0 :                 gf_node_set_private(node, scene);</span>
+<span class="lineNum">     275 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     276 </span>            : #endif
+<span class="lineNum">     277 </span>            : 
+<span class="lineNum">     278 </span>            :         default:
+<span class="lineNum">     279 </span><span class="lineCov">        396 :                 gf_sc_on_node_init(scene-&gt;root_od-&gt;term-&gt;compositor, node);</span>
+<span class="lineNum">     280 </span><span class="lineCov">        396 :                 break;</span>
+<span class="lineNum">     281 </span>            :         }
+<a name="282"><span class="lineNum">     282 </span><span class="lineCov">        854 : }</span></a>
+<span class="lineNum">     283 </span>            : 
+<span class="lineNum">     284 </span>            : void gf_term_on_node_modified(void *_is, GF_Node *node)
+<span class="lineNum">     285 </span>            : {
+<span class="lineNum">     286 </span><span class="lineCov">       9566 :         GF_Scene *scene = (GF_Scene *)_is;</span>
+<span class="lineNum">     287 </span><span class="lineCov">       4783 :         if (!scene) return;</span>
+<span class="lineNum">     288 </span><span class="lineCov">       4783 :         if (!node) {</span>
+<span class="lineNum">     289 </span><span class="lineNoCov">          0 :                 gf_sc_invalidate(scene-&gt;root_od-&gt;term-&gt;compositor, NULL);</span>
+<span class="lineNum">     290 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     291 </span>            :         }
+<span class="lineNum">     292 </span>            : 
+<span class="lineNum">     293 </span><span class="lineCov">       9566 :         switch (gf_node_get_tag(node)) {</span>
+<span class="lineNum">     294 </span>            : #ifndef GPAC_DISABLE_VRML
+<span class="lineNum">     295 </span>            :         case TAG_MPEG4_Inline:
+<span class="lineNum">     296 </span>            : #ifndef GPAC_DISABLE_X3D
+<span class="lineNum">     297 </span>            :         case TAG_X3D_Inline:
+<span class="lineNum">     298 </span>            : #endif
+<span class="lineNum">     299 </span><span class="lineCov">         29 :                 gf_inline_on_modified(node);</span>
+<span class="lineNum">     300 </span><span class="lineCov">         29 :                 break;</span>
+<span class="lineNum">     301 </span>            :         case TAG_MPEG4_MediaBuffer:
+<span class="lineNum">     302 </span>            :                 break;
+<span class="lineNum">     303 </span>            :         case TAG_MPEG4_MediaControl:
+<span class="lineNum">     304 </span><span class="lineNoCov">          0 :                 MC_Modified(node);</span>
+<span class="lineNum">     305 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     306 </span>            :         case TAG_MPEG4_MediaSensor:
+<span class="lineNum">     307 </span><span class="lineNoCov">          0 :                 MS_Modified(node);</span>
+<span class="lineNum">     308 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     309 </span>            :         case TAG_MPEG4_InputSensor:
+<span class="lineNum">     310 </span><span class="lineNoCov">          0 :                 InputSensorModified(node);</span>
+<span class="lineNum">     311 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     312 </span>            :         case TAG_MPEG4_Conditional:
+<span class="lineNum">     313 </span>            :                 break;
+<span class="lineNum">     314 </span>            :         case TAG_MPEG4_Storage:
+<span class="lineNum">     315 </span>            :                 break;
+<span class="lineNum">     316 </span>            : #endif
+<span class="lineNum">     317 </span>            :         default:
+<span class="lineNum">     318 </span><span class="lineCov">       4754 :                 gf_sc_invalidate(scene-&gt;root_od-&gt;term-&gt;compositor, node);</span>
+<span class="lineNum">     319 </span><span class="lineCov">       4754 :                 break;</span>
+<span class="lineNum">     320 </span>            :         }
+<a name="321"><span class="lineNum">     321 </span><span class="lineCov">       9566 : }</span></a>
+<span class="lineNum">     322 </span>            : 
+<span class="lineNum">     323 </span>            : static void gf_term_on_node_destroyed(void *_is, GF_Node *node)
+<span class="lineNum">     324 </span>            : {
+<span class="lineNum">     325 </span><span class="lineCov">        908 :         GF_Scene *scene = (GF_Scene *)_is;</span>
+<span class="lineNum">     326 </span><span class="lineCov">        454 :         if (!scene) return;</span>
+<span class="lineNum">     327 </span><span class="lineCov">        454 :         gf_sc_node_destroy(scene-&gt;root_od-&gt;term-&gt;compositor, node, NULL);</span>
+<span class="lineNum">     328 </span><span class="lineCov">        908 : }</span>
+<a name="329"><span class="lineNum">     329 </span>            : </a>
+<span class="lineNum">     330 </span>            : GF_EXPORT
+<span class="lineNum">     331 </span>            : void gf_term_node_callback(void *_is, u32 type, GF_Node *n, void *param)
+<span class="lineNum">     332 </span>            : {
+<span class="lineNum">     333 </span><span class="lineCov">      16992 :         switch (type) {</span>
+<span class="lineNum">     334 </span>            :         case GF_SG_CALLBACK_MODIFIED:
+<span class="lineNum">     335 </span><span class="lineCov">       4783 :                 gf_term_on_node_modified(_is, n);</span>
+<span class="lineNum">     336 </span><span class="lineCov">       4783 :                 break;</span>
+<span class="lineNum">     337 </span>            :         case GF_SG_CALLBACK_NODE_DESTROY:
+<span class="lineNum">     338 </span><span class="lineCov">        454 :                 gf_term_on_node_destroyed(_is, n);</span>
+<span class="lineNum">     339 </span><span class="lineCov">        454 :                 break;</span>
+<span class="lineNum">     340 </span>            :         case GF_SG_CALLBACK_INIT:
+<span class="lineNum">     341 </span><span class="lineCov">        427 :                 gf_term_on_node_init(_is, n);</span>
+<span class="lineNum">     342 </span><span class="lineCov">        427 :                 break;</span>
+<span class="lineNum">     343 </span>            :         /*get all inline nodes using this subscene and bubble up...*/
+<span class="lineNum">     344 </span>            :         case GF_SG_CALLBACK_GRAPH_DIRTY:
+<span class="lineNum">     345 </span>            :         {
+<span class="lineNum">     346 </span><span class="lineNoCov">          0 :                 u32 i=0;</span>
+<span class="lineNum">     347 </span>            :                 GF_Node *root;
+<span class="lineNum">     348 </span><span class="lineNoCov">          0 :                 GF_Scene *scene = (GF_Scene *)_is;</span>
+<span class="lineNum">     349 </span><span class="lineNoCov">          0 :                 if (scene-&gt;root_od-&gt;mo) {</span>
+<span class="lineNum">     350 </span><span class="lineNoCov">          0 :                         while ((root=(GF_Node*)gf_mo_event_target_enum_node(scene-&gt;root_od-&gt;mo, &amp;i))) {</span>
+<span class="lineNum">     351 </span><span class="lineNoCov">          0 :                                 gf_node_dirty_set(root, GF_SG_CHILD_DIRTY, GF_TRUE);</span>
+<span class="lineNum">     352 </span>            :                         }
+<span class="lineNum">     353 </span>            :                 }
+<span class="lineNum">     354 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     355 </span><span class="lineNoCov">          0 :         break;</span>
+<span class="lineNum">     356 </span>            :         }
+<span class="lineNum">     357 </span><span class="lineCov">       5664 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

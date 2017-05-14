@@ -1,0 +1,313 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - mcrypt/ctr.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">mcrypt</a> - ctr.c<span style="font-size: 80%;"> (source / <a href="ctr.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">84</td>
+            <td class="headerCovTableEntry">95</td>
+            <td class="headerCovTableEntryMed">88.4 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-05-14 22:31:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  * Copyright (C) 2002 Nikos Mavroyanopoulos
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  * This library is free software; you can redistribute it and/or modify it
+<span class="lineNum">       5 </span>            :  * under the terms of the GNU Library General Public License as published
+<span class="lineNum">       6 </span>            :  * by the Free Software Foundation; either version 2 of the License, or
+<span class="lineNum">       7 </span>            :  * (at your option) any later version.
+<span class="lineNum">       8 </span>            :  *
+<span class="lineNum">       9 </span>            :  * This library is distributed in the hope that it will be useful,
+<span class="lineNum">      10 </span>            :  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      11 </span>            :  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+<span class="lineNum">      12 </span>            :  * Library General Public License for more details.
+<span class="lineNum">      13 </span>            :  *
+<span class="lineNum">      14 </span>            :  * You should have received a copy of the GNU Library General Public
+<span class="lineNum">      15 </span>            :  * License along with this library; if not, write to the
+<span class="lineNum">      16 </span>            :  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+<span class="lineNum">      17 </span>            :  * Boston, MA 02111-1307, USA.
+<span class="lineNum">      18 </span>            :  */
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : #include &lt;gpac/internal/crypt_dev.h&gt;
+<span class="lineNum">      21 </span>            : 
+<span class="lineNum">      22 </span>            : #if !defined(GPAC_DISABLE_MCRYPT)
+<span class="lineNum">      23 </span>            : 
+<span class="lineNum">      24 </span>            : typedef struct ctr_buf {
+<span class="lineNum">      25 </span>            :         u8* enc_counter;
+<span class="lineNum">      26 </span>            :         u8* c_counter;
+<span class="lineNum">      27 </span>            :         int c_counter_pos;
+<span class="lineNum">      28 </span>            :         int blocksize;
+<span class="lineNum">      29 </span>            : } CTR_BUFFER;
+<span class="lineNum">      30 </span>            : 
+<span class="lineNum">      31 </span>            : /* CTR MODE */
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span>            : /* This function will add one to the given number (as a u8 string).
+<a name="34"><span class="lineNum">      34 </span>            :  * has been reached.</a>
+<span class="lineNum">      35 </span>            :  */
+<span class="lineNum">      36 </span>            : static void increase_counter( u8 *x, int x_size) {
+<span class="lineNum">      37 </span>            :         register int i, y=0;
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span><span class="lineCov">      16915 :         for (i=x_size-1; i&gt;=0; i--) {</span>
+<span class="lineNum">      40 </span>            :                 y = 0;
+<span class="lineNum">      41 </span><span class="lineCov">       5646 :                 if ( x[i] == 0xff) {</span>
+<span class="lineNum">      42 </span><span class="lineCov">         23 :                         x[i] = 0;</span>
+<span class="lineNum">      43 </span>            :                         y = 1;
+<span class="lineNum">      44 </span><span class="lineCov">       5646 :                 } else x[i]++;</span>
+<span class="lineNum">      45 </span>            : 
+<span class="lineNum">      46 </span><span class="lineCov">       5646 :                 if (y==0) break;</span>
+<span class="lineNum">      47 </span>            :         }
+<span class="lineNum">      48 </span>            : 
+<span class="lineNum">      49 </span>            :         return;
+<span class="lineNum">      50 </span><span class="lineCov">       5623 : }</span>
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span>            : 
+<span class="lineNum">      53 </span>            : /* size holds the size of the IV (counter in this mode).
+<a name="54"><span class="lineNum">      54 </span>            :  * This is the block size.</a>
+<span class="lineNum">      55 </span>            :  */
+<span class="lineNum">      56 </span>            : GF_Err _init_mcrypt( void *buf, void *key, int lenofkey, void *IV, int size)
+<span class="lineNum">      57 </span>            : {
+<span class="lineNum">      58 </span><span class="lineCov">         14 :         ((CTR_BUFFER* )buf)-&gt;c_counter = ((CTR_BUFFER* )buf)-&gt;enc_counter = NULL;</span>
+<span class="lineNum">      59 </span>            : 
+<span class="lineNum">      60 </span>            :         /* For ctr */
+<span class="lineNum">      61 </span><span class="lineCov">          7 :         ((CTR_BUFFER* )buf)-&gt;c_counter_pos = 0;</span>
+<span class="lineNum">      62 </span><span class="lineCov">          7 :         ((CTR_BUFFER* )buf)-&gt;blocksize = size;</span>
+<span class="lineNum">      63 </span>            : 
+<span class="lineNum">      64 </span><span class="lineCov">          7 :         ((CTR_BUFFER* )buf)-&gt;c_counter = (u8 *)gf_malloc(size);</span>
+<span class="lineNum">      65 </span><span class="lineCov">          7 :         if (((CTR_BUFFER* )buf)-&gt;c_counter==NULL) goto freeall;</span>
+<span class="lineNum">      66 </span>            : 
+<span class="lineNum">      67 </span><span class="lineCov">          7 :         ((CTR_BUFFER* )buf)-&gt;enc_counter = (u8 *)gf_malloc(size);</span>
+<span class="lineNum">      68 </span><span class="lineCov">          7 :         if (((CTR_BUFFER* )buf)-&gt;enc_counter==NULL) goto freeall;</span>
+<span class="lineNum">      69 </span>            : 
+<span class="lineNum">      70 </span><span class="lineCov">          7 :         if (IV!=NULL) {</span>
+<span class="lineNum">      71 </span><span class="lineCov">          7 :                 memcpy(((CTR_BUFFER* )buf)-&gt;enc_counter, IV, size);</span>
+<span class="lineNum">      72 </span><span class="lineCov">          7 :                 memcpy(((CTR_BUFFER* )buf)-&gt;c_counter, IV, size);</span>
+<span class="lineNum">      73 </span><span class="lineCov">          7 :         }</span>
+<span class="lineNum">      74 </span>            : 
+<span class="lineNum">      75 </span>            :         /* End ctr */
+<span class="lineNum">      76 </span>            : 
+<span class="lineNum">      77 </span><span class="lineCov">          7 :         return GF_OK;</span>
+<span class="lineNum">      78 </span>            : freeall:
+<span class="lineNum">      79 </span><span class="lineNoCov">          0 :         gf_free(((CTR_BUFFER* )buf)-&gt;c_counter);</span>
+<span class="lineNum">      80 </span><span class="lineNoCov">          0 :         gf_free(((CTR_BUFFER* )buf)-&gt;enc_counter);</span>
+<span class="lineNum">      81 </span><span class="lineNoCov">          0 :         return GF_OUT_OF_MEM;</span>
+<a name="82"><span class="lineNum">      82 </span><span class="lineCov">          7 : }</span></a>
+<span class="lineNum">      83 </span>            : 
+<span class="lineNum">      84 </span>            : GF_Err _mcrypt_set_state(void *_buf, void *IV, int size)
+<span class="lineNum">      85 </span>            : {
+<span class="lineNum">      86 </span><span class="lineCov">        694 :         CTR_BUFFER* buf = (CTR_BUFFER* )_buf;</span>
+<span class="lineNum">      87 </span><span class="lineCov">        347 :         ((CTR_BUFFER* )buf)-&gt;c_counter_pos = ((u8*)IV)[0];</span>
+<span class="lineNum">      88 </span><span class="lineCov">        347 :         memcpy(((CTR_BUFFER* )buf)-&gt;c_counter, &amp;((u8*)IV)[1], size-1);</span>
+<span class="lineNum">      89 </span><span class="lineCov">        347 :         memcpy(((CTR_BUFFER* )buf)-&gt;enc_counter, &amp;((u8*)IV)[1], size-1);</span>
+<span class="lineNum">      90 </span>            : 
+<span class="lineNum">      91 </span><span class="lineCov">        347 :         return GF_OK;</span>
+<a name="92"><span class="lineNum">      92 </span>            : }</a>
+<span class="lineNum">      93 </span>            : 
+<span class="lineNum">      94 </span>            : GF_Err _mcrypt_get_state(void *buf, void *IV, int *size)
+<span class="lineNum">      95 </span>            : {
+<span class="lineNum">      96 </span><span class="lineCov">       1038 :         if (*size &lt; ((CTR_BUFFER* )buf)-&gt;blocksize + 1) {</span>
+<span class="lineNum">      97 </span><span class="lineCov">        346 :                 *size = ((CTR_BUFFER* )buf)-&gt;blocksize + 1;</span>
+<span class="lineNum">      98 </span><span class="lineNoCov">          0 :                 return GF_BAD_PARAM;</span>
+<span class="lineNum">      99 </span>            :         }
+<span class="lineNum">     100 </span>            :         *size = ((CTR_BUFFER* )buf)-&gt;blocksize + 1;
+<span class="lineNum">     101 </span>            : 
+<span class="lineNum">     102 </span><span class="lineCov">        346 :         ((u8 *)IV)[0] = ((CTR_BUFFER* )buf)-&gt;c_counter_pos;</span>
+<span class="lineNum">     103 </span><span class="lineCov">        346 :         memcpy( &amp; ((u8 *) IV)[1], ((CTR_BUFFER* )buf)-&gt;c_counter, ((CTR_BUFFER* )buf)-&gt;blocksize);</span>
+<span class="lineNum">     104 </span>            : 
+<span class="lineNum">     105 </span><span class="lineCov">        346 :         return GF_OK;</span>
+<span class="lineNum">     106 </span><span class="lineCov">        346 : }</span>
+<a name="107"><span class="lineNum">     107 </span>            : </a>
+<span class="lineNum">     108 </span>            : 
+<span class="lineNum">     109 </span>            : void _end_mcrypt(void *buf) {
+<span class="lineNum">     110 </span><span class="lineCov">         14 :         gf_free(((CTR_BUFFER* )buf)-&gt;c_counter);</span>
+<span class="lineNum">     111 </span><span class="lineCov">          7 :         gf_free(((CTR_BUFFER* )buf)-&gt;enc_counter);</span>
+<span class="lineNum">     112 </span><span class="lineCov">          7 : }</span>
+<a name="113"><span class="lineNum">     113 </span>            : </a>
+<span class="lineNum">     114 </span>            : static GFINLINE
+<span class="lineNum">     115 </span>            : void xor_stuff( CTR_BUFFER *buf, void* akey, void (*func)(void*,void*), u8* plain,  int blocksize, int xor_size)
+<span class="lineNum">     116 </span>            : {
+<span class="lineNum">     117 </span>            :         void (*_mcrypt_block_encrypt) (void *, void *);
+<span class="lineNum">     118 </span>            : 
+<span class="lineNum">     119 </span>            :         _mcrypt_block_encrypt = func;
+<span class="lineNum">     120 </span>            : 
+<span class="lineNum">     121 </span><span class="lineCov">      17874 :         if (xor_size == blocksize) {</span>
+<span class="lineNum">     122 </span><span class="lineCov">      11581 :                 if (((CTR_BUFFER* )buf)-&gt;c_counter_pos == 0) {</span>
+<span class="lineNum">     123 </span>            : 
+<span class="lineNum">     124 </span><span class="lineCov">       5418 :                         memcpy( ((CTR_BUFFER* )buf)-&gt;enc_counter, ((CTR_BUFFER* )buf)-&gt;c_counter, blocksize);</span>
+<span class="lineNum">     125 </span><span class="lineCov">       5418 :                         _mcrypt_block_encrypt(akey, ((CTR_BUFFER* )buf)-&gt;enc_counter);</span>
+<span class="lineNum">     126 </span>            : 
+<span class="lineNum">     127 </span><span class="lineCov">       5418 :                         memxor( plain, ((CTR_BUFFER* )buf)-&gt;enc_counter, blocksize);</span>
+<span class="lineNum">     128 </span>            : 
+<span class="lineNum">     129 </span><span class="lineCov">       5418 :                         increase_counter( ((CTR_BUFFER* )buf)-&gt;c_counter, blocksize);</span>
+<span class="lineNum">     130 </span>            : 
+<span class="lineNum">     131 </span>            : 
+<span class="lineNum">     132 </span><span class="lineCov">       5418 :                 } else {</span>
+<span class="lineNum">     133 </span><span class="lineCov">        205 :                         int size = blocksize - ((CTR_BUFFER* )buf)-&gt;c_counter_pos;</span>
+<span class="lineNum">     134 </span>            : 
+<span class="lineNum">     135 </span><span class="lineCov">        205 :                         memxor( plain, &amp;((CTR_BUFFER* )buf)-&gt;enc_counter[((CTR_BUFFER* )buf)-&gt;c_counter_pos],</span>
+<span class="lineNum">     136 </span>            :                                 size);
+<span class="lineNum">     137 </span>            : 
+<span class="lineNum">     138 </span><span class="lineCov">        205 :                         increase_counter( ((CTR_BUFFER* )buf)-&gt;c_counter, blocksize);</span>
+<span class="lineNum">     139 </span>            : 
+<span class="lineNum">     140 </span><span class="lineCov">        205 :                         memcpy( ((CTR_BUFFER* )buf)-&gt;enc_counter, ((CTR_BUFFER* )buf)-&gt;c_counter, blocksize);</span>
+<span class="lineNum">     141 </span><span class="lineCov">        205 :                         _mcrypt_block_encrypt(akey, ((CTR_BUFFER* )buf)-&gt;enc_counter);</span>
+<span class="lineNum">     142 </span>            : 
+<span class="lineNum">     143 </span><span class="lineCov">        410 :                         memxor( &amp;plain[size], ((CTR_BUFFER* )buf)-&gt;enc_counter,</span>
+<span class="lineNum">     144 </span><span class="lineCov">        205 :                                 ((CTR_BUFFER* )buf)-&gt;c_counter_pos);</span>
+<span class="lineNum">     145 </span>            : 
+<span class="lineNum">     146 </span>            :                         /* ((CTR_BUFFER* )buf)-&gt;c_counter_pos remains the same */
+<span class="lineNum">     147 </span>            : 
+<span class="lineNum">     148 </span>            :                 }
+<span class="lineNum">     149 </span>            :         } else { /* xor_size != blocksize */
+<span class="lineNum">     150 </span><span class="lineCov">        335 :                 if (((CTR_BUFFER* )buf)-&gt;c_counter_pos == 0) {</span>
+<span class="lineNum">     151 </span><span class="lineCov">        332 :                         memcpy( ((CTR_BUFFER* )buf)-&gt;enc_counter, ((CTR_BUFFER* )buf)-&gt;c_counter, blocksize);</span>
+<span class="lineNum">     152 </span><span class="lineCov">        332 :                         _mcrypt_block_encrypt(akey, ((CTR_BUFFER* )buf)-&gt;enc_counter);</span>
+<span class="lineNum">     153 </span>            : 
+<span class="lineNum">     154 </span><span class="lineCov">        332 :                         memxor( plain, ((CTR_BUFFER* )buf)-&gt;enc_counter, xor_size);</span>
+<span class="lineNum">     155 </span><span class="lineCov">        332 :                         ((CTR_BUFFER* )buf)-&gt;c_counter_pos = xor_size;</span>
+<span class="lineNum">     156 </span><span class="lineCov">        332 :                 } else {</span>
+<span class="lineNum">     157 </span><span class="lineCov">          3 :                         int size = blocksize - ((CTR_BUFFER* )buf)-&gt;c_counter_pos;</span>
+<span class="lineNum">     158 </span><span class="lineCov">          3 :                         int min_size =  size &lt; xor_size ? size: xor_size;</span>
+<span class="lineNum">     159 </span>            : 
+<span class="lineNum">     160 </span><span class="lineCov">          3 :                         memxor( plain, &amp;((CTR_BUFFER* )buf)-&gt;enc_counter[((CTR_BUFFER* )buf)-&gt;c_counter_pos],</span>
+<span class="lineNum">     161 </span>            :                                 min_size);
+<span class="lineNum">     162 </span>            : 
+<span class="lineNum">     163 </span><span class="lineCov">          3 :                         ((CTR_BUFFER* )buf)-&gt;c_counter_pos += min_size;</span>
+<span class="lineNum">     164 </span>            : 
+<span class="lineNum">     165 </span><span class="lineCov">          3 :                         if (min_size &gt;= xor_size)</span>
+<span class="lineNum">     166 </span><span class="lineCov">          3 :                                 return;</span>
+<span class="lineNum">     167 </span>            : 
+<span class="lineNum">     168 </span><span class="lineNoCov">          0 :                         increase_counter( ((CTR_BUFFER* )buf)-&gt;c_counter, blocksize);</span>
+<span class="lineNum">     169 </span>            : 
+<span class="lineNum">     170 </span><span class="lineNoCov">          0 :                         memcpy( ((CTR_BUFFER* )buf)-&gt;enc_counter, ((CTR_BUFFER* )buf)-&gt;c_counter, blocksize);</span>
+<span class="lineNum">     171 </span><span class="lineNoCov">          0 :                         _mcrypt_block_encrypt(akey, ((CTR_BUFFER* )buf)-&gt;enc_counter);</span>
+<span class="lineNum">     172 </span>            : 
+<span class="lineNum">     173 </span><span class="lineNoCov">          0 :                         memxor( &amp;plain[min_size], ((CTR_BUFFER* )buf)-&gt;enc_counter,</span>
+<span class="lineNum">     174 </span><span class="lineNoCov">          0 :                                 xor_size - min_size);</span>
+<span class="lineNum">     175 </span>            : 
+<span class="lineNum">     176 </span><span class="lineNoCov">          0 :                         ((CTR_BUFFER* )buf)-&gt;c_counter_pos = xor_size - min_size;</span>
+<span class="lineNum">     177 </span>            : 
+<span class="lineNum">     178 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     179 </span>            : 
+<span class="lineNum">     180 </span>            :         }
+<span class="lineNum">     181 </span><span class="lineCov">       5955 :         return;</span>
+<a name="182"><span class="lineNum">     182 </span><span class="lineCov">       5958 : }</span></a>
+<span class="lineNum">     183 </span>            : 
+<span class="lineNum">     184 </span>            : GF_Err _mcrypt(void * buf,void *plaintext, int len, int blocksize, void* akey, void (*func)(void*,void*), void (*func2)(void*,void*))
+<span class="lineNum">     185 </span>            : {       /* plaintext can be any size */
+<span class="lineNum">     186 </span>            :         u8 *plain;
+<span class="lineNum">     187 </span>            :         int dlen, j=0;
+<span class="lineNum">     188 </span>            :         int modlen;
+<span class="lineNum">     189 </span>            : 
+<span class="lineNum">     190 </span><span class="lineCov">       1124 :         dlen = len / blocksize;</span>
+<span class="lineNum">     191 </span>            :         plain = (u8 *)plaintext;
+<span class="lineNum">     192 </span><span class="lineCov">      12370 :         for (j = 0; j &lt; dlen; j++) {</span>
+<span class="lineNum">     193 </span>            : 
+<span class="lineNum">     194 </span><span class="lineCov">       5623 :                 xor_stuff((CTR_BUFFER*) buf, akey, func, plain, blocksize, blocksize);</span>
+<span class="lineNum">     195 </span>            : 
+<span class="lineNum">     196 </span><span class="lineCov">       5623 :                 plain += blocksize;</span>
+<span class="lineNum">     197 </span>            : 
+<span class="lineNum">     198 </span>            :                 /* Put the new register */
+<span class="lineNum">     199 </span>            : 
+<span class="lineNum">     200 </span>            :         }
+<span class="lineNum">     201 </span><span class="lineCov">        562 :         modlen = len % blocksize;</span>
+<span class="lineNum">     202 </span><span class="lineCov">        562 :         if (modlen &gt; 0) {</span>
+<span class="lineNum">     203 </span>            :                 /* This is only useful if encrypting the
+<span class="lineNum">     204 </span>            :                  * final block. Otherwise you'll not be
+<span class="lineNum">     205 </span>            :                  * able to decrypt it.
+<span class="lineNum">     206 </span>            :                  */
+<span class="lineNum">     207 </span>            : 
+<span class="lineNum">     208 </span><span class="lineCov">        335 :                 xor_stuff( (CTR_BUFFER*)buf, akey, func, plain, blocksize, modlen);</span>
+<span class="lineNum">     209 </span>            : 
+<span class="lineNum">     210 </span><span class="lineCov">        335 :         }</span>
+<span class="lineNum">     211 </span>            : 
+<span class="lineNum">     212 </span><span class="lineCov">        562 :         return GF_OK;</span>
+<span class="lineNum">     213 </span>            : }
+<a name="214"><span class="lineNum">     214 </span>            : </a>
+<span class="lineNum">     215 </span>            : 
+<span class="lineNum">     216 </span>            : GF_Err _mdecrypt(void * buf,void *plaintext, int len, int blocksize, void* akey, void (*func)(void*,void*), void (*func2)(void*,void*))
+<span class="lineNum">     217 </span>            : {       /* plaintext can be any size */
+<span class="lineNum">     218 </span><span class="lineCov">          2 :         return _mcrypt( buf, plaintext, len, blocksize, akey, func, func2);</span>
+<a name="219"><span class="lineNum">     219 </span>            : }</a>
+<span class="lineNum">     220 </span>            : 
+<span class="lineNum">     221 </span>            : void gf_crypt_register_ctr(GF_Crypt *td)
+<span class="lineNum">     222 </span>            : {
+<span class="lineNum">     223 </span><span class="lineCov">         14 :         td-&gt;mode_name = &quot;CTR&quot;;</span>
+<span class="lineNum">     224 </span><span class="lineCov">          7 :         td-&gt;_init_mcrypt = _init_mcrypt;</span>
+<span class="lineNum">     225 </span><span class="lineCov">          7 :         td-&gt;_end_mcrypt = _end_mcrypt;</span>
+<span class="lineNum">     226 </span><span class="lineCov">          7 :         td-&gt;_mcrypt = _mcrypt;</span>
+<span class="lineNum">     227 </span><span class="lineCov">          7 :         td-&gt;_mdecrypt = _mdecrypt;</span>
+<span class="lineNum">     228 </span><span class="lineCov">          7 :         td-&gt;_mcrypt_get_state = _mcrypt_get_state;</span>
+<span class="lineNum">     229 </span><span class="lineCov">          7 :         td-&gt;_mcrypt_set_state = _mcrypt_set_state;</span>
+<span class="lineNum">     230 </span>            : 
+<span class="lineNum">     231 </span><span class="lineCov">          7 :         td-&gt;has_IV = 1;</span>
+<span class="lineNum">     232 </span><span class="lineCov">          7 :         td-&gt;is_block_mode = 1;</span>
+<span class="lineNum">     233 </span><span class="lineCov">          7 :         td-&gt;is_block_algo_mode = 1;</span>
+<span class="lineNum">     234 </span><span class="lineCov">          7 :         td-&gt;mode_size = sizeof(CTR_BUFFER);</span>
+<span class="lineNum">     235 </span><span class="lineCov">          7 :         td-&gt;mode_version = 20020307;</span>
+<span class="lineNum">     236 </span><span class="lineCov">          7 : }</span>
+<span class="lineNum">     237 </span>            : #endif /*!defined(GPAC_DISABLE_MCRYPT)*/
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

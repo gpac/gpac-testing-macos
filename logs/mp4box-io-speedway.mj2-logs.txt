@@ -1,0 +1,76 @@
+*** mp4box-io-speedway.mj2 logs (GPAC version 0.6.2-DEV-revUNKNOWN-HEAD ) - test date 14/05/2017 22:27:46 ***
+
+
+*** Subtest "RawMediaInfo": executing "MP4Box -noprog -for-test  -mem-track -info /Users/travis/build/gpac/gpac/tests/external_media/import/speedway.mj2" ***
+[33m[iso file] Unknown box type mjp2
+[0m[33m[iso file] Unknown box type jp2h
+[0m[33m[iso file] Unknown box type fiel
+[0m[33m[iso file] Unknown box type jp2p
+[0m[33m[iso file] Unknown box type jsub
+[0m[33m[iso file] Unknown box type orfo
+[0m* Movie Info *
+	Timescale 1000 - 1 track
+	Computed Duration 00:00:02.080 - Indicated Duration 00:00:02.080
+	Fragmented File: no
+	File suitable for progressive download (moov before mdat)
+	File Brand isom - version 1
+		Compatible brands: isom
+	Created: GMT Fri Mar 11 21:04:44 2016
+	Modified: GMT Fri Mar 11 21:04:44 2016
+
+File has root IOD (9 bytes)
+Scene PL 0xff - Graphics PL 0xff - OD PL 0xff
+Visual PL: Not part of MPEG-4 Visual profiles (0xfe)
+Audio PL: No audio capability required (0xff)
+No streams included in root OD
+
+Track # 1 Info - TrackID 1 - TimeScale 1000
+Media Duration 00:00:02.080 - Indicated Duration 00:00:02.080
+Media Info: Language "Undetermined (und)" - Type "vide:mjp2" - 52 samples
+Visual Track layout: x=0 y=0 width=352 height=288
+	MotionJPEG2000 stream - Resolution 352 x 288
+	RFC6381 Codec Parameters: mjp2
+	All samples are sync
+
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "MediaImport": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/external_media/import/speedway.mj2 -new /Users/travis/build/gpac/gpac/tests/results/temp/speedway.mj2.mp4" ***
+[33m[iso file] Unknown box type mjp2
+[0m[33m[iso file] Unknown box type jp2h
+[0m[33m[iso file] Unknown box type fiel
+[0m[33m[iso file] Unknown box type jp2p
+[0m[33m[iso file] Unknown box type jsub
+[0m[33m[iso file] Unknown box type orfo
+[0m[33m[iso file] Unknown box type mjp2
+[0m[33m[iso file] Unknown box type jp2h
+[0m[33m[iso file] Unknown box type fiel
+[0m[33m[iso file] Unknown box type jp2p
+[0m[33m[iso file] Unknown box type jsub
+[0m[33m[iso file] Unknown box type orfo
+[0m[33m[iso file] Unknown box type mjp2
+[0m[33m[iso file] Unknown box type jp2h
+[0m[33m[iso file] Unknown box type fiel
+[0m[33m[iso file] Unknown box type jp2p
+[0m[33m[iso file] Unknown box type jsub
+[0m[33m[iso file] Unknown box type orfo
+[0m[32mIsoMedia import speedway.mj2 - track ID 1 - Video (size 352 x 288)
+[0mSaving /Users/travis/build/gpac/gpac/tests/results/temp/speedway.mj2.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "MediaInfo": executing "MP4Box -noprog -for-test  -mem-track -info /Users/travis/build/gpac/gpac/tests/results/temp/speedway.mj2.mp4" ***
+Error opening file /Users/travis/build/gpac/gpac/tests/results/temp/speedway.mj2.mp4: Requested URL is not valid or cannot be found
+
+
+*** Subtest "MediaTime": executing "MP4Box -noprog -for-test  -mem-track -dts /Users/travis/build/gpac/gpac/tests/results/temp/speedway.mj2.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/speedway.mj2.2.tmp" ***
+Error opening file /Users/travis/build/gpac/gpac/tests/results/temp/speedway.mj2.mp4: Requested URL is not valid or cannot be found
+
+
+*** Subtest "XMDDump": executing "MP4Box -noprog -for-test  -mem-track -diso /Users/travis/build/gpac/gpac/tests/results/temp/speedway.mj2.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/speedway.mj2.1.tmp" ***
+Error opening file /Users/travis/build/gpac/gpac/tests/results/temp/speedway.mj2.mp4: Requested URL is not valid or cannot be found
+

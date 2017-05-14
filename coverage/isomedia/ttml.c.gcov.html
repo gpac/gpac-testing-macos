@@ -1,0 +1,210 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - isomedia/ttml.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">isomedia</a> - ttml.c<span style="font-size: 80%;"> (source / <a href="ttml.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">30</td>
+            <td class="headerCovTableEntry">51</td>
+            <td class="headerCovTableEntryLo">58.8 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-05-14 22:31:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntryLo">71.4 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *          GPAC - Multimedia Framework C SDK
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *          Authors: Cyril Concolato
+<span class="lineNum">       5 </span>            :  *          Copyright (c) Telecom ParisTech 2000-2012
+<span class="lineNum">       6 </span>            :  *                  All rights reserved
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  *  This file is part of GPAC / ISO Media File Format sub-project
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  *  GPAC is free software; you can redistribute it and/or modify
+<span class="lineNum">      11 </span>            :  *  it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">      12 </span>            :  *  the Free Software Foundation; either version 2, or (at your option)
+<span class="lineNum">      13 </span>            :  *  any later version.
+<span class="lineNum">      14 </span>            :  *
+<span class="lineNum">      15 </span>            :  *  GPAC is distributed in the hope that it will be useful,
+<span class="lineNum">      16 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      17 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      18 </span>            :  *  GNU Lesser General Public License for more details.
+<span class="lineNum">      19 </span>            :  *
+<span class="lineNum">      20 </span>            :  *  You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      21 </span>            :  *  License along with this library; see the file COPYING.  If not, write to
+<span class="lineNum">      22 </span>            :  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+<span class="lineNum">      23 </span>            :  *
+<span class="lineNum">      24 </span>            :  */
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : #include &lt;gpac/internal/isomedia_dev.h&gt;
+<span class="lineNum">      27 </span>            : #include &lt;gpac/internal/media_dev.h&gt;
+<span class="lineNum">      28 </span>            : #include &lt;gpac/constants.h&gt;
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : #ifndef GPAC_DISABLE_ISOM
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            : #ifndef GPAC_DISABLE_TTML
+<a name="33"><span class="lineNum">      33 </span>            : </a>
+<span class="lineNum">      34 </span>            : /* blindly adds text to a sample following 3GPP Timed Text style */
+<span class="lineNum">      35 </span>            : GF_Err gf_isom_xml_subtitle_sample_add_text(GF_GenericSubtitleSample *samp, char *text_data, u32 text_len)
+<span class="lineNum">      36 </span>            : {
+<span class="lineNum">      37 </span><span class="lineCov">         52 :         if (!samp) return GF_BAD_PARAM;</span>
+<span class="lineNum">      38 </span><span class="lineCov">         26 :         if (!text_len) return GF_OK;</span>
+<span class="lineNum">      39 </span><span class="lineCov">         26 :         samp-&gt;text = (char*)gf_realloc(samp-&gt;text, sizeof(char) * (samp-&gt;len + text_len) );</span>
+<span class="lineNum">      40 </span><span class="lineCov">         26 :         memcpy(samp-&gt;text + samp-&gt;len, text_data, sizeof(char) * text_len);</span>
+<span class="lineNum">      41 </span><span class="lineCov">         26 :         samp-&gt;len += text_len;</span>
+<span class="lineNum">      42 </span><span class="lineCov">         26 :         return GF_OK;</span>
+<span class="lineNum">      43 </span><span class="lineCov">         26 : }</span>
+<span class="lineNum">      44 </span>            : 
+<span class="lineNum">      45 </span>            : /*
+<span class="lineNum">      46 </span>            :  * Writing the xml sample structure into a sample buffer
+<span class="lineNum">      47 </span>            :  * - putting the text or XML in the sample directly
+<a name="48"><span class="lineNum">      48 </span>            :  * - optionally handle secondary resources (TODO)</a>
+<span class="lineNum">      49 </span>            : */
+<span class="lineNum">      50 </span>            : GF_ISOSample *gf_isom_xml_subtitle_to_sample(GF_GenericSubtitleSample *samp)
+<span class="lineNum">      51 </span>            : {
+<span class="lineNum">      52 </span>            :         GF_ISOSample *res;
+<span class="lineNum">      53 </span>            :         GF_BitStream *bs;
+<span class="lineNum">      54 </span><span class="lineCov">         52 :         if (!samp) return NULL;</span>
+<span class="lineNum">      55 </span>            : 
+<span class="lineNum">      56 </span><span class="lineCov">         26 :         bs = gf_bs_new(NULL, 0, GF_BITSTREAM_WRITE);</span>
+<span class="lineNum">      57 </span>            : 
+<span class="lineNum">      58 </span><span class="lineCov">         52 :         if (samp-&gt;len) gf_bs_write_data(bs, samp-&gt;text, samp-&gt;len);</span>
+<span class="lineNum">      59 </span><span class="lineNoCov">          0 :         else     gf_bs_write_data(bs, &quot;&quot;, 1);</span>
+<span class="lineNum">      60 </span>            : 
+<span class="lineNum">      61 </span><span class="lineCov">         26 :         res = gf_isom_sample_new();</span>
+<span class="lineNum">      62 </span><span class="lineCov">         26 :         if (!res) {</span>
+<span class="lineNum">      63 </span><span class="lineNoCov">          0 :                 gf_bs_del(bs);</span>
+<span class="lineNum">      64 </span><span class="lineNoCov">          0 :                 return NULL;</span>
+<span class="lineNum">      65 </span>            :         }
+<span class="lineNum">      66 </span><span class="lineCov">         26 :         gf_bs_get_content(bs, &amp;res-&gt;data, &amp;res-&gt;dataLength);</span>
+<span class="lineNum">      67 </span><span class="lineCov">         26 :         gf_bs_del(bs);</span>
+<span class="lineNum">      68 </span><span class="lineCov">         26 :         res-&gt;IsRAP = RAP;</span>
+<span class="lineNum">      69 </span><span class="lineCov">         26 :         return res;</span>
+<a name="70"><span class="lineNum">      70 </span><span class="lineCov">         26 : }</span></a>
+<span class="lineNum">      71 </span>            : 
+<span class="lineNum">      72 </span>            : GF_GenericSubtitleSample *gf_isom_new_xml_subtitle_sample()
+<span class="lineNum">      73 </span>            : {
+<span class="lineNum">      74 </span>            :         GF_GenericSubtitleSample *res;
+<span class="lineNum">      75 </span><span class="lineCov">         78 :         GF_SAFEALLOC(res, GF_GenericSubtitleSample);</span>
+<span class="lineNum">      76 </span><span class="lineCov">         26 :         if (!res) return NULL;</span>
+<span class="lineNum">      77 </span><span class="lineCov">         26 :         return res;</span>
+<a name="78"><span class="lineNum">      78 </span><span class="lineCov">         26 : }</span></a>
+<span class="lineNum">      79 </span>            : 
+<span class="lineNum">      80 </span>            : GF_Err gf_isom_xml_subtitle_reset(GF_GenericSubtitleSample *samp)
+<span class="lineNum">      81 </span>            : {
+<span class="lineNum">      82 </span><span class="lineCov">         52 :         if (!samp) return GF_BAD_PARAM;</span>
+<span class="lineNum">      83 </span><span class="lineCov">         52 :         if (samp-&gt;text) gf_free(samp-&gt;text);</span>
+<span class="lineNum">      84 </span><span class="lineCov">         26 :         samp-&gt;text = NULL;</span>
+<span class="lineNum">      85 </span><span class="lineCov">         26 :         samp-&gt;len = 0;</span>
+<span class="lineNum">      86 </span><span class="lineCov">         26 :         return GF_OK;</span>
+<span class="lineNum">      87 </span><span class="lineCov">         26 : }</span>
+<a name="88"><span class="lineNum">      88 </span>            : </a>
+<span class="lineNum">      89 </span>            : GF_EXPORT
+<span class="lineNum">      90 </span>            : void gf_isom_delete_xml_subtitle_sample(GF_GenericSubtitleSample * samp)
+<span class="lineNum">      91 </span>            : {
+<span class="lineNum">      92 </span><span class="lineCov">         52 :         gf_isom_xml_subtitle_reset(samp);</span>
+<span class="lineNum">      93 </span><span class="lineCov">         26 :         gf_free(samp);</span>
+<span class="lineNum">      94 </span><span class="lineCov">         26 : }</span>
+<a name="95"><span class="lineNum">      95 </span>            : </a>
+<span class="lineNum">      96 </span>            : GF_EXPORT
+<span class="lineNum">      97 </span>            : GF_GenericSubtitleSample *gf_isom_parse_xml_subtitle_sample(GF_BitStream *bs)
+<span class="lineNum">      98 </span>            : {
+<span class="lineNum">      99 </span><span class="lineNoCov">          0 :         GF_GenericSubtitleSample *s = gf_isom_new_xml_subtitle_sample();</span>
+<span class="lineNum">     100 </span>            : 
+<span class="lineNum">     101 </span>            :         /*empty sample*/
+<span class="lineNum">     102 </span><span class="lineNoCov">          0 :         if (!bs || !gf_bs_available(bs)) return s;</span>
+<span class="lineNum">     103 </span>            : 
+<span class="lineNum">     104 </span><span class="lineNoCov">          0 :         s-&gt;len = gf_bs_read_u16(bs);</span>
+<span class="lineNum">     105 </span><span class="lineNoCov">          0 :         if (s-&gt;len) {</span>
+<span class="lineNum">     106 </span>            :                 /*2 extra bytes for UTF-16 term char just in case (we don't know if a BOM marker is present or
+<span class="lineNum">     107 </span>            :                 not since this may be a sample carried over RTP*/
+<span class="lineNum">     108 </span><span class="lineNoCov">          0 :                 s-&gt;text = (char *) gf_malloc(sizeof(char)*(s-&gt;len+2) );</span>
+<span class="lineNum">     109 </span><span class="lineNoCov">          0 :                 s-&gt;text[s-&gt;len] = 0;</span>
+<span class="lineNum">     110 </span><span class="lineNoCov">          0 :                 s-&gt;text[s-&gt;len+1] = 0;</span>
+<span class="lineNum">     111 </span><span class="lineNoCov">          0 :                 gf_bs_read_data(bs, s-&gt;text, s-&gt;len);</span>
+<span class="lineNum">     112 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     113 </span><span class="lineNoCov">          0 :         return s;</span>
+<a name="114"><span class="lineNum">     114 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     115 </span>            : 
+<span class="lineNum">     116 </span>            : GF_GenericSubtitleSample *gf_isom_parse_xml_subtitle_sample_from_data(char *data, u32 dataLength)
+<span class="lineNum">     117 </span>            : {
+<span class="lineNum">     118 </span>            :         GF_GenericSubtitleSample *s;
+<span class="lineNum">     119 </span>            :         GF_BitStream *bs;
+<span class="lineNum">     120 </span>            :         /*empty text sample*/
+<span class="lineNum">     121 </span><span class="lineNoCov">          0 :         if (!data || !dataLength) {</span>
+<span class="lineNum">     122 </span><span class="lineNoCov">          0 :                 return gf_isom_new_xml_subtitle_sample();</span>
+<span class="lineNum">     123 </span>            :         }
+<span class="lineNum">     124 </span>            : 
+<span class="lineNum">     125 </span><span class="lineNoCov">          0 :         bs = gf_bs_new(data, dataLength, GF_BITSTREAM_READ);</span>
+<span class="lineNum">     126 </span><span class="lineNoCov">          0 :         s = gf_isom_parse_xml_subtitle_sample(bs);</span>
+<span class="lineNum">     127 </span><span class="lineNoCov">          0 :         gf_bs_del(bs);</span>
+<span class="lineNum">     128 </span><span class="lineNoCov">          0 :         return s;</span>
+<span class="lineNum">     129 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     130 </span>            : 
+<span class="lineNum">     131 </span>            : 
+<span class="lineNum">     132 </span>            : #endif /* GPAC_DISABLE_TTML */
+<span class="lineNum">     133 </span>            : 
+<span class="lineNum">     134 </span>            : #endif /*GPAC_DISABLE_ISOM*/
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,9 @@
+*** xmlin-meta-metx-no-namespace logs (GPAC version 0.6.2-DEV-revUNKNOWN-HEAD ) - test date 14/05/2017 22:30:25 ***
+
+
+*** Subtest "import": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/media/xmlin4/meta-metx-no-namespace.nhml -new /Users/travis/build/gpac/gpac/tests/results/temp/meta-metx-no-namespace.mp4" ***
+Error importing /Users/travis/build/gpac/gpac/tests/media/xmlin4/meta-metx-no-namespace.nhml: Bad Parameter
+Negative test detected, reverting to success (found "
+*** Subtest "import": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/media/xmlin4/meta-metx-no-namespace.nhml -new /Users/travis/build/gpac/gpac/tests/results/temp/meta-metx-no-namespace.mp4" ***
+Error importing /Users/travis/build/gpac/gpac/tests/media/xmlin4/meta-metx-no-namespace.nhml: Bad Parameter" in stderr)
+

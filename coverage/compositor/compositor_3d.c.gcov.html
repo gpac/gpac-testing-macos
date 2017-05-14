@@ -1,0 +1,341 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - compositor/compositor_3d.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">compositor</a> - compositor_3d.c<span style="font-size: 80%;"> (source / <a href="compositor_3d.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">24</td>
+            <td class="headerCovTableEntry">118</td>
+            <td class="headerCovTableEntryLo">20.3 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-05-14 22:31:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntryLo">25.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *                      GPAC - Multimedia Framework C SDK
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *                      Authors: Jean Le Feuvre
+<span class="lineNum">       5 </span>            :  *                      Copyright (c) Telecom ParisTech 2000-2012
+<span class="lineNum">       6 </span>            :  *                                      All rights reserved
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  *  This file is part of GPAC / Scene Compositor sub-project
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  *  GPAC is free software; you can redistribute it and/or modify
+<span class="lineNum">      11 </span>            :  *  it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">      12 </span>            :  *  the Free Software Foundation; either version 2, or (at your option)
+<span class="lineNum">      13 </span>            :  *  any later version.
+<span class="lineNum">      14 </span>            :  *
+<span class="lineNum">      15 </span>            :  *  GPAC is distributed in the hope that it will be useful,
+<span class="lineNum">      16 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      17 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      18 </span>            :  *  GNU Lesser General Public License for more details.
+<span class="lineNum">      19 </span>            :  *
+<span class="lineNum">      20 </span>            :  *  You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      21 </span>            :  *  License along with this library; see the file COPYING.  If not, write to
+<span class="lineNum">      22 </span>            :  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+<span class="lineNum">      23 </span>            :  *
+<span class="lineNum">      24 </span>            :  */
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : 
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span>            : #include &quot;visual_manager.h&quot;
+<span class="lineNum">      29 </span>            : #include &quot;texturing.h&quot;
+<span class="lineNum">      30 </span>            : #include &quot;nodes_stacks.h&quot;
+<span class="lineNum">      31 </span>            : #include &lt;gpac/options.h&gt;
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span>            : #ifndef GPAC_DISABLE_3D
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span>            : #ifdef GPAC_USE_TINYGL
+<span class="lineNum">      36 </span>            : #include &lt;GL/oscontext.h&gt;
+<a name="37"><span class="lineNum">      37 </span>            : #endif</a>
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span>            : GF_Err compositor_3d_set_aspect_ratio(GF_Compositor *compositor)
+<span class="lineNum">      40 </span>            : {
+<span class="lineNum">      41 </span><span class="lineCov">          2 :         GF_Event evt;</span>
+<span class="lineNum">      42 </span>            :         Double ratio;
+<span class="lineNum">      43 </span>            :         Fixed scaleX, scaleY;
+<span class="lineNum">      44 </span>            : 
+<span class="lineNum">      45 </span><span class="lineCov">          2 :         if (!compositor-&gt;display_height || !compositor-&gt;display_width) return GF_OK;</span>
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span><span class="lineCov">          1 :         compositor-&gt;visual-&gt;camera.flags |= CAM_IS_DIRTY;</span>
+<span class="lineNum">      48 </span>            : 
+<span class="lineNum">      49 </span><span class="lineCov">          1 :         compositor-&gt;output_width = compositor-&gt;vp_width = compositor-&gt;display_width;</span>
+<span class="lineNum">      50 </span><span class="lineCov">          1 :         compositor-&gt;output_height = compositor-&gt;vp_height = compositor-&gt;display_height;</span>
+<span class="lineNum">      51 </span><span class="lineCov">          1 :         compositor-&gt;vp_x = 0;</span>
+<span class="lineNum">      52 </span><span class="lineCov">          1 :         compositor-&gt;vp_y = 0;</span>
+<span class="lineNum">      53 </span>            : 
+<span class="lineNum">      54 </span>            :         scaleX = scaleY = FIX_ONE;
+<span class="lineNum">      55 </span><span class="lineCov">          1 :         if (!compositor-&gt;has_size_info) {</span>
+<span class="lineNum">      56 </span><span class="lineCov">          1 :                 compositor-&gt;visual-&gt;width = compositor-&gt;vp_width;</span>
+<span class="lineNum">      57 </span><span class="lineCov">          1 :                 compositor-&gt;visual-&gt;height = compositor-&gt;vp_height;</span>
+<span class="lineNum">      58 </span><span class="lineCov">          1 :         } else {</span>
+<span class="lineNum">      59 </span>            : 
+<span class="lineNum">      60 </span><span class="lineNoCov">          0 :                 switch (compositor-&gt;aspect_ratio) {</span>
+<span class="lineNum">      61 </span>            :                 case GF_ASPECT_RATIO_FILL_SCREEN:
+<span class="lineNum">      62 </span>            :                         break;
+<span class="lineNum">      63 </span>            :                 case GF_ASPECT_RATIO_16_9:
+<span class="lineNum">      64 </span><span class="lineNoCov">          0 :                         compositor-&gt;vp_height = 9 * compositor-&gt;vp_width  / 16;</span>
+<span class="lineNum">      65 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">      66 </span>            :                 case GF_ASPECT_RATIO_4_3:
+<span class="lineNum">      67 </span><span class="lineNoCov">          0 :                         compositor-&gt;vp_height = 3 * compositor-&gt;vp_width / 4;</span>
+<span class="lineNum">      68 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">      69 </span>            :                 default:
+<span class="lineNum">      70 </span><span class="lineNoCov">          0 :                         ratio = compositor-&gt;scene_height;</span>
+<span class="lineNum">      71 </span><span class="lineNoCov">          0 :                         ratio /= compositor-&gt;scene_width;</span>
+<span class="lineNum">      72 </span><span class="lineNoCov">          0 :                         if (compositor-&gt;vp_width * ratio &gt; compositor-&gt;vp_height) {</span>
+<span class="lineNum">      73 </span><span class="lineNoCov">          0 :                                 compositor-&gt;vp_width = compositor-&gt;vp_height * compositor-&gt;scene_width;</span>
+<span class="lineNum">      74 </span><span class="lineNoCov">          0 :                                 compositor-&gt;vp_width /= compositor-&gt;scene_height;</span>
+<span class="lineNum">      75 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">      76 </span>            :                         else {
+<span class="lineNum">      77 </span><span class="lineNoCov">          0 :                                 compositor-&gt;vp_height = compositor-&gt;vp_width * compositor-&gt;scene_height;</span>
+<span class="lineNum">      78 </span><span class="lineNoCov">          0 :                                 compositor-&gt;vp_height /= compositor-&gt;scene_width;</span>
+<span class="lineNum">      79 </span>            :                         }
+<span class="lineNum">      80 </span>            :                         break;
+<span class="lineNum">      81 </span>            :                 }
+<span class="lineNum">      82 </span><span class="lineNoCov">          0 :                 compositor-&gt;vp_x = (compositor-&gt;display_width - compositor-&gt;vp_width) / 2;</span>
+<span class="lineNum">      83 </span><span class="lineNoCov">          0 :                 compositor-&gt;vp_y = (compositor-&gt;display_height - compositor-&gt;vp_height) / 2;</span>
+<span class="lineNum">      84 </span>            :                 /*update size info for main visual*/
+<span class="lineNum">      85 </span><span class="lineNoCov">          0 :                 if (compositor-&gt;visual) {</span>
+<span class="lineNum">      86 </span><span class="lineNoCov">          0 :                         compositor-&gt;visual-&gt;width = compositor-&gt;scene_width;</span>
+<span class="lineNum">      87 </span><span class="lineNoCov">          0 :                         compositor-&gt;visual-&gt;height = compositor-&gt;scene_height;</span>
+<span class="lineNum">      88 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">      89 </span>            :                 /*scaling is still needed for bitmap*/
+<span class="lineNum">      90 </span><span class="lineNoCov">          0 :                 scaleX = gf_divfix(INT2FIX(compositor-&gt;vp_width), INT2FIX(compositor-&gt;scene_width));</span>
+<span class="lineNum">      91 </span><span class="lineNoCov">          0 :                 scaleY = gf_divfix(INT2FIX(compositor-&gt;vp_height), INT2FIX(compositor-&gt;scene_height));</span>
+<span class="lineNum">      92 </span>            :         }
+<span class="lineNum">      93 </span>            : 
+<span class="lineNum">      94 </span><span class="lineCov">          1 :         if (compositor-&gt;has_size_info) {</span>
+<span class="lineNum">      95 </span><span class="lineNoCov">          0 :                 compositor-&gt;traverse_state-&gt;vp_size.x = INT2FIX(compositor-&gt;scene_width);</span>
+<span class="lineNum">      96 </span><span class="lineNoCov">          0 :                 compositor-&gt;traverse_state-&gt;vp_size.y = INT2FIX(compositor-&gt;scene_height);</span>
+<span class="lineNum">      97 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">      98 </span><span class="lineCov">          1 :                 compositor-&gt;traverse_state-&gt;vp_size.x = INT2FIX(compositor-&gt;output_width);</span>
+<span class="lineNum">      99 </span><span class="lineCov">          1 :                 compositor-&gt;traverse_state-&gt;vp_size.y = INT2FIX(compositor-&gt;output_height);</span>
+<span class="lineNum">     100 </span>            :         }
+<span class="lineNum">     101 </span><span class="lineCov">          1 :         compositor_set_ar_scale(compositor, scaleX, scaleY);</span>
+<span class="lineNum">     102 </span>            : 
+<span class="lineNum">     103 </span>            : 
+<span class="lineNum">     104 </span>            :         /*and resetup OpenGL*/
+<span class="lineNum">     105 </span><span class="lineCov">          1 :         evt.type = GF_EVENT_VIDEO_SETUP;</span>
+<span class="lineNum">     106 </span><span class="lineCov">          1 :         evt.setup.width = compositor-&gt;display_width;</span>
+<span class="lineNum">     107 </span><span class="lineCov">          1 :         evt.setup.height = compositor-&gt;display_height;</span>
+<span class="lineNum">     108 </span><span class="lineCov">          1 :         evt.setup.back_buffer = GF_TRUE;</span>
+<span class="lineNum">     109 </span>            : #ifdef GPAC_USE_TINYGL
+<span class="lineNum">     110 </span>            :         evt.setup.opengl_mode = 0;
+<span class="lineNum">     111 </span>            : #else
+<span class="lineNum">     112 </span><span class="lineCov">          1 :         evt.setup.opengl_mode = 1;</span>
+<span class="lineNum">     113 </span><span class="lineCov">          1 :         compositor-&gt;is_opengl = GF_TRUE;</span>
+<span class="lineNum">     114 </span>            : #endif
+<span class="lineNum">     115 </span>            : 
+<span class="lineNum">     116 </span><span class="lineCov">          1 :         if (compositor-&gt;video_out-&gt;ProcessEvent(compositor-&gt;video_out, &amp;evt)&lt;0) {</span>
+<span class="lineNum">     117 </span><span class="lineNoCov">          0 :                 gf_sc_reset_graphics(compositor);</span>
+<span class="lineNum">     118 </span><span class="lineNoCov">          0 :                 return GF_OK;</span>
+<span class="lineNum">     119 </span>            :         }
+<span class="lineNum">     120 </span>            : 
+<span class="lineNum">     121 </span>            : #if defined(GPAC_USE_TINYGL)
+<span class="lineNum">     122 </span>            :         {
+<span class="lineNum">     123 </span>            :                 u32 bpp;
+<span class="lineNum">     124 </span>            :                 GF_VideoSurface bb;
+<span class="lineNum">     125 </span>            :                 GF_Err e = compositor-&gt;video_out-&gt;LockBackBuffer(compositor-&gt;video_out, &amp;bb, 1);
+<span class="lineNum">     126 </span>            :                 if (e==GF_OK) {
+<span class="lineNum">     127 </span>            :                         switch (bb.pixel_format) {
+<span class="lineNum">     128 </span>            :                         case GF_PIXEL_RGB_32:
+<span class="lineNum">     129 </span>            :                         case GF_PIXEL_ARGB:
+<span class="lineNum">     130 </span>            :                                 bpp = 32;
+<span class="lineNum">     131 </span>            :                                 break;
+<span class="lineNum">     132 </span>            :                         case GF_PIXEL_RGB_24:
+<span class="lineNum">     133 </span>            :                         case GF_PIXEL_BGR_24:
+<span class="lineNum">     134 </span>            :                                 bpp = 24;
+<span class="lineNum">     135 </span>            :                                 break;
+<span class="lineNum">     136 </span>            :                         case GF_PIXEL_RGB_565:
+<span class="lineNum">     137 </span>            :                         case GF_PIXEL_RGB_555:
+<span class="lineNum">     138 </span>            :                                 bpp = 16;
+<span class="lineNum">     139 </span>            :                                 break;
+<span class="lineNum">     140 </span>            :                         default:
+<span class="lineNum">     141 </span>            :                                 e = GF_NOT_SUPPORTED;
+<span class="lineNum">     142 </span>            :                                 bpp = 0;
+<span class="lineNum">     143 </span>            :                                 break;
+<span class="lineNum">     144 </span>            :                         }
+<span class="lineNum">     145 </span>            :                         if (e==GF_OK) {
+<span class="lineNum">     146 </span>            :                                 compositor-&gt;tgl_ctx = ostgl_create_context(bb.width, bb.height, bpp, &amp;bb.video_buffer, 1);
+<span class="lineNum">     147 </span>            :                                 if (compositor-&gt;tgl_ctx) ostgl_make_current(compositor-&gt;tgl_ctx, 0);
+<span class="lineNum">     148 </span>            :                         }
+<span class="lineNum">     149 </span>            :                         compositor-&gt;video_out-&gt;LockBackBuffer(compositor-&gt;video_out, &amp;bb, 0);
+<span class="lineNum">     150 </span>            :                 }
+<span class="lineNum">     151 </span>            :         }
+<span class="lineNum">     152 </span>            : #endif
+<span class="lineNum">     153 </span>            : 
+<span class="lineNum">     154 </span><span class="lineCov">          1 :         return GF_OK;</span>
+<span class="lineNum">     155 </span><span class="lineCov">          1 : }</span>
+<a name="156"><span class="lineNum">     156 </span>            : </a>
+<span class="lineNum">     157 </span>            : 
+<span class="lineNum">     158 </span>            : GF_Camera *compositor_3d_get_camera(GF_Compositor *compositor)
+<span class="lineNum">     159 </span>            : {
+<span class="lineNum">     160 </span>            : #ifndef GPAC_DISABLE_VRML
+<span class="lineNum">     161 </span><span class="lineNoCov">          0 :         if (compositor-&gt;active_layer) {</span>
+<span class="lineNum">     162 </span><span class="lineNoCov">          0 :                 return compositor_layer3d_get_camera(compositor-&gt;active_layer);</span>
+<span class="lineNum">     163 </span>            :         }
+<span class="lineNum">     164 </span>            : #endif
+<span class="lineNum">     165 </span><span class="lineNoCov">          0 :         if (compositor-&gt;visual-&gt;type_3d)</span>
+<span class="lineNum">     166 </span><span class="lineNoCov">          0 :                 return &amp;compositor-&gt;visual-&gt;camera;</span>
+<span class="lineNum">     167 </span><span class="lineNoCov">          0 :         return NULL;</span>
+<a name="168"><span class="lineNum">     168 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     169 </span>            : 
+<span class="lineNum">     170 </span>            : void compositor_3d_reset_camera(GF_Compositor *compositor)
+<span class="lineNum">     171 </span>            : {
+<span class="lineNum">     172 </span><span class="lineNoCov">          0 :         GF_Camera *cam = compositor_3d_get_camera(compositor);</span>
+<span class="lineNum">     173 </span><span class="lineNoCov">          0 :         if (cam) {</span>
+<span class="lineNum">     174 </span><span class="lineNoCov">          0 :                 camera_reset_viewpoint(cam, GF_TRUE);</span>
+<span class="lineNum">     175 </span><span class="lineNoCov">          0 :                 gf_sc_invalidate(compositor, NULL);</span>
+<span class="lineNum">     176 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     177 </span><span class="lineNoCov">          0 :         if (compositor-&gt;active_layer) gf_node_dirty_set(compositor-&gt;active_layer, 0, GF_TRUE);</span>
+<a name="178"><span class="lineNum">     178 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     179 </span>            : 
+<span class="lineNum">     180 </span>            : void compositor_3d_draw_bitmap(Drawable *stack, DrawAspect2D *asp, GF_TraverseState *tr_state, Fixed width, Fixed height, Fixed bmp_scale_x, Fixed bmp_scale_y)
+<span class="lineNum">     181 </span>            : {
+<span class="lineNum">     182 </span>            :         u8 alpha;
+<span class="lineNum">     183 </span>            :         GF_TextureHandler *txh;
+<span class="lineNum">     184 </span><span class="lineNoCov">          0 :         GF_Compositor *compositor = tr_state-&gt;visual-&gt;compositor;</span>
+<span class="lineNum">     185 </span>            : 
+<span class="lineNum">     186 </span><span class="lineNoCov">          0 :         if (!asp-&gt;fill_texture)</span>
+<span class="lineNum">     187 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     188 </span>            :         txh = asp-&gt;fill_texture;
+<span class="lineNum">     189 </span><span class="lineNoCov">          0 :         if (!txh || !txh-&gt;tx_io || !txh-&gt;width || !txh-&gt;height)</span>
+<span class="lineNum">     190 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     191 </span>            : 
+<span class="lineNum">     192 </span><span class="lineNoCov">          0 :         if (((txh-&gt;pixelformat==GF_PIXEL_RGBD) || (txh-&gt;pixelformat==GF_PIXEL_YUVD))) {</span>
+<span class="lineNum">     193 </span><span class="lineNoCov">          0 :                 if (compositor-&gt;depth_gl_type) {</span>
+<span class="lineNum">     194 </span><span class="lineNoCov">          0 :                         if (txh-&gt;data &amp;&amp; gf_sc_texture_convert(txh) )</span>
+<span class="lineNum">     195 </span><span class="lineNoCov">          0 :                                 visual_3d_point_sprite(tr_state-&gt;visual, stack, txh, tr_state);</span>
+<span class="lineNum">     196 </span><span class="lineNoCov">          0 :                         return;</span>
+<span class="lineNum">     197 </span>            :                 }
+<span class="lineNum">     198 </span>            :         }
+<span class="lineNum">     199 </span>            : 
+<span class="lineNum">     200 </span><span class="lineNoCov">          0 :         alpha = GF_COL_A(asp-&gt;fill_color);</span>
+<span class="lineNum">     201 </span>            :         /*THIS IS A HACK, will not work when setting filled=0, transparency and XLineProps*/
+<span class="lineNum">     202 </span><span class="lineNoCov">          0 :         if (!alpha) alpha = GF_COL_A(asp-&gt;line_color);</span>
+<span class="lineNum">     203 </span>            : 
+<span class="lineNum">     204 </span><span class="lineNoCov">          0 :         visual_3d_set_state(tr_state-&gt;visual, V3D_STATE_LIGHT, GF_FALSE);</span>
+<span class="lineNum">     205 </span><span class="lineNoCov">          0 :         visual_3d_enable_antialias(tr_state-&gt;visual, GF_FALSE);</span>
+<span class="lineNum">     206 </span>            : 
+<span class="lineNum">     207 </span><span class="lineNoCov">          0 :         visual_3d_set_material_2d_argb(tr_state-&gt;visual, GF_COL_ARGB(alpha, 0xFF, 0xFF, 0xFF));</span>
+<span class="lineNum">     208 </span>            :         
+<span class="lineNum">     209 </span><span class="lineNoCov">          0 :         if (alpha &amp;&amp; (alpha != 0xFF)) {</span>
+<span class="lineNum">     210 </span><span class="lineNoCov">          0 :                 gf_sc_texture_set_blend_mode(txh, TX_MODULATE);</span>
+<span class="lineNum">     211 </span><span class="lineNoCov">          0 :         } else if (gf_sc_texture_is_transparent(txh)) {</span>
+<span class="lineNum">     212 </span><span class="lineNoCov">          0 :                 gf_sc_texture_set_blend_mode(txh, TX_REPLACE);</span>
+<span class="lineNum">     213 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     214 </span><span class="lineNoCov">          0 :                 visual_3d_set_state(tr_state-&gt;visual, V3D_STATE_BLEND, GF_FALSE);</span>
+<span class="lineNum">     215 </span>            :         }
+<span class="lineNum">     216 </span>            :         /*ignore texture transform for bitmap*/
+<span class="lineNum">     217 </span><span class="lineNoCov">          0 :         tr_state-&gt;mesh_num_textures = gf_sc_texture_enable(txh, NULL);</span>
+<span class="lineNum">     218 </span><span class="lineNoCov">          0 :         if (tr_state-&gt;mesh_num_textures) {</span>
+<span class="lineNum">     219 </span>            :                 /*we must check the w &amp; h passed are correct because of bitmap node initialization*/
+<span class="lineNum">     220 </span><span class="lineNoCov">          0 :                 if (width &amp;&amp; height) {</span>
+<span class="lineNum">     221 </span><span class="lineNoCov">          0 :                         if (!stack-&gt;mesh) {</span>
+<span class="lineNum">     222 </span>            :                                 SFVec2f size;
+<span class="lineNum">     223 </span><span class="lineNoCov">          0 :                                 size.x = width;</span>
+<span class="lineNum">     224 </span><span class="lineNoCov">          0 :                                 size.y = height;</span>
+<span class="lineNum">     225 </span>            : 
+<span class="lineNum">     226 </span><span class="lineNoCov">          0 :                                 stack-&gt;mesh = new_mesh();</span>
+<span class="lineNum">     227 </span><span class="lineNoCov">          0 :                                 mesh_new_rectangle(stack-&gt;mesh, size, NULL, GF_FALSE);</span>
+<span class="lineNum">     228 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     229 </span>            :                 }
+<span class="lineNum">     230 </span><span class="lineNoCov">          0 :                 if (stack-&gt;mesh) {</span>
+<span class="lineNum">     231 </span>            : #ifdef GF_SR_USE_DEPTH
+<span class="lineNum">     232 </span><span class="lineNoCov">          0 :                         if (tr_state-&gt;depth_offset) {</span>
+<span class="lineNum">     233 </span><span class="lineNoCov">          0 :                                 GF_Matrix mx;</span>
+<span class="lineNum">     234 </span>            :                                 Fixed offset;
+<span class="lineNum">     235 </span><span class="lineNoCov">          0 :                                 Fixed disp_depth = (compositor-&gt;display_depth&lt;0) ? INT2FIX(tr_state-&gt;visual-&gt;height) : INT2FIX(compositor-&gt;display_depth);</span>
+<span class="lineNum">     236 </span><span class="lineNoCov">          0 :                                 if (disp_depth) {</span>
+<span class="lineNum">     237 </span><span class="lineNoCov">          0 :                                         GF_Matrix bck_mx;</span>
+<span class="lineNum">     238 </span><span class="lineNoCov">          0 :                                         if (!tr_state-&gt;pixel_metrics) disp_depth = gf_divfix(disp_depth, tr_state-&gt;min_hsize);</span>
+<span class="lineNum">     239 </span><span class="lineNoCov">          0 :                                         gf_mx_init(mx);</span>
+<span class="lineNum">     240 </span>            :                                         /*add recalibration by the scene*/
+<span class="lineNum">     241 </span><span class="lineNoCov">          0 :                                         offset = tr_state-&gt;depth_offset;</span>
+<span class="lineNum">     242 </span><span class="lineNoCov">          0 :                                         if (tr_state-&gt;visual-&gt;depth_vp_range) {</span>
+<span class="lineNum">     243 </span><span class="lineNoCov">          0 :                                                 offset = gf_divfix(offset, tr_state-&gt;visual-&gt;depth_vp_range/2);</span>
+<span class="lineNum">     244 </span><span class="lineNoCov">          0 :                                         }</span>
+<span class="lineNum">     245 </span><span class="lineNoCov">          0 :                                         gf_mx_add_translation(&amp;mx, 0, 0, gf_mulfix(offset, disp_depth/2) );</span>
+<span class="lineNum">     246 </span>            : 
+<span class="lineNum">     247 </span><span class="lineNoCov">          0 :                                         gf_mx_copy(bck_mx, tr_state-&gt;model_matrix);</span>
+<span class="lineNum">     248 </span><span class="lineNoCov">          0 :                                         gf_mx_add_matrix(&amp;tr_state-&gt;model_matrix, &amp;mx);</span>
+<span class="lineNum">     249 </span><span class="lineNoCov">          0 :                                         visual_3d_mesh_paint(tr_state, stack-&gt;mesh);</span>
+<span class="lineNum">     250 </span><span class="lineNoCov">          0 :                                         gf_mx_copy(tr_state-&gt;model_matrix, bck_mx);</span>
+<span class="lineNum">     251 </span><span class="lineNoCov">          0 :                                 } else {</span>
+<span class="lineNum">     252 </span><span class="lineNoCov">          0 :                                         visual_3d_mesh_paint(tr_state, stack-&gt;mesh);</span>
+<span class="lineNum">     253 </span>            :                                 }
+<span class="lineNum">     254 </span><span class="lineNoCov">          0 :                         } else</span>
+<span class="lineNum">     255 </span>            : #endif
+<span class="lineNum">     256 </span><span class="lineNoCov">          0 :                                 visual_3d_mesh_paint(tr_state, stack-&gt;mesh);</span>
+<span class="lineNum">     257 </span>            :                 }
+<span class="lineNum">     258 </span><span class="lineNoCov">          0 :                 gf_sc_texture_disable(txh);</span>
+<span class="lineNum">     259 </span><span class="lineNoCov">          0 :                 tr_state-&gt;mesh_num_textures = 0;</span>
+<span class="lineNum">     260 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     261 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     262 </span>            : 
+<span class="lineNum">     263 </span>            : 
+<span class="lineNum">     264 </span>            : #endif
+<span class="lineNum">     265 </span>            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,1315 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - media_tools/isom_hinter.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">media_tools</a> - isom_hinter.c<span style="font-size: 80%;"> (source / <a href="isom_hinter.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">241</td>
+            <td class="headerCovTableEntry">663</td>
+            <td class="headerCovTableEntryLo">36.3 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-05-14 22:31:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">14</td>
+            <td class="headerCovTableEntry">19</td>
+            <td class="headerCovTableEntryLo">73.7 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *                      GPAC - Multimedia Framework C SDK
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *                      Authors: Jean Le Feuvre
+<span class="lineNum">       5 </span>            :  *                      Copyright (c) Telecom ParisTech 2000-2012
+<span class="lineNum">       6 </span>            :  *                                      All rights reserved
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  *  This file is part of GPAC / Media Tools sub-project
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  *  GPAC is free software; you can redistribute it and/or modify
+<span class="lineNum">      11 </span>            :  *  it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">      12 </span>            :  *  the Free Software Foundation; either version 2, or (at your option)
+<span class="lineNum">      13 </span>            :  *  any later version.
+<span class="lineNum">      14 </span>            :  *
+<span class="lineNum">      15 </span>            :  *  GPAC is distributed in the hope that it will be useful,
+<span class="lineNum">      16 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      17 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      18 </span>            :  *  GNU Lesser General Public License for more details.
+<span class="lineNum">      19 </span>            :  *
+<span class="lineNum">      20 </span>            :  *  You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      21 </span>            :  *  License along with this library; see the file COPYING.  If not, write to
+<span class="lineNum">      22 </span>            :  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+<span class="lineNum">      23 </span>            :  *
+<span class="lineNum">      24 </span>            :  */
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : #include &lt;gpac/internal/media_dev.h&gt;
+<span class="lineNum">      27 </span>            : #include &lt;gpac/base_coding.h&gt;
+<span class="lineNum">      28 </span>            : #include &lt;gpac/mpeg4_odf.h&gt;
+<span class="lineNum">      29 </span>            : #include &lt;gpac/constants.h&gt;
+<span class="lineNum">      30 </span>            : #include &lt;gpac/maths.h&gt;
+<span class="lineNum">      31 </span>            : #include &lt;gpac/ietf.h&gt;
+<span class="lineNum">      32 </span>            : 
+<a name="33"><span class="lineNum">      33 </span>            : #ifndef GPAC_DISABLE_ISOM</a>
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span>            : void gf_media_get_sample_average_infos(GF_ISOFile *file, u32 Track, u32 *avgSize, u32 *MaxSize, u32 *TimeDelta, u32 *maxCTSDelta, u32 *const_duration, u32 *bandwidth)
+<span class="lineNum">      36 </span>            : {
+<span class="lineNum">      37 </span>            :         u32 i, count, ts_diff;
+<span class="lineNum">      38 </span>            :         u64 prevTS, tdelta;
+<span class="lineNum">      39 </span>            :         Double bw;
+<span class="lineNum">      40 </span><span class="lineCov">         28 :         GF_ISOSample *samp;</span>
+<span class="lineNum">      41 </span>            : 
+<span class="lineNum">      42 </span><span class="lineCov">         14 :         *avgSize = *MaxSize = 0;</span>
+<span class="lineNum">      43 </span><span class="lineCov">         14 :         *TimeDelta = 0;</span>
+<span class="lineNum">      44 </span><span class="lineCov">         14 :         *maxCTSDelta = 0;</span>
+<span class="lineNum">      45 </span>            :         bw = 0;
+<span class="lineNum">      46 </span>            :         prevTS = 0;
+<span class="lineNum">      47 </span>            :         tdelta = 0;
+<span class="lineNum">      48 </span>            : 
+<span class="lineNum">      49 </span><span class="lineCov">         14 :         count = gf_isom_get_sample_count(file, Track);</span>
+<span class="lineNum">      50 </span><span class="lineCov">         14 :         if (!count) return;</span>
+<span class="lineNum">      51 </span><span class="lineCov">         14 :         *const_duration = 0;</span>
+<span class="lineNum">      52 </span>            : 
+<span class="lineNum">      53 </span><span class="lineCov">       2856 :         for (i=0; i&lt;count; i++) {</span>
+<span class="lineNum">      54 </span><span class="lineCov">       1414 :                 samp = gf_isom_get_sample_info(file, Track, i+1, NULL, NULL);</span>
+<span class="lineNum">      55 </span>            :                 //get the size
+<span class="lineNum">      56 </span><span class="lineCov">       1414 :                 *avgSize += samp-&gt;dataLength;</span>
+<span class="lineNum">      57 </span><span class="lineCov">       1466 :                 if (*MaxSize &lt; samp-&gt;dataLength) *MaxSize = samp-&gt;dataLength;</span>
+<span class="lineNum">      58 </span><span class="lineCov">       1414 :                 ts_diff = (u32) (samp-&gt;DTS+samp-&gt;CTS_Offset - prevTS);</span>
+<span class="lineNum">      59 </span>            :                 //get the time
+<span class="lineNum">      60 </span><span class="lineCov">       1414 :                 tdelta += ts_diff;</span>
+<span class="lineNum">      61 </span>            : 
+<span class="lineNum">      62 </span><span class="lineCov">       1414 :                 if (i==1) {</span>
+<span class="lineNum">      63 </span><span class="lineCov">         14 :                         *const_duration = ts_diff;</span>
+<span class="lineNum">      64 </span><span class="lineCov">       2800 :                 } else if ( (i&lt;count-1) &amp;&amp; (*const_duration != ts_diff) ) {</span>
+<span class="lineNum">      65 </span><span class="lineCov">         66 :                         *const_duration = 0;</span>
+<span class="lineNum">      66 </span><span class="lineCov">         66 :                 }</span>
+<span class="lineNum">      67 </span>            : 
+<span class="lineNum">      68 </span><span class="lineCov">       1414 :                 prevTS = samp-&gt;DTS+samp-&gt;CTS_Offset;</span>
+<span class="lineNum">      69 </span><span class="lineCov">       1414 :                 bw += 8*samp-&gt;dataLength;</span>
+<span class="lineNum">      70 </span>            : 
+<span class="lineNum">      71 </span>            :                 //get the CTS delta
+<span class="lineNum">      72 </span><span class="lineCov">       2828 :                 if ((samp-&gt;CTS_Offset&gt;=0) &amp;&amp; ((u32)samp-&gt;CTS_Offset &gt; *maxCTSDelta))</span>
+<span class="lineNum">      73 </span><span class="lineCov">         10 :                         *maxCTSDelta = samp-&gt;CTS_Offset;</span>
+<span class="lineNum">      74 </span><span class="lineCov">       1414 :                 gf_isom_sample_del(&amp;samp);</span>
+<span class="lineNum">      75 </span>            :         }
+<span class="lineNum">      76 </span><span class="lineCov">         28 :         if (count&gt;1) *TimeDelta = (u32) (tdelta/ (count-1) );</span>
+<span class="lineNum">      77 </span><span class="lineNoCov">          0 :         else *TimeDelta = (u32) tdelta;</span>
+<span class="lineNum">      78 </span><span class="lineCov">         14 :         *avgSize /= count;</span>
+<span class="lineNum">      79 </span><span class="lineCov">         14 :         bw *= gf_isom_get_media_timescale(file, Track);</span>
+<span class="lineNum">      80 </span><span class="lineCov">         14 :         bw /= (s64) gf_isom_get_media_duration(file, Track);</span>
+<span class="lineNum">      81 </span><span class="lineCov">         14 :         bw /= 1000;</span>
+<span class="lineNum">      82 </span><span class="lineCov">         14 :         (*bandwidth) = (u32) (bw+0.5);</span>
+<span class="lineNum">      83 </span>            : 
+<span class="lineNum">      84 </span>            :         //delta is NOT an average, we need to know exactly how many bits are
+<span class="lineNum">      85 </span>            :         //needed to encode CTS-DTS for ANY samples
+<span class="lineNum">      86 </span><span class="lineCov">         28 : }</span>
+<span class="lineNum">      87 </span>            : 
+<span class="lineNum">      88 </span>            : 
+<span class="lineNum">      89 </span>            : #ifndef GPAC_DISABLE_ISOM_HINTING
+<span class="lineNum">      90 </span>            : 
+<span class="lineNum">      91 </span>            : /*RTP track hinter*/
+<span class="lineNum">      92 </span>            : struct __tag_isom_hinter
+<span class="lineNum">      93 </span>            : {
+<span class="lineNum">      94 </span>            :         GF_ISOFile *file;
+<span class="lineNum">      95 </span>            :         /*IDs are kept for mp4 hint sample building*/
+<span class="lineNum">      96 </span>            :         u32 TrackNum, TrackID, HintTrack, HintID;
+<span class="lineNum">      97 </span>            :         /*current Hint sample and associated RTP time*/
+<span class="lineNum">      98 </span>            :         u32 HintSample, RTPTime;
+<span class="lineNum">      99 </span>            : 
+<span class="lineNum">     100 </span>            :         /*track has composition time offset*/
+<span class="lineNum">     101 </span>            :         Bool has_ctts;
+<span class="lineNum">     102 </span>            :         /*remember if first SL packet in RTP packet is RAP*/
+<span class="lineNum">     103 </span>            :         u8 SampleIsRAP;
+<span class="lineNum">     104 </span>            :         u32 base_offset_in_sample;
+<span class="lineNum">     105 </span>            :         u32 OrigTimeScale;
+<span class="lineNum">     106 </span>            :         /*rtp builder*/
+<span class="lineNum">     107 </span>            :         GP_RTPPacketizer *rtp_p;
+<span class="lineNum">     108 </span>            : 
+<span class="lineNum">     109 </span>            :         u32 bandwidth, nb_chan;
+<span class="lineNum">     110 </span>            : 
+<span class="lineNum">     111 </span>            :         /*NALU size for H264/AVC*/
+<span class="lineNum">     112 </span>            :         u32 avc_nalu_size;
+<span class="lineNum">     113 </span>            : 
+<span class="lineNum">     114 </span>            :         /*stats*/
+<span class="lineNum">     115 </span>            :         u32 TotalSample, CurrentSample;
+<span class="lineNum">     116 </span>            : };
+<span class="lineNum">     117 </span>            : 
+<span class="lineNum">     118 </span>            : 
+<span class="lineNum">     119 </span>            : /*
+<span class="lineNum">     120 </span>            :         offset for group ID for hint tracks in SimpleAV mode when all media data
+<span class="lineNum">     121 </span>            :         is copied to the hint track (no use interleaving hint and original in this case)
+<span class="lineNum">     122 </span>            :         this offset is applied internally by the track hinter. Thus you shouldn't
+<span class="lineNum">     123 </span>            :         specify a GroupID &gt;= OFFSET_HINT_GROUP_ID if you want the lib to perform efficient
+<span class="lineNum">     124 </span>            :         interleaving in any cases (referenced or copied media)
+<span class="lineNum">     125 </span>            : */
+<a name="126"><span class="lineNum">     126 </span>            : #define OFFSET_HINT_GROUP_ID    0x8000</a>
+<span class="lineNum">     127 </span>            : 
+<span class="lineNum">     128 </span>            : void MP4T_DumpSDP(GF_ISOFile *file, const char *name)
+<span class="lineNum">     129 </span>            : {
+<span class="lineNum">     130 </span><span class="lineNoCov">          0 :         const char *sdp;</span>
+<span class="lineNum">     131 </span><span class="lineNoCov">          0 :         u32 size, i;</span>
+<span class="lineNum">     132 </span>            :         FILE *f;
+<span class="lineNum">     133 </span>            : 
+<span class="lineNum">     134 </span><span class="lineNoCov">          0 :         f = gf_fopen(name, &quot;wt&quot;);</span>
+<span class="lineNum">     135 </span>            :         //get the movie SDP
+<span class="lineNum">     136 </span><span class="lineNoCov">          0 :         gf_isom_sdp_get(file, &amp;sdp, &amp;size);</span>
+<span class="lineNum">     137 </span><span class="lineNoCov">          0 :         gf_fwrite(sdp, size, 1, f);</span>
+<span class="lineNum">     138 </span><span class="lineNoCov">          0 :         fprintf(f, &quot;\r\n&quot;);</span>
+<span class="lineNum">     139 </span>            : 
+<span class="lineNum">     140 </span>            :         //then tracks
+<span class="lineNum">     141 </span><span class="lineNoCov">          0 :         for (i=0; i&lt;gf_isom_get_track_count(file); i++) {</span>
+<span class="lineNum">     142 </span><span class="lineNoCov">          0 :                 if (gf_isom_get_media_type(file, i+1) != GF_ISOM_MEDIA_HINT) continue;</span>
+<span class="lineNum">     143 </span><span class="lineNoCov">          0 :                 gf_isom_sdp_track_get(file, i+1, &amp;sdp, &amp;size);</span>
+<span class="lineNum">     144 </span><span class="lineNoCov">          0 :                 gf_fwrite(sdp, size, 1, f);</span>
+<span class="lineNum">     145 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     146 </span><span class="lineNoCov">          0 :         gf_fclose(f);</span>
+<span class="lineNum">     147 </span><span class="lineNoCov">          0 : }</span>
+<a name="148"><span class="lineNum">     148 </span>            : </a>
+<span class="lineNum">     149 </span>            : 
+<span class="lineNum">     150 </span>            : void InitSL_RTP(GF_SLConfig *slc)
+<span class="lineNum">     151 </span>            : {
+<span class="lineNum">     152 </span><span class="lineCov">          4 :         memset(slc, 0, sizeof(GF_SLConfig));</span>
+<span class="lineNum">     153 </span><span class="lineCov">          2 :         slc-&gt;tag = GF_ODF_SLC_TAG;</span>
+<span class="lineNum">     154 </span><span class="lineCov">          2 :         slc-&gt;useTimestampsFlag = 1;</span>
+<span class="lineNum">     155 </span><span class="lineCov">          2 :         slc-&gt;timestampLength = 32;</span>
+<a name="156"><span class="lineNum">     156 </span><span class="lineCov">          2 : }</span></a>
+<span class="lineNum">     157 </span>            : 
+<span class="lineNum">     158 </span>            : void InitSL_NULL(GF_SLConfig *slc)
+<span class="lineNum">     159 </span>            : {
+<span class="lineNum">     160 </span><span class="lineNoCov">          0 :         memset(slc, 0, sizeof(GF_SLConfig));</span>
+<span class="lineNum">     161 </span><span class="lineNoCov">          0 :         slc-&gt;tag = GF_ODF_SLC_TAG;</span>
+<span class="lineNum">     162 </span><span class="lineNoCov">          0 :         slc-&gt;predefined = 0x01;</span>
+<span class="lineNum">     163 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     164 </span>            : 
+<a name="165"><span class="lineNum">     165 </span>            : </a>
+<span class="lineNum">     166 </span>            : 
+<span class="lineNum">     167 </span>            : void MP4T_OnPacketDone(void *cbk, GF_RTPHeader *header)
+<span class="lineNum">     168 </span>            : {
+<span class="lineNum">     169 </span>            :         u8 disposable;
+<span class="lineNum">     170 </span><span class="lineCov">       2004 :         GF_RTPHinter *tkHint = (GF_RTPHinter *)cbk;</span>
+<span class="lineNum">     171 </span><span class="lineCov">       2004 :         if (!tkHint || !tkHint-&gt;HintSample) return;</span>
+<span class="lineNum">     172 </span>            :         assert(header-&gt;TimeStamp == tkHint-&gt;RTPTime);
+<span class="lineNum">     173 </span>            : 
+<span class="lineNum">     174 </span>            :         disposable = 0;
+<span class="lineNum">     175 </span><span class="lineCov">       1002 :         if (tkHint-&gt;avc_nalu_size) {</span>
+<span class="lineNum">     176 </span><span class="lineNoCov">          0 :                 disposable = tkHint-&gt;rtp_p-&gt;avc_non_idr ? 1 : 0;</span>
+<span class="lineNum">     177 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     178 </span>            :         /*for all other, assume that CTS=DTS means B-frame -&gt; disposable*/
+<span class="lineNum">     179 </span><span class="lineCov">       1002 :         else if (tkHint-&gt;has_ctts &amp;&amp; (tkHint-&gt;rtp_p-&gt;sl_header.compositionTimeStamp==tkHint-&gt;rtp_p-&gt;sl_header.decodingTimeStamp)) {</span>
+<span class="lineNum">     180 </span>            :                 disposable = 1;
+<span class="lineNum">     181 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     182 </span>            : 
+<span class="lineNum">     183 </span><span class="lineCov">       1002 :         gf_isom_rtp_packet_set_flags(tkHint-&gt;file, tkHint-&gt;HintTrack, 0, 0, header-&gt;Marker, disposable, 0);</span>
+<span class="lineNum">     184 </span><span class="lineCov">       2004 : }</span>
+<a name="185"><span class="lineNum">     185 </span>            : </a>
+<span class="lineNum">     186 </span>            : 
+<span class="lineNum">     187 </span>            : void MP4T_OnDataRef(void *cbk, u32 payload_size, u32 offset_from_orig)
+<span class="lineNum">     188 </span>            : {
+<span class="lineNum">     189 </span><span class="lineCov">       2004 :         GF_RTPHinter *tkHint = (GF_RTPHinter *)cbk;</span>
+<span class="lineNum">     190 </span><span class="lineCov">       1002 :         if (!tkHint || !payload_size) return;</span>
+<span class="lineNum">     191 </span>            : 
+<span class="lineNum">     192 </span>            :         /*add reference*/
+<span class="lineNum">     193 </span><span class="lineCov">       2004 :         gf_isom_hint_sample_data(tkHint-&gt;file, tkHint-&gt;HintTrack, tkHint-&gt;TrackID,</span>
+<span class="lineNum">     194 </span><span class="lineCov">       1002 :                                  tkHint-&gt;CurrentSample, (u16) payload_size, offset_from_orig + tkHint-&gt;base_offset_in_sample,</span>
+<span class="lineNum">     195 </span>            :                                  NULL, 0);
+<a name="196"><span class="lineNum">     196 </span><span class="lineCov">       2004 : }</span></a>
+<span class="lineNum">     197 </span>            : 
+<span class="lineNum">     198 </span>            : void MP4T_OnData(void *cbk, char *data, u32 data_size, Bool is_header)
+<span class="lineNum">     199 </span>            : {
+<span class="lineNum">     200 </span>            :         u8 at_begin;
+<span class="lineNum">     201 </span><span class="lineCov">       2004 :         GF_RTPHinter *tkHint = (GF_RTPHinter *)cbk;</span>
+<span class="lineNum">     202 </span><span class="lineCov">       1002 :         if (!data_size) return;</span>
+<span class="lineNum">     203 </span>            : 
+<span class="lineNum">     204 </span><span class="lineCov">       1002 :         at_begin = is_header ? 1 : 0;</span>
+<span class="lineNum">     205 </span><span class="lineCov">       2004 :         if (data_size &lt;= 14) {</span>
+<span class="lineNum">     206 </span><span class="lineCov">       2004 :                 gf_isom_hint_direct_data(tkHint-&gt;file, tkHint-&gt;HintTrack, data, data_size, at_begin);</span>
+<span class="lineNum">     207 </span><span class="lineCov">       1002 :         } else {</span>
+<span class="lineNum">     208 </span><span class="lineNoCov">          0 :                 gf_isom_hint_sample_data(tkHint-&gt;file, tkHint-&gt;HintTrack, tkHint-&gt;HintID, 0, (u16) data_size, 0, data, at_begin);</span>
+<span class="lineNum">     209 </span>            :         }
+<span class="lineNum">     210 </span><span class="lineCov">       2004 : }</span>
+<a name="211"><span class="lineNum">     211 </span>            : </a>
+<span class="lineNum">     212 </span>            : 
+<span class="lineNum">     213 </span>            : void MP4T_OnNewPacket(void *cbk, GF_RTPHeader *header)
+<span class="lineNum">     214 </span>            : {
+<span class="lineNum">     215 </span>            :         s32 res;
+<span class="lineNum">     216 </span><span class="lineCov">       2004 :         GF_RTPHinter *tkHint = (GF_RTPHinter *)cbk;</span>
+<span class="lineNum">     217 </span><span class="lineCov">       1002 :         if (!tkHint) return;</span>
+<span class="lineNum">     218 </span>            : 
+<span class="lineNum">     219 </span><span class="lineCov">       1002 :         res = (s32) (tkHint-&gt;rtp_p-&gt;sl_header.compositionTimeStamp - tkHint-&gt;rtp_p-&gt;sl_header.decodingTimeStamp);</span>
+<span class="lineNum">     220 </span>            :         assert( !res || tkHint-&gt;has_ctts);
+<span class="lineNum">     221 </span>            :         /*do we need a new sample*/
+<span class="lineNum">     222 </span><span class="lineCov">       2002 :         if (!tkHint-&gt;HintSample || (tkHint-&gt;RTPTime != header-&gt;TimeStamp)) {</span>
+<span class="lineNum">     223 </span>            :                 /*close current sample*/
+<span class="lineNum">     224 </span><span class="lineCov">       2002 :                 if (tkHint-&gt;HintSample) gf_isom_end_hint_sample(tkHint-&gt;file, tkHint-&gt;HintTrack, tkHint-&gt;SampleIsRAP);</span>
+<span class="lineNum">     225 </span>            : 
+<span class="lineNum">     226 </span>            :                 /*start new sample: We use DTS as the sampling instant (RTP TS) to make sure
+<span class="lineNum">     227 </span>            :                 all packets are sent in order*/
+<span class="lineNum">     228 </span><span class="lineCov">       1002 :                 gf_isom_begin_hint_sample(tkHint-&gt;file, tkHint-&gt;HintTrack, 1, header-&gt;TimeStamp-res);</span>
+<span class="lineNum">     229 </span><span class="lineCov">       1002 :                 tkHint-&gt;HintSample ++;</span>
+<span class="lineNum">     230 </span><span class="lineCov">       1002 :                 tkHint-&gt;RTPTime = header-&gt;TimeStamp;</span>
+<span class="lineNum">     231 </span><span class="lineCov">       2004 :                 tkHint-&gt;SampleIsRAP = tkHint-&gt;rtp_p-&gt;sl_config.hasRandomAccessUnitsOnlyFlag ? 1 : tkHint-&gt;rtp_p-&gt;sl_header.randomAccessPointFlag;</span>
+<span class="lineNum">     232 </span><span class="lineCov">       1002 :         }</span>
+<span class="lineNum">     233 </span>            :         /*create an RTP Packet with the appropriated marker flag - note: the flags are temp ones,
+<span class="lineNum">     234 </span>            :         they are set when the full packet is signaled (to handle multi AUs per RTP)*/
+<span class="lineNum">     235 </span><span class="lineCov">       1002 :         gf_isom_rtp_packet_begin(tkHint-&gt;file, tkHint-&gt;HintTrack, 0, 0, 0, header-&gt;Marker, header-&gt;PayloadType, 0, 0, header-&gt;SequenceNumber);</span>
+<span class="lineNum">     236 </span>            :         /*Add the delta TS to make sure RTP TS is indeed the CTS (sampling time)*/
+<span class="lineNum">     237 </span><span class="lineCov">       1002 :         if (res) gf_isom_rtp_packet_set_offset(tkHint-&gt;file, tkHint-&gt;HintTrack, res);</span>
+<span class="lineNum">     238 </span><span class="lineCov">       2004 : }</span>
+<span class="lineNum">     239 </span>            : 
+<a name="240"><span class="lineNum">     240 </span>            : </a>
+<span class="lineNum">     241 </span>            : GF_EXPORT
+<span class="lineNum">     242 </span>            : GF_RTPHinter *gf_hinter_track_new(GF_ISOFile *file, u32 TrackNum,
+<span class="lineNum">     243 </span>            :                                   u32 Path_MTU, u32 max_ptime, u32 default_rtp_rate, u32 flags, u8 PayloadID,
+<span class="lineNum">     244 </span>            :                                   Bool copy_media, u32 InterleaveGroupID, u8 InterleaveGroupPriority, GF_Err *e)
+<span class="lineNum">     245 </span>            : {
+<span class="lineNum">     246 </span>            : 
+<span class="lineNum">     247 </span><span class="lineCov">          4 :         GF_SLConfig my_sl;</span>
+<span class="lineNum">     248 </span><span class="lineCov">          2 :         u32 descIndex, MinSize, MaxSize, avgTS, streamType, oti, const_dur, nb_ch, maxDTSDelta;</span>
+<span class="lineNum">     249 </span>            :         u8 OfficialPayloadID;
+<span class="lineNum">     250 </span><span class="lineCov">          2 :         u32 TrackMediaSubType, TrackMediaType, hintType, nbEdts, required_rate, force_dts_delta, avc_nalu_size, PL_ID, bandwidth, IV_length, KI_length;</span>
+<span class="lineNum">     251 </span><span class="lineCov">          2 :         const char *url, *urn;</span>
+<span class="lineNum">     252 </span>            :         char *mpeg4mode;
+<span class="lineNum">     253 </span>            :         Bool is_crypted, has_mpeg4_mapping;
+<span class="lineNum">     254 </span>            :         GF_RTPHinter *tmp;
+<span class="lineNum">     255 </span>            :         GF_ESD *esd;
+<span class="lineNum">     256 </span>            : 
+<span class="lineNum">     257 </span><span class="lineCov">          2 :         *e = GF_BAD_PARAM;</span>
+<span class="lineNum">     258 </span><span class="lineCov">          4 :         if (!file || !TrackNum || !gf_isom_get_track_id(file, TrackNum)) return NULL;</span>
+<span class="lineNum">     259 </span>            : 
+<span class="lineNum">     260 </span><span class="lineCov">          2 :         if (!gf_isom_get_sample_count(file, TrackNum)) {</span>
+<span class="lineNum">     261 </span><span class="lineNoCov">          0 :                 *e = GF_OK;</span>
+<span class="lineNum">     262 </span><span class="lineNoCov">          0 :                 return NULL;</span>
+<span class="lineNum">     263 </span>            :         }
+<span class="lineNum">     264 </span><span class="lineCov">          2 :         *e = GF_NOT_SUPPORTED;</span>
+<span class="lineNum">     265 </span><span class="lineCov">          2 :         nbEdts = gf_isom_get_edit_segment_count(file, TrackNum);</span>
+<span class="lineNum">     266 </span><span class="lineCov">          2 :         if (nbEdts&gt;1) {</span>
+<span class="lineNum">     267 </span><span class="lineNoCov">          0 :                 u64 et, sd, mt;</span>
+<span class="lineNum">     268 </span><span class="lineNoCov">          0 :                 u8 em;</span>
+<span class="lineNum">     269 </span><span class="lineNoCov">          0 :                 gf_isom_get_edit_segment(file, TrackNum, 1, &amp;et, &amp;sd, &amp;mt, &amp;em);</span>
+<span class="lineNum">     270 </span><span class="lineNoCov">          0 :                 if ((nbEdts&gt;2) || (em!=GF_ISOM_EDIT_EMPTY)) {</span>
+<span class="lineNum">     271 </span><span class="lineNoCov">          0 :                         GF_LOG(GF_LOG_ERROR, GF_LOG_RTP, (&quot;[rtp hinter] Cannot hint track whith EditList\n&quot;));</span>
+<span class="lineNum">     272 </span><span class="lineNoCov">          0 :                         return NULL;</span>
+<span class="lineNum">     273 </span>            :                 }
+<span class="lineNum">     274 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     275 </span><span class="lineCov">          2 :         if (nbEdts) gf_isom_remove_edit_segments(file, TrackNum);</span>
+<span class="lineNum">     276 </span>            : 
+<span class="lineNum">     277 </span><span class="lineCov">          2 :         if (!gf_isom_is_track_enabled(file, TrackNum)) return NULL;</span>
+<span class="lineNum">     278 </span>            : 
+<span class="lineNum">     279 </span>            :         /*by default NO PL signaled*/
+<span class="lineNum">     280 </span>            :         PL_ID = 0;
+<span class="lineNum">     281 </span>            :         OfficialPayloadID = 0;
+<span class="lineNum">     282 </span>            :         force_dts_delta = 0;
+<span class="lineNum">     283 </span>            :         streamType = oti = 0;
+<span class="lineNum">     284 </span>            :         mpeg4mode = NULL;
+<span class="lineNum">     285 </span>            :         required_rate = 0;
+<span class="lineNum">     286 </span>            :         is_crypted = 0;
+<span class="lineNum">     287 </span><span class="lineCov">          2 :         IV_length = KI_length = 0;</span>
+<span class="lineNum">     288 </span>            :         oti = 0;
+<span class="lineNum">     289 </span><span class="lineCov">          2 :         nb_ch = 0;</span>
+<span class="lineNum">     290 </span>            :         avc_nalu_size = 0;
+<span class="lineNum">     291 </span>            :         has_mpeg4_mapping = 1;
+<span class="lineNum">     292 </span><span class="lineCov">          2 :         TrackMediaType = gf_isom_get_media_type(file, TrackNum);</span>
+<span class="lineNum">     293 </span>            : 
+<span class="lineNum">     294 </span>            :         /*for max compatibility with QT*/
+<span class="lineNum">     295 </span><span class="lineCov">          4 :         if (!default_rtp_rate) default_rtp_rate = 90000;</span>
+<span class="lineNum">     296 </span>            : 
+<span class="lineNum">     297 </span>            :         /*timed-text is a bit special, we support multiple stream descriptions &amp; co*/
+<span class="lineNum">     298 </span><span class="lineCov">          2 :         if ( (TrackMediaType==GF_ISOM_MEDIA_TEXT) || (TrackMediaType==GF_ISOM_MEDIA_SUBT)) {</span>
+<span class="lineNum">     299 </span>            :                 hintType = GF_RTP_PAYT_3GPP_TEXT;
+<span class="lineNum">     300 </span>            :                 oti = GPAC_OTI_TEXT_MPEG4;
+<span class="lineNum">     301 </span>            :                 streamType = GF_STREAM_TEXT;
+<span class="lineNum">     302 </span>            :                 /*fixme - this works cos there's only one PL for text in mpeg4 at the current time*/
+<span class="lineNum">     303 </span>            :                 PL_ID = 0x10;
+<span class="lineNum">     304 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     305 </span><span class="lineCov">          2 :                 if (gf_isom_get_sample_description_count(file, TrackNum) &gt; 1) return NULL;</span>
+<span class="lineNum">     306 </span>            : 
+<span class="lineNum">     307 </span><span class="lineCov">          2 :                 TrackMediaSubType = gf_isom_get_media_subtype(file, TrackNum, 1);</span>
+<span class="lineNum">     308 </span><span class="lineCov">          2 :                 switch (TrackMediaSubType) {</span>
+<span class="lineNum">     309 </span>            :                 case GF_ISOM_SUBTYPE_MPEG4_CRYP:
+<span class="lineNum">     310 </span><span class="lineNoCov">          0 :                         is_crypted = 1;</span>
+<span class="lineNum">     311 </span>            :                 case GF_ISOM_SUBTYPE_MPEG4:
+<span class="lineNum">     312 </span><span class="lineNoCov">          0 :                         esd = gf_isom_get_esd(file, TrackNum, 1);</span>
+<span class="lineNum">     313 </span>            :                         hintType = GF_RTP_PAYT_MPEG4;
+<span class="lineNum">     314 </span><span class="lineNoCov">          0 :                         if (esd) {</span>
+<span class="lineNum">     315 </span><span class="lineNoCov">          0 :                                 streamType = esd-&gt;decoderConfig-&gt;streamType;</span>
+<span class="lineNum">     316 </span><span class="lineNoCov">          0 :                                 oti = esd-&gt;decoderConfig-&gt;objectTypeIndication;</span>
+<span class="lineNum">     317 </span><span class="lineNoCov">          0 :                                 if (esd-&gt;URLString) hintType = 0;</span>
+<span class="lineNum">     318 </span>            :                                 /*AAC*/
+<span class="lineNum">     319 </span><span class="lineNoCov">          0 :                                 if ((streamType==GF_STREAM_AUDIO) &amp;&amp; esd-&gt;decoderConfig-&gt;decoderSpecificInfo</span>
+<span class="lineNum">     320 </span>            :                                         /*(nb: we use mpeg4 for MPEG-2 AAC)*/
+<span class="lineNum">     321 </span><span class="lineNoCov">          0 :                                         &amp;&amp; ((oti==GPAC_OTI_AUDIO_AAC_MPEG4) || (oti==GPAC_OTI_AUDIO_AAC_MPEG4) || (oti==GPAC_OTI_AUDIO_AAC_MPEG2_MP) || (oti==GPAC_OTI_AUDIO_AAC_MPEG2_LCP) || (oti==GPAC_OTI_AUDIO_AAC_MPEG2_SSRP)) ) {</span>
+<span class="lineNum">     322 </span>            : 
+<span class="lineNum">     323 </span>            :                                         u32 sample_rate;
+<span class="lineNum">     324 </span><span class="lineNoCov">          0 :                                         GF_M4ADecSpecInfo a_cfg;</span>
+<span class="lineNum">     325 </span><span class="lineNoCov">          0 :                                         gf_m4a_get_config(esd-&gt;decoderConfig-&gt;decoderSpecificInfo-&gt;data, esd-&gt;decoderConfig-&gt;decoderSpecificInfo-&gt;dataLength, &amp;a_cfg);</span>
+<span class="lineNum">     326 </span><span class="lineNoCov">          0 :                                         nb_ch = a_cfg.nb_chan;</span>
+<span class="lineNum">     327 </span><span class="lineNoCov">          0 :                                         sample_rate = a_cfg.base_sr;</span>
+<span class="lineNum">     328 </span><span class="lineNoCov">          0 :                                         PL_ID = a_cfg.audioPL;</span>
+<span class="lineNum">     329 </span><span class="lineNoCov">          0 :                                         switch (a_cfg.base_object_type) {</span>
+<span class="lineNum">     330 </span>            :                                         case GF_M4A_AAC_MAIN:
+<span class="lineNum">     331 </span>            :                                         case GF_M4A_AAC_LC:
+<span class="lineNum">     332 </span><span class="lineNoCov">          0 :                                                 if (flags &amp; GP_RTP_PCK_USE_LATM_AAC) {</span>
+<span class="lineNum">     333 </span>            :                                                         hintType = GF_RTP_PAYT_LATM;
+<span class="lineNum">     334 </span><span class="lineNoCov">          0 :                                                         break;</span>
+<span class="lineNum">     335 </span>            :                                                 }
+<span class="lineNum">     336 </span>            :                                         case GF_M4A_AAC_SBR:
+<span class="lineNum">     337 </span>            :                                         case GF_M4A_AAC_PS:
+<span class="lineNum">     338 </span>            :                                         case GF_M4A_AAC_LTP:
+<span class="lineNum">     339 </span>            :                                         case GF_M4A_AAC_SCALABLE:
+<span class="lineNum">     340 </span>            :                                         case GF_M4A_ER_AAC_LC:
+<span class="lineNum">     341 </span>            :                                         case GF_M4A_ER_AAC_LTP:
+<span class="lineNum">     342 </span>            :                                         case GF_M4A_ER_AAC_SCALABLE:
+<span class="lineNum">     343 </span>            :                                                 mpeg4mode = &quot;AAC&quot;;
+<span class="lineNum">     344 </span><span class="lineNoCov">          0 :                                                 break;</span>
+<span class="lineNum">     345 </span>            :                                         case GF_M4A_CELP:
+<span class="lineNum">     346 </span>            :                                         case GF_M4A_ER_CELP:
+<span class="lineNum">     347 </span>            :                                                 mpeg4mode = &quot;CELP&quot;;
+<span class="lineNum">     348 </span><span class="lineNoCov">          0 :                                                 break;</span>
+<span class="lineNum">     349 </span>            :                                         }
+<span class="lineNum">     350 </span>            :                                         required_rate = sample_rate;
+<span class="lineNum">     351 </span><span class="lineNoCov">          0 :                                 }</span>
+<span class="lineNum">     352 </span>            :                                 /*MPEG1/2 audio*/
+<span class="lineNum">     353 </span><span class="lineNoCov">          0 :                                 else if ((streamType==GF_STREAM_AUDIO) &amp;&amp; ((oti==GPAC_OTI_AUDIO_MPEG2_PART3) || (oti==GPAC_OTI_AUDIO_MPEG1))) {</span>
+<span class="lineNum">     354 </span><span class="lineNoCov">          0 :                                         u32 sample_rate;</span>
+<span class="lineNum">     355 </span><span class="lineNoCov">          0 :                                         if (!is_crypted) {</span>
+<span class="lineNum">     356 </span><span class="lineNoCov">          0 :                                                 GF_ISOSample *samp = gf_isom_get_sample(file, TrackNum, 1, NULL);</span>
+<span class="lineNum">     357 </span><span class="lineNoCov">          0 :                                                 u32 hdr = GF_4CC((u8)samp-&gt;data[0], (u8)samp-&gt;data[1], (u8)samp-&gt;data[2], (u8)samp-&gt;data[3]);</span>
+<span class="lineNum">     358 </span><span class="lineNoCov">          0 :                                                 nb_ch = gf_mp3_num_channels(hdr);</span>
+<span class="lineNum">     359 </span><span class="lineNoCov">          0 :                                                 sample_rate = gf_mp3_sampling_rate(hdr);</span>
+<span class="lineNum">     360 </span><span class="lineNoCov">          0 :                                                 gf_isom_sample_del(&amp;samp);</span>
+<span class="lineNum">     361 </span>            :                                                 hintType = GF_RTP_PAYT_MPEG12_AUDIO;
+<span class="lineNum">     362 </span>            :                                                 /*use official RTP/AVP payload type*/
+<span class="lineNum">     363 </span>            :                                                 OfficialPayloadID = 14;
+<span class="lineNum">     364 </span>            :                                                 required_rate = 90000;
+<span class="lineNum">     365 </span><span class="lineNoCov">          0 :                                         }</span>
+<span class="lineNum">     366 </span>            :                                         /*encrypted MP3 must be sent through MPEG-4 generic to signal all ISMACryp stuff*/
+<span class="lineNum">     367 </span>            :                                         else {
+<span class="lineNum">     368 </span><span class="lineNoCov">          0 :                                                 u8 bps;</span>
+<span class="lineNum">     369 </span><span class="lineNoCov">          0 :                                                 gf_isom_get_audio_info(file, TrackNum, 1, &amp;sample_rate, &amp;nb_ch, &amp;bps);</span>
+<span class="lineNum">     370 </span><span class="lineNoCov">          0 :                                                 required_rate = sample_rate;</span>
+<span class="lineNum">     371 </span><span class="lineNoCov">          0 :                                         }</span>
+<span class="lineNum">     372 </span><span class="lineNoCov">          0 :                                 }</span>
+<span class="lineNum">     373 </span>            :                                 /*QCELP audio*/
+<span class="lineNum">     374 </span><span class="lineNoCov">          0 :                                 else if ((streamType==GF_STREAM_AUDIO) &amp;&amp; (oti==GPAC_OTI_AUDIO_13K_VOICE)) {</span>
+<span class="lineNum">     375 </span>            :                                         hintType = GF_RTP_PAYT_QCELP;
+<span class="lineNum">     376 </span>            :                                         OfficialPayloadID = 12;
+<span class="lineNum">     377 </span>            :                                         required_rate = 8000;
+<span class="lineNum">     378 </span>            :                                         streamType = GF_STREAM_AUDIO;
+<span class="lineNum">     379 </span><span class="lineNoCov">          0 :                                         nb_ch = 1;</span>
+<span class="lineNum">     380 </span><span class="lineNoCov">          0 :                                 }</span>
+<span class="lineNum">     381 </span>            :                                 /*EVRC/SVM audio*/
+<span class="lineNum">     382 </span><span class="lineNoCov">          0 :                                 else if ((streamType==GF_STREAM_AUDIO) &amp;&amp; ((oti==GPAC_OTI_AUDIO_EVRC_VOICE) || (oti==GPAC_OTI_AUDIO_SMV_VOICE)) ) {</span>
+<span class="lineNum">     383 </span>            :                                         hintType = GF_RTP_PAYT_EVRC_SMV;
+<span class="lineNum">     384 </span>            :                                         required_rate = 8000;
+<span class="lineNum">     385 </span>            :                                         streamType = GF_STREAM_AUDIO;
+<span class="lineNum">     386 </span><span class="lineNoCov">          0 :                                         nb_ch = 1;</span>
+<span class="lineNum">     387 </span><span class="lineNoCov">          0 :                                 }</span>
+<span class="lineNum">     388 </span>            :                                 /*visual streams*/
+<span class="lineNum">     389 </span><span class="lineNoCov">          0 :                                 else if (streamType==GF_STREAM_VISUAL) {</span>
+<span class="lineNum">     390 </span><span class="lineNoCov">          0 :                                         if (oti==GPAC_OTI_VIDEO_MPEG4_PART2) {</span>
+<span class="lineNum">     391 </span><span class="lineNoCov">          0 :                                                 GF_M4VDecSpecInfo dsi;</span>
+<span class="lineNum">     392 </span><span class="lineNoCov">          0 :                                                 gf_m4v_get_config(esd-&gt;decoderConfig-&gt;decoderSpecificInfo-&gt;data, esd-&gt;decoderConfig-&gt;decoderSpecificInfo-&gt;dataLength, &amp;dsi);</span>
+<span class="lineNum">     393 </span><span class="lineNoCov">          0 :                                                 PL_ID = dsi.VideoPL;</span>
+<span class="lineNum">     394 </span><span class="lineNoCov">          0 :                                         }</span>
+<span class="lineNum">     395 </span>            :                                         /*MPEG1/2 video*/
+<span class="lineNum">     396 </span><span class="lineNoCov">          0 :                                         if ( ((oti&gt;=GPAC_OTI_VIDEO_MPEG2_SIMPLE) &amp;&amp; (oti&lt;=GPAC_OTI_VIDEO_MPEG2_422)) || (oti==GPAC_OTI_VIDEO_MPEG1)) {</span>
+<span class="lineNum">     397 </span><span class="lineNoCov">          0 :                                                 if (!is_crypted) {</span>
+<span class="lineNum">     398 </span>            :                                                         hintType = GF_RTP_PAYT_MPEG12_VIDEO;
+<span class="lineNum">     399 </span>            :                                                         OfficialPayloadID = 32;
+<span class="lineNum">     400 </span><span class="lineNoCov">          0 :                                                 }</span>
+<span class="lineNum">     401 </span>            :                                         }
+<span class="lineNum">     402 </span>            :                                         /*for ISMA*/
+<span class="lineNum">     403 </span><span class="lineNoCov">          0 :                                         if (is_crypted) {</span>
+<span class="lineNum">     404 </span>            :                                                 /*that's another pain with ISMACryp, even if no B-frames the DTS is signaled...*/
+<span class="lineNum">     405 </span><span class="lineNoCov">          0 :                                                 if (oti==GPAC_OTI_VIDEO_MPEG4_PART2) force_dts_delta = 22;</span>
+<span class="lineNum">     406 </span><span class="lineNoCov">          0 :                                                 else if ((oti==GPAC_OTI_VIDEO_AVC) || (oti==GPAC_OTI_VIDEO_SVC)) {</span>
+<span class="lineNum">     407 </span><span class="lineNoCov">          0 :                                                         flags &amp;= ~GP_RTP_PCK_USE_MULTI;</span>
+<span class="lineNum">     408 </span>            :                                                         force_dts_delta = 22;
+<span class="lineNum">     409 </span><span class="lineNoCov">          0 :                                                 }</span>
+<span class="lineNum">     410 </span><span class="lineNoCov">          0 :                                                 flags |= GP_RTP_PCK_SIGNAL_RAP | GP_RTP_PCK_SIGNAL_TS;</span>
+<span class="lineNum">     411 </span><span class="lineNoCov">          0 :                                         }</span>
+<span class="lineNum">     412 </span>            : 
+<span class="lineNum">     413 </span>            :                                         required_rate = default_rtp_rate;
+<span class="lineNum">     414 </span><span class="lineNoCov">          0 :                                 }</span>
+<span class="lineNum">     415 </span>            :                                 /*systems streams*/
+<span class="lineNum">     416 </span><span class="lineNoCov">          0 :                                 else if (gf_isom_has_sync_shadows(file, TrackNum) || gf_isom_has_sample_dependency(file, TrackNum)) {</span>
+<span class="lineNum">     417 </span><span class="lineNoCov">          0 :                                         flags |= GP_RTP_PCK_SYSTEMS_CAROUSEL;</span>
+<span class="lineNum">     418 </span><span class="lineNoCov">          0 :                                 }</span>
+<span class="lineNum">     419 </span><span class="lineNoCov">          0 :                                 gf_odf_desc_del((GF_Descriptor*)esd);</span>
+<span class="lineNum">     420 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     421 </span>            :                         break;
+<span class="lineNum">     422 </span>            :                 case GF_ISOM_SUBTYPE_3GP_H263:
+<span class="lineNum">     423 </span>            :                         hintType = GF_RTP_PAYT_H263;
+<span class="lineNum">     424 </span>            :                         required_rate = 90000;
+<span class="lineNum">     425 </span>            :                         streamType = GF_STREAM_VISUAL;
+<span class="lineNum">     426 </span>            :                         OfficialPayloadID = 34;
+<span class="lineNum">     427 </span>            :                         /*not 100% compliant (short header is missing) but should still work*/
+<span class="lineNum">     428 </span>            :                         oti = GPAC_OTI_VIDEO_MPEG4_PART2;
+<span class="lineNum">     429 </span>            :                         PL_ID = 0x01;
+<span class="lineNum">     430 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     431 </span>            :                 case GF_ISOM_SUBTYPE_3GP_AMR:
+<span class="lineNum">     432 </span>            :                         required_rate = 8000;
+<span class="lineNum">     433 </span>            :                         hintType = GF_RTP_PAYT_AMR;
+<span class="lineNum">     434 </span>            :                         streamType = GF_STREAM_AUDIO;
+<span class="lineNum">     435 </span>            :                         has_mpeg4_mapping = 0;
+<span class="lineNum">     436 </span><span class="lineNoCov">          0 :                         nb_ch = 1;</span>
+<span class="lineNum">     437 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     438 </span>            :                 case GF_ISOM_SUBTYPE_3GP_AMR_WB:
+<span class="lineNum">     439 </span>            :                         required_rate = 16000;
+<span class="lineNum">     440 </span>            :                         hintType = GF_RTP_PAYT_AMR_WB;
+<span class="lineNum">     441 </span>            :                         streamType = GF_STREAM_AUDIO;
+<span class="lineNum">     442 </span>            :                         has_mpeg4_mapping = 0;
+<span class="lineNum">     443 </span><span class="lineNoCov">          0 :                         nb_ch = 1;</span>
+<span class="lineNum">     444 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     445 </span>            :                 case GF_ISOM_SUBTYPE_AVC_H264:
+<span class="lineNum">     446 </span>            :                 case GF_ISOM_SUBTYPE_AVC2_H264:
+<span class="lineNum">     447 </span>            :                 case GF_ISOM_SUBTYPE_AVC3_H264:
+<span class="lineNum">     448 </span>            :                 case GF_ISOM_SUBTYPE_AVC4_H264:
+<span class="lineNum">     449 </span>            :                 case GF_ISOM_SUBTYPE_SVC_H264:
+<span class="lineNum">     450 </span>            :                 {
+<span class="lineNum">     451 </span><span class="lineNoCov">          0 :                         GF_AVCConfig *avcc = gf_isom_avc_config_get(file, TrackNum, 1);</span>
+<span class="lineNum">     452 </span><span class="lineNoCov">          0 :                         GF_AVCConfig *svcc = gf_isom_svc_config_get(file, TrackNum, 1);</span>
+<span class="lineNum">     453 </span>            :                         required_rate = 90000;  /* &quot;90 kHz clock rate MUST be used&quot;*/
+<span class="lineNum">     454 </span>            :                         hintType = GF_RTP_PAYT_H264_AVC;
+<span class="lineNum">     455 </span><span class="lineNoCov">          0 :                         if (TrackMediaSubType==GF_ISOM_SUBTYPE_SVC_H264)</span>
+<span class="lineNum">     456 </span>            :                                 hintType = GF_RTP_PAYT_H264_SVC;
+<span class="lineNum">     457 </span>            :                         streamType = GF_STREAM_VISUAL;
+<span class="lineNum">     458 </span><span class="lineNoCov">          0 :                         avc_nalu_size = avcc ? avcc-&gt;nal_unit_size : svcc-&gt;nal_unit_size;</span>
+<span class="lineNum">     459 </span>            :                         oti = GPAC_OTI_VIDEO_AVC;
+<span class="lineNum">     460 </span>            :                         PL_ID = 0x0F;
+<span class="lineNum">     461 </span><span class="lineNoCov">          0 :                         gf_odf_avc_cfg_del(avcc);</span>
+<span class="lineNum">     462 </span><span class="lineNoCov">          0 :                         gf_odf_avc_cfg_del(svcc);</span>
+<span class="lineNum">     463 </span>            :                 }
+<span class="lineNum">     464 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     465 </span>            :                 case GF_ISOM_SUBTYPE_HVC1:
+<span class="lineNum">     466 </span>            :                 case GF_ISOM_SUBTYPE_HEV1:
+<span class="lineNum">     467 </span>            :                 case GF_ISOM_SUBTYPE_HVC2:
+<span class="lineNum">     468 </span>            :                 case GF_ISOM_SUBTYPE_HEV2:
+<span class="lineNum">     469 </span>            :                 {
+<span class="lineNum">     470 </span>            :                         GF_HEVCConfig *hevcc = NULL;
+<span class="lineNum">     471 </span><span class="lineNoCov">          0 :                         hevcc = gf_isom_hevc_config_get(file, TrackNum, 1);</span>
+<span class="lineNum">     472 </span>            :                         required_rate = 90000;  /* &quot;90 kHz clock rate MUST be used&quot;*/
+<span class="lineNum">     473 </span>            :                         hintType = GF_RTP_PAYT_HEVC;
+<span class="lineNum">     474 </span>            :                         streamType = GF_STREAM_VISUAL;
+<span class="lineNum">     475 </span><span class="lineNoCov">          0 :                         avc_nalu_size = hevcc-&gt;nal_unit_size;</span>
+<span class="lineNum">     476 </span>            :                         oti = GPAC_OTI_VIDEO_HEVC;
+<span class="lineNum">     477 </span>            :                         PL_ID = 0x0F;
+<span class="lineNum">     478 </span><span class="lineNoCov">          0 :                         flags |= GP_RTP_PCK_USE_MULTI;</span>
+<span class="lineNum">     479 </span><span class="lineNoCov">          0 :                         gf_odf_hevc_cfg_del(hevcc);</span>
+<span class="lineNum">     480 </span>            :                         break;
+<span class="lineNum">     481 </span>            :                 }
+<span class="lineNum">     482 </span>            :                 break;
+<span class="lineNum">     483 </span>            :                 case GF_ISOM_SUBTYPE_3GP_QCELP:
+<span class="lineNum">     484 </span>            :                         required_rate = 8000;
+<span class="lineNum">     485 </span>            :                         hintType = GF_RTP_PAYT_QCELP;
+<span class="lineNum">     486 </span>            :                         streamType = GF_STREAM_AUDIO;
+<span class="lineNum">     487 </span>            :                         oti = GPAC_OTI_AUDIO_13K_VOICE;
+<span class="lineNum">     488 </span>            :                         OfficialPayloadID = 12;
+<span class="lineNum">     489 </span><span class="lineCov">          2 :                         nb_ch = 1;</span>
+<span class="lineNum">     490 </span><span class="lineCov">          2 :                         break;</span>
+<span class="lineNum">     491 </span>            :                 case GF_ISOM_SUBTYPE_3GP_EVRC:
+<span class="lineNum">     492 </span>            :                 case GF_ISOM_SUBTYPE_3GP_SMV:
+<span class="lineNum">     493 </span>            :                         required_rate = 8000;
+<span class="lineNum">     494 </span>            :                         hintType = GF_RTP_PAYT_EVRC_SMV;
+<span class="lineNum">     495 </span>            :                         streamType = GF_STREAM_AUDIO;
+<span class="lineNum">     496 </span><span class="lineNoCov">          0 :                         oti = (TrackMediaSubType==GF_ISOM_SUBTYPE_3GP_EVRC) ? GPAC_OTI_AUDIO_EVRC_VOICE : GPAC_OTI_AUDIO_SMV_VOICE;</span>
+<span class="lineNum">     497 </span><span class="lineNoCov">          0 :                         nb_ch = 1;</span>
+<span class="lineNum">     498 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     499 </span>            :                 case GF_ISOM_SUBTYPE_3GP_DIMS:
+<span class="lineNum">     500 </span>            :                         hintType = GF_RTP_PAYT_3GPP_DIMS;
+<span class="lineNum">     501 </span>            :                         streamType = GF_STREAM_SCENE;
+<span class="lineNum">     502 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     503 </span>            :                 case GF_ISOM_SUBTYPE_AC3:
+<span class="lineNum">     504 </span>            :                         hintType = GF_RTP_PAYT_AC3;
+<span class="lineNum">     505 </span>            :                         streamType = GF_STREAM_AUDIO;
+<span class="lineNum">     506 </span><span class="lineNoCov">          0 :                         gf_isom_get_audio_info(file, TrackNum, 1, NULL, &amp;nb_ch, NULL);</span>
+<span class="lineNum">     507 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     508 </span>            :                 case GF_ISOM_SUBTYPE_MP3:
+<span class="lineNum">     509 </span>            :                 {
+<span class="lineNum">     510 </span><span class="lineNoCov">          0 :                         GF_ISOSample *samp = gf_isom_get_sample(file, TrackNum, 1, NULL);</span>
+<span class="lineNum">     511 </span><span class="lineNoCov">          0 :                         u32 hdr = GF_4CC((u8)samp-&gt;data[0], (u8)samp-&gt;data[1], (u8)samp-&gt;data[2], (u8)samp-&gt;data[3]);</span>
+<span class="lineNum">     512 </span><span class="lineNoCov">          0 :                         nb_ch = gf_mp3_num_channels(hdr);</span>
+<span class="lineNum">     513 </span><span class="lineNoCov">          0 :                         gf_isom_sample_del(&amp;samp);</span>
+<span class="lineNum">     514 </span>            :                         hintType = GF_RTP_PAYT_MPEG12_AUDIO;
+<span class="lineNum">     515 </span>            :                         /*use official RTP/AVP payload type*/
+<span class="lineNum">     516 </span>            :                         OfficialPayloadID = 14;
+<span class="lineNum">     517 </span>            :                         required_rate = 90000;
+<span class="lineNum">     518 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     519 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     520 </span>            :                 default:
+<span class="lineNum">     521 </span>            :                         /*ERROR*/
+<span class="lineNum">     522 </span>            :                         hintType = 0;
+<span class="lineNum">     523 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     524 </span>            :                 }
+<span class="lineNum">     525 </span>            :         }
+<span class="lineNum">     526 </span>            : 
+<span class="lineNum">     527 </span>            :         /*not hintable*/
+<span class="lineNum">     528 </span><span class="lineCov">          2 :         if (!hintType) return NULL;</span>
+<span class="lineNum">     529 </span>            :         /*we only support self-contained files for hinting*/
+<span class="lineNum">     530 </span><span class="lineCov">          2 :         gf_isom_get_data_reference(file, TrackNum, 1, &amp;url, &amp;urn);</span>
+<span class="lineNum">     531 </span><span class="lineCov">          2 :         if (url || urn) return NULL;</span>
+<span class="lineNum">     532 </span>            : 
+<span class="lineNum">     533 </span><span class="lineCov">          2 :         *e = GF_OUT_OF_MEM;</span>
+<span class="lineNum">     534 </span><span class="lineCov">          4 :         GF_SAFEALLOC(tmp, GF_RTPHinter);</span>
+<span class="lineNum">     535 </span><span class="lineCov">          2 :         if (!tmp) return NULL;</span>
+<span class="lineNum">     536 </span>            : 
+<span class="lineNum">     537 </span>            :         /*override hinter type if requested and possible*/
+<span class="lineNum">     538 </span><span class="lineCov">          4 :         if (has_mpeg4_mapping &amp;&amp; (flags &amp; GP_RTP_PCK_FORCE_MPEG4)) {</span>
+<span class="lineNum">     539 </span>            :                 hintType = GF_RTP_PAYT_MPEG4;
+<span class="lineNum">     540 </span>            :                 avc_nalu_size = 0;
+<span class="lineNum">     541 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     542 </span>            :         /*use static payload ID if enabled*/
+<span class="lineNum">     543 </span><span class="lineCov">          4 :         else if (OfficialPayloadID &amp;&amp; (flags &amp; GP_RTP_PCK_USE_STATIC_ID) ) {</span>
+<span class="lineNum">     544 </span>            :                 PayloadID = OfficialPayloadID;
+<span class="lineNum">     545 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     546 </span>            : 
+<span class="lineNum">     547 </span><span class="lineCov">          2 :         tmp-&gt;file = file;</span>
+<span class="lineNum">     548 </span><span class="lineCov">          2 :         tmp-&gt;TrackNum = TrackNum;</span>
+<span class="lineNum">     549 </span><span class="lineCov">          2 :         tmp-&gt;avc_nalu_size = avc_nalu_size;</span>
+<span class="lineNum">     550 </span><span class="lineCov">          2 :         tmp-&gt;nb_chan = nb_ch;</span>
+<span class="lineNum">     551 </span>            : 
+<span class="lineNum">     552 </span>            :         /*spatial scalability check*/
+<span class="lineNum">     553 </span><span class="lineCov">          2 :         tmp-&gt;has_ctts = gf_isom_has_time_offset(file, TrackNum);</span>
+<span class="lineNum">     554 </span>            : 
+<span class="lineNum">     555 </span>            :         /*get sample info*/
+<span class="lineNum">     556 </span><span class="lineCov">          2 :         gf_media_get_sample_average_infos(file, TrackNum, &amp;MinSize, &amp;MaxSize, &amp;avgTS, &amp;maxDTSDelta, &amp;const_dur, &amp;bandwidth);</span>
+<span class="lineNum">     557 </span>            : 
+<span class="lineNum">     558 </span>            :         /*systems carousel: we need at least IDX and RAP signaling*/
+<span class="lineNum">     559 </span><span class="lineCov">          2 :         if (flags &amp; GP_RTP_PCK_SYSTEMS_CAROUSEL) {</span>
+<span class="lineNum">     560 </span><span class="lineNoCov">          0 :                 flags |= GP_RTP_PCK_SIGNAL_RAP;</span>
+<span class="lineNum">     561 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     562 </span>            : 
+<span class="lineNum">     563 </span>            :         /*update flags in MultiSL*/
+<span class="lineNum">     564 </span><span class="lineCov">          2 :         if (flags &amp; GP_RTP_PCK_USE_MULTI) {</span>
+<span class="lineNum">     565 </span><span class="lineNoCov">          0 :                 if (MinSize != MaxSize) flags |= GP_RTP_PCK_SIGNAL_SIZE;</span>
+<span class="lineNum">     566 </span><span class="lineNoCov">          0 :                 if (!const_dur) flags |= GP_RTP_PCK_SIGNAL_TS;</span>
+<span class="lineNum">     567 </span>            :         }
+<span class="lineNum">     568 </span><span class="lineCov">          2 :         if (tmp-&gt;has_ctts) flags |= GP_RTP_PCK_SIGNAL_TS;</span>
+<span class="lineNum">     569 </span>            : 
+<span class="lineNum">     570 </span>            :         /*default SL for RTP */
+<span class="lineNum">     571 </span><span class="lineCov">          2 :         InitSL_RTP(&amp;my_sl);</span>
+<span class="lineNum">     572 </span>            : 
+<span class="lineNum">     573 </span><span class="lineCov">          2 :         my_sl.timestampResolution = gf_isom_get_media_timescale(file, TrackNum);</span>
+<span class="lineNum">     574 </span>            :         /*override clockrate if set*/
+<span class="lineNum">     575 </span><span class="lineCov">          2 :         if (required_rate) {</span>
+<span class="lineNum">     576 </span><span class="lineCov">          2 :                 Double sc = required_rate;</span>
+<span class="lineNum">     577 </span><span class="lineCov">          2 :                 sc /= my_sl.timestampResolution;</span>
+<span class="lineNum">     578 </span><span class="lineCov">          2 :                 maxDTSDelta = (u32) (maxDTSDelta*sc);</span>
+<span class="lineNum">     579 </span><span class="lineCov">          2 :                 my_sl.timestampResolution = required_rate;</span>
+<span class="lineNum">     580 </span><span class="lineCov">          2 :         }</span>
+<span class="lineNum">     581 </span>            :         /*switch to RTP TS*/
+<span class="lineNum">     582 </span><span class="lineCov">          2 :         max_ptime = (u32) (max_ptime * my_sl.timestampResolution / 1000);</span>
+<span class="lineNum">     583 </span>            : 
+<span class="lineNum">     584 </span><span class="lineCov">          2 :         my_sl.AUSeqNumLength = gf_get_bit_size(gf_isom_get_sample_count(file, TrackNum));</span>
+<span class="lineNum">     585 </span><span class="lineCov">          2 :         if (my_sl.AUSeqNumLength&gt;16) my_sl.AUSeqNumLength=16;</span>
+<span class="lineNum">     586 </span>            :         
+<span class="lineNum">     587 </span><span class="lineCov">          2 :         my_sl.CUDuration = const_dur;</span>
+<span class="lineNum">     588 </span>            : 
+<span class="lineNum">     589 </span><span class="lineCov">          4 :         if (gf_isom_has_sync_points(file, TrackNum)) {</span>
+<span class="lineNum">     590 </span><span class="lineCov">          2 :                 my_sl.useRandomAccessPointFlag = 1;</span>
+<span class="lineNum">     591 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     592 </span><span class="lineCov">          2 :                 my_sl.useRandomAccessPointFlag = 0;</span>
+<span class="lineNum">     593 </span><span class="lineCov">          2 :                 my_sl.hasRandomAccessUnitsOnlyFlag = 1;</span>
+<span class="lineNum">     594 </span>            :         }
+<span class="lineNum">     595 </span>            : 
+<span class="lineNum">     596 </span><span class="lineCov">          2 :         if (is_crypted) {</span>
+<span class="lineNum">     597 </span><span class="lineNoCov">          0 :                 Bool use_sel_enc;</span>
+<span class="lineNum">     598 </span><span class="lineNoCov">          0 :                 gf_isom_get_ismacryp_info(file, TrackNum, 1, NULL, NULL, NULL, NULL, NULL, &amp;use_sel_enc, &amp;IV_length, &amp;KI_length);</span>
+<span class="lineNum">     599 </span><span class="lineNoCov">          0 :                 if (use_sel_enc) flags |= GP_RTP_PCK_SELECTIVE_ENCRYPTION;</span>
+<span class="lineNum">     600 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     601 </span>            : 
+<span class="lineNum">     602 </span>            :         // in case a different timescale was provided
+<span class="lineNum">     603 </span><span class="lineCov">          2 :         tmp-&gt;OrigTimeScale = gf_isom_get_media_timescale(file, TrackNum);</span>
+<span class="lineNum">     604 </span><span class="lineCov">          4 :         tmp-&gt;rtp_p = gf_rtp_builder_new(hintType, &amp;my_sl, flags, tmp,</span>
+<span class="lineNum">     605 </span>            :                                         MP4T_OnNewPacket, MP4T_OnPacketDone,
+<span class="lineNum">     606 </span>            :                                         /*if copy, no data ref*/
+<span class="lineNum">     607 </span><span class="lineCov">          2 :                                         copy_media ? NULL : MP4T_OnDataRef,</span>
+<span class="lineNum">     608 </span>            :                                         MP4T_OnData);
+<span class="lineNum">     609 </span>            : 
+<span class="lineNum">     610 </span>            :         //init the builder
+<span class="lineNum">     611 </span><span class="lineCov">          2 :         gf_rtp_builder_init(tmp-&gt;rtp_p, PayloadID, Path_MTU, max_ptime,</span>
+<span class="lineNum">     612 </span><span class="lineCov">          2 :                             streamType, oti, PL_ID, MinSize, MaxSize, avgTS, maxDTSDelta, IV_length, KI_length, mpeg4mode);</span>
+<span class="lineNum">     613 </span>            : 
+<span class="lineNum">     614 </span>            :         /*ISMA compliance is a pain...*/
+<span class="lineNum">     615 </span><span class="lineCov">          2 :         if (force_dts_delta) tmp-&gt;rtp_p-&gt;slMap.DTSDeltaLength = force_dts_delta;</span>
+<span class="lineNum">     616 </span>            : 
+<span class="lineNum">     617 </span>            : 
+<span class="lineNum">     618 </span>            :         /*              Hint Track Setup        */
+<span class="lineNum">     619 </span><span class="lineCov">          2 :         tmp-&gt;TrackID = gf_isom_get_track_id(file, TrackNum);</span>
+<span class="lineNum">     620 </span><span class="lineCov">          2 :         tmp-&gt;HintID = tmp-&gt;TrackID + 65535;</span>
+<span class="lineNum">     621 </span><span class="lineCov">          4 :         while (gf_isom_get_track_by_id(file, tmp-&gt;HintID)) tmp-&gt;HintID++;</span>
+<span class="lineNum">     622 </span>            : 
+<span class="lineNum">     623 </span><span class="lineCov">          2 :         tmp-&gt;HintTrack = gf_isom_new_track(file, tmp-&gt;HintID, GF_ISOM_MEDIA_HINT, my_sl.timestampResolution);</span>
+<span class="lineNum">     624 </span><span class="lineCov">          2 :         gf_isom_setup_hint_track(file, tmp-&gt;HintTrack, GF_ISOM_HINT_RTP);</span>
+<span class="lineNum">     625 </span>            :         /*create a hint description*/
+<span class="lineNum">     626 </span><span class="lineCov">          2 :         gf_isom_new_hint_description(file, tmp-&gt;HintTrack, -1, -1, 0, &amp;descIndex);</span>
+<span class="lineNum">     627 </span><span class="lineCov">          2 :         gf_isom_rtp_set_timescale(file, tmp-&gt;HintTrack, descIndex, my_sl.timestampResolution);</span>
+<span class="lineNum">     628 </span>            : 
+<span class="lineNum">     629 </span><span class="lineCov">          2 :         if (hintType==GF_RTP_PAYT_MPEG4) {</span>
+<span class="lineNum">     630 </span><span class="lineNoCov">          0 :                 tmp-&gt;rtp_p-&gt;slMap.ObjectTypeIndication = oti;</span>
+<span class="lineNum">     631 </span>            :                 /*set this SL for extraction.*/
+<span class="lineNum">     632 </span><span class="lineNoCov">          0 :                 gf_isom_set_extraction_slc(file, TrackNum, 1, &amp;my_sl);</span>
+<span class="lineNum">     633 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     634 </span><span class="lineCov">          2 :         tmp-&gt;bandwidth = bandwidth;</span>
+<span class="lineNum">     635 </span>            : 
+<span class="lineNum">     636 </span>            :         /*set interleaving*/
+<span class="lineNum">     637 </span><span class="lineCov">          2 :         gf_isom_set_track_interleaving_group(file, TrackNum, InterleaveGroupID);</span>
+<span class="lineNum">     638 </span><span class="lineCov">          2 :         if (!copy_media) {</span>
+<span class="lineNum">     639 </span>            :                 /*if we don't copy data set hint track and media track in the same group*/
+<span class="lineNum">     640 </span><span class="lineCov">          2 :                 gf_isom_set_track_interleaving_group(file, tmp-&gt;HintTrack, InterleaveGroupID);</span>
+<span class="lineNum">     641 </span><span class="lineCov">          2 :         } else {</span>
+<span class="lineNum">     642 </span><span class="lineCov">          2 :                 gf_isom_set_track_interleaving_group(file, tmp-&gt;HintTrack, InterleaveGroupID + OFFSET_HINT_GROUP_ID);</span>
+<span class="lineNum">     643 </span>            :         }
+<span class="lineNum">     644 </span>            :         /*use user-secified priority*/
+<span class="lineNum">     645 </span><span class="lineCov">          2 :         InterleaveGroupPriority*=2;</span>
+<span class="lineNum">     646 </span><span class="lineCov">          2 :         gf_isom_set_track_priority_in_group(file, TrackNum, InterleaveGroupPriority+1);</span>
+<span class="lineNum">     647 </span><span class="lineCov">          2 :         gf_isom_set_track_priority_in_group(file, tmp-&gt;HintTrack, InterleaveGroupPriority);</span>
+<span class="lineNum">     648 </span>            : 
+<span class="lineNum">     649 </span>            : #if 0
+<span class="lineNum">     650 </span>            :         /*QT FF: not setting these flags = server uses a random offset*/
+<span class="lineNum">     651 </span>            :         gf_isom_rtp_set_time_offset(file, tmp-&gt;HintTrack, 1, 0);
+<span class="lineNum">     652 </span>            :         /*we don't use seq offset for maintainance pruposes*/
+<span class="lineNum">     653 </span>            :         gf_isom_rtp_set_time_sequence_offset(file, tmp-&gt;HintTrack, 1, 0);
+<span class="lineNum">     654 </span>            : #endif
+<span class="lineNum">     655 </span><span class="lineCov">          2 :         *e = GF_OK;</span>
+<span class="lineNum">     656 </span><span class="lineCov">          2 :         return tmp;</span>
+<span class="lineNum">     657 </span><span class="lineCov">          2 : }</span>
+<a name="658"><span class="lineNum">     658 </span>            : </a>
+<span class="lineNum">     659 </span>            : GF_EXPORT
+<span class="lineNum">     660 </span>            : u32 gf_hinter_track_get_bandwidth(GF_RTPHinter *tkHinter)
+<span class="lineNum">     661 </span>            : {
+<span class="lineNum">     662 </span><span class="lineCov">          4 :         return tkHinter-&gt;bandwidth;</span>
+<span class="lineNum">     663 </span>            : }
+<a name="664"><span class="lineNum">     664 </span>            : </a>
+<span class="lineNum">     665 </span>            : GF_EXPORT
+<span class="lineNum">     666 </span>            : u32 gf_hinter_track_get_flags(GF_RTPHinter *tkHinter)
+<span class="lineNum">     667 </span>            : {
+<span class="lineNum">     668 </span><span class="lineCov">          4 :         return tkHinter-&gt;rtp_p-&gt;flags;</span>
+<a name="669"><span class="lineNum">     669 </span>            : }</a>
+<span class="lineNum">     670 </span>            : GF_EXPORT
+<span class="lineNum">     671 </span>            : void gf_hinter_track_get_payload_name(GF_RTPHinter *tkHinter, char *payloadName)
+<span class="lineNum">     672 </span>            : {
+<span class="lineNum">     673 </span><span class="lineCov">          4 :         char mediaName[30];</span>
+<span class="lineNum">     674 </span><span class="lineCov">          2 :         gf_rtp_builder_get_payload_name(tkHinter-&gt;rtp_p, payloadName, mediaName);</span>
+<span class="lineNum">     675 </span><span class="lineCov">          2 : }</span>
+<a name="676"><span class="lineNum">     676 </span>            : </a>
+<span class="lineNum">     677 </span>            : GF_EXPORT
+<span class="lineNum">     678 </span>            : void gf_hinter_track_del(GF_RTPHinter *tkHinter)
+<span class="lineNum">     679 </span>            : {
+<span class="lineNum">     680 </span><span class="lineCov">          4 :         if (!tkHinter) return;</span>
+<span class="lineNum">     681 </span>            : 
+<span class="lineNum">     682 </span><span class="lineCov">          4 :         if (tkHinter-&gt;rtp_p) gf_rtp_builder_del(tkHinter-&gt;rtp_p);</span>
+<span class="lineNum">     683 </span><span class="lineCov">          2 :         gf_free(tkHinter);</span>
+<span class="lineNum">     684 </span><span class="lineCov">          4 : }</span>
+<a name="685"><span class="lineNum">     685 </span>            : </a>
+<span class="lineNum">     686 </span>            : GF_EXPORT
+<span class="lineNum">     687 </span>            : GF_Err gf_hinter_track_process(GF_RTPHinter *tkHint)
+<span class="lineNum">     688 </span>            : {
+<span class="lineNum">     689 </span>            :         GF_Err e;
+<span class="lineNum">     690 </span><span class="lineCov">          4 :         u32 i, descIndex, duration;</span>
+<span class="lineNum">     691 </span>            :         u64 ts;
+<span class="lineNum">     692 </span><span class="lineCov">          2 :         u8 PadBits;</span>
+<span class="lineNum">     693 </span>            :         Double ft;
+<span class="lineNum">     694 </span><span class="lineCov">          2 :         GF_ISOSample *samp;</span>
+<span class="lineNum">     695 </span>            : 
+<span class="lineNum">     696 </span><span class="lineCov">          2 :         tkHint-&gt;HintSample = tkHint-&gt;RTPTime = 0;</span>
+<span class="lineNum">     697 </span>            : 
+<span class="lineNum">     698 </span><span class="lineCov">          2 :         tkHint-&gt;TotalSample = gf_isom_get_sample_count(tkHint-&gt;file, tkHint-&gt;TrackNum);</span>
+<span class="lineNum">     699 </span><span class="lineCov">          2 :         ft = tkHint-&gt;rtp_p-&gt;sl_config.timestampResolution;</span>
+<span class="lineNum">     700 </span><span class="lineCov">          2 :         ft /= tkHint-&gt;OrigTimeScale;</span>
+<span class="lineNum">     701 </span>            : 
+<span class="lineNum">     702 </span>            :         e = GF_OK;
+<span class="lineNum">     703 </span><span class="lineCov">       2008 :         for (i=0; i&lt;tkHint-&gt;TotalSample; i++) {</span>
+<span class="lineNum">     704 </span><span class="lineCov">       1002 :                 samp = gf_isom_get_sample(tkHint-&gt;file, tkHint-&gt;TrackNum, i+1, &amp;descIndex);</span>
+<span class="lineNum">     705 </span><span class="lineCov">       1002 :                 if (!samp) return GF_IO_ERR;</span>
+<span class="lineNum">     706 </span>            : 
+<span class="lineNum">     707 </span>            :                 //setup SL
+<span class="lineNum">     708 </span><span class="lineCov">       1002 :                 tkHint-&gt;CurrentSample = i + 1;</span>
+<span class="lineNum">     709 </span>            : 
+<span class="lineNum">     710 </span>            :                 /*keep same AU indicator if sync shadow - TODO FIXME: this assumes shadows are placed interleaved with
+<span class="lineNum">     711 </span>            :                 the track content which is the case for GPAC scene carousel generation, but may not always be true*/
+<span class="lineNum">     712 </span><span class="lineCov">       1002 :                 if (samp-&gt;IsRAP==RAP_REDUNDANT) {</span>
+<span class="lineNum">     713 </span><span class="lineNoCov">          0 :                         tkHint-&gt;rtp_p-&gt;sl_header.AU_sequenceNumber -= 1;</span>
+<span class="lineNum">     714 </span><span class="lineNoCov">          0 :                         samp-&gt;IsRAP = RAP;</span>
+<span class="lineNum">     715 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     716 </span>            : 
+<span class="lineNum">     717 </span><span class="lineCov">       1002 :                 ts = (u64) (ft * (s64) (samp-&gt;DTS+samp-&gt;CTS_Offset));</span>
+<span class="lineNum">     718 </span><span class="lineCov">       1002 :                 tkHint-&gt;rtp_p-&gt;sl_header.compositionTimeStamp = ts;</span>
+<span class="lineNum">     719 </span>            : 
+<span class="lineNum">     720 </span><span class="lineCov">       1002 :                 ts = (u64) (ft * (s64)(samp-&gt;DTS));</span>
+<span class="lineNum">     721 </span><span class="lineCov">       1002 :                 tkHint-&gt;rtp_p-&gt;sl_header.decodingTimeStamp = ts;</span>
+<span class="lineNum">     722 </span><span class="lineCov">       1002 :                 tkHint-&gt;rtp_p-&gt;sl_header.randomAccessPointFlag = samp-&gt;IsRAP;</span>
+<span class="lineNum">     723 </span>            : 
+<span class="lineNum">     724 </span><span class="lineCov">       1002 :                 tkHint-&gt;base_offset_in_sample = 0;</span>
+<span class="lineNum">     725 </span>            :                 /*crypted*/
+<span class="lineNum">     726 </span><span class="lineCov">       1002 :                 if (tkHint-&gt;rtp_p-&gt;slMap.IV_length) {</span>
+<span class="lineNum">     727 </span><span class="lineNoCov">          0 :                         GF_ISMASample *s = gf_isom_get_ismacryp_sample(tkHint-&gt;file, tkHint-&gt;TrackNum, samp, descIndex);</span>
+<span class="lineNum">     728 </span>            :                         /*one byte take for selective_enc flag*/
+<span class="lineNum">     729 </span><span class="lineNoCov">          0 :                         if (s-&gt;flags &amp; GF_ISOM_ISMA_USE_SEL_ENC) tkHint-&gt;base_offset_in_sample += 1;</span>
+<span class="lineNum">     730 </span><span class="lineNoCov">          0 :                         if (s-&gt;flags &amp; GF_ISOM_ISMA_IS_ENCRYPTED) tkHint-&gt;base_offset_in_sample += s-&gt;IV_length + s-&gt;KI_length;</span>
+<span class="lineNum">     731 </span><span class="lineNoCov">          0 :                         gf_free(samp-&gt;data);</span>
+<span class="lineNum">     732 </span><span class="lineNoCov">          0 :                         samp-&gt;data = s-&gt;data;</span>
+<span class="lineNum">     733 </span><span class="lineNoCov">          0 :                         samp-&gt;dataLength = s-&gt;dataLength;</span>
+<span class="lineNum">     734 </span><span class="lineNoCov">          0 :                         gp_rtp_builder_set_cryp_info(tkHint-&gt;rtp_p, s-&gt;IV, (char*)s-&gt;key_indicator, (s-&gt;flags &amp; GF_ISOM_ISMA_IS_ENCRYPTED) ? 1 : 0);</span>
+<span class="lineNum">     735 </span><span class="lineNoCov">          0 :                         s-&gt;data = NULL;</span>
+<span class="lineNum">     736 </span><span class="lineNoCov">          0 :                         s-&gt;dataLength = 0;</span>
+<span class="lineNum">     737 </span><span class="lineNoCov">          0 :                         gf_isom_ismacryp_delete_sample(s);</span>
+<span class="lineNum">     738 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     739 </span>            : 
+<span class="lineNum">     740 </span><span class="lineCov">       1002 :                 if (tkHint-&gt;rtp_p-&gt;sl_config.usePaddingFlag) {</span>
+<span class="lineNum">     741 </span><span class="lineNoCov">          0 :                         gf_isom_get_sample_padding_bits(tkHint-&gt;file, tkHint-&gt;TrackNum, i+1, &amp;PadBits);</span>
+<span class="lineNum">     742 </span><span class="lineNoCov">          0 :                         tkHint-&gt;rtp_p-&gt;sl_header.paddingBits = PadBits;</span>
+<span class="lineNum">     743 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     744 </span><span class="lineCov">       1002 :                         tkHint-&gt;rtp_p-&gt;sl_header.paddingBits = 0;</span>
+<span class="lineNum">     745 </span>            :                 }
+<span class="lineNum">     746 </span>            : 
+<span class="lineNum">     747 </span><span class="lineCov">       1002 :                 duration = gf_isom_get_sample_duration(tkHint-&gt;file, tkHint-&gt;TrackNum, i+1);</span>
+<span class="lineNum">     748 </span>            : //              ts = (u32) (ft * (s64) (duration));
+<span class="lineNum">     749 </span>            : 
+<span class="lineNum">     750 </span>            :                 /*unpack nal units*/
+<span class="lineNum">     751 </span><span class="lineCov">       1002 :                 if (tkHint-&gt;avc_nalu_size) {</span>
+<span class="lineNum">     752 </span>            :                         u32 v, size;
+<span class="lineNum">     753 </span><span class="lineNoCov">          0 :                         u32 remain = samp-&gt;dataLength;</span>
+<span class="lineNum">     754 </span><span class="lineNoCov">          0 :                         char *ptr = samp-&gt;data;</span>
+<span class="lineNum">     755 </span>            : 
+<span class="lineNum">     756 </span><span class="lineNoCov">          0 :                         tkHint-&gt;rtp_p-&gt;sl_header.accessUnitStartFlag = 1;</span>
+<span class="lineNum">     757 </span><span class="lineNoCov">          0 :                         tkHint-&gt;rtp_p-&gt;sl_header.accessUnitEndFlag = 0;</span>
+<span class="lineNum">     758 </span><span class="lineNoCov">          0 :                         while (remain) {</span>
+<span class="lineNum">     759 </span>            :                                 size = 0;
+<span class="lineNum">     760 </span><span class="lineNoCov">          0 :                                 v = tkHint-&gt;avc_nalu_size;</span>
+<span class="lineNum">     761 </span><span class="lineNoCov">          0 :                                 while (v) {</span>
+<span class="lineNum">     762 </span><span class="lineNoCov">          0 :                                         size |= (u8) *ptr;</span>
+<span class="lineNum">     763 </span><span class="lineNoCov">          0 :                                         ptr++;</span>
+<span class="lineNum">     764 </span><span class="lineNoCov">          0 :                                         remain--;</span>
+<span class="lineNum">     765 </span><span class="lineNoCov">          0 :                                         v-=1;</span>
+<span class="lineNum">     766 </span><span class="lineNoCov">          0 :                                         if (v) size&lt;&lt;=8;</span>
+<span class="lineNum">     767 </span>            :                                 }
+<span class="lineNum">     768 </span><span class="lineNoCov">          0 :                                 tkHint-&gt;base_offset_in_sample = samp-&gt;dataLength-remain;</span>
+<span class="lineNum">     769 </span><span class="lineNoCov">          0 :                                 if (remain &lt; size) {</span>
+<span class="lineNum">     770 </span><span class="lineNoCov">          0 :                                         GF_LOG(GF_LOG_ERROR, GF_LOG_RTP, (&quot;[rtp hinter] Broken AVC nalu encapsulation: NALU size is %d but only %d bytes left in sample %d\n&quot;, size, remain, tkHint-&gt;CurrentSample));</span>
+<span class="lineNum">     771 </span>            :                                         break;
+<span class="lineNum">     772 </span>            :                                 }
+<span class="lineNum">     773 </span><span class="lineNoCov">          0 :                                 remain -= size;</span>
+<span class="lineNum">     774 </span><span class="lineNoCov">          0 :                                 tkHint-&gt;rtp_p-&gt;sl_header.accessUnitEndFlag = remain ? 0 : 1;</span>
+<span class="lineNum">     775 </span><span class="lineNoCov">          0 :                                 e = gf_rtp_builder_process(tkHint-&gt;rtp_p, ptr, size, (u8) !remain, samp-&gt;dataLength, duration, (u8) (descIndex + GF_RTP_TX3G_SIDX_OFFSET) );</span>
+<span class="lineNum">     776 </span><span class="lineNoCov">          0 :                                 ptr += size;</span>
+<span class="lineNum">     777 </span><span class="lineNoCov">          0 :                                 tkHint-&gt;rtp_p-&gt;sl_header.accessUnitStartFlag = 0;</span>
+<span class="lineNum">     778 </span>            :                         }
+<span class="lineNum">     779 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     780 </span><span class="lineCov">       1002 :                         e = gf_rtp_builder_process(tkHint-&gt;rtp_p, samp-&gt;data, samp-&gt;dataLength, 1, samp-&gt;dataLength, duration, (u8) (descIndex + GF_RTP_TX3G_SIDX_OFFSET) );</span>
+<span class="lineNum">     781 </span>            :                 }
+<span class="lineNum">     782 </span><span class="lineCov">       1002 :                 tkHint-&gt;rtp_p-&gt;sl_header.packetSequenceNumber += 1;</span>
+<span class="lineNum">     783 </span>            : 
+<span class="lineNum">     784 </span>            :                 //signal some progress
+<span class="lineNum">     785 </span><span class="lineCov">       1002 :                 gf_set_progress(&quot;Hinting&quot;, tkHint-&gt;CurrentSample, tkHint-&gt;TotalSample);</span>
+<span class="lineNum">     786 </span>            : 
+<span class="lineNum">     787 </span><span class="lineCov">       1002 :                 tkHint-&gt;rtp_p-&gt;sl_header.AU_sequenceNumber += 1;</span>
+<span class="lineNum">     788 </span><span class="lineCov">       1002 :                 gf_isom_sample_del(&amp;samp);</span>
+<span class="lineNum">     789 </span>            : 
+<span class="lineNum">     790 </span><span class="lineCov">       1002 :                 if (e) return e;</span>
+<span class="lineNum">     791 </span>            :         }
+<span class="lineNum">     792 </span>            : 
+<span class="lineNum">     793 </span>            :         //flush
+<span class="lineNum">     794 </span><span class="lineCov">          2 :         gf_rtp_builder_process(tkHint-&gt;rtp_p, NULL, 0, 1, 0, 0, 0);</span>
+<span class="lineNum">     795 </span>            : 
+<span class="lineNum">     796 </span><span class="lineCov">          2 :         gf_isom_end_hint_sample(tkHint-&gt;file, tkHint-&gt;HintTrack, (u8) tkHint-&gt;SampleIsRAP);</span>
+<span class="lineNum">     797 </span><span class="lineCov">          2 :         return GF_OK;</span>
+<a name="798"><span class="lineNum">     798 </span><span class="lineCov">          2 : }</span></a>
+<span class="lineNum">     799 </span>            : 
+<span class="lineNum">     800 </span>            : static u32 write_nalu_config_array(char *sdpLine, GF_List *nalus)
+<span class="lineNum">     801 </span>            : {
+<span class="lineNum">     802 </span>            :         u32 i, count, b64s;
+<span class="lineNum">     803 </span><span class="lineNoCov">          0 :         char b64[200];</span>
+<span class="lineNum">     804 </span>            : 
+<span class="lineNum">     805 </span><span class="lineNoCov">          0 :         count = gf_list_count(nalus);</span>
+<span class="lineNum">     806 </span><span class="lineNoCov">          0 :         for (i=0; i&lt;count; i++) {</span>
+<span class="lineNum">     807 </span><span class="lineNoCov">          0 :                 GF_AVCConfigSlot *sl = (GF_AVCConfigSlot *)gf_list_get(nalus, i);</span>
+<span class="lineNum">     808 </span><span class="lineNoCov">          0 :                 b64s = gf_base64_encode(sl-&gt;data, sl-&gt;size, b64, 200);</span>
+<span class="lineNum">     809 </span><span class="lineNoCov">          0 :                 b64[b64s]=0;</span>
+<span class="lineNum">     810 </span><span class="lineNoCov">          0 :                 strcat(sdpLine, b64);</span>
+<span class="lineNum">     811 </span><span class="lineNoCov">          0 :                 if (i+1&lt;count) strcat(sdpLine, &quot;,&quot;);</span>
+<span class="lineNum">     812 </span>            :         }
+<span class="lineNum">     813 </span><span class="lineNoCov">          0 :         return count;</span>
+<a name="814"><span class="lineNum">     814 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     815 </span>            : 
+<span class="lineNum">     816 </span>            : static void write_avc_config(char *sdpLine, GF_AVCConfig *avcc, GF_AVCConfig *svcc)
+<span class="lineNum">     817 </span>            : {
+<span class="lineNum">     818 </span>            :         u32 count = 0;
+<span class="lineNum">     819 </span>            : 
+<span class="lineNum">     820 </span><span class="lineNoCov">          0 :         if (avcc) count += gf_list_count(avcc-&gt;sequenceParameterSets) + gf_list_count(avcc-&gt;pictureParameterSets) + gf_list_count(avcc-&gt;sequenceParameterSetExtensions);</span>
+<span class="lineNum">     821 </span><span class="lineNoCov">          0 :         if (svcc) count += gf_list_count(svcc-&gt;sequenceParameterSets) + gf_list_count(svcc-&gt;pictureParameterSets);</span>
+<span class="lineNum">     822 </span><span class="lineNoCov">          0 :         if (!count) return;</span>
+<span class="lineNum">     823 </span>            : 
+<span class="lineNum">     824 </span><span class="lineNoCov">          0 :         strcat(sdpLine, &quot;; sprop-parameter-sets=&quot;);</span>
+<span class="lineNum">     825 </span>            : 
+<span class="lineNum">     826 </span><span class="lineNoCov">          0 :         if (avcc) {</span>
+<span class="lineNum">     827 </span><span class="lineNoCov">          0 :                 count = write_nalu_config_array(sdpLine, avcc-&gt;sequenceParameterSets);</span>
+<span class="lineNum">     828 </span><span class="lineNoCov">          0 :                 if (count) strcat(sdpLine, &quot;,&quot;);</span>
+<span class="lineNum">     829 </span><span class="lineNoCov">          0 :                 count = write_nalu_config_array(sdpLine, avcc-&gt;sequenceParameterSetExtensions);</span>
+<span class="lineNum">     830 </span><span class="lineNoCov">          0 :                 if (count) strcat(sdpLine, &quot;,&quot;);</span>
+<span class="lineNum">     831 </span><span class="lineNoCov">          0 :                 count = write_nalu_config_array(sdpLine, avcc-&gt;pictureParameterSets);</span>
+<span class="lineNum">     832 </span><span class="lineNoCov">          0 :                 if (count) strcat(sdpLine, &quot;,&quot;);</span>
+<span class="lineNum">     833 </span>            :         }
+<span class="lineNum">     834 </span>            : 
+<span class="lineNum">     835 </span><span class="lineNoCov">          0 :         if (svcc) {</span>
+<span class="lineNum">     836 </span><span class="lineNoCov">          0 :                 count = write_nalu_config_array(sdpLine, svcc-&gt;sequenceParameterSets);</span>
+<span class="lineNum">     837 </span><span class="lineNoCov">          0 :                 if (count) strcat(sdpLine, &quot;,&quot;);</span>
+<span class="lineNum">     838 </span><span class="lineNoCov">          0 :                 count = write_nalu_config_array(sdpLine, svcc-&gt;pictureParameterSets);</span>
+<span class="lineNum">     839 </span><span class="lineNoCov">          0 :                 if (count) strcat(sdpLine, &quot;,&quot;);</span>
+<span class="lineNum">     840 </span>            :         }
+<span class="lineNum">     841 </span><span class="lineNoCov">          0 :         count = (u32) strlen(sdpLine);</span>
+<span class="lineNum">     842 </span><span class="lineNoCov">          0 :         if (sdpLine[count-1] == ',')</span>
+<span class="lineNum">     843 </span><span class="lineNoCov">          0 :                 sdpLine[count-1] = 0;</span>
+<span class="lineNum">     844 </span><span class="lineNoCov">          0 : }</span>
+<a name="845"><span class="lineNum">     845 </span>            : </a>
+<span class="lineNum">     846 </span>            : GF_EXPORT
+<span class="lineNum">     847 </span>            : GF_Err gf_hinter_track_finalize(GF_RTPHinter *tkHint, Bool AddSystemInfo)
+<span class="lineNum">     848 </span>            : {
+<span class="lineNum">     849 </span><span class="lineCov">          4 :         u32 Width, Height;</span>
+<span class="lineNum">     850 </span>            :         GF_ESD *esd;
+<span class="lineNum">     851 </span><span class="lineCov">          2 :         char sdpLine[20000];</span>
+<span class="lineNum">     852 </span><span class="lineCov">          2 :         char mediaName[30], payloadName[30];</span>
+<span class="lineNum">     853 </span>            : 
+<span class="lineNum">     854 </span><span class="lineCov">          2 :         Width = Height = 0;</span>
+<span class="lineNum">     855 </span><span class="lineCov">          2 :         gf_isom_sdp_clean_track(tkHint-&gt;file, tkHint-&gt;TrackNum);</span>
+<span class="lineNum">     856 </span><span class="lineCov">          2 :         if (gf_isom_get_media_type(tkHint-&gt;file, tkHint-&gt;TrackNum) == GF_ISOM_MEDIA_VISUAL)</span>
+<span class="lineNum">     857 </span><span class="lineNoCov">          0 :                 gf_isom_get_visual_info(tkHint-&gt;file, tkHint-&gt;TrackNum, 1, &amp;Width, &amp;Height);</span>
+<span class="lineNum">     858 </span>            : 
+<span class="lineNum">     859 </span><span class="lineCov">          2 :         gf_rtp_builder_get_payload_name(tkHint-&gt;rtp_p, payloadName, mediaName);</span>
+<span class="lineNum">     860 </span>            : 
+<span class="lineNum">     861 </span>            :         /*TODO- extract out of rtp_p for future live tools*/
+<span class="lineNum">     862 </span><span class="lineCov">          2 :         sprintf(sdpLine, &quot;m=%s 0 RTP/%s %d&quot;, mediaName, tkHint-&gt;rtp_p-&gt;slMap.IV_length ? &quot;SAVP&quot; : &quot;AVP&quot;, tkHint-&gt;rtp_p-&gt;PayloadType);</span>
+<span class="lineNum">     863 </span><span class="lineCov">          2 :         gf_isom_sdp_add_track_line(tkHint-&gt;file, tkHint-&gt;HintTrack, sdpLine);</span>
+<span class="lineNum">     864 </span><span class="lineCov">          2 :         if (tkHint-&gt;bandwidth) {</span>
+<span class="lineNum">     865 </span><span class="lineCov">          2 :                 sprintf(sdpLine, &quot;b=AS:%d&quot;, tkHint-&gt;bandwidth);</span>
+<span class="lineNum">     866 </span><span class="lineCov">          2 :                 gf_isom_sdp_add_track_line(tkHint-&gt;file, tkHint-&gt;HintTrack, sdpLine);</span>
+<span class="lineNum">     867 </span><span class="lineCov">          2 :         }</span>
+<span class="lineNum">     868 </span><span class="lineCov">          4 :         if (tkHint-&gt;nb_chan) {</span>
+<span class="lineNum">     869 </span><span class="lineCov">          4 :                 sprintf(sdpLine, &quot;a=rtpmap:%d %s/%d/%d&quot;, tkHint-&gt;rtp_p-&gt;PayloadType, payloadName, tkHint-&gt;rtp_p-&gt;sl_config.timestampResolution, tkHint-&gt;nb_chan);</span>
+<span class="lineNum">     870 </span><span class="lineCov">          2 :         } else {</span>
+<span class="lineNum">     871 </span><span class="lineNoCov">          0 :                 sprintf(sdpLine, &quot;a=rtpmap:%d %s/%d&quot;, tkHint-&gt;rtp_p-&gt;PayloadType, payloadName, tkHint-&gt;rtp_p-&gt;sl_config.timestampResolution);</span>
+<span class="lineNum">     872 </span>            :         }
+<span class="lineNum">     873 </span><span class="lineCov">          2 :         gf_isom_sdp_add_track_line(tkHint-&gt;file, tkHint-&gt;HintTrack, sdpLine);</span>
+<span class="lineNum">     874 </span>            :         /*control for MPEG-4*/
+<span class="lineNum">     875 </span><span class="lineCov">          2 :         if (AddSystemInfo) {</span>
+<span class="lineNum">     876 </span><span class="lineNoCov">          0 :                 sprintf(sdpLine, &quot;a=mpeg4-esid:%d&quot;, gf_isom_get_track_id(tkHint-&gt;file, tkHint-&gt;TrackNum));</span>
+<span class="lineNum">     877 </span><span class="lineNoCov">          0 :                 gf_isom_sdp_add_track_line(tkHint-&gt;file, tkHint-&gt;HintTrack, sdpLine);</span>
+<span class="lineNum">     878 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     879 </span>            :         /*control for QTSS/DSS*/
+<span class="lineNum">     880 </span><span class="lineCov">          2 :         sprintf(sdpLine, &quot;a=control:trackID=%d&quot;, gf_isom_get_track_id(tkHint-&gt;file, tkHint-&gt;HintTrack));</span>
+<span class="lineNum">     881 </span><span class="lineCov">          2 :         gf_isom_sdp_add_track_line(tkHint-&gt;file, tkHint-&gt;HintTrack, sdpLine);</span>
+<span class="lineNum">     882 </span>            : 
+<span class="lineNum">     883 </span>            :         /*H263 extensions*/
+<span class="lineNum">     884 </span><span class="lineCov">          2 :         if (tkHint-&gt;rtp_p-&gt;rtp_payt == GF_RTP_PAYT_H263) {</span>
+<span class="lineNum">     885 </span><span class="lineNoCov">          0 :                 sprintf(sdpLine, &quot;a=cliprect:0,0,%d,%d&quot;, Height, Width);</span>
+<span class="lineNum">     886 </span><span class="lineNoCov">          0 :                 gf_isom_sdp_add_track_line(tkHint-&gt;file, tkHint-&gt;HintTrack, sdpLine);</span>
+<span class="lineNum">     887 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     888 </span>            :         /*AMR*/
+<span class="lineNum">     889 </span><span class="lineCov">          4 :         else if ((tkHint-&gt;rtp_p-&gt;rtp_payt == GF_RTP_PAYT_AMR) || (tkHint-&gt;rtp_p-&gt;rtp_payt == GF_RTP_PAYT_AMR_WB)) {</span>
+<span class="lineNum">     890 </span><span class="lineNoCov">          0 :                 sprintf(sdpLine, &quot;a=fmtp:%d octet-align=1&quot;, tkHint-&gt;rtp_p-&gt;PayloadType);</span>
+<span class="lineNum">     891 </span><span class="lineNoCov">          0 :                 gf_isom_sdp_add_track_line(tkHint-&gt;file, tkHint-&gt;HintTrack, sdpLine);</span>
+<span class="lineNum">     892 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     893 </span>            :         /*Text*/
+<span class="lineNum">     894 </span><span class="lineCov">          2 :         else if (tkHint-&gt;rtp_p-&gt;rtp_payt == GF_RTP_PAYT_3GPP_TEXT) {</span>
+<span class="lineNum">     895 </span><span class="lineNoCov">          0 :                 gf_media_format_ttxt_sdp(tkHint-&gt;rtp_p, payloadName, sdpLine, tkHint-&gt;file, tkHint-&gt;TrackNum);</span>
+<span class="lineNum">     896 </span><span class="lineNoCov">          0 :                 gf_isom_sdp_add_track_line(tkHint-&gt;file, tkHint-&gt;HintTrack, sdpLine);</span>
+<span class="lineNum">     897 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     898 </span>            :         /*EVRC/SMV in non header-free mode*/
+<span class="lineNum">     899 </span><span class="lineCov">          2 :         else if ((tkHint-&gt;rtp_p-&gt;rtp_payt == GF_RTP_PAYT_EVRC_SMV) &amp;&amp; (tkHint-&gt;rtp_p-&gt;auh_size&gt;1)) {</span>
+<span class="lineNum">     900 </span><span class="lineNoCov">          0 :                 sprintf(sdpLine, &quot;a=fmtp:%d maxptime=%d&quot;, tkHint-&gt;rtp_p-&gt;PayloadType, tkHint-&gt;rtp_p-&gt;auh_size*20);</span>
+<span class="lineNum">     901 </span><span class="lineNoCov">          0 :                 gf_isom_sdp_add_track_line(tkHint-&gt;file, tkHint-&gt;HintTrack, sdpLine);</span>
+<span class="lineNum">     902 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     903 </span>            :         /*H264/AVC*/
+<span class="lineNum">     904 </span><span class="lineCov">          4 :         else if ((tkHint-&gt;rtp_p-&gt;rtp_payt == GF_RTP_PAYT_H264_AVC) || (tkHint-&gt;rtp_p-&gt;rtp_payt == GF_RTP_PAYT_H264_SVC))  {</span>
+<span class="lineNum">     905 </span><span class="lineNoCov">          0 :                 GF_AVCConfig *avcc = gf_isom_avc_config_get(tkHint-&gt;file, tkHint-&gt;TrackNum, 1);</span>
+<span class="lineNum">     906 </span><span class="lineNoCov">          0 :                 GF_AVCConfig *svcc = gf_isom_svc_config_get(tkHint-&gt;file, tkHint-&gt;TrackNum, 1);</span>
+<span class="lineNum">     907 </span>            :                 /*TODO - check syntax for SVC (might be some extra signaling)*/
+<span class="lineNum">     908 </span>            : 
+<span class="lineNum">     909 </span><span class="lineNoCov">          0 :                 if (avcc) {</span>
+<span class="lineNum">     910 </span><span class="lineNoCov">          0 :                         sprintf(sdpLine, &quot;a=fmtp:%d profile-level-id=%02X%02X%02X; packetization-mode=1&quot;, tkHint-&gt;rtp_p-&gt;PayloadType, avcc-&gt;AVCProfileIndication, avcc-&gt;profile_compatibility, avcc-&gt;AVCLevelIndication);</span>
+<span class="lineNum">     911 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     912 </span><span class="lineNoCov">          0 :                         sprintf(sdpLine, &quot;a=fmtp:%d profile-level-id=%02X%02X%02X; packetization-mode=1&quot;, tkHint-&gt;rtp_p-&gt;PayloadType, svcc-&gt;AVCProfileIndication, svcc-&gt;profile_compatibility, svcc-&gt;AVCLevelIndication);</span>
+<span class="lineNum">     913 </span>            :                 }
+<span class="lineNum">     914 </span>            : 
+<span class="lineNum">     915 </span><span class="lineNoCov">          0 :                 write_avc_config(sdpLine, avcc, svcc);</span>
+<span class="lineNum">     916 </span>            : 
+<span class="lineNum">     917 </span><span class="lineNoCov">          0 :                 gf_isom_sdp_add_track_line(tkHint-&gt;file, tkHint-&gt;HintTrack, sdpLine);</span>
+<span class="lineNum">     918 </span><span class="lineNoCov">          0 :                 gf_odf_avc_cfg_del(avcc);</span>
+<span class="lineNum">     919 </span><span class="lineNoCov">          0 :                 gf_odf_avc_cfg_del(svcc);</span>
+<span class="lineNum">     920 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     921 </span>            :         /*MPEG-4 decoder config*/
+<span class="lineNum">     922 </span><span class="lineCov">          2 :         else if (tkHint-&gt;rtp_p-&gt;rtp_payt==GF_RTP_PAYT_MPEG4) {</span>
+<span class="lineNum">     923 </span><span class="lineNoCov">          0 :                 esd = gf_isom_get_esd(tkHint-&gt;file, tkHint-&gt;TrackNum, 1);</span>
+<span class="lineNum">     924 </span>            : 
+<span class="lineNum">     925 </span><span class="lineNoCov">          0 :                 if (esd &amp;&amp; esd-&gt;decoderConfig &amp;&amp; esd-&gt;decoderConfig-&gt;decoderSpecificInfo &amp;&amp; esd-&gt;decoderConfig-&gt;decoderSpecificInfo-&gt;data) {</span>
+<span class="lineNum">     926 </span><span class="lineNoCov">          0 :                         gf_rtp_builder_format_sdp(tkHint-&gt;rtp_p, payloadName, sdpLine, esd-&gt;decoderConfig-&gt;decoderSpecificInfo-&gt;data, esd-&gt;decoderConfig-&gt;decoderSpecificInfo-&gt;dataLength);</span>
+<span class="lineNum">     927 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     928 </span><span class="lineNoCov">          0 :                         gf_rtp_builder_format_sdp(tkHint-&gt;rtp_p, payloadName, sdpLine, NULL, 0);</span>
+<span class="lineNum">     929 </span>            :                 }
+<span class="lineNum">     930 </span><span class="lineNoCov">          0 :                 if (esd) gf_odf_desc_del((GF_Descriptor *)esd);</span>
+<span class="lineNum">     931 </span>            : 
+<span class="lineNum">     932 </span><span class="lineNoCov">          0 :                 if (tkHint-&gt;rtp_p-&gt;slMap.IV_length) {</span>
+<span class="lineNum">     933 </span><span class="lineNoCov">          0 :                         const char *kms;</span>
+<span class="lineNum">     934 </span><span class="lineNoCov">          0 :                         gf_isom_get_ismacryp_info(tkHint-&gt;file, tkHint-&gt;TrackNum, 1, NULL, NULL, NULL, NULL, &amp;kms, NULL, NULL, NULL);</span>
+<span class="lineNum">     935 </span><span class="lineNoCov">          0 :                         if (!strnicmp(kms, &quot;(key)&quot;, 5) || !strnicmp(kms, &quot;(ipmp)&quot;, 6) || !strnicmp(kms, &quot;(uri)&quot;, 5)) {</span>
+<span class="lineNum">     936 </span><span class="lineNoCov">          0 :                                 strcat(sdpLine, &quot;; ISMACrypKey=&quot;);</span>
+<span class="lineNum">     937 </span><span class="lineNoCov">          0 :                         } else {</span>
+<span class="lineNum">     938 </span><span class="lineNoCov">          0 :                                 strcat(sdpLine, &quot;; ISMACrypKey=(uri)&quot;);</span>
+<span class="lineNum">     939 </span>            :                         }
+<span class="lineNum">     940 </span><span class="lineNoCov">          0 :                         strcat(sdpLine, kms);</span>
+<span class="lineNum">     941 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     942 </span>            : 
+<span class="lineNum">     943 </span><span class="lineNoCov">          0 :                 gf_isom_sdp_add_track_line(tkHint-&gt;file, tkHint-&gt;HintTrack, sdpLine);</span>
+<span class="lineNum">     944 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     945 </span>            :         /*MPEG-4 Audio LATM*/
+<span class="lineNum">     946 </span><span class="lineCov">          2 :         else if (tkHint-&gt;rtp_p-&gt;rtp_payt==GF_RTP_PAYT_LATM) {</span>
+<span class="lineNum">     947 </span>            :                 GF_BitStream *bs;
+<span class="lineNum">     948 </span><span class="lineNoCov">          0 :                 char *config_bytes;</span>
+<span class="lineNum">     949 </span><span class="lineNoCov">          0 :                 u32 config_size;</span>
+<span class="lineNum">     950 </span>            : 
+<span class="lineNum">     951 </span>            :                 /* form config string */
+<span class="lineNum">     952 </span><span class="lineNoCov">          0 :                 bs = gf_bs_new(NULL, 32, GF_BITSTREAM_WRITE);</span>
+<span class="lineNum">     953 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, 0, 1); /* AudioMuxVersion */</span>
+<span class="lineNum">     954 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, 1, 1); /* all streams same time */</span>
+<span class="lineNum">     955 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, 0, 6); /* numSubFrames */</span>
+<span class="lineNum">     956 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, 0, 4); /* numPrograms */</span>
+<span class="lineNum">     957 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, 0, 3); /* numLayer */</span>
+<span class="lineNum">     958 </span>            : 
+<span class="lineNum">     959 </span>            :                 /* audio-specific config */
+<span class="lineNum">     960 </span><span class="lineNoCov">          0 :                 esd = gf_isom_get_esd(tkHint-&gt;file, tkHint-&gt;TrackNum, 1);</span>
+<span class="lineNum">     961 </span><span class="lineNoCov">          0 :                 if (esd &amp;&amp; esd-&gt;decoderConfig &amp;&amp; esd-&gt;decoderConfig-&gt;decoderSpecificInfo) {</span>
+<span class="lineNum">     962 </span>            :                         /*PacketVideo patch: don't signal SBR and PS stuff, not allowed in LATM with audioMuxVersion=0*/
+<span class="lineNum">     963 </span><span class="lineNoCov">          0 :                         gf_bs_write_data(bs, esd-&gt;decoderConfig-&gt;decoderSpecificInfo-&gt;data, MIN(esd-&gt;decoderConfig-&gt;decoderSpecificInfo-&gt;dataLength, 2) );</span>
+<span class="lineNum">     964 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     965 </span><span class="lineNoCov">          0 :                 if (esd) gf_odf_desc_del((GF_Descriptor *)esd);</span>
+<span class="lineNum">     966 </span>            : 
+<span class="lineNum">     967 </span>            :                 /* other data */
+<span class="lineNum">     968 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, 0, 3); /* frameLengthType */</span>
+<span class="lineNum">     969 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, 0xff, 8); /* latmBufferFullness */</span>
+<span class="lineNum">     970 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, 0, 1); /* otherDataPresent */</span>
+<span class="lineNum">     971 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, 0, 1); /* crcCheckPresent */</span>
+<span class="lineNum">     972 </span><span class="lineNoCov">          0 :                 gf_bs_get_content(bs, &amp;config_bytes, &amp;config_size);</span>
+<span class="lineNum">     973 </span><span class="lineNoCov">          0 :                 gf_bs_del(bs);</span>
+<span class="lineNum">     974 </span>            : 
+<span class="lineNum">     975 </span><span class="lineNoCov">          0 :                 gf_rtp_builder_format_sdp(tkHint-&gt;rtp_p, payloadName, sdpLine, config_bytes, config_size);</span>
+<span class="lineNum">     976 </span><span class="lineNoCov">          0 :                 gf_isom_sdp_add_track_line(tkHint-&gt;file, tkHint-&gt;HintTrack, sdpLine);</span>
+<span class="lineNum">     977 </span><span class="lineNoCov">          0 :                 gf_free(config_bytes);</span>
+<span class="lineNum">     978 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     979 </span>            :         /*3GPP DIMS*/
+<span class="lineNum">     980 </span><span class="lineCov">          2 :         else if (tkHint-&gt;rtp_p-&gt;rtp_payt==GF_RTP_PAYT_3GPP_DIMS) {</span>
+<span class="lineNum">     981 </span><span class="lineNoCov">          0 :                 GF_DIMSDescription dims;</span>
+<span class="lineNum">     982 </span><span class="lineNoCov">          0 :                 char fmt[200];</span>
+<span class="lineNum">     983 </span><span class="lineNoCov">          0 :                 gf_isom_get_visual_info(tkHint-&gt;file, tkHint-&gt;TrackNum, 1, &amp;Width, &amp;Height);</span>
+<span class="lineNum">     984 </span>            : 
+<span class="lineNum">     985 </span><span class="lineNoCov">          0 :                 gf_isom_get_dims_description(tkHint-&gt;file, tkHint-&gt;TrackNum, 1, &amp;dims);</span>
+<span class="lineNum">     986 </span><span class="lineNoCov">          0 :                 sprintf(sdpLine, &quot;a=fmtp:%d Version-profile=%d&quot;, tkHint-&gt;rtp_p-&gt;PayloadType, dims.profile);</span>
+<span class="lineNum">     987 </span><span class="lineNoCov">          0 :                 if (! dims.fullRequestHost) {</span>
+<span class="lineNum">     988 </span><span class="lineNoCov">          0 :                         strcat(sdpLine, &quot;;useFullRequestHost=0&quot;);</span>
+<span class="lineNum">     989 </span><span class="lineNoCov">          0 :                         sprintf(fmt, &quot;;pathComponents=%d&quot;, dims.pathComponents);</span>
+<span class="lineNum">     990 </span><span class="lineNoCov">          0 :                         strcat(sdpLine, fmt);</span>
+<span class="lineNum">     991 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     992 </span><span class="lineNoCov">          0 :                 if (!dims.streamType) strcat(sdpLine, &quot;;stream-type=secondary&quot;);</span>
+<span class="lineNum">     993 </span><span class="lineNoCov">          0 :                 if (dims.containsRedundant == 1) strcat(sdpLine, &quot;;contains-redundant=main&quot;);</span>
+<span class="lineNum">     994 </span><span class="lineNoCov">          0 :                 else if (dims.containsRedundant == 2) strcat(sdpLine, &quot;;contains-redundant=redundant&quot;);</span>
+<span class="lineNum">     995 </span>            : 
+<span class="lineNum">     996 </span><span class="lineNoCov">          0 :                 if (dims.textEncoding &amp;&amp; strlen(dims.textEncoding)) {</span>
+<span class="lineNum">     997 </span><span class="lineNoCov">          0 :                         strcat(sdpLine, &quot;;text-encoding=&quot;);</span>
+<span class="lineNum">     998 </span><span class="lineNoCov">          0 :                         strcat(sdpLine, dims.textEncoding);</span>
+<span class="lineNum">     999 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">    1000 </span><span class="lineNoCov">          0 :                 if (dims.contentEncoding &amp;&amp; strlen(dims.contentEncoding)) {</span>
+<span class="lineNum">    1001 </span><span class="lineNoCov">          0 :                         strcat(sdpLine, &quot;;content-coding=&quot;);</span>
+<span class="lineNum">    1002 </span><span class="lineNoCov">          0 :                         strcat(sdpLine, dims.contentEncoding);</span>
+<span class="lineNum">    1003 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">    1004 </span><span class="lineNoCov">          0 :                 if (dims.contentEncoding &amp;&amp; dims.content_script_types &amp;&amp; strlen(dims.content_script_types) ) {</span>
+<span class="lineNum">    1005 </span><span class="lineNoCov">          0 :                         strcat(sdpLine, &quot;;content-script-types=&quot;);</span>
+<span class="lineNum">    1006 </span><span class="lineNoCov">          0 :                         strcat(sdpLine, dims.contentEncoding);</span>
+<span class="lineNum">    1007 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">    1008 </span><span class="lineNoCov">          0 :                 gf_isom_sdp_add_track_line(tkHint-&gt;file, tkHint-&gt;HintTrack, sdpLine);</span>
+<span class="lineNum">    1009 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">    1010 </span>            :         /*extensions for some mobile phones*/
+<span class="lineNum">    1011 </span><span class="lineCov">          2 :         if (Width &amp;&amp; Height) {</span>
+<span class="lineNum">    1012 </span><span class="lineNoCov">          0 :                 sprintf(sdpLine, &quot;a=framesize:%d %d-%d&quot;, tkHint-&gt;rtp_p-&gt;PayloadType, Width, Height);</span>
+<span class="lineNum">    1013 </span><span class="lineNoCov">          0 :                 gf_isom_sdp_add_track_line(tkHint-&gt;file, tkHint-&gt;HintTrack, sdpLine);</span>
+<span class="lineNum">    1014 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">    1015 </span>            : 
+<span class="lineNum">    1016 </span><span class="lineCov">          2 :         esd = gf_isom_get_esd(tkHint-&gt;file, tkHint-&gt;TrackNum, 1);</span>
+<span class="lineNum">    1017 </span><span class="lineCov">          8 :         if (esd &amp;&amp; esd-&gt;decoderConfig &amp;&amp; (esd-&gt;decoderConfig-&gt;rvc_config || esd-&gt;decoderConfig-&gt;predefined_rvc_config)) {</span>
+<span class="lineNum">    1018 </span><span class="lineNoCov">          0 :                 if (esd-&gt;decoderConfig-&gt;predefined_rvc_config) {</span>
+<span class="lineNum">    1019 </span><span class="lineNoCov">          0 :                         sprintf(sdpLine, &quot;a=rvc-config-predef:%d&quot;, esd-&gt;decoderConfig-&gt;predefined_rvc_config);</span>
+<span class="lineNum">    1020 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">    1021 </span>            :                         /*temporary ...*/
+<span class="lineNum">    1022 </span><span class="lineNoCov">          0 :                         if ((esd-&gt;decoderConfig-&gt;objectTypeIndication==GPAC_OTI_VIDEO_AVC) || (esd-&gt;decoderConfig-&gt;objectTypeIndication==GPAC_OTI_VIDEO_SVC)) {</span>
+<span class="lineNum">    1023 </span><span class="lineNoCov">          0 :                                 sprintf(sdpLine, &quot;a=rvc-config:%s&quot;, &quot;http://download.tsi.telecom-paristech.fr/gpac/RVC/rvc_config_avc.xml&quot;);</span>
+<span class="lineNum">    1024 </span><span class="lineNoCov">          0 :                         } else {</span>
+<span class="lineNum">    1025 </span><span class="lineNoCov">          0 :                                 sprintf(sdpLine, &quot;a=rvc-config:%s&quot;, &quot;http://download.tsi.telecom-paristech.fr/gpac/RVC/rvc_config_sp.xml&quot;);</span>
+<span class="lineNum">    1026 </span>            :                         }
+<span class="lineNum">    1027 </span>            :                 }
+<span class="lineNum">    1028 </span><span class="lineNoCov">          0 :                 gf_isom_sdp_add_track_line(tkHint-&gt;file, tkHint-&gt;HintTrack, sdpLine);</span>
+<span class="lineNum">    1029 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">    1030 </span><span class="lineCov">          4 :         if (esd) gf_odf_desc_del((GF_Descriptor *)esd);</span>
+<span class="lineNum">    1031 </span>            : 
+<span class="lineNum">    1032 </span><span class="lineCov">          2 :         gf_isom_set_track_enabled(tkHint-&gt;file, tkHint-&gt;HintTrack, 1);</span>
+<span class="lineNum">    1033 </span><span class="lineCov">          2 :         return GF_OK;</span>
+<span class="lineNum">    1034 </span><span class="lineCov">          2 : }</span>
+<a name="1035"><span class="lineNum">    1035 </span>            : </a>
+<span class="lineNum">    1036 </span>            : GF_EXPORT
+<span class="lineNum">    1037 </span>            : Bool gf_hinter_can_embbed_data(char *data, u32 data_size, u32 streamType)
+<span class="lineNum">    1038 </span>            : {
+<span class="lineNum">    1039 </span><span class="lineNoCov">          0 :         char data64[5000];</span>
+<span class="lineNum">    1040 </span>            :         u32 size64;
+<span class="lineNum">    1041 </span>            : 
+<span class="lineNum">    1042 </span><span class="lineNoCov">          0 :         size64 = gf_base64_encode(data, data_size, data64, 5000);</span>
+<span class="lineNum">    1043 </span><span class="lineNoCov">          0 :         if (!size64) return 0;</span>
+<span class="lineNum">    1044 </span><span class="lineNoCov">          0 :         switch (streamType) {</span>
+<span class="lineNum">    1045 </span>            :         case GF_STREAM_OD:
+<span class="lineNum">    1046 </span><span class="lineNoCov">          0 :                 size64 += (u32) strlen(&quot;data:application/mpeg4-od-au;base64,&quot;);</span>
+<span class="lineNum">    1047 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">    1048 </span>            :         case GF_STREAM_SCENE:
+<span class="lineNum">    1049 </span><span class="lineNoCov">          0 :                 size64 += (u32) strlen(&quot;data:application/mpeg4-bifs-au;base64,&quot;);</span>
+<span class="lineNum">    1050 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">    1051 </span>            :         default:
+<span class="lineNum">    1052 </span>            :                 /*NOT NORMATIVE*/
+<span class="lineNum">    1053 </span><span class="lineNoCov">          0 :                 size64 += (u32) strlen(&quot;data:application/mpeg4-es-au;base64,&quot;);</span>
+<span class="lineNum">    1054 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">    1055 </span>            :         }
+<span class="lineNum">    1056 </span><span class="lineNoCov">          0 :         if (size64&gt;=255) return 0;</span>
+<span class="lineNum">    1057 </span><span class="lineNoCov">          0 :         return 1;</span>
+<span class="lineNum">    1058 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">    1059 </span>            : 
+<a name="1060"><span class="lineNum">    1060 </span>            : </a>
+<span class="lineNum">    1061 </span>            : GF_EXPORT
+<span class="lineNum">    1062 </span>            : GF_Err gf_hinter_finalize(GF_ISOFile *file, GF_SDP_IODProfile IOD_Profile, u32 bandwidth)
+<span class="lineNum">    1063 </span>            : {
+<span class="lineNum">    1064 </span><span class="lineCov">          4 :         u32 i, sceneT, odT, descIndex, size, size64;</span>
+<span class="lineNum">    1065 </span>            :         GF_InitialObjectDescriptor *iod;
+<span class="lineNum">    1066 </span><span class="lineCov">          2 :         GF_SLConfig slc;</span>
+<span class="lineNum">    1067 </span>            :         GF_ESD *esd;
+<span class="lineNum">    1068 </span><span class="lineCov">          2 :         GF_ISOSample *samp;</span>
+<span class="lineNum">    1069 </span>            :         Bool remove_ocr;
+<span class="lineNum">    1070 </span><span class="lineCov">          2 :         char *buffer;</span>
+<span class="lineNum">    1071 </span><span class="lineCov">          2 :         char buf64[5000], sdpLine[2300];</span>
+<span class="lineNum">    1072 </span>            : 
+<span class="lineNum">    1073 </span>            : 
+<span class="lineNum">    1074 </span><span class="lineCov">          2 :         gf_isom_sdp_clean(file);</span>
+<span class="lineNum">    1075 </span>            : 
+<span class="lineNum">    1076 </span><span class="lineCov">          2 :         if (bandwidth) {</span>
+<span class="lineNum">    1077 </span><span class="lineCov">          2 :                 sprintf(buf64, &quot;b=AS:%d&quot;, bandwidth);</span>
+<span class="lineNum">    1078 </span><span class="lineCov">          2 :                 gf_isom_sdp_add_line(file, buf64);</span>
+<span class="lineNum">    1079 </span><span class="lineCov">          2 :         }</span>
+<span class="lineNum">    1080 </span>            :     //xtended attribute for copyright
+<span class="lineNum">    1081 </span><span class="lineCov">          4 :     if (gf_isom_drop_date_version_info_enabled(file)) {</span>
+<span class="lineNum">    1082 </span><span class="lineCov">          4 :         sprintf(buf64, &quot;a=x-copyright: %s&quot;, &quot;MP4/3GP File hinted with GPAC - (C)2000-2016 - http://gpac.io&quot;);</span>
+<span class="lineNum">    1083 </span><span class="lineCov">          2 :     } else {</span>
+<span class="lineNum">    1084 </span><span class="lineNoCov">          0 :         sprintf(buf64, &quot;a=x-copyright: %s&quot;, &quot;MP4/3GP File hinted with GPAC &quot; GPAC_FULL_VERSION &quot; (C)2000-2016 - http://gpac.io&quot;);</span>
+<span class="lineNum">    1085 </span>            :     }
+<span class="lineNum">    1086 </span><span class="lineCov">          2 :         gf_isom_sdp_add_line(file, buf64);</span>
+<span class="lineNum">    1087 </span>            : 
+<span class="lineNum">    1088 </span><span class="lineCov">          4 :         if (IOD_Profile == GF_SDP_IOD_NONE) return GF_OK;</span>
+<span class="lineNum">    1089 </span>            : 
+<span class="lineNum">    1090 </span>            :         odT = sceneT = 0;
+<span class="lineNum">    1091 </span><span class="lineNoCov">          0 :         for (i=0; i&lt;gf_isom_get_track_count(file); i++) {</span>
+<span class="lineNum">    1092 </span><span class="lineNoCov">          0 :                 if (!gf_isom_is_track_in_root_od(file, i+1)) continue;</span>
+<span class="lineNum">    1093 </span><span class="lineNoCov">          0 :                 switch (gf_isom_get_media_type(file,i+1)) {</span>
+<span class="lineNum">    1094 </span>            :                 case GF_ISOM_MEDIA_OD:
+<span class="lineNum">    1095 </span>            :                         odT = i+1;
+<span class="lineNum">    1096 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1097 </span>            :                 case GF_ISOM_MEDIA_SCENE:
+<span class="lineNum">    1098 </span>            :                         sceneT = i+1;
+<span class="lineNum">    1099 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1100 </span>            :                 }
+<span class="lineNum">    1101 </span>            :         }
+<span class="lineNum">    1102 </span>            :         remove_ocr = 0;
+<span class="lineNum">    1103 </span><span class="lineNoCov">          0 :         if (IOD_Profile == GF_SDP_IOD_ISMA_STRICT) {</span>
+<span class="lineNum">    1104 </span>            :                 IOD_Profile = GF_SDP_IOD_ISMA;
+<span class="lineNum">    1105 </span>            :                 remove_ocr = 1;
+<span class="lineNum">    1106 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">    1107 </span>            : 
+<span class="lineNum">    1108 </span>            :         /*if we want ISMA like iods, we need at least BIFS */
+<span class="lineNum">    1109 </span><span class="lineNoCov">          0 :         if ( (IOD_Profile == GF_SDP_IOD_ISMA) &amp;&amp; !sceneT ) return GF_BAD_PARAM;</span>
+<span class="lineNum">    1110 </span>            : 
+<span class="lineNum">    1111 </span>            :         /*do NOT change PLs, we assume they are correct*/
+<span class="lineNum">    1112 </span><span class="lineNoCov">          0 :         iod = (GF_InitialObjectDescriptor *) gf_isom_get_root_od(file);</span>
+<span class="lineNum">    1113 </span><span class="lineNoCov">          0 :         if (!iod) return GF_NOT_SUPPORTED;</span>
+<span class="lineNum">    1114 </span>            : 
+<span class="lineNum">    1115 </span>            :         /*rewrite an IOD with good SL config - embbed data if possible*/
+<span class="lineNum">    1116 </span><span class="lineNoCov">          0 :         if (IOD_Profile == GF_SDP_IOD_ISMA) {</span>
+<span class="lineNum">    1117 </span>            :                 Bool is_ok = 1;
+<span class="lineNum">    1118 </span><span class="lineNoCov">          0 :                 while (gf_list_count(iod-&gt;ESDescriptors)) {</span>
+<span class="lineNum">    1119 </span><span class="lineNoCov">          0 :                         esd = (GF_ESD*)gf_list_get(iod-&gt;ESDescriptors, 0);</span>
+<span class="lineNum">    1120 </span><span class="lineNoCov">          0 :                         gf_odf_desc_del((GF_Descriptor *) esd);</span>
+<span class="lineNum">    1121 </span><span class="lineNoCov">          0 :                         gf_list_rem(iod-&gt;ESDescriptors, 0);</span>
+<span class="lineNum">    1122 </span>            :                 }
+<span class="lineNum">    1123 </span>            : 
+<span class="lineNum">    1124 </span>            : 
+<span class="lineNum">    1125 </span>            :                 /*get OD esd, and embbed stream data if possible*/
+<span class="lineNum">    1126 </span><span class="lineNoCov">          0 :                 if (odT) {</span>
+<span class="lineNum">    1127 </span><span class="lineNoCov">          0 :                         esd = gf_isom_get_esd(file, odT, 1);</span>
+<span class="lineNum">    1128 </span><span class="lineNoCov">          0 :                         if (gf_isom_get_sample_count(file, odT)==1) {</span>
+<span class="lineNum">    1129 </span><span class="lineNoCov">          0 :                                 samp = gf_isom_get_sample(file, odT, 1, &amp;descIndex);</span>
+<span class="lineNum">    1130 </span><span class="lineNoCov">          0 :                                 if (gf_hinter_can_embbed_data(samp-&gt;data, samp-&gt;dataLength, GF_STREAM_OD)) {</span>
+<span class="lineNum">    1131 </span><span class="lineNoCov">          0 :                                         InitSL_NULL(&amp;slc);</span>
+<span class="lineNum">    1132 </span><span class="lineNoCov">          0 :                                         slc.predefined = 0;</span>
+<span class="lineNum">    1133 </span><span class="lineNoCov">          0 :                                         slc.hasRandomAccessUnitsOnlyFlag = 1;</span>
+<span class="lineNum">    1134 </span><span class="lineNoCov">          0 :                                         slc.timeScale = slc.timestampResolution = gf_isom_get_media_timescale(file, odT);</span>
+<span class="lineNum">    1135 </span><span class="lineNoCov">          0 :                                         slc.OCRResolution = 1000;</span>
+<span class="lineNum">    1136 </span><span class="lineNoCov">          0 :                                         slc.startCTS = samp-&gt;DTS+samp-&gt;CTS_Offset;</span>
+<span class="lineNum">    1137 </span><span class="lineNoCov">          0 :                                         slc.startDTS = samp-&gt;DTS;</span>
+<span class="lineNum">    1138 </span>            :                                         //set the SL for future extraction
+<span class="lineNum">    1139 </span><span class="lineNoCov">          0 :                                         gf_isom_set_extraction_slc(file, odT, 1, &amp;slc);</span>
+<span class="lineNum">    1140 </span>            : 
+<span class="lineNum">    1141 </span><span class="lineNoCov">          0 :                                         size64 = gf_base64_encode(samp-&gt;data, samp-&gt;dataLength, buf64, 2000);</span>
+<span class="lineNum">    1142 </span><span class="lineNoCov">          0 :                                         buf64[size64] = 0;</span>
+<span class="lineNum">    1143 </span><span class="lineNoCov">          0 :                                         sprintf(sdpLine, &quot;data:application/mpeg4-od-au;base64,%s&quot;, buf64);</span>
+<span class="lineNum">    1144 </span>            : 
+<span class="lineNum">    1145 </span><span class="lineNoCov">          0 :                                         esd-&gt;decoderConfig-&gt;avgBitrate = 0;</span>
+<span class="lineNum">    1146 </span><span class="lineNoCov">          0 :                                         esd-&gt;decoderConfig-&gt;bufferSizeDB = samp-&gt;dataLength;</span>
+<span class="lineNum">    1147 </span><span class="lineNoCov">          0 :                                         esd-&gt;decoderConfig-&gt;maxBitrate = 0;</span>
+<span class="lineNum">    1148 </span><span class="lineNoCov">          0 :                                         size64 = (u32) strlen(sdpLine)+1;</span>
+<span class="lineNum">    1149 </span><span class="lineNoCov">          0 :                                         esd-&gt;URLString = (char*)gf_malloc(sizeof(char) * size64);</span>
+<span class="lineNum">    1150 </span><span class="lineNoCov">          0 :                                         strcpy(esd-&gt;URLString, sdpLine);</span>
+<span class="lineNum">    1151 </span><span class="lineNoCov">          0 :                                 } else {</span>
+<span class="lineNum">    1152 </span><span class="lineNoCov">          0 :                                         GF_LOG(GF_LOG_WARNING, GF_LOG_RTP, (&quot;[rtp hinter] OD sample too large to be embedded in IOD - ISMA disabled\n&quot;));</span>
+<span class="lineNum">    1153 </span>            :                                         is_ok = 0;
+<span class="lineNum">    1154 </span>            :                                 }
+<span class="lineNum">    1155 </span><span class="lineNoCov">          0 :                                 gf_isom_sample_del(&amp;samp);</span>
+<span class="lineNum">    1156 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">    1157 </span><span class="lineNoCov">          0 :                         if (remove_ocr) esd-&gt;OCRESID = 0;</span>
+<span class="lineNum">    1158 </span><span class="lineNoCov">          0 :                         else if (esd-&gt;OCRESID == esd-&gt;ESID) esd-&gt;OCRESID = 0;</span>
+<span class="lineNum">    1159 </span>            : 
+<span class="lineNum">    1160 </span>            :                         //OK, add this to our IOD
+<span class="lineNum">    1161 </span><span class="lineNoCov">          0 :                         gf_list_add(iod-&gt;ESDescriptors, esd);</span>
+<span class="lineNum">    1162 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">    1163 </span>            : 
+<span class="lineNum">    1164 </span><span class="lineNoCov">          0 :                 esd = gf_isom_get_esd(file, sceneT, 1);</span>
+<span class="lineNum">    1165 </span><span class="lineNoCov">          0 :                 if (gf_isom_get_sample_count(file, sceneT)==1) {</span>
+<span class="lineNum">    1166 </span><span class="lineNoCov">          0 :                         samp = gf_isom_get_sample(file, sceneT, 1, &amp;descIndex);</span>
+<span class="lineNum">    1167 </span><span class="lineNoCov">          0 :                         if (gf_hinter_can_embbed_data(samp-&gt;data, samp-&gt;dataLength, GF_STREAM_SCENE)) {</span>
+<span class="lineNum">    1168 </span>            : 
+<span class="lineNum">    1169 </span><span class="lineNoCov">          0 :                                 slc.timeScale = slc.timestampResolution = gf_isom_get_media_timescale(file, sceneT);</span>
+<span class="lineNum">    1170 </span><span class="lineNoCov">          0 :                                 slc.OCRResolution = 1000;</span>
+<span class="lineNum">    1171 </span><span class="lineNoCov">          0 :                                 slc.startCTS = samp-&gt;DTS+samp-&gt;CTS_Offset;</span>
+<span class="lineNum">    1172 </span><span class="lineNoCov">          0 :                                 slc.startDTS = samp-&gt;DTS;</span>
+<span class="lineNum">    1173 </span>            :                                 //set the SL for future extraction
+<span class="lineNum">    1174 </span><span class="lineNoCov">          0 :                                 gf_isom_set_extraction_slc(file, sceneT, 1, &amp;slc);</span>
+<span class="lineNum">    1175 </span>            :                                 //encode in Base64 the sample
+<span class="lineNum">    1176 </span><span class="lineNoCov">          0 :                                 size64 = gf_base64_encode(samp-&gt;data, samp-&gt;dataLength, buf64, 2000);</span>
+<span class="lineNum">    1177 </span><span class="lineNoCov">          0 :                                 buf64[size64] = 0;</span>
+<span class="lineNum">    1178 </span><span class="lineNoCov">          0 :                                 sprintf(sdpLine, &quot;data:application/mpeg4-bifs-au;base64,%s&quot;, buf64);</span>
+<span class="lineNum">    1179 </span>            : 
+<span class="lineNum">    1180 </span><span class="lineNoCov">          0 :                                 esd-&gt;decoderConfig-&gt;avgBitrate = 0;</span>
+<span class="lineNum">    1181 </span><span class="lineNoCov">          0 :                                 esd-&gt;decoderConfig-&gt;bufferSizeDB = samp-&gt;dataLength;</span>
+<span class="lineNum">    1182 </span><span class="lineNoCov">          0 :                                 esd-&gt;decoderConfig-&gt;maxBitrate = 0;</span>
+<span class="lineNum">    1183 </span><span class="lineNoCov">          0 :                                 esd-&gt;URLString = (char*)gf_malloc(sizeof(char) * (strlen(sdpLine)+1));</span>
+<span class="lineNum">    1184 </span><span class="lineNoCov">          0 :                                 strcpy(esd-&gt;URLString, sdpLine);</span>
+<span class="lineNum">    1185 </span><span class="lineNoCov">          0 :                         } else {</span>
+<span class="lineNum">    1186 </span><span class="lineNoCov">          0 :                                 GF_LOG(GF_LOG_ERROR, GF_LOG_RTP, (&quot;[rtp hinter] Scene description sample too large to be embedded in IOD - ISMA disabled\n&quot;));</span>
+<span class="lineNum">    1187 </span>            :                                 is_ok = 0;
+<span class="lineNum">    1188 </span>            :                         }
+<span class="lineNum">    1189 </span><span class="lineNoCov">          0 :                         gf_isom_sample_del(&amp;samp);</span>
+<span class="lineNum">    1190 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">    1191 </span><span class="lineNoCov">          0 :                 if (remove_ocr) esd-&gt;OCRESID = 0;</span>
+<span class="lineNum">    1192 </span><span class="lineNoCov">          0 :                 else if (esd-&gt;OCRESID == esd-&gt;ESID) esd-&gt;OCRESID = 0;</span>
+<span class="lineNum">    1193 </span>            : 
+<span class="lineNum">    1194 </span><span class="lineNoCov">          0 :                 gf_list_add(iod-&gt;ESDescriptors, esd);</span>
+<span class="lineNum">    1195 </span>            : 
+<span class="lineNum">    1196 </span><span class="lineNoCov">          0 :                 if (is_ok) {</span>
+<span class="lineNum">    1197 </span>            :                         u32 has_a, has_v, has_i_a, has_i_v;
+<span class="lineNum">    1198 </span>            :                         has_a = has_v = has_i_a = has_i_v = 0;
+<span class="lineNum">    1199 </span><span class="lineNoCov">          0 :                         for (i=0; i&lt;gf_isom_get_track_count(file); i++) {</span>
+<span class="lineNum">    1200 </span><span class="lineNoCov">          0 :                                 esd = gf_isom_get_esd(file, i+1, 1);</span>
+<span class="lineNum">    1201 </span><span class="lineNoCov">          0 :                                 if (!esd) continue;</span>
+<span class="lineNum">    1202 </span><span class="lineNoCov">          0 :                                 if (esd-&gt;decoderConfig-&gt;streamType==GF_STREAM_VISUAL) {</span>
+<span class="lineNum">    1203 </span><span class="lineNoCov">          0 :                                         if (esd-&gt;decoderConfig-&gt;objectTypeIndication==GPAC_OTI_VIDEO_MPEG4_PART2) has_i_v ++;</span>
+<span class="lineNum">    1204 </span><span class="lineNoCov">          0 :                                         else has_v++;</span>
+<span class="lineNum">    1205 </span><span class="lineNoCov">          0 :                                 } else if (esd-&gt;decoderConfig-&gt;streamType==GF_STREAM_AUDIO) {</span>
+<span class="lineNum">    1206 </span><span class="lineNoCov">          0 :                                         if (esd-&gt;decoderConfig-&gt;objectTypeIndication==GPAC_OTI_AUDIO_AAC_MPEG4) has_i_a ++;</span>
+<span class="lineNum">    1207 </span><span class="lineNoCov">          0 :                                         else has_a++;</span>
+<span class="lineNum">    1208 </span>            :                                 }
+<span class="lineNum">    1209 </span><span class="lineNoCov">          0 :                                 gf_odf_desc_del((GF_Descriptor *)esd);</span>
+<span class="lineNum">    1210 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">    1211 </span>            :                         /*only 1 MPEG-4 visual max and 1 MPEG-4 audio max for ISMA compliancy*/
+<span class="lineNum">    1212 </span><span class="lineNoCov">          0 :                         if (!has_v &amp;&amp; !has_a &amp;&amp; (has_i_v&lt;=1) &amp;&amp; (has_i_a&lt;=1)) {</span>
+<span class="lineNum">    1213 </span><span class="lineNoCov">          0 :                                 sprintf(sdpLine, &quot;a=isma-compliance:1,1.0,1&quot;);</span>
+<span class="lineNum">    1214 </span><span class="lineNoCov">          0 :                                 gf_isom_sdp_add_line(file, sdpLine);</span>
+<span class="lineNum">    1215 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">    1216 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">    1217 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">    1218 </span>            : 
+<span class="lineNum">    1219 </span>            :         //encode the IOD
+<span class="lineNum">    1220 </span><span class="lineNoCov">          0 :         buffer = NULL;</span>
+<span class="lineNum">    1221 </span><span class="lineNoCov">          0 :         size = 0;</span>
+<span class="lineNum">    1222 </span><span class="lineNoCov">          0 :         gf_odf_desc_write((GF_Descriptor *) iod, &amp;buffer, &amp;size);</span>
+<span class="lineNum">    1223 </span><span class="lineNoCov">          0 :         gf_odf_desc_del((GF_Descriptor *)iod);</span>
+<span class="lineNum">    1224 </span>            : 
+<span class="lineNum">    1225 </span>            :         //encode in Base64 the iod
+<span class="lineNum">    1226 </span><span class="lineNoCov">          0 :         size64 = gf_base64_encode(buffer, size, buf64, 2000);</span>
+<span class="lineNum">    1227 </span><span class="lineNoCov">          0 :         buf64[size64] = 0;</span>
+<span class="lineNum">    1228 </span><span class="lineNoCov">          0 :         gf_free(buffer);</span>
+<span class="lineNum">    1229 </span>            : 
+<span class="lineNum">    1230 </span><span class="lineNoCov">          0 :         sprintf(sdpLine, &quot;a=mpeg4-iod:\&quot;data:application/mpeg4-iod;base64,%s\&quot;&quot;, buf64);</span>
+<span class="lineNum">    1231 </span><span class="lineNoCov">          0 :         gf_isom_sdp_add_line(file, sdpLine);</span>
+<span class="lineNum">    1232 </span>            : 
+<span class="lineNum">    1233 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">    1234 </span><span class="lineCov">          2 : }</span>
+<span class="lineNum">    1235 </span>            : 
+<span class="lineNum">    1236 </span>            : 
+<span class="lineNum">    1237 </span>            : #endif /*GPAC_DISABLE_ISOM_HINTING*/
+<span class="lineNum">    1238 </span>            : 
+<span class="lineNum">    1239 </span>            : #endif /*GPAC_DISABLE_ISOM*/
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

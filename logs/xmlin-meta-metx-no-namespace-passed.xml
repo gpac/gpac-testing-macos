@@ -1,0 +1,6 @@
+ <test name="xmlin-meta-metx-no-namespace" result="OK" date="14/05/2017 22:30:25">
+
+  <stat subtest="" execution_status="N/A" return_status="0" mem_total_avg="N/A" mem_resident_avg="N/A" mem_resident_max="N/A" cpu_percent="N/A" cpu_elapsed_time="N/A" cpu_user_time="N/A" cpu_kernel_time="N/A" page_faults="N/A" file_inputs="N/A" socket_msg_rec="N/A" socket_msg_sent="N/A" return_value="0">
+   <command_line>MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/media/xmlin4/meta-metx-no-namespace.nhml -new /Users/travis/build/gpac/gpac/tests/results/temp/meta-metx-no-namespace.mp4</command_line>
+  </stat>
+ </test>

@@ -1,0 +1,1169 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - isomedia/isom_intern.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">isomedia</a> - isom_intern.c<span style="font-size: 80%;"> (source / <a href="isom_intern.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">267</td>
+            <td class="headerCovTableEntry">551</td>
+            <td class="headerCovTableEntryLo">48.5 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-05-14 22:31:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">16</td>
+            <td class="headerCovTableEntry">21</td>
+            <td class="headerCovTableEntryMed">76.2 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *                      GPAC - Multimedia Framework C SDK
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *                      Authors: Jean Le Feuvre
+<span class="lineNum">       5 </span>            :  *                      Copyright (c) Telecom ParisTech 2000-2012
+<span class="lineNum">       6 </span>            :  *                                      All rights reserved
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  *  This file is part of GPAC / ISO Media File Format sub-project
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  *  GPAC is free software; you can redistribute it and/or modify
+<span class="lineNum">      11 </span>            :  *  it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">      12 </span>            :  *  the Free Software Foundation; either version 2, or (at your option)
+<span class="lineNum">      13 </span>            :  *  any later version.
+<span class="lineNum">      14 </span>            :  *
+<span class="lineNum">      15 </span>            :  *  GPAC is distributed in the hope that it will be useful,
+<span class="lineNum">      16 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      17 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      18 </span>            :  *  GNU Lesser General Public License for more details.
+<span class="lineNum">      19 </span>            :  *
+<span class="lineNum">      20 </span>            :  *  You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      21 </span>            :  *  License along with this library; see the file COPYING.  If not, write to
+<span class="lineNum">      22 </span>            :  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+<span class="lineNum">      23 </span>            :  *
+<span class="lineNum">      24 </span>            :  */
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : #include &lt;gpac/internal/isomedia_dev.h&gt;
+<span class="lineNum">      27 </span>            : #include &lt;gpac/network.h&gt;
+<span class="lineNum">      28 </span>            : 
+<span class="lineNum">      29 </span>            : #ifndef GPAC_DISABLE_ISOM
+<span class="lineNum">      30 </span>            : 
+<span class="lineNum">      31 </span>            : /**************************************************************
+<span class="lineNum">      32 </span>            :                 Some Local functions for movie creation
+<span class="lineNum">      33 </span>            : **************************************************************/
+<span class="lineNum">      34 </span>            : GF_Err gf_isom_parse_root_box(GF_Box **outBox, GF_BitStream *bs, u64 *bytesExpected, Bool progressive_mode);
+<span class="lineNum">      35 </span>            : 
+<span class="lineNum">      36 </span>            : #ifndef GPAC_DISABLE_ISOM_FRAGMENTS
+<a name="37"><span class="lineNum">      37 </span>            : GF_Err MergeTrack(GF_TrackBox *trak, GF_TrackFragmentBox *traf, u64 moof_offset, Bool is_first_merge);</a>
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span>            : GF_Err MergeFragment(GF_MovieFragmentBox *moof, GF_ISOFile *mov)
+<span class="lineNum">      40 </span>            : {
+<span class="lineNum">      41 </span>            :         GF_Err e;
+<span class="lineNum">      42 </span><span class="lineCov">          6 :         u32 i, j;</span>
+<span class="lineNum">      43 </span>            :         u64 MaxDur;
+<span class="lineNum">      44 </span>            :         GF_TrackFragmentBox *traf;
+<span class="lineNum">      45 </span>            :         GF_TrackBox *trak;
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span>            :         MaxDur = 0;
+<span class="lineNum">      48 </span>            : 
+<span class="lineNum">      49 </span>            :         //we shall have a MOOV and its MVEX BEFORE any MOOF
+<span class="lineNum">      50 </span><span class="lineCov">          6 :         if (!mov-&gt;moov || !mov-&gt;moov-&gt;mvex) {</span>
+<span class="lineNum">      51 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_CONTAINER, (&quot;[iso file] Error: %s not received before merging fragment\n&quot;, mov-&gt;moov ? &quot;mvex&quot; : &quot;moov&quot; ));</span>
+<span class="lineNum">      52 </span><span class="lineNoCov">          0 :                 return GF_ISOM_INVALID_FILE;</span>
+<span class="lineNum">      53 </span>            :         }
+<span class="lineNum">      54 </span>            :         //and all fragments must be continous - we do not throw an error as we may still want to be able to concatenate dependent representations in DASH and
+<span class="lineNum">      55 </span>            :         //we will likely a-have R1(moofSN 1, 3, 5, 7) plus R2(moofSN 2, 4, 6, 8)
+<span class="lineNum">      56 </span><span class="lineCov">          5 :         if (mov-&gt;NextMoofNumber &amp;&amp; (mov-&gt;NextMoofNumber &gt;= moof-&gt;mfhd-&gt;sequence_number)) {</span>
+<span class="lineNum">      57 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_WARNING, GF_LOG_CONTAINER, (&quot;[iso file] Warning: wrong sequence number: got %d but last one was %d\n&quot;, moof-&gt;mfhd-&gt;sequence_number, mov-&gt;NextMoofNumber));</span>
+<span class="lineNum">      58 </span>            : //              return GF_ISOM_INVALID_FILE;
+<span class="lineNum">      59 </span>            :         }
+<span class="lineNum">      60 </span>            : 
+<span class="lineNum">      61 </span><span class="lineCov">          3 :         i=0;</span>
+<span class="lineNum">      62 </span><span class="lineCov">         12 :         while ((traf = (GF_TrackFragmentBox*)gf_list_enum(moof-&gt;TrackList, &amp;i))) {</span>
+<span class="lineNum">      63 </span><span class="lineCov">          3 :                 if (!traf-&gt;tfhd) {</span>
+<span class="lineNum">      64 </span>            :                         trak = NULL;
+<span class="lineNum">      65 </span><span class="lineNoCov">          0 :                         traf-&gt;trex = NULL;</span>
+<span class="lineNum">      66 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">      67 </span><span class="lineCov">          3 :                         trak = gf_isom_get_track_from_id(mov-&gt;moov, traf-&gt;tfhd-&gt;trackID);</span>
+<span class="lineNum">      68 </span><span class="lineCov">          3 :                         j=0;</span>
+<span class="lineNum">      69 </span><span class="lineCov">         12 :                         while ((traf-&gt;trex = (GF_TrackExtendsBox*)gf_list_enum(mov-&gt;moov-&gt;mvex-&gt;TrackExList, &amp;j))) {</span>
+<span class="lineNum">      70 </span><span class="lineCov">          6 :                                 if (traf-&gt;trex-&gt;trackID == traf-&gt;tfhd-&gt;trackID) break;</span>
+<span class="lineNum">      71 </span><span class="lineCov">          3 :                                 traf-&gt;trex = NULL;</span>
+<span class="lineNum">      72 </span>            :                         }
+<span class="lineNum">      73 </span>            :                 }
+<span class="lineNum">      74 </span>            : 
+<span class="lineNum">      75 </span><span class="lineCov">          6 :                 if (!trak || !traf-&gt;trex) {</span>
+<span class="lineNum">      76 </span><span class="lineNoCov">          0 :                         GF_LOG(GF_LOG_ERROR, GF_LOG_CONTAINER, (&quot;[iso file] Error: Cannot find fragment track with ID %d\n&quot;, traf-&gt;tfhd ? traf-&gt;tfhd-&gt;trackID : 0));</span>
+<span class="lineNum">      77 </span><span class="lineNoCov">          0 :                         return GF_ISOM_INVALID_FILE;</span>
+<span class="lineNum">      78 </span>            :                 }
+<span class="lineNum">      79 </span>            : 
+<span class="lineNum">      80 </span><span class="lineCov">          3 :                 e = MergeTrack(trak, traf, mov-&gt;current_top_box_start, !trak-&gt;first_traf_merged);</span>
+<span class="lineNum">      81 </span><span class="lineCov">          3 :                 if (e) return e;</span>
+<span class="lineNum">      82 </span>            : 
+<span class="lineNum">      83 </span><span class="lineCov">          3 :                 trak-&gt;present_in_scalable_segment = 1;</span>
+<span class="lineNum">      84 </span>            : 
+<span class="lineNum">      85 </span>            :                 //update trak duration
+<span class="lineNum">      86 </span><span class="lineCov">          3 :                 SetTrackDuration(trak);</span>
+<span class="lineNum">      87 </span><span class="lineCov">          3 :                 if (trak-&gt;Header-&gt;duration &gt; MaxDur)</span>
+<span class="lineNum">      88 </span><span class="lineCov">          3 :                         MaxDur = trak-&gt;Header-&gt;duration;</span>
+<span class="lineNum">      89 </span>            : 
+<span class="lineNum">      90 </span><span class="lineCov">          3 :                 trak-&gt;first_traf_merged = 1;</span>
+<span class="lineNum">      91 </span>            :         }
+<span class="lineNum">      92 </span>            : 
+<span class="lineNum">      93 </span><span class="lineCov">          3 :         if (moof-&gt;other_boxes) {</span>
+<span class="lineNum">      94 </span>            :                 GF_Box *a;
+<span class="lineNum">      95 </span><span class="lineNoCov">          0 :                 i = 0;</span>
+<span class="lineNum">      96 </span><span class="lineNoCov">          0 :                 while ((a = (GF_Box *)gf_list_enum(moof-&gt;other_boxes, &amp;i))) {</span>
+<span class="lineNum">      97 </span><span class="lineNoCov">          0 :                         if (a-&gt;type == GF_ISOM_BOX_TYPE_PSSH) {</span>
+<span class="lineNum">      98 </span><span class="lineNoCov">          0 :                                 GF_ProtectionSystemHeaderBox *pssh = (GF_ProtectionSystemHeaderBox *)pssh_New();</span>
+<span class="lineNum">      99 </span><span class="lineNoCov">          0 :                                 memmove(pssh-&gt;SystemID, ((GF_ProtectionSystemHeaderBox *)a)-&gt;SystemID, 16);</span>
+<span class="lineNum">     100 </span><span class="lineNoCov">          0 :                                 pssh-&gt;KID_count = ((GF_ProtectionSystemHeaderBox *)a)-&gt;KID_count;</span>
+<span class="lineNum">     101 </span><span class="lineNoCov">          0 :                                 pssh-&gt;KIDs = (bin128 *)gf_malloc(pssh-&gt;KID_count*sizeof(bin128));</span>
+<span class="lineNum">     102 </span><span class="lineNoCov">          0 :                                 memmove(pssh-&gt;KIDs, ((GF_ProtectionSystemHeaderBox *)a)-&gt;KIDs, pssh-&gt;KID_count*sizeof(bin128));</span>
+<span class="lineNum">     103 </span><span class="lineNoCov">          0 :                                 pssh-&gt;private_data_size = ((GF_ProtectionSystemHeaderBox *)a)-&gt;private_data_size;</span>
+<span class="lineNum">     104 </span><span class="lineNoCov">          0 :                                 pssh-&gt;private_data = (u8 *)gf_malloc(pssh-&gt;private_data_size*sizeof(char));</span>
+<span class="lineNum">     105 </span><span class="lineNoCov">          0 :                                 memmove(pssh-&gt;private_data, ((GF_ProtectionSystemHeaderBox *)a)-&gt;private_data, pssh-&gt;private_data_size);</span>
+<span class="lineNum">     106 </span>            : 
+<span class="lineNum">     107 </span><span class="lineNoCov">          0 :                                 if (!mov-&gt;moov-&gt;other_boxes) mov-&gt;moov-&gt;other_boxes = gf_list_new();</span>
+<span class="lineNum">     108 </span><span class="lineNoCov">          0 :                                 gf_list_add(mov-&gt;moov-&gt;other_boxes, pssh);</span>
+<span class="lineNum">     109 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     110 </span>            :                 }
+<span class="lineNum">     111 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     112 </span>            : 
+<span class="lineNum">     113 </span><span class="lineCov">          3 :         mov-&gt;NextMoofNumber = moof-&gt;mfhd-&gt;sequence_number;</span>
+<span class="lineNum">     114 </span>            :         //update movie duration
+<span class="lineNum">     115 </span><span class="lineCov">          4 :         if (mov-&gt;moov-&gt;mvhd-&gt;duration &lt; MaxDur) mov-&gt;moov-&gt;mvhd-&gt;duration = MaxDur;</span>
+<span class="lineNum">     116 </span><span class="lineCov">          3 :         return GF_OK;</span>
+<a name="117"><span class="lineNum">     117 </span><span class="lineCov">          3 : }</span></a>
+<span class="lineNum">     118 </span>            : 
+<span class="lineNum">     119 </span>            : static void FixTrackID(GF_ISOFile *mov)
+<span class="lineNum">     120 </span>            : {
+<span class="lineNum">     121 </span><span class="lineCov">         18 :         if (!mov-&gt;moov) return;</span>
+<span class="lineNum">     122 </span>            : 
+<span class="lineNum">     123 </span><span class="lineCov">          9 :         if (gf_list_count(mov-&gt;moov-&gt;trackList) == 1 &amp;&amp; gf_list_count(mov-&gt;moof-&gt;TrackList) == 1) {</span>
+<span class="lineNum">     124 </span><span class="lineNoCov">          0 :                 GF_TrackFragmentBox *traf = (GF_TrackFragmentBox*)gf_list_get(mov-&gt;moof-&gt;TrackList, 0);</span>
+<span class="lineNum">     125 </span><span class="lineNoCov">          0 :                 GF_TrackBox *trak = (GF_TrackBox*)gf_list_get(mov-&gt;moov-&gt;trackList, 0);</span>
+<span class="lineNum">     126 </span><span class="lineNoCov">          0 :                 if ((traf-&gt;tfhd-&gt;trackID != trak-&gt;Header-&gt;trackID)) {</span>
+<span class="lineNum">     127 </span><span class="lineNoCov">          0 :                         GF_LOG(GF_LOG_WARNING, GF_LOG_CONTAINER, (&quot;[iso file] Warning: trackID of MOOF/TRAF(%u) is not the same as MOOV/TRAK(%u). Trying to fix.\n&quot;, traf-&gt;tfhd-&gt;trackID, trak-&gt;Header-&gt;trackID));</span>
+<span class="lineNum">     128 </span><span class="lineNoCov">          0 :                         traf-&gt;tfhd-&gt;trackID = trak-&gt;Header-&gt;trackID;</span>
+<span class="lineNum">     129 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     130 </span><span class="lineNoCov">          0 :         }</span>
+<a name="131"><span class="lineNum">     131 </span><span class="lineCov">          9 : }</span></a>
+<span class="lineNum">     132 </span>            : 
+<span class="lineNum">     133 </span>            : static void FixSDTPInTRAF(GF_MovieFragmentBox *moof)
+<span class="lineNum">     134 </span>            : {
+<span class="lineNum">     135 </span>            :         u32 k;
+<span class="lineNum">     136 </span><span class="lineCov">         18 :         if (!moof)</span>
+<span class="lineNum">     137 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     138 </span>            : 
+<span class="lineNum">     139 </span><span class="lineCov">         36 :         for (k = 0; k &lt; gf_list_count(moof-&gt;TrackList); k++) {</span>
+<span class="lineNum">     140 </span><span class="lineCov">          9 :                 GF_TrackFragmentBox *traf = gf_list_get(moof-&gt;TrackList, k);</span>
+<span class="lineNum">     141 </span><span class="lineCov">          9 :                 if (traf-&gt;sdtp) {</span>
+<span class="lineNum">     142 </span>            :                         GF_TrackFragmentRunBox *trun;
+<span class="lineNum">     143 </span><span class="lineNoCov">          0 :                         u32 j = 0, sample_index = 0;</span>
+<span class="lineNum">     144 </span>            : 
+<span class="lineNum">     145 </span><span class="lineNoCov">          0 :                         if (traf-&gt;sdtp-&gt;sampleCount == gf_list_count(traf-&gt;TrackRuns)) {</span>
+<span class="lineNum">     146 </span><span class="lineNoCov">          0 :                                 GF_LOG(GF_LOG_WARNING, GF_LOG_CONTAINER, (&quot;[iso file] Warning: TRAF box of track id=%u contains a SDTP. Converting to TRUN sample flags.\n&quot;, traf-&gt;tfhd-&gt;trackID));</span>
+<span class="lineNum">     147 </span>            :                         }
+<span class="lineNum">     148 </span>            : 
+<span class="lineNum">     149 </span><span class="lineNoCov">          0 :                         while ((trun = (GF_TrackFragmentRunBox*)gf_list_enum(traf-&gt;TrackRuns, &amp;j))) {</span>
+<span class="lineNum">     150 </span><span class="lineNoCov">          0 :                                 u32 i = 0;</span>
+<span class="lineNum">     151 </span>            :                                 GF_TrunEntry *entry;
+<span class="lineNum">     152 </span><span class="lineNoCov">          0 :                                 trun-&gt;flags |= GF_ISOM_TRUN_FLAGS;</span>
+<span class="lineNum">     153 </span><span class="lineNoCov">          0 :                                 while ((entry = (GF_TrunEntry*)gf_list_enum(trun-&gt;entries, &amp;i))) {</span>
+<span class="lineNum">     154 </span><span class="lineNoCov">          0 :                                         const u8 info = traf-&gt;sdtp-&gt;sample_info[sample_index];</span>
+<span class="lineNum">     155 </span><span class="lineNoCov">          0 :                                         entry-&gt;flags |= GF_ISOM_GET_FRAG_DEPEND_FLAGS(info &gt;&gt; 6, info &gt;&gt; 4, info &gt;&gt; 2, info);</span>
+<span class="lineNum">     156 </span><span class="lineNoCov">          0 :                                         sample_index++;</span>
+<span class="lineNum">     157 </span><span class="lineNoCov">          0 :                                         if (sample_index &gt; traf-&gt;sdtp-&gt;sampleCount) {</span>
+<span class="lineNum">     158 </span><span class="lineNoCov">          0 :                                                 GF_LOG(GF_LOG_ERROR, GF_LOG_CONTAINER, (&quot;[iso file] Error: TRAF box of track id=%u contained an inconsistent SDTP.\n&quot;, traf-&gt;tfhd-&gt;trackID));</span>
+<span class="lineNum">     159 </span><span class="lineNoCov">          0 :                                                 return;</span>
+<span class="lineNum">     160 </span>            :                                         }
+<span class="lineNum">     161 </span><span class="lineNoCov">          0 :                                 }</span>
+<span class="lineNum">     162 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     163 </span><span class="lineNoCov">          0 :                         if (sample_index &lt; traf-&gt;sdtp-&gt;sampleCount) {</span>
+<span class="lineNum">     164 </span><span class="lineNoCov">          0 :                                 GF_LOG(GF_LOG_ERROR, GF_LOG_CONTAINER, (&quot;[iso file] Error: TRAF box of track id=%u list less samples than SDTP.\n&quot;, traf-&gt;tfhd-&gt;trackID));</span>
+<span class="lineNum">     165 </span>            :                         }
+<span class="lineNum">     166 </span><span class="lineNoCov">          0 :                         gf_isom_box_del((GF_Box*)traf-&gt;sdtp);</span>
+<span class="lineNum">     167 </span><span class="lineNoCov">          0 :                         traf-&gt;sdtp = NULL;</span>
+<span class="lineNum">     168 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     169 </span><span class="lineCov">          9 :         }</span>
+<span class="lineNum">     170 </span><span class="lineCov">         18 : }</span>
+<span class="lineNum">     171 </span>            : 
+<a name="172"><span class="lineNum">     172 </span>            : #endif</a>
+<span class="lineNum">     173 </span>            : 
+<span class="lineNum">     174 </span>            : GF_Err gf_isom_parse_movie_boxes(GF_ISOFile *mov, u64 *bytesMissing, Bool progressive_mode)
+<span class="lineNum">     175 </span>            : {
+<span class="lineNum">     176 </span><span class="lineCov">       7090 :         GF_Box *a;</span>
+<span class="lineNum">     177 </span>            :         u64 totSize;
+<span class="lineNum">     178 </span>            :         GF_Err e = GF_OK;
+<span class="lineNum">     179 </span>            : 
+<span class="lineNum">     180 </span>            : #ifndef GPAC_DISABLE_ISOM_FRAGMENTS
+<span class="lineNum">     181 </span><span class="lineCov">       3545 :         if (mov-&gt;single_moof_mode &amp;&amp; mov-&gt;single_moof_state == 2) {</span>
+<span class="lineNum">     182 </span><span class="lineNoCov">          0 :                 return e;</span>
+<span class="lineNum">     183 </span>            :         }
+<span class="lineNum">     184 </span>            : 
+<span class="lineNum">     185 </span>            :         /*restart from where we stopped last*/
+<span class="lineNum">     186 </span><span class="lineCov">       3545 :         totSize = mov-&gt;current_top_box_start;</span>
+<span class="lineNum">     187 </span><span class="lineCov">       3545 :         gf_bs_seek(mov-&gt;movieFileMap-&gt;bs, mov-&gt;current_top_box_start);</span>
+<span class="lineNum">     188 </span>            : #endif
+<span class="lineNum">     189 </span>            : 
+<span class="lineNum">     190 </span>            : 
+<span class="lineNum">     191 </span>            :         /*while we have some data, parse our boxes*/
+<span class="lineNum">     192 </span><span class="lineCov">      35520 :         while (gf_bs_available(mov-&gt;movieFileMap-&gt;bs)) {</span>
+<span class="lineNum">     193 </span><span class="lineCov">      14218 :                 *bytesMissing = 0;</span>
+<span class="lineNum">     194 </span>            : #ifndef GPAC_DISABLE_ISOM_FRAGMENTS
+<span class="lineNum">     195 </span><span class="lineCov">      14218 :                 mov-&gt;current_top_box_start = gf_bs_get_position(mov-&gt;movieFileMap-&gt;bs);</span>
+<span class="lineNum">     196 </span><span class="lineCov">      14218 :                 GF_LOG(GF_LOG_DEBUG, GF_LOG_CONTAINER, (&quot;[iso file] Current top box start before parsing %d\n&quot;, mov-&gt;current_top_box_start));</span>
+<span class="lineNum">     197 </span>            : #endif
+<span class="lineNum">     198 </span>            : 
+<span class="lineNum">     199 </span><span class="lineCov">      14218 :                 e = gf_isom_parse_root_box(&amp;a, mov-&gt;movieFileMap-&gt;bs, bytesMissing, progressive_mode);</span>
+<span class="lineNum">     200 </span>            : 
+<span class="lineNum">     201 </span><span class="lineCov">      14218 :                 if (e &gt;= 0) {</span>
+<span class="lineNum">     202 </span>            : 
+<span class="lineNum">     203 </span><span class="lineCov">          3 :                 } else if (e == GF_ISOM_INCOMPLETE_FILE) {</span>
+<span class="lineNum">     204 </span>            :                         /*our mdat is uncomplete, only valid for READ ONLY files...*/
+<span class="lineNum">     205 </span><span class="lineNoCov">          0 :                         if (mov-&gt;openMode != GF_ISOM_OPEN_READ) {</span>
+<span class="lineNum">     206 </span><span class="lineNoCov">          0 :                                 GF_LOG(GF_LOG_ERROR, GF_LOG_CONTAINER, (&quot;[iso file] Incomplete MDAT while file is not read-only\n&quot;));</span>
+<span class="lineNum">     207 </span><span class="lineNoCov">          0 :                                 return GF_ISOM_INVALID_FILE;</span>
+<span class="lineNum">     208 </span>            :                         }
+<span class="lineNum">     209 </span><span class="lineNoCov">          0 :                         if (mov-&gt;is_dump_mode) {</span>
+<span class="lineNum">     210 </span><span class="lineNoCov">          0 :                                 GF_LOG(GF_LOG_ERROR, GF_LOG_CONTAINER, (&quot;[iso file] Incomplete file while reading for dump - aborting parsing\n&quot;));</span>
+<span class="lineNum">     211 </span>            :                                 break;
+<span class="lineNum">     212 </span>            :                         }
+<span class="lineNum">     213 </span><span class="lineNoCov">          0 :                         return e;</span>
+<span class="lineNum">     214 </span>            :                 } else {
+<span class="lineNum">     215 </span><span class="lineCov">          3 :                         return e;</span>
+<span class="lineNum">     216 </span>            :                 }
+<span class="lineNum">     217 </span>            : 
+<span class="lineNum">     218 </span><span class="lineCov">      14215 :                 switch (a-&gt;type) {</span>
+<span class="lineNum">     219 </span>            :                 /*MOOV box*/
+<span class="lineNum">     220 </span>            :                 case GF_ISOM_BOX_TYPE_MOOV:
+<span class="lineNum">     221 </span><span class="lineCov">       3543 :                         if (mov-&gt;moov) {</span>
+<span class="lineNum">     222 </span><span class="lineNoCov">          0 :                                 GF_LOG(GF_LOG_ERROR, GF_LOG_CONTAINER, (&quot;[iso file] Duplicate MOOV detected!\n&quot;));</span>
+<span class="lineNum">     223 </span><span class="lineNoCov">          0 :                                 return GF_ISOM_INVALID_FILE;</span>
+<span class="lineNum">     224 </span>            :                         }
+<span class="lineNum">     225 </span><span class="lineCov">       3543 :                         mov-&gt;moov = (GF_MovieBox *)a;</span>
+<span class="lineNum">     226 </span>            :                         /*set our pointer to the movie*/
+<span class="lineNum">     227 </span><span class="lineCov">       3543 :                         mov-&gt;moov-&gt;mov = mov;</span>
+<span class="lineNum">     228 </span>            : #ifndef GPAC_DISABLE_ISOM_FRAGMENTS
+<span class="lineNum">     229 </span><span class="lineCov">       3551 :                         if (mov-&gt;moov-&gt;mvex) mov-&gt;moov-&gt;mvex-&gt;mov = mov;</span>
+<span class="lineNum">     230 </span>            : #endif
+<span class="lineNum">     231 </span><span class="lineCov">       3543 :                         e = gf_list_add(mov-&gt;TopBoxes, a);</span>
+<span class="lineNum">     232 </span><span class="lineCov">       3543 :                         if (e) return e;</span>
+<span class="lineNum">     233 </span>            :                         
+<span class="lineNum">     234 </span><span class="lineCov">       3543 :                         totSize += a-&gt;size;</span>
+<span class="lineNum">     235 </span><span class="lineCov">       3543 :                         break;</span>
+<span class="lineNum">     236 </span>            : 
+<span class="lineNum">     237 </span>            :                 /*META box*/
+<span class="lineNum">     238 </span>            :                 case GF_ISOM_BOX_TYPE_META:
+<span class="lineNum">     239 </span><span class="lineCov">         18 :                         if (mov-&gt;meta) {</span>
+<span class="lineNum">     240 </span><span class="lineNoCov">          0 :                                 GF_LOG(GF_LOG_ERROR, GF_LOG_CONTAINER, (&quot;[iso file] Duplicate META detected!\n&quot;));</span>
+<span class="lineNum">     241 </span><span class="lineNoCov">          0 :                                 return GF_ISOM_INVALID_FILE;</span>
+<span class="lineNum">     242 </span>            :                         }
+<span class="lineNum">     243 </span><span class="lineCov">         18 :                         mov-&gt;meta = (GF_MetaBox *)a;</span>
+<span class="lineNum">     244 </span><span class="lineCov">         18 :                         e = gf_list_add(mov-&gt;TopBoxes, a);</span>
+<span class="lineNum">     245 </span><span class="lineCov">         18 :                         if (e) {</span>
+<span class="lineNum">     246 </span><span class="lineNoCov">          0 :                                 return e;</span>
+<span class="lineNum">     247 </span>            :                         }
+<span class="lineNum">     248 </span><span class="lineCov">         18 :                         totSize += a-&gt;size;</span>
+<span class="lineNum">     249 </span><span class="lineCov">         18 :                         break;</span>
+<span class="lineNum">     250 </span>            : 
+<span class="lineNum">     251 </span>            :                 /*we only keep the MDAT in READ for dump purposes*/
+<span class="lineNum">     252 </span>            :                 case GF_ISOM_BOX_TYPE_MDAT:
+<span class="lineNum">     253 </span><span class="lineCov">       3539 :                         totSize += a-&gt;size;</span>
+<span class="lineNum">     254 </span><span class="lineCov">       7078 :                         if (mov-&gt;openMode == GF_ISOM_OPEN_READ) {</span>
+<span class="lineNum">     255 </span><span class="lineCov">       6981 :                                 if (!mov-&gt;mdat) {</span>
+<span class="lineNum">     256 </span><span class="lineCov">       3436 :                                         mov-&gt;mdat = (GF_MediaDataBox *) a;</span>
+<span class="lineNum">     257 </span><span class="lineCov">       3436 :                                         e = gf_list_add(mov-&gt;TopBoxes, mov-&gt;mdat);</span>
+<span class="lineNum">     258 </span><span class="lineCov">       3436 :                                         if (e) {</span>
+<span class="lineNum">     259 </span><span class="lineNoCov">          0 :                                                 return e;</span>
+<span class="lineNum">     260 </span>            :                                         }
+<span class="lineNum">     261 </span>            :                                 }
+<span class="lineNum">     262 </span>            : #ifndef GPAC_DISABLE_ISOM_FRAGMENTS
+<span class="lineNum">     263 </span><span class="lineCov">         10 :                                 else if (mov-&gt;FragmentsFlags &amp; GF_ISOM_FRAG_READ_DEBUG) gf_list_add(mov-&gt;TopBoxes, a);</span>
+<span class="lineNum">     264 </span>            : #endif
+<span class="lineNum">     265 </span><span class="lineCov">          2 :                                 else gf_isom_box_del(a);</span>
+<span class="lineNum">     266 </span>            :                         }
+<span class="lineNum">     267 </span>            :                         /*if we don't have any MDAT yet, create one (edit-write mode)
+<span class="lineNum">     268 </span>            :                         We only work with one mdat, but we're puting it at the place
+<span class="lineNum">     269 </span>            :                         of the first mdat found when opening a file for editing*/
+<span class="lineNum">     270 </span><span class="lineCov">        291 :                         else if (!mov-&gt;mdat &amp;&amp; (mov-&gt;openMode != GF_ISOM_OPEN_READ) &amp;&amp; (mov-&gt;openMode != GF_ISOM_OPEN_CAT_FRAGMENTS)) {</span>
+<span class="lineNum">     271 </span><span class="lineCov">         97 :                                 gf_isom_box_del(a);</span>
+<span class="lineNum">     272 </span><span class="lineCov">         97 :                                 mov-&gt;mdat = (GF_MediaDataBox *) gf_isom_box_new(GF_ISOM_BOX_TYPE_MDAT);</span>
+<span class="lineNum">     273 </span><span class="lineCov">         97 :                                 e = gf_list_add(mov-&gt;TopBoxes, mov-&gt;mdat);</span>
+<span class="lineNum">     274 </span><span class="lineCov">         97 :                                 if (e) {</span>
+<span class="lineNum">     275 </span><span class="lineNoCov">          0 :                                         return e;</span>
+<span class="lineNum">     276 </span>            :                                 }
+<span class="lineNum">     277 </span>            :                         } else {
+<span class="lineNum">     278 </span><span class="lineNoCov">          0 :                                 gf_isom_box_del(a);</span>
+<span class="lineNum">     279 </span>            :                         }
+<span class="lineNum">     280 </span>            :                         break;
+<span class="lineNum">     281 </span>            :                 case GF_ISOM_BOX_TYPE_FTYP:
+<span class="lineNum">     282 </span>            :                         /*ONE AND ONLY ONE FTYP*/
+<span class="lineNum">     283 </span><span class="lineCov">       3545 :                         if (mov-&gt;brand) {</span>
+<span class="lineNum">     284 </span><span class="lineNoCov">          0 :                                 gf_isom_box_del(a);</span>
+<span class="lineNum">     285 </span><span class="lineNoCov">          0 :                                 GF_LOG(GF_LOG_ERROR, GF_LOG_CONTAINER, (&quot;[iso file] Duplicate FTYP detected!\n&quot;));</span>
+<span class="lineNum">     286 </span><span class="lineNoCov">          0 :                                 return GF_ISOM_INVALID_FILE;</span>
+<span class="lineNum">     287 </span>            :                         }
+<span class="lineNum">     288 </span><span class="lineCov">       3545 :                         mov-&gt;brand = (GF_FileTypeBox *)a;</span>
+<span class="lineNum">     289 </span><span class="lineCov">       3545 :                         totSize += a-&gt;size;</span>
+<span class="lineNum">     290 </span><span class="lineCov">       3545 :                         e = gf_list_add(mov-&gt;TopBoxes, a);</span>
+<span class="lineNum">     291 </span><span class="lineCov">       3545 :                         if (e) return e;</span>
+<span class="lineNum">     292 </span>            :                         break;
+<span class="lineNum">     293 </span>            : 
+<span class="lineNum">     294 </span>            :                 case GF_ISOM_BOX_TYPE_PDIN:
+<span class="lineNum">     295 </span>            :                         /*ONE AND ONLY ONE PDIN*/
+<span class="lineNum">     296 </span><span class="lineNoCov">          0 :                         if (mov-&gt;pdin) {</span>
+<span class="lineNum">     297 </span><span class="lineNoCov">          0 :                                 gf_isom_box_del(a);</span>
+<span class="lineNum">     298 </span><span class="lineNoCov">          0 :                                 GF_LOG(GF_LOG_ERROR, GF_LOG_CONTAINER, (&quot;[iso file] Duplicate PDIN detected!\n&quot;));</span>
+<span class="lineNum">     299 </span><span class="lineNoCov">          0 :                                 return GF_ISOM_INVALID_FILE;</span>
+<span class="lineNum">     300 </span>            :                         }
+<span class="lineNum">     301 </span><span class="lineNoCov">          0 :                         mov-&gt;pdin = (GF_ProgressiveDownloadBox *) a;</span>
+<span class="lineNum">     302 </span><span class="lineNoCov">          0 :                         totSize += a-&gt;size;</span>
+<span class="lineNum">     303 </span><span class="lineNoCov">          0 :                         e = gf_list_add(mov-&gt;TopBoxes, a);</span>
+<span class="lineNum">     304 </span><span class="lineNoCov">          0 :                         if (e) return e;</span>
+<span class="lineNum">     305 </span>            :                         break;
+<span class="lineNum">     306 </span>            : 
+<span class="lineNum">     307 </span>            : 
+<span class="lineNum">     308 </span>            : #ifndef GPAC_DISABLE_ISOM_FRAGMENTS
+<span class="lineNum">     309 </span>            :                 case GF_ISOM_BOX_TYPE_STYP:
+<span class="lineNum">     310 </span>            :                 {
+<span class="lineNum">     311 </span><span class="lineNoCov">          0 :                         u32 brand = ((GF_SegmentTypeBox *)a)-&gt;majorBrand;</span>
+<span class="lineNum">     312 </span><span class="lineNoCov">          0 :                         switch (brand) {</span>
+<span class="lineNum">     313 </span>            :                         case GF_4CC('s', 'i', 's', 'x'):
+<span class="lineNum">     314 </span>            :                         case GF_4CC('r', 'i', 's', 'x'):
+<span class="lineNum">     315 </span>            :                         case GF_4CC('s', 's', 's', 's'):
+<span class="lineNum">     316 </span><span class="lineNoCov">          0 :                                 mov-&gt;is_index_segment = GF_TRUE;</span>
+<span class="lineNum">     317 </span><span class="lineNoCov">          0 :                                 break;</span>
+<span class="lineNum">     318 </span>            :                         default:
+<span class="lineNum">     319 </span>            :                                 break;
+<span class="lineNum">     320 </span>            :                         }
+<span class="lineNum">     321 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     322 </span>            :                 /*fall-through*/
+<span class="lineNum">     323 </span>            : 
+<span class="lineNum">     324 </span>            :                 case GF_ISOM_BOX_TYPE_SIDX:
+<span class="lineNum">     325 </span><span class="lineNoCov">          0 :                         totSize += a-&gt;size;</span>
+<span class="lineNum">     326 </span><span class="lineNoCov">          0 :                         if (mov-&gt;FragmentsFlags &amp; GF_ISOM_FRAG_READ_DEBUG) {</span>
+<span class="lineNum">     327 </span><span class="lineNoCov">          0 :                                 e = gf_list_add(mov-&gt;TopBoxes, a);</span>
+<span class="lineNum">     328 </span><span class="lineNoCov">          0 :                                 if (e) return e;</span>
+<span class="lineNum">     329 </span>            :                         } else {
+<span class="lineNum">     330 </span><span class="lineNoCov">          0 :                                 gf_isom_box_del(a);</span>
+<span class="lineNum">     331 </span>            :                         }
+<span class="lineNum">     332 </span>            :                         break;
+<span class="lineNum">     333 </span>            : 
+<span class="lineNum">     334 </span>            :                 case GF_ISOM_BOX_TYPE_MOOF:
+<span class="lineNum">     335 </span><span class="lineCov">          9 :                         if (!mov-&gt;moov) {</span>
+<span class="lineNum">     336 </span><span class="lineNoCov">          0 :                                 GF_LOG(GF_LOG_WARNING, GF_LOG_CONTAINER, (&quot;[iso file] Movie fragment but no moov (yet) - possibly broken parsing!\n&quot;));</span>
+<span class="lineNum">     337 </span>            :                         }
+<span class="lineNum">     338 </span><span class="lineCov">          9 :                         if (mov-&gt;single_moof_mode) {</span>
+<span class="lineNum">     339 </span><span class="lineNoCov">          0 :                                 mov-&gt;single_moof_state++;</span>
+<span class="lineNum">     340 </span><span class="lineNoCov">          0 :                                 if (mov-&gt;single_moof_state &gt; 1) {</span>
+<span class="lineNum">     341 </span><span class="lineNoCov">          0 :                                         gf_isom_box_del(a);</span>
+<span class="lineNum">     342 </span><span class="lineNoCov">          0 :                                         return GF_OK;</span>
+<span class="lineNum">     343 </span>            :                                 }
+<span class="lineNum">     344 </span>            :                         }
+<span class="lineNum">     345 </span><span class="lineCov">          9 :                         ((GF_MovieFragmentBox *)a)-&gt;mov = mov;</span>
+<span class="lineNum">     346 </span>            : 
+<span class="lineNum">     347 </span><span class="lineCov">          9 :                         totSize += a-&gt;size;</span>
+<span class="lineNum">     348 </span><span class="lineCov">          9 :                         mov-&gt;moof = (GF_MovieFragmentBox *) a;</span>
+<span class="lineNum">     349 </span>            : 
+<span class="lineNum">     350 </span>            :                         /*some smooth streaming streams contain a SDTP under the TRAF: this is incorrect, convert it*/
+<span class="lineNum">     351 </span><span class="lineCov">          9 :                         FixTrackID(mov);</span>
+<span class="lineNum">     352 </span><span class="lineCov">          9 :                         FixSDTPInTRAF(mov-&gt;moof);</span>
+<span class="lineNum">     353 </span>            : 
+<span class="lineNum">     354 </span>            :                         /*read &amp; debug: store at root level*/
+<span class="lineNum">     355 </span><span class="lineCov">          9 :                         if (mov-&gt;FragmentsFlags &amp; GF_ISOM_FRAG_READ_DEBUG) {</span>
+<span class="lineNum">     356 </span>            :                                 u32 k;
+<span class="lineNum">     357 </span><span class="lineCov">          6 :                                 gf_list_add(mov-&gt;TopBoxes, a);</span>
+<span class="lineNum">     358 </span>            :                                 /*also update pointers to trex for debug*/
+<span class="lineNum">     359 </span><span class="lineCov">          6 :                                 if (mov-&gt;moov) {</span>
+<span class="lineNum">     360 </span><span class="lineCov">         24 :                                         for (k=0; k&lt;gf_list_count(mov-&gt;moof-&gt;TrackList); k++) {</span>
+<span class="lineNum">     361 </span><span class="lineCov">          6 :                                                 GF_TrackFragmentBox *traf = gf_list_get(mov-&gt;moof-&gt;TrackList, k);</span>
+<span class="lineNum">     362 </span><span class="lineCov">          6 :                                                 if (traf-&gt;tfhd) {</span>
+<span class="lineNum">     363 </span><span class="lineCov">          6 :                                                         GF_TrackBox *trak = gf_isom_get_track_from_id(mov-&gt;moov, traf-&gt;tfhd-&gt;trackID);</span>
+<span class="lineNum">     364 </span><span class="lineCov">          6 :                                                         u32 j=0;</span>
+<span class="lineNum">     365 </span><span class="lineCov">         24 :                                                         while ((traf-&gt;trex = (GF_TrackExtendsBox*)gf_list_enum(mov-&gt;moov-&gt;mvex-&gt;TrackExList, &amp;j))) {</span>
+<span class="lineNum">     366 </span><span class="lineCov">         12 :                                                                 if (traf-&gt;trex-&gt;trackID == traf-&gt;tfhd-&gt;trackID) {</span>
+<span class="lineNum">     367 </span><span class="lineCov">         12 :                                                                         if (!traf-&gt;trex-&gt;track) traf-&gt;trex-&gt;track = trak;</span>
+<span class="lineNum">     368 </span>            :                                                                         break;
+<span class="lineNum">     369 </span>            :                                                                 }
+<span class="lineNum">     370 </span><span class="lineCov">          6 :                                                                 traf-&gt;trex = NULL;</span>
+<span class="lineNum">     371 </span>            :                                                         }
+<span class="lineNum">     372 </span><span class="lineCov">          6 :                                                 }</span>
+<span class="lineNum">     373 </span>            :                                                 //we should only parse senc/psec when no saiz/saio is present, otherwise we fetch the info directly
+<span class="lineNum">     374 </span><span class="lineCov">         24 :                                                 if (traf-&gt;trex &amp;&amp; traf-&gt;trex-&gt;track &amp;&amp; (traf-&gt;piff_sample_encryption || traf-&gt;sample_encryption)) {</span>
+<span class="lineNum">     375 </span><span class="lineNoCov">          0 :                                                         GF_TrackBox *trak = GetTrackbyID(mov-&gt;moov, traf-&gt;tfhd-&gt;trackID);</span>
+<span class="lineNum">     376 </span><span class="lineNoCov">          0 :                                                         e = senc_Parse(mov-&gt;movieFileMap-&gt;bs, trak, traf, traf-&gt;piff_sample_encryption ? (GF_SampleEncryptionBox *) traf-&gt;piff_sample_encryption : traf-&gt;sample_encryption);</span>
+<span class="lineNum">     377 </span><span class="lineNoCov">          0 :                                                         if (e) return e;</span>
+<span class="lineNum">     378 </span><span class="lineNoCov">          0 :                                                 }</span>
+<span class="lineNum">     379 </span><span class="lineCov">          6 :                                         }</span>
+<span class="lineNum">     380 </span>            :                                 }
+<span class="lineNum">     381 </span><span class="lineCov">          9 :                         } else if (mov-&gt;openMode==GF_ISOM_OPEN_CAT_FRAGMENTS) {</span>
+<span class="lineNum">     382 </span><span class="lineNoCov">          0 :                                 mov-&gt;NextMoofNumber = mov-&gt;moof-&gt;mfhd-&gt;sequence_number+1;</span>
+<span class="lineNum">     383 </span><span class="lineNoCov">          0 :                                 mov-&gt;moof = NULL;</span>
+<span class="lineNum">     384 </span><span class="lineNoCov">          0 :                                 gf_isom_box_del(a);</span>
+<span class="lineNum">     385 </span><span class="lineNoCov">          0 :                         } else {</span>
+<span class="lineNum">     386 </span>            :                                 /*merge all info*/
+<span class="lineNum">     387 </span><span class="lineCov">          3 :                                 e = MergeFragment((GF_MovieFragmentBox *)a, mov);</span>
+<span class="lineNum">     388 </span><span class="lineCov">          3 :                                 if (e) return e;</span>
+<span class="lineNum">     389 </span><span class="lineCov">          3 :                                 gf_isom_box_del(a);</span>
+<span class="lineNum">     390 </span>            :                         }
+<span class="lineNum">     391 </span>            :                         break;
+<span class="lineNum">     392 </span>            : #endif
+<span class="lineNum">     393 </span>            :                 case GF_ISOM_BOX_TYPE_UNKNOWN:
+<span class="lineNum">     394 </span>            :                 {
+<span class="lineNum">     395 </span><span class="lineNoCov">          0 :                         GF_UnknownBox *box = (GF_UnknownBox*)a;</span>
+<span class="lineNum">     396 </span><span class="lineNoCov">          0 :                         if (box-&gt;original_4cc == GF_4CC('j','P',' ',' ')) {</span>
+<span class="lineNum">     397 </span><span class="lineNoCov">          0 :                                 u8 *c = (u8 *) box-&gt;data;</span>
+<span class="lineNum">     398 </span><span class="lineNoCov">          0 :                                 if ((box-&gt;dataSize==4) &amp;&amp; (GF_4CC(c[0],c[1],c[2],c[3])==(u32)0x0D0A870A))</span>
+<span class="lineNum">     399 </span><span class="lineNoCov">          0 :                                         mov-&gt;is_jp2 = 1;</span>
+<span class="lineNum">     400 </span><span class="lineNoCov">          0 :                                 gf_isom_box_del(a);</span>
+<span class="lineNum">     401 </span><span class="lineNoCov">          0 :                         } else {</span>
+<span class="lineNum">     402 </span><span class="lineNoCov">          0 :                                 e = gf_list_add(mov-&gt;TopBoxes, a);</span>
+<span class="lineNum">     403 </span><span class="lineNoCov">          0 :                                 if (e) return e;</span>
+<span class="lineNum">     404 </span>            :                         }
+<span class="lineNum">     405 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     406 </span>            :                 break;
+<span class="lineNum">     407 </span>            : 
+<span class="lineNum">     408 </span>            :                 case GF_ISOM_BOX_TYPE_PRFT:
+<span class="lineNum">     409 </span>            : #ifndef GPAC_DISABLE_ISOM_FRAGMENTS
+<span class="lineNum">     410 </span><span class="lineNoCov">          0 :                         if (!(mov-&gt;FragmentsFlags &amp; GF_ISOM_FRAG_READ_DEBUG)) {</span>
+<span class="lineNum">     411 </span>            :                                 //keep the last one read
+<span class="lineNum">     412 </span><span class="lineNoCov">          0 :                                 if (mov-&gt;last_producer_ref_time)</span>
+<span class="lineNum">     413 </span><span class="lineNoCov">          0 :                                         gf_isom_box_del(a);</span>
+<span class="lineNum">     414 </span>            :                                 else
+<span class="lineNum">     415 </span><span class="lineNoCov">          0 :                                         mov-&gt;last_producer_ref_time = (GF_ProducerReferenceTimeBox *)a;</span>
+<span class="lineNum">     416 </span>            :                                 break;
+<span class="lineNum">     417 </span>            :                         }
+<span class="lineNum">     418 </span>            : #endif
+<span class="lineNum">     419 </span>            :                 //fallthrough
+<span class="lineNum">     420 </span>            : 
+<span class="lineNum">     421 </span>            :                 default:
+<span class="lineNum">     422 </span><span class="lineCov">       3561 :                         totSize += a-&gt;size;</span>
+<span class="lineNum">     423 </span><span class="lineCov">       3561 :                         e = gf_list_add(mov-&gt;TopBoxes, a);</span>
+<span class="lineNum">     424 </span><span class="lineCov">       3561 :                         if (e) return e;</span>
+<span class="lineNum">     425 </span>            :                         break;
+<span class="lineNum">     426 </span>            :                 }
+<span class="lineNum">     427 </span>            : 
+<span class="lineNum">     428 </span>            : #ifndef GPAC_DISABLE_ISOM_FRAGMENTS
+<span class="lineNum">     429 </span>            :                 /*remember where we left, in case we append an entire number of movie fragments*/
+<span class="lineNum">     430 </span><span class="lineCov">      14215 :                 mov-&gt;current_top_box_start = gf_bs_get_position(mov-&gt;movieFileMap-&gt;bs);</span>
+<span class="lineNum">     431 </span>            : #endif
+<span class="lineNum">     432 </span>            :         }
+<span class="lineNum">     433 </span>            : 
+<span class="lineNum">     434 </span>            :         /*we need at least moov or meta*/
+<span class="lineNum">     435 </span><span class="lineCov">       3544 :         if (!mov-&gt;moov &amp;&amp; !mov-&gt;meta</span>
+<span class="lineNum">     436 </span>            : #ifndef GPAC_DISABLE_ISOM_FRAGMENTS
+<span class="lineNum">     437 </span><span class="lineCov">          2 :                 &amp;&amp; !mov-&gt;moof &amp;&amp; !mov-&gt;is_index_segment</span>
+<span class="lineNum">     438 </span>            : #endif
+<span class="lineNum">     439 </span>            :            ) {
+<span class="lineNum">     440 </span><span class="lineNoCov">          0 :                 return GF_ISOM_INCOMPLETE_FILE;</span>
+<span class="lineNum">     441 </span>            :         }
+<span class="lineNum">     442 </span>            :         /*we MUST have movie header*/
+<span class="lineNum">     443 </span><span class="lineCov">       7082 :         if (mov-&gt;moov &amp;&amp; !mov-&gt;moov-&gt;mvhd) {</span>
+<span class="lineNum">     444 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_CONTAINER, (&quot;[iso file] Missing MVHD in MOOV!\n&quot;));</span>
+<span class="lineNum">     445 </span><span class="lineNoCov">          0 :                 return GF_ISOM_INVALID_FILE;</span>
+<span class="lineNum">     446 </span>            :         }
+<span class="lineNum">     447 </span>            :         /*we MUST have meta handler*/
+<span class="lineNum">     448 </span><span class="lineCov">       3560 :         if (mov-&gt;meta &amp;&amp; !mov-&gt;meta-&gt;handler) {</span>
+<span class="lineNum">     449 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_CONTAINER, (&quot;[iso file] Missing handler in META!\n&quot;));</span>
+<span class="lineNum">     450 </span><span class="lineNoCov">          0 :                 return GF_ISOM_INVALID_FILE;</span>
+<span class="lineNum">     451 </span>            :         }
+<span class="lineNum">     452 </span>            : 
+<span class="lineNum">     453 </span>            : #ifndef GPAC_DISABLE_ISOM_WRITE
+<span class="lineNum">     454 </span>            : 
+<span class="lineNum">     455 </span><span class="lineCov">       3542 :         if (mov-&gt;moov) {</span>
+<span class="lineNum">     456 </span>            :                 /*set the default interleaving time*/
+<span class="lineNum">     457 </span><span class="lineCov">       3540 :                 mov-&gt;interleavingTime = mov-&gt;moov-&gt;mvhd-&gt;timeScale;</span>
+<span class="lineNum">     458 </span>            : 
+<span class="lineNum">     459 </span>            : #ifndef GPAC_DISABLE_ISOM_FRAGMENTS
+<span class="lineNum">     460 </span>            :                 /*in edit mode with successfully loaded fragments, delete all fragment signaling since
+<span class="lineNum">     461 </span>            :                 file is no longer fragmented*/
+<span class="lineNum">     462 </span><span class="lineCov">       3734 :                 if ((mov-&gt;openMode &gt; GF_ISOM_OPEN_READ) &amp;&amp; (mov-&gt;openMode != GF_ISOM_OPEN_CAT_FRAGMENTS) &amp;&amp; mov-&gt;moov-&gt;mvex) {</span>
+<span class="lineNum">     463 </span><span class="lineNoCov">          0 :                         gf_isom_box_del((GF_Box *)mov-&gt;moov-&gt;mvex);</span>
+<span class="lineNum">     464 </span><span class="lineNoCov">          0 :                         mov-&gt;moov-&gt;mvex = NULL;</span>
+<span class="lineNum">     465 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     466 </span>            : #endif
+<span class="lineNum">     467 </span>            : 
+<span class="lineNum">     468 </span>            :         }
+<span class="lineNum">     469 </span>            : 
+<span class="lineNum">     470 </span>            :         //create a default mdat if none was found
+<span class="lineNum">     471 </span><span class="lineCov">       3554 :         if (!mov-&gt;mdat &amp;&amp; (mov-&gt;openMode != GF_ISOM_OPEN_READ) &amp;&amp; (mov-&gt;openMode != GF_ISOM_OPEN_CAT_FRAGMENTS)) {</span>
+<span class="lineNum">     472 </span><span class="lineNoCov">          0 :                 mov-&gt;mdat = (GF_MediaDataBox *) gf_isom_box_new(GF_ISOM_BOX_TYPE_MDAT);</span>
+<span class="lineNum">     473 </span><span class="lineNoCov">          0 :                 e = gf_list_add(mov-&gt;TopBoxes, mov-&gt;mdat);</span>
+<span class="lineNum">     474 </span><span class="lineNoCov">          0 :                 if (e) return e;</span>
+<span class="lineNum">     475 </span>            :         }
+<span class="lineNum">     476 </span>            : #endif /*GPAC_DISABLE_ISOM_WRITE*/
+<span class="lineNum">     477 </span>            : 
+<span class="lineNum">     478 </span><span class="lineCov">       3542 :         return GF_OK;</span>
+<a name="479"><span class="lineNum">     479 </span><span class="lineCov">       3545 : }</span></a>
+<span class="lineNum">     480 </span>            : 
+<span class="lineNum">     481 </span>            : GF_ISOFile *gf_isom_new_movie()
+<span class="lineNum">     482 </span>            : {
+<span class="lineNum">     483 </span><span class="lineCov">       9798 :         GF_ISOFile *mov = (GF_ISOFile*)gf_malloc(sizeof(GF_ISOFile));</span>
+<span class="lineNum">     484 </span><span class="lineCov">       4899 :         if (mov == NULL) {</span>
+<span class="lineNum">     485 </span><span class="lineNoCov">          0 :                 gf_isom_set_last_error(NULL, GF_OUT_OF_MEM);</span>
+<span class="lineNum">     486 </span><span class="lineNoCov">          0 :                 return NULL;</span>
+<span class="lineNum">     487 </span>            :         }
+<span class="lineNum">     488 </span><span class="lineCov">       4899 :         memset(mov, 0, sizeof(GF_ISOFile));</span>
+<span class="lineNum">     489 </span>            : 
+<span class="lineNum">     490 </span>            :         /*init the boxes*/
+<span class="lineNum">     491 </span><span class="lineCov">       4899 :         mov-&gt;TopBoxes = gf_list_new();</span>
+<span class="lineNum">     492 </span><span class="lineCov">       4899 :         if (!mov-&gt;TopBoxes) {</span>
+<span class="lineNum">     493 </span><span class="lineNoCov">          0 :                 gf_isom_set_last_error(NULL, GF_OUT_OF_MEM);</span>
+<span class="lineNum">     494 </span><span class="lineNoCov">          0 :                 gf_free(mov);</span>
+<span class="lineNum">     495 </span><span class="lineNoCov">          0 :                 return NULL;</span>
+<span class="lineNum">     496 </span>            :         }
+<span class="lineNum">     497 </span>            : 
+<span class="lineNum">     498 </span>            :         /*default storage mode is flat*/
+<span class="lineNum">     499 </span><span class="lineCov">       4899 :         mov-&gt;storageMode = GF_ISOM_STORE_FLAT;</span>
+<span class="lineNum">     500 </span><span class="lineCov">       4899 :         return mov;</span>
+<span class="lineNum">     501 </span><span class="lineCov">       4899 : }</span>
+<a name="502"><span class="lineNum">     502 </span>            : </a>
+<span class="lineNum">     503 </span>            : //Create and parse the movie for READ - EDIT only
+<span class="lineNum">     504 </span>            : GF_ISOFile *gf_isom_open_file(const char *fileName, u32 OpenMode, const char *tmp_dir)
+<span class="lineNum">     505 </span>            : {
+<span class="lineNum">     506 </span>            :         GF_Err e;
+<span class="lineNum">     507 </span><span class="lineCov">       7390 :         u64 bytes;</span>
+<span class="lineNum">     508 </span><span class="lineCov">       3695 :         GF_ISOFile *mov = gf_isom_new_movie();</span>
+<span class="lineNum">     509 </span><span class="lineCov">       3695 :         if (! mov) return NULL;</span>
+<span class="lineNum">     510 </span>            : 
+<span class="lineNum">     511 </span><span class="lineCov">       3695 :         mov-&gt;fileName = gf_strdup(fileName);</span>
+<span class="lineNum">     512 </span><span class="lineCov">       3695 :         mov-&gt;openMode = OpenMode;</span>
+<span class="lineNum">     513 </span>            : 
+<span class="lineNum">     514 </span><span class="lineCov">       3695 :         if ( (OpenMode == GF_ISOM_OPEN_READ) || (OpenMode == GF_ISOM_OPEN_READ_DUMP) ) {</span>
+<span class="lineNum">     515 </span>            :                 //always in read ...
+<span class="lineNum">     516 </span><span class="lineCov">       3564 :                 mov-&gt;openMode = GF_ISOM_OPEN_READ;</span>
+<span class="lineNum">     517 </span><span class="lineCov">       3564 :                 mov-&gt;es_id_default_sync = -1;</span>
+<span class="lineNum">     518 </span><span class="lineCov">       3564 :                 mov-&gt;is_dump_mode = 1;</span>
+<span class="lineNum">     519 </span>            :                 //for open, we do it the regular way and let the GF_DataMap assign the appropriate struct
+<span class="lineNum">     520 </span>            :                 //this can be FILE (the only one supported...) as well as remote
+<span class="lineNum">     521 </span>            :                 //(HTTP, ...),not suported yet
+<span class="lineNum">     522 </span>            :                 //the bitstream IS PART OF the GF_DataMap
+<span class="lineNum">     523 </span>            :                 //as this is read-only, use a FileMapping. this is the only place where
+<span class="lineNum">     524 </span>            :                 //we use file mapping
+<span class="lineNum">     525 </span><span class="lineCov">       3564 :                 e = gf_isom_datamap_new(fileName, NULL, GF_ISOM_DATA_MAP_READ_ONLY, &amp;mov-&gt;movieFileMap);</span>
+<span class="lineNum">     526 </span><span class="lineCov">       3564 :                 if (e) {</span>
+<span class="lineNum">     527 </span><span class="lineCov">        116 :                         gf_isom_set_last_error(NULL, e);</span>
+<span class="lineNum">     528 </span><span class="lineCov">        116 :                         gf_isom_delete_movie(mov);</span>
+<span class="lineNum">     529 </span><span class="lineCov">        116 :                         return NULL;</span>
+<span class="lineNum">     530 </span>            :                 }
+<span class="lineNum">     531 </span>            : 
+<span class="lineNum">     532 </span>            : #ifndef GPAC_DISABLE_ISOM_FRAGMENTS
+<span class="lineNum">     533 </span><span class="lineCov">       3555 :                 if (OpenMode == GF_ISOM_OPEN_READ_DUMP) mov-&gt;FragmentsFlags |= GF_ISOM_FRAG_READ_DEBUG;</span>
+<span class="lineNum">     534 </span>            : #endif
+<span class="lineNum">     535 </span>            : 
+<span class="lineNum">     536 </span>            :         } else {
+<span class="lineNum">     537 </span>            : 
+<span class="lineNum">     538 </span>            : #ifdef GPAC_DISABLE_ISOM_WRITE
+<span class="lineNum">     539 </span>            :                 //not allowed for READ_ONLY lib
+<span class="lineNum">     540 </span>            :                 gf_isom_delete_movie(mov);
+<span class="lineNum">     541 </span>            :                 gf_isom_set_last_error(NULL, GF_ISOM_INVALID_MODE);
+<span class="lineNum">     542 </span>            :                 return NULL;
+<span class="lineNum">     543 </span>            : 
+<span class="lineNum">     544 </span>            : #else
+<span class="lineNum">     545 </span>            : 
+<span class="lineNum">     546 </span>            :                 //set a default output name for edited file
+<span class="lineNum">     547 </span><span class="lineCov">        131 :                 mov-&gt;finalName = (char*)gf_malloc(strlen(fileName) + 5);</span>
+<span class="lineNum">     548 </span><span class="lineCov">        131 :                 if (!mov-&gt;finalName) {</span>
+<span class="lineNum">     549 </span><span class="lineNoCov">          0 :                         gf_isom_set_last_error(NULL, GF_OUT_OF_MEM);</span>
+<span class="lineNum">     550 </span><span class="lineNoCov">          0 :                         gf_isom_delete_movie(mov);</span>
+<span class="lineNum">     551 </span><span class="lineNoCov">          0 :                         return NULL;</span>
+<span class="lineNum">     552 </span>            :                 }
+<span class="lineNum">     553 </span><span class="lineCov">        131 :                 strcpy(mov-&gt;finalName, &quot;out_&quot;);</span>
+<span class="lineNum">     554 </span><span class="lineCov">        131 :                 strcat(mov-&gt;finalName, fileName);</span>
+<span class="lineNum">     555 </span>            : 
+<span class="lineNum">     556 </span>            :                 //open the original file with edit tag
+<span class="lineNum">     557 </span><span class="lineCov">        131 :                 e = gf_isom_datamap_new(fileName, NULL, GF_ISOM_DATA_MAP_EDIT, &amp;mov-&gt;movieFileMap);</span>
+<span class="lineNum">     558 </span>            :                 //if the file doesn't exist, we assume it's wanted and create one from scratch
+<span class="lineNum">     559 </span><span class="lineCov">        131 :                 if (e) {</span>
+<span class="lineNum">     560 </span><span class="lineCov">         34 :                         gf_isom_set_last_error(NULL, e);</span>
+<span class="lineNum">     561 </span><span class="lineCov">         34 :                         gf_isom_delete_movie(mov);</span>
+<span class="lineNum">     562 </span><span class="lineCov">         34 :                         return NULL;</span>
+<span class="lineNum">     563 </span>            :                 }
+<span class="lineNum">     564 </span>            :                 //and create a temp fileName for the edit
+<span class="lineNum">     565 </span><span class="lineCov">         97 :                 e = gf_isom_datamap_new(&quot;mp4_tmp_edit&quot;, tmp_dir, GF_ISOM_DATA_MAP_WRITE, &amp; mov-&gt;editFileMap);</span>
+<span class="lineNum">     566 </span><span class="lineCov">         97 :                 if (e) {</span>
+<span class="lineNum">     567 </span><span class="lineNoCov">          0 :                         gf_isom_set_last_error(NULL, e);</span>
+<span class="lineNum">     568 </span><span class="lineNoCov">          0 :                         gf_isom_delete_movie(mov);</span>
+<span class="lineNum">     569 </span><span class="lineNoCov">          0 :                         return NULL;</span>
+<span class="lineNum">     570 </span>            :                 }
+<span class="lineNum">     571 </span>            : 
+<span class="lineNum">     572 </span><span class="lineCov">         97 :                 mov-&gt;es_id_default_sync = -1;</span>
+<span class="lineNum">     573 </span>            : 
+<span class="lineNum">     574 </span>            : #endif
+<span class="lineNum">     575 </span>            :         }
+<span class="lineNum">     576 </span>            : 
+<span class="lineNum">     577 </span>            :         //OK, let's parse the movie...
+<span class="lineNum">     578 </span><span class="lineCov">       3545 :         mov-&gt;LastError = gf_isom_parse_movie_boxes(mov, &amp;bytes, 0);</span>
+<span class="lineNum">     579 </span>            : 
+<span class="lineNum">     580 </span><span class="lineCov">       3545 :         if (!mov-&gt;LastError &amp;&amp; (OpenMode == GF_ISOM_OPEN_CAT_FRAGMENTS)) {</span>
+<span class="lineNum">     581 </span><span class="lineNoCov">          0 :                 gf_isom_datamap_del(mov-&gt;movieFileMap);</span>
+<span class="lineNum">     582 </span>            :                 /*reopen the movie file map in cat mode*/
+<span class="lineNum">     583 </span><span class="lineNoCov">          0 :                 mov-&gt;LastError = gf_isom_datamap_new(fileName, tmp_dir, GF_ISOM_DATA_MAP_CAT, &amp; mov-&gt;movieFileMap);</span>
+<span class="lineNum">     584 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     585 </span><span class="lineCov">       3545 :         if (mov-&gt;LastError) {</span>
+<span class="lineNum">     586 </span><span class="lineCov">          3 :                 gf_isom_set_last_error(NULL, mov-&gt;LastError);</span>
+<span class="lineNum">     587 </span><span class="lineCov">          3 :                 gf_isom_delete_movie(mov);</span>
+<span class="lineNum">     588 </span><span class="lineCov">          3 :                 return NULL;</span>
+<span class="lineNum">     589 </span>            :         }
+<span class="lineNum">     590 </span><span class="lineCov">       3542 :         return mov;</span>
+<span class="lineNum">     591 </span><span class="lineCov">       3695 : }</span>
+<a name="592"><span class="lineNum">     592 </span>            : </a>
+<span class="lineNum">     593 </span>            : 
+<span class="lineNum">     594 </span>            : u64 gf_isom_get_mp4time()
+<span class="lineNum">     595 </span>            : {
+<span class="lineNum">     596 </span><span class="lineCov">     814804 :         u32 calctime, msec;</span>
+<span class="lineNum">     597 </span>            :         u64 ret;
+<span class="lineNum">     598 </span><span class="lineCov">     407402 :         gf_utc_time_since_1970(&amp;calctime, &amp;msec);</span>
+<span class="lineNum">     599 </span><span class="lineCov">     407402 :         calctime += GF_ISOM_MAC_TIME_OFFSET;</span>
+<span class="lineNum">     600 </span><span class="lineCov">     407402 :         ret = calctime;</span>
+<span class="lineNum">     601 </span><span class="lineCov">     407402 :         return ret;</span>
+<a name="602"><span class="lineNum">     602 </span><span class="lineCov">     407402 : }</span></a>
+<span class="lineNum">     603 </span>            : 
+<span class="lineNum">     604 </span>            : void gf_isom_delete_movie(GF_ISOFile *mov)
+<span class="lineNum">     605 </span>            : {
+<span class="lineNum">     606 </span>            :         //these are our two main files
+<span class="lineNum">     607 </span><span class="lineCov">      13343 :         if (mov-&gt;movieFileMap) gf_isom_datamap_del(mov-&gt;movieFileMap);</span>
+<span class="lineNum">     608 </span>            : 
+<span class="lineNum">     609 </span>            : #ifndef GPAC_DISABLE_ISOM_WRITE
+<span class="lineNum">     610 </span><span class="lineCov">       4899 :         if (mov-&gt;editFileMap) {</span>
+<span class="lineNum">     611 </span><span class="lineCov">       1301 :                 gf_isom_datamap_del(mov-&gt;editFileMap);</span>
+<span class="lineNum">     612 </span><span class="lineCov">       1301 :         }</span>
+<span class="lineNum">     613 </span><span class="lineCov">       6220 :         if (mov-&gt;finalName) gf_free(mov-&gt;finalName);</span>
+<span class="lineNum">     614 </span>            : #endif
+<span class="lineNum">     615 </span>            : 
+<span class="lineNum">     616 </span><span class="lineCov">       4899 :         gf_isom_box_array_del(mov-&gt;TopBoxes);</span>
+<span class="lineNum">     617 </span>            : #ifndef GPAC_DISABLE_ISOM_FRAGMENTS
+<span class="lineNum">     618 </span><span class="lineCov">       4899 :         gf_isom_box_array_del(mov-&gt;moof_list);</span>
+<span class="lineNum">     619 </span>            : #endif
+<span class="lineNum">     620 </span><span class="lineCov">       4899 :         if (mov-&gt;last_producer_ref_time)</span>
+<span class="lineNum">     621 </span><span class="lineNoCov">          0 :                 gf_isom_box_del((GF_Box *) mov-&gt;last_producer_ref_time);</span>
+<span class="lineNum">     622 </span><span class="lineCov">       8608 :         if (mov-&gt;fileName) gf_free(mov-&gt;fileName);</span>
+<span class="lineNum">     623 </span><span class="lineCov">       4899 :         gf_free(mov);</span>
+<a name="624"><span class="lineNum">     624 </span><span class="lineCov">       4899 : }</span></a>
+<span class="lineNum">     625 </span>            : 
+<span class="lineNum">     626 </span>            : GF_TrackBox *gf_isom_get_track_from_id(GF_MovieBox *moov, u32 trackID)
+<span class="lineNum">     627 </span>            : {
+<span class="lineNum">     628 </span>            :         u32 i, count;
+<span class="lineNum">     629 </span>            :         GF_TrackBox *trak;
+<span class="lineNum">     630 </span><span class="lineCov">       2304 :         if (!moov || !trackID) return NULL;</span>
+<span class="lineNum">     631 </span>            : 
+<span class="lineNum">     632 </span><span class="lineCov">       1152 :         count = gf_list_count(moov-&gt;trackList);</span>
+<span class="lineNum">     633 </span><span class="lineCov">       6232 :         for (i = 0; i&lt;count; i++) {</span>
+<span class="lineNum">     634 </span><span class="lineCov">       3116 :                 trak = (GF_TrackBox*)gf_list_get(moov-&gt;trackList, i);</span>
+<span class="lineNum">     635 </span><span class="lineCov">       4268 :                 if (trak-&gt;Header-&gt;trackID == trackID) return trak;</span>
+<span class="lineNum">     636 </span>            :         }
+<span class="lineNum">     637 </span><span class="lineNoCov">          0 :         return NULL;</span>
+<a name="638"><span class="lineNum">     638 </span><span class="lineCov">       1152 : }</span></a>
+<span class="lineNum">     639 </span>            : 
+<span class="lineNum">     640 </span>            : GF_TrackBox *gf_isom_get_track_from_original_id(GF_MovieBox *moov, u32 originalID, u32 originalFile)
+<span class="lineNum">     641 </span>            : {
+<span class="lineNum">     642 </span>            :         u32 i, count;
+<span class="lineNum">     643 </span>            :         GF_TrackBox *trak;
+<span class="lineNum">     644 </span><span class="lineCov">         22 :         if (!moov || !originalID) return NULL;</span>
+<span class="lineNum">     645 </span>            : 
+<span class="lineNum">     646 </span><span class="lineCov">         11 :         count = gf_list_count(moov-&gt;trackList);</span>
+<span class="lineNum">     647 </span><span class="lineCov">         24 :         for (i = 0; i&lt;count; i++) {</span>
+<span class="lineNum">     648 </span><span class="lineCov">         12 :                 trak = (GF_TrackBox*)gf_list_get(moov-&gt;trackList, i);</span>
+<span class="lineNum">     649 </span><span class="lineCov">         35 :                 if ((trak-&gt;originalFile == originalFile) &amp;&amp; (trak-&gt;originalID == originalID)) return trak;</span>
+<span class="lineNum">     650 </span>            :         }
+<span class="lineNum">     651 </span><span class="lineNoCov">          0 :         return NULL;</span>
+<a name="652"><span class="lineNum">     652 </span><span class="lineCov">         11 : }</span></a>
+<span class="lineNum">     653 </span>            : 
+<span class="lineNum">     654 </span>            : GF_TrackBox *gf_isom_get_track_from_file(GF_ISOFile *movie, u32 trackNumber)
+<span class="lineNum">     655 </span>            : {
+<span class="lineNum">     656 </span>            :         GF_TrackBox *trak;
+<span class="lineNum">     657 </span><span class="lineCov">    1576272 :         if (!movie) return NULL;</span>
+<span class="lineNum">     658 </span><span class="lineCov">     788136 :         trak = gf_isom_get_track(movie-&gt;moov, trackNumber);</span>
+<span class="lineNum">     659 </span><span class="lineCov">     788136 :         if (!trak) movie-&gt;LastError = GF_BAD_PARAM;</span>
+<span class="lineNum">     660 </span><span class="lineCov">     788136 :         return trak;</span>
+<span class="lineNum">     661 </span><span class="lineCov">     788136 : }</span>
+<span class="lineNum">     662 </span>            : 
+<a name="663"><span class="lineNum">     663 </span>            : </a>
+<span class="lineNum">     664 </span>            : //WARNING: MOVIETIME IS EXPRESSED IN MEDIA TS
+<span class="lineNum">     665 </span>            : GF_Err GetMediaTime(GF_TrackBox *trak, Bool force_non_empty, u64 movieTime, u64 *MediaTime, s64 *SegmentStartTime, s64 *MediaOffset, u8 *useEdit, u64 *next_edit_start_plus_one)
+<span class="lineNum">     666 </span>            : {
+<span class="lineNum">     667 </span>            : #if 0
+<span class="lineNum">     668 </span>            :         GF_Err e;
+<span class="lineNum">     669 </span>            :         u32 sampleNumber, prevSampleNumber;
+<span class="lineNum">     670 </span>            :         u64 firstDTS;
+<span class="lineNum">     671 </span>            : #endif
+<span class="lineNum">     672 </span>            :         u32 i, count;
+<span class="lineNum">     673 </span>            :         Bool last_is_empty = 0;
+<span class="lineNum">     674 </span>            :         u64 time, lastSampleTime;
+<span class="lineNum">     675 </span>            :         s64 mtime;
+<span class="lineNum">     676 </span>            :         GF_EdtsEntry *ent;
+<span class="lineNum">     677 </span>            :         Double scale_ts;
+<span class="lineNum">     678 </span><span class="lineNoCov">          0 :         GF_SampleTableBox *stbl = trak-&gt;Media-&gt;information-&gt;sampleTable;</span>
+<span class="lineNum">     679 </span>            : 
+<span class="lineNum">     680 </span><span class="lineNoCov">          0 :         if (next_edit_start_plus_one) *next_edit_start_plus_one = 0;</span>
+<span class="lineNum">     681 </span><span class="lineNoCov">          0 :         *useEdit = 1;</span>
+<span class="lineNum">     682 </span><span class="lineNoCov">          0 :         *MediaTime = 0;</span>
+<span class="lineNum">     683 </span>            :         //no segment yet...
+<span class="lineNum">     684 </span><span class="lineNoCov">          0 :         *SegmentStartTime = -1;</span>
+<span class="lineNum">     685 </span><span class="lineNoCov">          0 :         *MediaOffset = -1;</span>
+<span class="lineNum">     686 </span><span class="lineNoCov">          0 :         if (!trak-&gt;moov-&gt;mvhd-&gt;timeScale || !trak-&gt;Media-&gt;mediaHeader-&gt;timeScale || !stbl-&gt;SampleSize) {</span>
+<span class="lineNum">     687 </span><span class="lineNoCov">          0 :                 return GF_ISOM_INVALID_FILE;</span>
+<span class="lineNum">     688 </span>            :         }
+<span class="lineNum">     689 </span>            : 
+<span class="lineNum">     690 </span>            :         //no samples...
+<span class="lineNum">     691 </span><span class="lineNoCov">          0 :         if (!stbl-&gt;SampleSize-&gt;sampleCount) {</span>
+<span class="lineNum">     692 </span>            :                 lastSampleTime = 0;
+<span class="lineNum">     693 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     694 </span><span class="lineNoCov">          0 :                 lastSampleTime = trak-&gt;Media-&gt;mediaHeader-&gt;duration;</span>
+<span class="lineNum">     695 </span>            :         }
+<span class="lineNum">     696 </span>            : 
+<span class="lineNum">     697 </span>            :         //No edits, 1 to 1 mapping
+<span class="lineNum">     698 </span><span class="lineNoCov">          0 :         if (! trak-&gt;editBox || !trak-&gt;editBox-&gt;editList) {</span>
+<span class="lineNum">     699 </span><span class="lineNoCov">          0 :                 *MediaTime = movieTime;</span>
+<span class="lineNum">     700 </span>            :                 //check this is in our media time line
+<span class="lineNum">     701 </span><span class="lineNoCov">          0 :                 if ((*MediaTime &gt; lastSampleTime)</span>
+<span class="lineNum">     702 </span>            : #ifndef GPAC_DISABLE_ISOM_FRAGMENTS
+<span class="lineNum">     703 </span><span class="lineNoCov">          0 :                         &amp;&amp; !trak-&gt;moov-&gt;mov-&gt;moof</span>
+<span class="lineNum">     704 </span>            : #endif
+<span class="lineNum">     705 </span>            :                    ) {
+<span class="lineNum">     706 </span><span class="lineNoCov">          0 :                         *MediaTime = lastSampleTime;</span>
+<span class="lineNum">     707 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     708 </span><span class="lineNoCov">          0 :                 *useEdit = 0;</span>
+<span class="lineNum">     709 </span><span class="lineNoCov">          0 :                 return GF_OK;</span>
+<span class="lineNum">     710 </span>            :         }
+<span class="lineNum">     711 </span>            :         //browse the edit list and get the time
+<span class="lineNum">     712 </span><span class="lineNoCov">          0 :         scale_ts = trak-&gt;Media-&gt;mediaHeader-&gt;timeScale;</span>
+<span class="lineNum">     713 </span><span class="lineNoCov">          0 :         scale_ts /= trak-&gt;moov-&gt;mvhd-&gt;timeScale;</span>
+<span class="lineNum">     714 </span>            : 
+<span class="lineNum">     715 </span>            :         time = 0;
+<span class="lineNum">     716 </span>            :         ent = NULL;
+<span class="lineNum">     717 </span><span class="lineNoCov">          0 :         count=gf_list_count(trak-&gt;editBox-&gt;editList-&gt;entryList);</span>
+<span class="lineNum">     718 </span><span class="lineNoCov">          0 :         for (i=0; i&lt;count; i++) {</span>
+<span class="lineNum">     719 </span><span class="lineNoCov">          0 :                 ent = (GF_EdtsEntry *)gf_list_get(trak-&gt;editBox-&gt;editList-&gt;entryList, i);</span>
+<span class="lineNum">     720 </span><span class="lineNoCov">          0 :                 if ( (time + ent-&gt;segmentDuration) * scale_ts &gt; movieTime) {</span>
+<span class="lineNum">     721 </span><span class="lineNoCov">          0 :                         if (!force_non_empty || (ent-&gt;mediaTime &gt;= 0)) {</span>
+<span class="lineNum">     722 </span><span class="lineNoCov">          0 :                                 if (next_edit_start_plus_one) *next_edit_start_plus_one = 1 + (u64) ((time + ent-&gt;segmentDuration) * scale_ts);</span>
+<span class="lineNum">     723 </span>            :                                 goto ent_found;
+<span class="lineNum">     724 </span>            :                         }
+<span class="lineNum">     725 </span>            :                 }
+<span class="lineNum">     726 </span><span class="lineNoCov">          0 :                 time += ent-&gt;segmentDuration;</span>
+<span class="lineNum">     727 </span><span class="lineNoCov">          0 :                 last_is_empty = ent-&gt;segmentDuration ? 0 : 1;</span>
+<span class="lineNum">     728 </span>            :         }
+<span class="lineNum">     729 </span>            : 
+<span class="lineNum">     730 </span><span class="lineNoCov">          0 :         if (last_is_empty) {</span>
+<span class="lineNum">     731 </span><span class="lineNoCov">          0 :                 ent = (GF_EdtsEntry *)gf_list_last(trak-&gt;editBox-&gt;editList-&gt;entryList);</span>
+<span class="lineNum">     732 </span><span class="lineNoCov">          0 :                 if (ent-&gt;mediaRate==1) {</span>
+<span class="lineNum">     733 </span><span class="lineNoCov">          0 :                         *MediaTime = movieTime + ent-&gt;mediaTime;</span>
+<span class="lineNum">     734 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     735 </span><span class="lineNoCov">          0 :                         ent = (GF_EdtsEntry *)gf_list_get(trak-&gt;editBox-&gt;editList-&gt;entryList, 0);</span>
+<span class="lineNum">     736 </span><span class="lineNoCov">          0 :                         if (ent-&gt;mediaRate==-1) {</span>
+<span class="lineNum">     737 </span><span class="lineNoCov">          0 :                                 u64 dur = (u64) (ent-&gt;segmentDuration * scale_ts);</span>
+<span class="lineNum">     738 </span><span class="lineNoCov">          0 :                                 *MediaTime = (movieTime &gt; dur) ? (movieTime-dur) : 0;</span>
+<span class="lineNum">     739 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     740 </span>            :                 }
+<span class="lineNum">     741 </span><span class="lineNoCov">          0 :                 *useEdit = 0;</span>
+<span class="lineNum">     742 </span><span class="lineNoCov">          0 :                 return GF_OK;</span>
+<span class="lineNum">     743 </span>            :         }
+<span class="lineNum">     744 </span>            : 
+<span class="lineNum">     745 </span>            : 
+<span class="lineNum">     746 </span>            :         //we had nothing in the list (strange file but compliant...)
+<span class="lineNum">     747 </span>            :         //return the 1 to 1 mapped vale of the last media sample
+<span class="lineNum">     748 </span><span class="lineNoCov">          0 :         if (!ent) {</span>
+<span class="lineNum">     749 </span><span class="lineNoCov">          0 :                 *MediaTime = movieTime;</span>
+<span class="lineNum">     750 </span>            :                 //check this is in our media time line
+<span class="lineNum">     751 </span><span class="lineNoCov">          0 :                 if (*MediaTime &gt; lastSampleTime) *MediaTime = lastSampleTime;</span>
+<span class="lineNum">     752 </span><span class="lineNoCov">          0 :                 *useEdit = 0;</span>
+<span class="lineNum">     753 </span><span class="lineNoCov">          0 :                 return GF_OK;</span>
+<span class="lineNum">     754 </span>            :         }
+<span class="lineNum">     755 </span>            :         //request for a bigger time that what we can give: return the last sample (undefined behavior...)
+<span class="lineNum">     756 </span><span class="lineNoCov">          0 :         *MediaTime = lastSampleTime;</span>
+<span class="lineNum">     757 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">     758 </span>            : 
+<span class="lineNum">     759 </span>            : ent_found:
+<span class="lineNum">     760 </span>            :         //OK, we found our entry, set the SegmentTime
+<span class="lineNum">     761 </span><span class="lineNoCov">          0 :         *SegmentStartTime = time;</span>
+<span class="lineNum">     762 </span>            : 
+<span class="lineNum">     763 </span>            :         //we request an empty list, there's no media here...
+<span class="lineNum">     764 </span><span class="lineNoCov">          0 :         if (ent-&gt;mediaTime &lt; 0) {</span>
+<span class="lineNum">     765 </span><span class="lineNoCov">          0 :                 *MediaTime = 0;</span>
+<span class="lineNum">     766 </span><span class="lineNoCov">          0 :                 return GF_OK;</span>
+<span class="lineNum">     767 </span>            :         }
+<span class="lineNum">     768 </span>            :         //we request a dwell edit
+<span class="lineNum">     769 </span><span class="lineNoCov">          0 :         if (! ent-&gt;mediaRate) {</span>
+<span class="lineNum">     770 </span><span class="lineNoCov">          0 :                 *MediaTime = ent-&gt;mediaTime;</span>
+<span class="lineNum">     771 </span>            :                 //no media offset
+<span class="lineNum">     772 </span><span class="lineNoCov">          0 :                 *MediaOffset = 0;</span>
+<span class="lineNum">     773 </span><span class="lineNoCov">          0 :                 *useEdit = 2;</span>
+<span class="lineNum">     774 </span><span class="lineNoCov">          0 :                 return GF_OK;</span>
+<span class="lineNum">     775 </span>            :         }
+<span class="lineNum">     776 </span>            : 
+<span class="lineNum">     777 </span>            :         /*WARNING: this can be &quot;-1&quot; when doing searchForward mode (to prevent jumping to next entry)*/
+<span class="lineNum">     778 </span><span class="lineNoCov">          0 :         mtime = ent-&gt;mediaTime + movieTime - (time * trak-&gt;Media-&gt;mediaHeader-&gt;timeScale / trak-&gt;moov-&gt;mvhd-&gt;timeScale);</span>
+<span class="lineNum">     779 </span><span class="lineNoCov">          0 :         if (mtime&lt;0) mtime = 0;</span>
+<span class="lineNum">     780 </span><span class="lineNoCov">          0 :         *MediaTime = (u64) mtime;</span>
+<span class="lineNum">     781 </span><span class="lineNoCov">          0 :         *MediaOffset = ent-&gt;mediaTime;</span>
+<span class="lineNum">     782 </span>            : 
+<span class="lineNum">     783 </span>            : #if 0
+<span class="lineNum">     784 </span>            :         //
+<span class="lineNum">     785 </span>            :         //Sanity check: is the requested time valid ? This is to cope with wrong EditLists
+<span class="lineNum">     786 </span>            :         //we have the translated time, but we need to make sure we have a sample at this time ...
+<span class="lineNum">     787 </span>            :         //we have to find a COMPOSITION time
+<span class="lineNum">     788 </span>            :         e = stbl_findEntryForTime(stbl, (u32) *MediaTime, 1, &amp;sampleNumber, &amp;prevSampleNumber);
+<span class="lineNum">     789 </span>            :         if (e) return e;
+<span class="lineNum">     790 </span>            : 
+<span class="lineNum">     791 </span>            :         //first case: our time is after the last sample DTS (it's a broken editList somehow)
+<span class="lineNum">     792 </span>            :         //set the media time to the last sample
+<span class="lineNum">     793 </span>            :         if (!sampleNumber &amp;&amp; !prevSampleNumber) {
+<span class="lineNum">     794 </span>            :                 *MediaTime = lastSampleTime;
+<span class="lineNum">     795 </span>            :                 return GF_OK;
+<span class="lineNum">     796 </span>            :         }
+<span class="lineNum">     797 </span>            :         //get the appropriated sample
+<span class="lineNum">     798 </span>            :         if (!sampleNumber) sampleNumber = prevSampleNumber;
+<span class="lineNum">     799 </span>            : 
+<span class="lineNum">     800 </span>            :         stbl_GetSampleDTS(stbl-&gt;TimeToSample, sampleNumber, &amp;DTS);
+<span class="lineNum">     801 </span>            :         CTS = 0;
+<span class="lineNum">     802 </span>            :         if (stbl-&gt;CompositionOffset) stbl_GetSampleCTS(stbl-&gt;CompositionOffset, sampleNumber, &amp;CTS);
+<span class="lineNum">     803 </span>            : 
+<span class="lineNum">     804 </span>            :         //now get the entry sample (the entry time gives the CTS, and we need the DTS
+<span class="lineNum">     805 </span>            :         e = stbl_findEntryForTime(stbl, (u32) ent-&gt;mediaTime, 0, &amp;sampleNumber, &amp;prevSampleNumber);
+<span class="lineNum">     806 </span>            :         if (e) return e;
+<span class="lineNum">     807 </span>            : 
+<span class="lineNum">     808 </span>            :         //oops, the mediaTime indicates a sample that is not in our media !
+<span class="lineNum">     809 </span>            :         if (!sampleNumber &amp;&amp; !prevSampleNumber) {
+<span class="lineNum">     810 </span>            :                 *MediaTime = lastSampleTime;
+<span class="lineNum">     811 </span>            :                 return GF_ISOM_INVALID_FILE;
+<span class="lineNum">     812 </span>            :         }
+<span class="lineNum">     813 </span>            :         if (!sampleNumber) sampleNumber = prevSampleNumber;
+<span class="lineNum">     814 </span>            : 
+<span class="lineNum">     815 </span>            :         stbl_GetSampleDTS(stbl-&gt;TimeToSample, sampleNumber, &amp;firstDTS);
+<span class="lineNum">     816 </span>            : 
+<span class="lineNum">     817 </span>            :         //and store the &quot;time offset&quot; of the desired sample in this segment
+<span class="lineNum">     818 </span>            :         //this is weird, used to rebuild the timeStamp when reading from the track, not the
+<span class="lineNum">     819 </span>            :         //media ...
+<span class="lineNum">     820 </span>            :         *MediaOffset = firstDTS;
+<span class="lineNum">     821 </span>            : #endif
+<span class="lineNum">     822 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<a name="823"><span class="lineNum">     823 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     824 </span>            : 
+<span class="lineNum">     825 </span>            : GF_Err GetNextMediaTime(GF_TrackBox *trak, u64 movieTime, u64 *OutMovieTime)
+<span class="lineNum">     826 </span>            : {
+<span class="lineNum">     827 </span><span class="lineNoCov">          0 :         u32 i;</span>
+<span class="lineNum">     828 </span>            :         u64 time;
+<span class="lineNum">     829 </span>            :         GF_EdtsEntry *ent;
+<span class="lineNum">     830 </span>            : 
+<span class="lineNum">     831 </span><span class="lineNoCov">          0 :         *OutMovieTime = 0;</span>
+<span class="lineNum">     832 </span><span class="lineNoCov">          0 :         if (! trak-&gt;editBox || !trak-&gt;editBox-&gt;editList) return GF_BAD_PARAM;</span>
+<span class="lineNum">     833 </span>            : 
+<span class="lineNum">     834 </span>            :         time = 0;
+<span class="lineNum">     835 </span>            :         ent = NULL;
+<span class="lineNum">     836 </span><span class="lineNoCov">          0 :         i=0;</span>
+<span class="lineNum">     837 </span><span class="lineNoCov">          0 :         while ((ent = (GF_EdtsEntry *)gf_list_enum(trak-&gt;editBox-&gt;editList-&gt;entryList, &amp;i))) {</span>
+<span class="lineNum">     838 </span><span class="lineNoCov">          0 :                 if (time * trak-&gt;Media-&gt;mediaHeader-&gt;timeScale &gt;= movieTime * trak-&gt;moov-&gt;mvhd-&gt;timeScale) {</span>
+<span class="lineNum">     839 </span>            :                         /*skip empty edits*/
+<span class="lineNum">     840 </span><span class="lineNoCov">          0 :                         if (ent-&gt;mediaTime &gt;= 0) {</span>
+<span class="lineNum">     841 </span><span class="lineNoCov">          0 :                                 *OutMovieTime = time * trak-&gt;Media-&gt;mediaHeader-&gt;timeScale / trak-&gt;moov-&gt;mvhd-&gt;timeScale;</span>
+<span class="lineNum">     842 </span><span class="lineNoCov">          0 :                                 if (*OutMovieTime&gt;0) *OutMovieTime -= 1;</span>
+<span class="lineNum">     843 </span><span class="lineNoCov">          0 :                                 return GF_OK;</span>
+<span class="lineNum">     844 </span>            :                         }
+<span class="lineNum">     845 </span>            :                 }
+<span class="lineNum">     846 </span><span class="lineNoCov">          0 :                 time += ent-&gt;segmentDuration;</span>
+<span class="lineNum">     847 </span>            :         }
+<span class="lineNum">     848 </span>            :         //request for a bigger time that what we can give: return the last sample (undefined behavior...)
+<span class="lineNum">     849 </span><span class="lineNoCov">          0 :         *OutMovieTime = trak-&gt;moov-&gt;mvhd-&gt;duration;</span>
+<span class="lineNum">     850 </span><span class="lineNoCov">          0 :         return GF_EOS;</span>
+<a name="851"><span class="lineNum">     851 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     852 </span>            : 
+<span class="lineNum">     853 </span>            : GF_Err GetPrevMediaTime(GF_TrackBox *trak, u64 movieTime, u64 *OutMovieTime)
+<span class="lineNum">     854 </span>            : {
+<span class="lineNum">     855 </span><span class="lineNoCov">          0 :         u32 i;</span>
+<span class="lineNum">     856 </span>            :         u64 time;
+<span class="lineNum">     857 </span>            :         GF_EdtsEntry *ent;
+<span class="lineNum">     858 </span>            : 
+<span class="lineNum">     859 </span><span class="lineNoCov">          0 :         *OutMovieTime = 0;</span>
+<span class="lineNum">     860 </span><span class="lineNoCov">          0 :         if (! trak-&gt;editBox || !trak-&gt;editBox-&gt;editList) return GF_BAD_PARAM;</span>
+<span class="lineNum">     861 </span>            : 
+<span class="lineNum">     862 </span>            :         time = 0;
+<span class="lineNum">     863 </span>            :         ent = NULL;
+<span class="lineNum">     864 </span><span class="lineNoCov">          0 :         i=0;</span>
+<span class="lineNum">     865 </span><span class="lineNoCov">          0 :         while ((ent = (GF_EdtsEntry *)gf_list_enum(trak-&gt;editBox-&gt;editList-&gt;entryList, &amp;i))) {</span>
+<span class="lineNum">     866 </span><span class="lineNoCov">          0 :                 if (ent-&gt;mediaTime == -1) {</span>
+<span class="lineNum">     867 </span><span class="lineNoCov">          0 :                         if ( (time + ent-&gt;segmentDuration) * trak-&gt;Media-&gt;mediaHeader-&gt;timeScale &gt;= movieTime * trak-&gt;moov-&gt;mvhd-&gt;timeScale) {</span>
+<span class="lineNum">     868 </span><span class="lineNoCov">          0 :                                 *OutMovieTime = time * trak-&gt;Media-&gt;mediaHeader-&gt;timeScale / trak-&gt;moov-&gt;mvhd-&gt;timeScale;</span>
+<span class="lineNum">     869 </span><span class="lineNoCov">          0 :                                 return GF_OK;</span>
+<span class="lineNum">     870 </span>            :                         }
+<span class="lineNum">     871 </span>            :                         continue;
+<span class="lineNum">     872 </span>            :                 }
+<span class="lineNum">     873 </span>            :                 /*get the first entry whose end is greater than or equal to the desired time*/
+<span class="lineNum">     874 </span><span class="lineNoCov">          0 :                 time += ent-&gt;segmentDuration;</span>
+<span class="lineNum">     875 </span><span class="lineNoCov">          0 :                 if ( time * trak-&gt;Media-&gt;mediaHeader-&gt;timeScale &gt;= movieTime * trak-&gt;moov-&gt;mvhd-&gt;timeScale) {</span>
+<span class="lineNum">     876 </span><span class="lineNoCov">          0 :                         *OutMovieTime = time * trak-&gt;Media-&gt;mediaHeader-&gt;timeScale / trak-&gt;moov-&gt;mvhd-&gt;timeScale;</span>
+<span class="lineNum">     877 </span><span class="lineNoCov">          0 :                         return GF_OK;</span>
+<span class="lineNum">     878 </span>            :                 }
+<span class="lineNum">     879 </span>            :         }
+<span class="lineNum">     880 </span><span class="lineNoCov">          0 :         *OutMovieTime = 0;</span>
+<span class="lineNum">     881 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">     882 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     883 </span>            : 
+<a name="884"><span class="lineNum">     884 </span>            : #ifndef GPAC_DISABLE_ISOM_WRITE</a>
+<span class="lineNum">     885 </span>            : 
+<span class="lineNum">     886 </span>            : void gf_isom_insert_moov(GF_ISOFile *file)
+<span class="lineNum">     887 </span>            : {
+<span class="lineNum">     888 </span>            :         u64 now;
+<span class="lineNum">     889 </span>            :         GF_MovieHeaderBox *mvhd;
+<span class="lineNum">     890 </span><span class="lineCov">      27945 :         if (file-&gt;moov) return;</span>
+<span class="lineNum">     891 </span>            : 
+<span class="lineNum">     892 </span>            :         //OK, create our boxes (mvhd, iods, ...)
+<span class="lineNum">     893 </span><span class="lineCov">       1167 :         file-&gt;moov = (GF_MovieBox *) moov_New();</span>
+<span class="lineNum">     894 </span><span class="lineCov">       1167 :         file-&gt;moov-&gt;mov = file;</span>
+<span class="lineNum">     895 </span>            :         //Header SetUp
+<span class="lineNum">     896 </span><span class="lineCov">       1167 :         now = gf_isom_get_mp4time();</span>
+<span class="lineNum">     897 </span><span class="lineCov">       1167 :         mvhd = (GF_MovieHeaderBox *) mvhd_New();</span>
+<span class="lineNum">     898 </span><span class="lineCov">       1167 :         mvhd-&gt;creationTime = now;</span>
+<span class="lineNum">     899 </span><span class="lineCov">       1167 :         if (!file-&gt;keep_utc)</span>
+<span class="lineNum">     900 </span><span class="lineCov">       1167 :                 mvhd-&gt;modificationTime = now;</span>
+<span class="lineNum">     901 </span><span class="lineCov">       1167 :         mvhd-&gt;nextTrackID = 1;</span>
+<span class="lineNum">     902 </span>            :         //600 is our default movie TimeScale
+<span class="lineNum">     903 </span><span class="lineCov">       1167 :         mvhd-&gt;timeScale = 600;</span>
+<span class="lineNum">     904 </span>            : 
+<span class="lineNum">     905 </span><span class="lineCov">       1167 :         file-&gt;interleavingTime = mvhd-&gt;timeScale;</span>
+<span class="lineNum">     906 </span><span class="lineCov">       1167 :         moov_AddBox((GF_Box*)file-&gt;moov, (GF_Box *)mvhd);</span>
+<span class="lineNum">     907 </span><span class="lineCov">       1167 :         gf_list_add(file-&gt;TopBoxes, file-&gt;moov);</span>
+<span class="lineNum">     908 </span><span class="lineCov">      10871 : }</span>
+<a name="909"><span class="lineNum">     909 </span>            : </a>
+<span class="lineNum">     910 </span>            : //Create the movie for WRITE only
+<span class="lineNum">     911 </span>            : GF_ISOFile *gf_isom_create_movie(const char *fileName, u32 OpenMode, const char *tmp_dir)
+<span class="lineNum">     912 </span>            : {
+<span class="lineNum">     913 </span>            :         GF_Err e;
+<span class="lineNum">     914 </span>            : 
+<span class="lineNum">     915 </span><span class="lineCov">       2408 :         GF_ISOFile *mov = gf_isom_new_movie();</span>
+<span class="lineNum">     916 </span><span class="lineCov">       1204 :         if (!mov) return NULL;</span>
+<span class="lineNum">     917 </span><span class="lineCov">       1204 :         mov-&gt;openMode = OpenMode;</span>
+<span class="lineNum">     918 </span>            :         //then set up our movie
+<span class="lineNum">     919 </span>            : 
+<span class="lineNum">     920 </span>            :         //in WRITE, the input dataMap is ALWAYS NULL
+<span class="lineNum">     921 </span><span class="lineCov">       1204 :         mov-&gt;movieFileMap = NULL;</span>
+<span class="lineNum">     922 </span>            : 
+<span class="lineNum">     923 </span>            :         //but we have the edit one
+<span class="lineNum">     924 </span><span class="lineCov">       1204 :         if (OpenMode == GF_ISOM_OPEN_WRITE) {</span>
+<span class="lineNum">     925 </span>            :                 //THIS IS NOT A TEMP FILE, WRITE mode is used for &quot;live capture&quot;
+<span class="lineNum">     926 </span>            :                 //this file will be the final file...
+<span class="lineNum">     927 </span><span class="lineCov">         14 :                 mov-&gt;fileName = gf_strdup(fileName);</span>
+<span class="lineNum">     928 </span><span class="lineCov">         14 :                 e = gf_isom_datamap_new(fileName, NULL, GF_ISOM_DATA_MAP_WRITE, &amp; mov-&gt;editFileMap);</span>
+<span class="lineNum">     929 </span><span class="lineCov">         14 :                 if (e) goto err_exit;</span>
+<span class="lineNum">     930 </span>            : 
+<span class="lineNum">     931 </span>            :                 /*brand is set to ISOM by default - it may be touched until sample data is added to track*/
+<span class="lineNum">     932 </span><span class="lineCov">         14 :                 gf_isom_set_brand_info( (GF_ISOFile *) mov, GF_ISOM_BRAND_ISOM, 1);</span>
+<span class="lineNum">     933 </span><span class="lineCov">         14 :         } else {</span>
+<span class="lineNum">     934 </span>            :                 //we are in EDIT mode but we are creating the file -&gt; temp file
+<span class="lineNum">     935 </span><span class="lineCov">       1190 :                 mov-&gt;finalName = (char*)gf_malloc(strlen(fileName) + 1);</span>
+<span class="lineNum">     936 </span><span class="lineCov">       1190 :                 strcpy(mov-&gt;finalName, fileName);</span>
+<span class="lineNum">     937 </span><span class="lineCov">       1190 :                 e = gf_isom_datamap_new(&quot;mp4_tmp_edit&quot;, tmp_dir, GF_ISOM_DATA_MAP_WRITE, &amp; mov-&gt;editFileMap);</span>
+<span class="lineNum">     938 </span><span class="lineCov">       1190 :                 if (e) {</span>
+<span class="lineNum">     939 </span><span class="lineNoCov">          0 :                         gf_isom_set_last_error(NULL, e);</span>
+<span class="lineNum">     940 </span><span class="lineNoCov">          0 :                         gf_isom_delete_movie(mov);</span>
+<span class="lineNum">     941 </span><span class="lineNoCov">          0 :                         return NULL;</span>
+<span class="lineNum">     942 </span>            :                 }
+<span class="lineNum">     943 </span>            :                 //brand is set to ISOM by default
+<span class="lineNum">     944 </span><span class="lineCov">       1190 :                 gf_isom_set_brand_info( (GF_ISOFile *) mov, GF_ISOM_BRAND_ISOM, 1);</span>
+<span class="lineNum">     945 </span>            :         }
+<span class="lineNum">     946 </span>            : 
+<span class="lineNum">     947 </span>            :         //create an MDAT
+<span class="lineNum">     948 </span><span class="lineCov">       1204 :         mov-&gt;mdat = (GF_MediaDataBox *) mdat_New();</span>
+<span class="lineNum">     949 </span><span class="lineCov">       1204 :         gf_list_add(mov-&gt;TopBoxes, mov-&gt;mdat);</span>
+<span class="lineNum">     950 </span>            : 
+<span class="lineNum">     951 </span>            :         //default behaviour is capture mode, no interleaving (eg, no rewrite of mdat)
+<span class="lineNum">     952 </span><span class="lineCov">       1204 :         mov-&gt;storageMode = GF_ISOM_STORE_FLAT;</span>
+<span class="lineNum">     953 </span><span class="lineCov">       1204 :         return mov;</span>
+<span class="lineNum">     954 </span>            : 
+<span class="lineNum">     955 </span>            : err_exit:
+<span class="lineNum">     956 </span><span class="lineNoCov">          0 :         gf_isom_set_last_error(NULL, e);</span>
+<span class="lineNum">     957 </span><span class="lineNoCov">          0 :         if (mov) gf_isom_delete_movie(mov);</span>
+<span class="lineNum">     958 </span><span class="lineNoCov">          0 :         return NULL;</span>
+<a name="959"><span class="lineNum">     959 </span><span class="lineCov">       1204 : }</span></a>
+<span class="lineNum">     960 </span>            : 
+<span class="lineNum">     961 </span>            : GF_EdtsEntry *CreateEditEntry(u64 EditDuration, u64 MediaTime, u8 EditMode)
+<span class="lineNum">     962 </span>            : {
+<span class="lineNum">     963 </span>            :         GF_EdtsEntry *ent;
+<span class="lineNum">     964 </span>            : 
+<span class="lineNum">     965 </span><span class="lineCov">        220 :         ent = (GF_EdtsEntry*)gf_malloc(sizeof(GF_EdtsEntry));</span>
+<span class="lineNum">     966 </span><span class="lineCov">        110 :         if (!ent) return NULL;</span>
+<span class="lineNum">     967 </span>            : 
+<span class="lineNum">     968 </span><span class="lineCov">        110 :         switch (EditMode) {</span>
+<span class="lineNum">     969 </span>            :         case GF_ISOM_EDIT_EMPTY:
+<span class="lineNum">     970 </span><span class="lineNoCov">          0 :                 ent-&gt;mediaRate = 1;</span>
+<span class="lineNum">     971 </span><span class="lineNoCov">          0 :                 ent-&gt;mediaTime = -1;</span>
+<span class="lineNum">     972 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     973 </span>            : 
+<span class="lineNum">     974 </span>            :         case GF_ISOM_EDIT_DWELL:
+<span class="lineNum">     975 </span><span class="lineNoCov">          0 :                 ent-&gt;mediaRate = 0;</span>
+<span class="lineNum">     976 </span><span class="lineNoCov">          0 :                 ent-&gt;mediaTime = MediaTime;</span>
+<span class="lineNum">     977 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     978 </span>            :         default:
+<span class="lineNum">     979 </span><span class="lineCov">        110 :                 ent-&gt;mediaRate = 1;</span>
+<span class="lineNum">     980 </span><span class="lineCov">        110 :                 ent-&gt;mediaTime = MediaTime;</span>
+<span class="lineNum">     981 </span><span class="lineCov">        110 :                 break;</span>
+<span class="lineNum">     982 </span>            :         }
+<span class="lineNum">     983 </span><span class="lineCov">        110 :         ent-&gt;segmentDuration = EditDuration;</span>
+<span class="lineNum">     984 </span><span class="lineCov">        110 :         return ent;</span>
+<a name="985"><span class="lineNum">     985 </span><span class="lineCov">        110 : }</span></a>
+<span class="lineNum">     986 </span>            : 
+<span class="lineNum">     987 </span>            : GF_Err gf_isom_add_subsample_info(GF_SubSampleInformationBox *sub_samples, u32 sampleNumber, u32 subSampleSize, u8 priority, u32 reserved, Bool discardable)
+<span class="lineNum">     988 </span>            : {
+<span class="lineNum">     989 </span>            :         u32 i, count, last_sample;
+<span class="lineNum">     990 </span>            :         GF_SubSampleInfoEntry *pSamp;
+<span class="lineNum">     991 </span>            :         GF_SubSampleEntry *pSubSamp;
+<span class="lineNum">     992 </span>            : 
+<span class="lineNum">     993 </span>            :         pSamp = NULL;
+<span class="lineNum">     994 </span>            :         last_sample = 0;
+<span class="lineNum">     995 </span><span class="lineCov">       3046 :         count = gf_list_count(sub_samples-&gt;Samples);</span>
+<span class="lineNum">     996 </span><span class="lineCov">    1161288 :         for (i=0; i&lt;count; i++) {</span>
+<span class="lineNum">     997 </span><span class="lineCov">     579882 :                 pSamp = (GF_SubSampleInfoEntry*) gf_list_get(sub_samples-&gt;Samples, i);</span>
+<span class="lineNum">     998 </span>            :                 /*TODO - do we need to support insertion of subsample info ?*/
+<span class="lineNum">     999 </span><span class="lineCov">     579882 :                 if (last_sample + pSamp-&gt;sample_delta &gt; sampleNumber) return GF_NOT_SUPPORTED;</span>
+<span class="lineNum">    1000 </span><span class="lineCov">     579882 :                 if (last_sample + pSamp-&gt;sample_delta == sampleNumber) break;</span>
+<span class="lineNum">    1001 </span>            :                 last_sample += pSamp-&gt;sample_delta;
+<span class="lineNum">    1002 </span>            :                 pSamp = NULL;
+<span class="lineNum">    1003 </span>            :         }
+<span class="lineNum">    1004 </span>            : 
+<span class="lineNum">    1005 </span><span class="lineCov">       1523 :         if (!pSamp) {</span>
+<span class="lineNum">    1006 </span><span class="lineCov">       1524 :                 GF_SAFEALLOC(pSamp, GF_SubSampleInfoEntry);</span>
+<span class="lineNum">    1007 </span><span class="lineCov">        762 :                 if (!pSamp) return GF_OUT_OF_MEM;</span>
+<span class="lineNum">    1008 </span><span class="lineCov">        762 :                 pSamp-&gt;SubSamples = gf_list_new();</span>
+<span class="lineNum">    1009 </span><span class="lineCov">        762 :                 if (!pSamp-&gt;SubSamples ) {</span>
+<span class="lineNum">    1010 </span><span class="lineNoCov">          0 :                         gf_free(pSamp);</span>
+<span class="lineNum">    1011 </span><span class="lineNoCov">          0 :                         return GF_OUT_OF_MEM;</span>
+<span class="lineNum">    1012 </span>            :                 }
+<span class="lineNum">    1013 </span><span class="lineCov">        762 :                 pSamp-&gt;sample_delta = sampleNumber - last_sample;</span>
+<span class="lineNum">    1014 </span><span class="lineCov">        762 :                 gf_list_add(sub_samples-&gt;Samples, pSamp);</span>
+<span class="lineNum">    1015 </span><span class="lineCov">        762 :         }</span>
+<span class="lineNum">    1016 </span>            : 
+<span class="lineNum">    1017 </span><span class="lineCov">       1536 :         if ((subSampleSize&gt;0xFFFF) &amp;&amp; !sub_samples-&gt;version) {</span>
+<span class="lineNum">    1018 </span><span class="lineCov">          1 :                 sub_samples-&gt;version = 1;</span>
+<span class="lineNum">    1019 </span><span class="lineCov">          1 :         }</span>
+<span class="lineNum">    1020 </span>            :         /*remove last subsample info*/
+<span class="lineNum">    1021 </span><span class="lineCov">       1523 :         if (!subSampleSize) {</span>
+<span class="lineNum">    1022 </span><span class="lineNoCov">          0 :                 pSubSamp = gf_list_last(pSamp-&gt;SubSamples);</span>
+<span class="lineNum">    1023 </span><span class="lineNoCov">          0 :                 gf_list_rem_last(pSamp-&gt;SubSamples);</span>
+<span class="lineNum">    1024 </span><span class="lineNoCov">          0 :                 gf_free(pSubSamp);</span>
+<span class="lineNum">    1025 </span><span class="lineNoCov">          0 :                 if (!gf_list_count(pSamp-&gt;SubSamples)) {</span>
+<span class="lineNum">    1026 </span><span class="lineNoCov">          0 :                         gf_list_del_item(sub_samples-&gt;Samples, pSamp);</span>
+<span class="lineNum">    1027 </span><span class="lineNoCov">          0 :                         gf_list_del(pSamp-&gt;SubSamples);</span>
+<span class="lineNum">    1028 </span><span class="lineNoCov">          0 :                         gf_free(pSamp);</span>
+<span class="lineNum">    1029 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">    1030 </span><span class="lineNoCov">          0 :                 return GF_OK;</span>
+<span class="lineNum">    1031 </span>            :         }
+<span class="lineNum">    1032 </span>            :         /*add subsample*/
+<span class="lineNum">    1033 </span><span class="lineCov">       3046 :         GF_SAFEALLOC(pSubSamp, GF_SubSampleEntry);</span>
+<span class="lineNum">    1034 </span><span class="lineCov">       1523 :         if (!pSubSamp) return GF_OUT_OF_MEM;</span>
+<span class="lineNum">    1035 </span><span class="lineCov">       1523 :         pSubSamp-&gt;subsample_size = subSampleSize;</span>
+<span class="lineNum">    1036 </span><span class="lineCov">       1523 :         pSubSamp-&gt;subsample_priority = priority;</span>
+<span class="lineNum">    1037 </span><span class="lineCov">       1523 :         pSubSamp-&gt;reserved = reserved;</span>
+<span class="lineNum">    1038 </span><span class="lineCov">       1523 :         pSubSamp-&gt;discardable = discardable;</span>
+<span class="lineNum">    1039 </span><span class="lineCov">       1523 :         return gf_list_add(pSamp-&gt;SubSamples, pSubSamp);</span>
+<span class="lineNum">    1040 </span><span class="lineCov">       1523 : }</span>
+<span class="lineNum">    1041 </span>            : 
+<a name="1042"><span class="lineNum">    1042 </span>            : #endif /*GPAC_DISABLE_ISOM_WRITE*/</a>
+<span class="lineNum">    1043 </span>            : 
+<span class="lineNum">    1044 </span>            : u32 gf_isom_sample_get_subsamples_count(GF_ISOFile *movie, u32 track)
+<span class="lineNum">    1045 </span>            : {
+<span class="lineNum">    1046 </span><span class="lineNoCov">          0 :         GF_TrackBox *trak = gf_isom_get_track_from_file(movie, track);</span>
+<span class="lineNum">    1047 </span><span class="lineNoCov">          0 :         if (!track) return 0;</span>
+<span class="lineNum">    1048 </span><span class="lineNoCov">          0 :         if (!trak-&gt;Media || !trak-&gt;Media-&gt;information-&gt;sampleTable || !trak-&gt;Media-&gt;information-&gt;sampleTable-&gt;sub_samples) return 0;</span>
+<span class="lineNum">    1049 </span><span class="lineNoCov">          0 :         return gf_list_count(trak-&gt;Media-&gt;information-&gt;sampleTable-&gt;sub_samples);</span>
+<a name="1050"><span class="lineNum">    1050 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">    1051 </span>            : 
+<span class="lineNum">    1052 </span>            : Bool gf_isom_get_subsample_types(GF_ISOFile *movie, u32 track, u32 subs_index, u32 *flags)
+<span class="lineNum">    1053 </span>            : {
+<span class="lineNum">    1054 </span>            :         GF_SubSampleInformationBox *sub_samples=NULL;
+<span class="lineNum">    1055 </span><span class="lineCov">      14412 :         GF_TrackBox *trak = gf_isom_get_track_from_file(movie, track);</span>
+<span class="lineNum">    1056 </span>            : 
+<span class="lineNum">    1057 </span><span class="lineCov">       7206 :         if (!track || !subs_index) return GF_FALSE;</span>
+<span class="lineNum">    1058 </span><span class="lineCov">      28824 :         if (!trak-&gt;Media || !trak-&gt;Media-&gt;information-&gt;sampleTable || !trak-&gt;Media-&gt;information-&gt;sampleTable-&gt;sub_samples) return GF_FALSE;</span>
+<span class="lineNum">    1059 </span><span class="lineNoCov">          0 :         sub_samples = gf_list_get(trak-&gt;Media-&gt;information-&gt;sampleTable-&gt;sub_samples, subs_index-1);</span>
+<span class="lineNum">    1060 </span><span class="lineNoCov">          0 :         if (!sub_samples) return GF_FALSE;</span>
+<span class="lineNum">    1061 </span><span class="lineNoCov">          0 :         *flags = sub_samples-&gt;flags;</span>
+<span class="lineNum">    1062 </span><span class="lineNoCov">          0 :         return GF_TRUE;</span>
+<a name="1063"><span class="lineNum">    1063 </span><span class="lineCov">       7206 : }</span></a>
+<span class="lineNum">    1064 </span>            : 
+<span class="lineNum">    1065 </span>            : u32 gf_isom_sample_get_subsample_entry(GF_ISOFile *movie, u32 track, u32 sampleNumber, u32 flags, GF_SubSampleInfoEntry **sub_sample)
+<span class="lineNum">    1066 </span>            : {
+<span class="lineNum">    1067 </span>            :         u32 i, count, last_sample;
+<span class="lineNum">    1068 </span>            :         GF_SubSampleInformationBox *sub_samples=NULL;
+<span class="lineNum">    1069 </span><span class="lineNoCov">          0 :         GF_TrackBox *trak = gf_isom_get_track_from_file(movie, track);</span>
+<span class="lineNum">    1070 </span><span class="lineNoCov">          0 :         if (sub_sample) *sub_sample = NULL;</span>
+<span class="lineNum">    1071 </span><span class="lineNoCov">          0 :         if (!track) return 0;</span>
+<span class="lineNum">    1072 </span><span class="lineNoCov">          0 :         if (!trak-&gt;Media || !trak-&gt;Media-&gt;information-&gt;sampleTable || !trak-&gt;Media-&gt;information-&gt;sampleTable-&gt;sub_samples) return 0;</span>
+<span class="lineNum">    1073 </span><span class="lineNoCov">          0 :         count = gf_list_count(trak-&gt;Media-&gt;information-&gt;sampleTable-&gt;sub_samples);</span>
+<span class="lineNum">    1074 </span><span class="lineNoCov">          0 :         for (i=0; i&lt;count; i++) {</span>
+<span class="lineNum">    1075 </span><span class="lineNoCov">          0 :                 sub_samples = gf_list_get(trak-&gt;Media-&gt;information-&gt;sampleTable-&gt;sub_samples, i);</span>
+<span class="lineNum">    1076 </span><span class="lineNoCov">          0 :                 if (sub_samples-&gt;flags==flags) break;</span>
+<span class="lineNum">    1077 </span>            :                 sub_samples = NULL;
+<span class="lineNum">    1078 </span>            :         }
+<span class="lineNum">    1079 </span><span class="lineNoCov">          0 :         if (!sub_samples) return 0;</span>
+<span class="lineNum">    1080 </span>            :         
+<span class="lineNum">    1081 </span>            :         last_sample = 0;
+<span class="lineNum">    1082 </span><span class="lineNoCov">          0 :         count = gf_list_count(sub_samples-&gt;Samples);</span>
+<span class="lineNum">    1083 </span><span class="lineNoCov">          0 :         for (i=0; i&lt;count; i++) {</span>
+<span class="lineNum">    1084 </span><span class="lineNoCov">          0 :                 GF_SubSampleInfoEntry *pSamp = (GF_SubSampleInfoEntry *) gf_list_get(sub_samples-&gt;Samples, i);</span>
+<span class="lineNum">    1085 </span><span class="lineNoCov">          0 :                 if (last_sample + pSamp-&gt;sample_delta == sampleNumber) {</span>
+<span class="lineNum">    1086 </span><span class="lineNoCov">          0 :                         if (sub_sample) *sub_sample = pSamp;</span>
+<span class="lineNum">    1087 </span><span class="lineNoCov">          0 :                         return gf_list_count(pSamp-&gt;SubSamples);</span>
+<span class="lineNum">    1088 </span>            :                 }
+<span class="lineNum">    1089 </span>            :                 last_sample += pSamp-&gt;sample_delta;
+<span class="lineNum">    1090 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">    1091 </span><span class="lineNoCov">          0 :         return 0;</span>
+<span class="lineNum">    1092 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">    1093 </span>            : #endif /*GPAC_DISABLE_ISOM*/
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

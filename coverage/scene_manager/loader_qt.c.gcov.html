@@ -1,0 +1,259 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - scene_manager/loader_qt.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">scene_manager</a> - loader_qt.c<span style="font-size: 80%;"> (source / <a href="loader_qt.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">94</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-05-14 22:31:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *                      GPAC - Multimedia Framework C SDK
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *                      Authors: Jean Le Feuvre
+<span class="lineNum">       5 </span>            :  *                      Copyright (c) Telecom ParisTech 2000-2012
+<span class="lineNum">       6 </span>            :  *                                      All rights reserved
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  *  This file is part of GPAC / Scene Management sub-project
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  *  GPAC is free software; you can redistribute it and/or modify
+<span class="lineNum">      11 </span>            :  *  it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">      12 </span>            :  *  the Free Software Foundation; either version 2, or (at your option)
+<span class="lineNum">      13 </span>            :  *  any later version.
+<span class="lineNum">      14 </span>            :  *
+<span class="lineNum">      15 </span>            :  *  GPAC is distributed in the hope that it will be useful,
+<span class="lineNum">      16 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      17 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      18 </span>            :  *  GNU Lesser General Public License for more details.
+<span class="lineNum">      19 </span>            :  *
+<span class="lineNum">      20 </span>            :  *  You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      21 </span>            :  *  License along with this library; see the file COPYING.  If not, write to
+<span class="lineNum">      22 </span>            :  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+<span class="lineNum">      23 </span>            :  *
+<span class="lineNum">      24 </span>            :  */
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : #include &lt;gpac/scene_manager.h&gt;
+<span class="lineNum">      27 </span>            : #include &lt;gpac/internal/media_dev.h&gt;
+<span class="lineNum">      28 </span>            : #include &lt;gpac/constants.h&gt;
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : #if !defined(GPAC_DISABLE_QTVR)
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            : #include &lt;gpac/nodes_mpeg4.h&gt;
+<span class="lineNum">      33 </span>            : 
+<a name="34"><span class="lineNum">      34 </span>            : </a>
+<span class="lineNum">      35 </span>            : 
+<span class="lineNum">      36 </span>            : static GF_Err gf_qt_report(GF_SceneLoader *load, GF_Err e, char *format, ...)
+<span class="lineNum">      37 </span>            : {
+<span class="lineNum">      38 </span>            : #ifndef GPAC_DISABLE_LOG
+<span class="lineNum">      39 </span><span class="lineNoCov">          0 :         if (gf_log_tool_level_on(GF_LOG_PARSER, e ? GF_LOG_ERROR : GF_LOG_WARNING)) {</span>
+<span class="lineNum">      40 </span><span class="lineNoCov">          0 :                 char szMsg[1024];</span>
+<span class="lineNum">      41 </span><span class="lineNoCov">          0 :                 va_list args;</span>
+<span class="lineNum">      42 </span><span class="lineNoCov">          0 :                 va_start(args, format);</span>
+<span class="lineNum">      43 </span><span class="lineNoCov">          0 :                 vsprintf(szMsg, format, args);</span>
+<span class="lineNum">      44 </span><span class="lineNoCov">          0 :                 va_end(args);</span>
+<span class="lineNum">      45 </span><span class="lineNoCov">          0 :                 GF_LOG((u32) (e ? GF_LOG_ERROR : GF_LOG_WARNING), GF_LOG_PARSER, (&quot;[QT Parsing] %s\n&quot;, szMsg) );</span>
+<span class="lineNum">      46 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">      47 </span>            : #endif
+<span class="lineNum">      48 </span><span class="lineNoCov">          0 :         return e;</span>
+<span class="lineNum">      49 </span>            : }
+<span class="lineNum">      50 </span>            : 
+<a name="51"><span class="lineNum">      51 </span>            : </a>
+<span class="lineNum">      52 </span>            : /*import cubic QTVR to mp4*/
+<span class="lineNum">      53 </span>            : GF_Err gf_sm_load_init_qt(GF_SceneLoader *load)
+<span class="lineNum">      54 </span>            : {
+<span class="lineNum">      55 </span><span class="lineNoCov">          0 :         u32 i, di, w, h, tk, nb_samp;</span>
+<span class="lineNum">      56 </span>            :         Bool has_qtvr;
+<span class="lineNum">      57 </span><span class="lineNoCov">          0 :         GF_ISOSample *samp;</span>
+<span class="lineNum">      58 </span>            :         GF_ISOFile *src;
+<span class="lineNum">      59 </span>            :         GF_StreamContext *st;
+<span class="lineNum">      60 </span>            :         GF_AUContext *au;
+<span class="lineNum">      61 </span>            :         GF_Command *com;
+<span class="lineNum">      62 </span>            :         M_Background *back;
+<span class="lineNum">      63 </span>            :         M_NavigationInfo *ni;
+<span class="lineNum">      64 </span>            :         M_Group *gr;
+<span class="lineNum">      65 </span>            :         GF_ODUpdate *odU;
+<span class="lineNum">      66 </span>            :         GF_SceneGraph *sg;
+<span class="lineNum">      67 </span>            :         GF_ObjectDescriptor *od;
+<span class="lineNum">      68 </span>            :         GF_ESD *esd;
+<span class="lineNum">      69 </span>            : 
+<span class="lineNum">      70 </span><span class="lineNoCov">          0 :         if (!load-&gt;ctx) return GF_NOT_SUPPORTED;</span>
+<span class="lineNum">      71 </span>            : 
+<span class="lineNum">      72 </span><span class="lineNoCov">          0 :         src = gf_isom_open(load-&gt;fileName, GF_ISOM_OPEN_READ, NULL);</span>
+<span class="lineNum">      73 </span><span class="lineNoCov">          0 :         if (!src) return gf_qt_report(load, GF_URL_ERROR, &quot;Opening file %s failed&quot;, load-&gt;fileName);</span>
+<span class="lineNum">      74 </span>            : 
+<span class="lineNum">      75 </span>            :         w = h = tk = 0;
+<span class="lineNum">      76 </span>            :         nb_samp = 0;
+<span class="lineNum">      77 </span>            : 
+<span class="lineNum">      78 </span>            :         has_qtvr = 0;
+<span class="lineNum">      79 </span><span class="lineNoCov">          0 :         for (i=0; i&lt;gf_isom_get_track_count(src); i++) {</span>
+<span class="lineNum">      80 </span><span class="lineNoCov">          0 :                 switch (gf_isom_get_media_type(src, i+1)) {</span>
+<span class="lineNum">      81 </span>            :                 case GF_ISOM_MEDIA_VISUAL:
+<span class="lineNum">      82 </span><span class="lineNoCov">          0 :                         if (gf_isom_get_media_subtype(src, i+1, 1) == GF_4CC('j', 'p', 'e', 'g')) {</span>
+<span class="lineNum">      83 </span><span class="lineNoCov">          0 :                                 GF_GenericSampleDescription *udesc = gf_isom_get_generic_sample_description(src, i+1, 1);</span>
+<span class="lineNum">      84 </span><span class="lineNoCov">          0 :                                 if ((udesc-&gt;width&gt;w) || (udesc-&gt;height&gt;h)) {</span>
+<span class="lineNum">      85 </span><span class="lineNoCov">          0 :                                         w = udesc-&gt;width;</span>
+<span class="lineNum">      86 </span><span class="lineNoCov">          0 :                                         h = udesc-&gt;height;</span>
+<span class="lineNum">      87 </span>            :                                         tk = i+1;
+<span class="lineNum">      88 </span><span class="lineNoCov">          0 :                                         nb_samp = gf_isom_get_sample_count(src, i+1);</span>
+<span class="lineNum">      89 </span><span class="lineNoCov">          0 :                                 }</span>
+<span class="lineNum">      90 </span><span class="lineNoCov">          0 :                                 if (udesc-&gt;extension_buf) gf_free(udesc-&gt;extension_buf);</span>
+<span class="lineNum">      91 </span><span class="lineNoCov">          0 :                                 gf_free(udesc);</span>
+<span class="lineNum">      92 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">      93 </span>            :                         break;
+<span class="lineNum">      94 </span>            :                 case GF_4CC('q','t','v','r'):
+<span class="lineNum">      95 </span>            :                         has_qtvr = 1;
+<span class="lineNum">      96 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">      97 </span>            :                 }
+<span class="lineNum">      98 </span>            :         }
+<span class="lineNum">      99 </span><span class="lineNoCov">          0 :         if (!has_qtvr) {</span>
+<span class="lineNum">     100 </span><span class="lineNoCov">          0 :                 gf_isom_delete(src);</span>
+<span class="lineNum">     101 </span><span class="lineNoCov">          0 :                 return gf_qt_report(load, GF_NOT_SUPPORTED, &quot;QTVR not found - no conversion available for this QuickTime movie&quot;);</span>
+<span class="lineNum">     102 </span>            :         }
+<span class="lineNum">     103 </span><span class="lineNoCov">          0 :         if (!tk) {</span>
+<span class="lineNum">     104 </span><span class="lineNoCov">          0 :                 gf_isom_delete(src);</span>
+<span class="lineNum">     105 </span><span class="lineNoCov">          0 :                 return gf_qt_report(load, GF_NON_COMPLIANT_BITSTREAM, &quot;No associated visual track with QTVR movie&quot;);</span>
+<span class="lineNum">     106 </span>            :         }
+<span class="lineNum">     107 </span><span class="lineNoCov">          0 :         if (nb_samp!=6) {</span>
+<span class="lineNum">     108 </span><span class="lineNoCov">          0 :                 gf_isom_delete(src);</span>
+<span class="lineNum">     109 </span><span class="lineNoCov">          0 :                 return gf_qt_report(load, GF_NOT_SUPPORTED, &quot;Movie %s doesn't look a Cubic QTVR - sorry...&quot;, load-&gt;fileName);</span>
+<span class="lineNum">     110 </span>            :         }
+<span class="lineNum">     111 </span>            : 
+<span class="lineNum">     112 </span><span class="lineNoCov">          0 :         GF_LOG(GF_LOG_INFO, GF_LOG_PARSER, (&quot;QT: Importing Cubic QTVR Movie&quot;));</span>
+<span class="lineNum">     113 </span>            : 
+<span class="lineNum">     114 </span>            :         /*create scene*/
+<span class="lineNum">     115 </span><span class="lineNoCov">          0 :         sg = load-&gt;ctx-&gt;scene_graph;</span>
+<span class="lineNum">     116 </span><span class="lineNoCov">          0 :         gr = (M_Group *) gf_node_new(sg, TAG_MPEG4_Group);</span>
+<span class="lineNum">     117 </span><span class="lineNoCov">          0 :         gf_node_register((GF_Node *)gr, NULL);</span>
+<span class="lineNum">     118 </span><span class="lineNoCov">          0 :         st = gf_sm_stream_new(load-&gt;ctx, 1, GF_STREAM_SCENE, 1);</span>
+<span class="lineNum">     119 </span><span class="lineNoCov">          0 :         au = gf_sm_stream_au_new(st, 0, 0, 1);</span>
+<span class="lineNum">     120 </span><span class="lineNoCov">          0 :         com = gf_sg_command_new(load-&gt;ctx-&gt;scene_graph, GF_SG_SCENE_REPLACE);</span>
+<span class="lineNum">     121 </span><span class="lineNoCov">          0 :         gf_list_add(au-&gt;commands, com);</span>
+<span class="lineNum">     122 </span><span class="lineNoCov">          0 :         com-&gt;node = (GF_Node *)gr;</span>
+<span class="lineNum">     123 </span>            : 
+<span class="lineNum">     124 </span><span class="lineNoCov">          0 :         back = (M_Background *) gf_node_new(sg, TAG_MPEG4_Background);</span>
+<span class="lineNum">     125 </span><span class="lineNoCov">          0 :         gf_node_list_add_child( &amp;gr-&gt;children, (GF_Node*)back);</span>
+<span class="lineNum">     126 </span><span class="lineNoCov">          0 :         gf_node_register((GF_Node *)back, (GF_Node *)gr);</span>
+<span class="lineNum">     127 </span>            : 
+<span class="lineNum">     128 </span><span class="lineNoCov">          0 :         gf_sg_vrml_mf_alloc(&amp;back-&gt;leftUrl, GF_SG_VRML_MFURL, 1);</span>
+<span class="lineNum">     129 </span><span class="lineNoCov">          0 :         back-&gt;leftUrl.vals[0].OD_ID = 2;</span>
+<span class="lineNum">     130 </span><span class="lineNoCov">          0 :         gf_sg_vrml_mf_alloc(&amp;back-&gt;frontUrl, GF_SG_VRML_MFURL, 1);</span>
+<span class="lineNum">     131 </span><span class="lineNoCov">          0 :         back-&gt;frontUrl.vals[0].OD_ID = 3;</span>
+<span class="lineNum">     132 </span><span class="lineNoCov">          0 :         gf_sg_vrml_mf_alloc(&amp;back-&gt;rightUrl, GF_SG_VRML_MFURL, 1);</span>
+<span class="lineNum">     133 </span><span class="lineNoCov">          0 :         back-&gt;rightUrl.vals[0].OD_ID = 4;</span>
+<span class="lineNum">     134 </span><span class="lineNoCov">          0 :         gf_sg_vrml_mf_alloc(&amp;back-&gt;backUrl, GF_SG_VRML_MFURL, 1);</span>
+<span class="lineNum">     135 </span><span class="lineNoCov">          0 :         back-&gt;backUrl.vals[0].OD_ID = 5;</span>
+<span class="lineNum">     136 </span><span class="lineNoCov">          0 :         gf_sg_vrml_mf_alloc(&amp;back-&gt;topUrl, GF_SG_VRML_MFURL, 1);</span>
+<span class="lineNum">     137 </span><span class="lineNoCov">          0 :         back-&gt;topUrl.vals[0].OD_ID = 6;</span>
+<span class="lineNum">     138 </span><span class="lineNoCov">          0 :         gf_sg_vrml_mf_alloc(&amp;back-&gt;bottomUrl, GF_SG_VRML_MFURL, 1);</span>
+<span class="lineNum">     139 </span><span class="lineNoCov">          0 :         back-&gt;bottomUrl.vals[0].OD_ID = 7;</span>
+<span class="lineNum">     140 </span>            : 
+<span class="lineNum">     141 </span><span class="lineNoCov">          0 :         ni = (M_NavigationInfo *) gf_node_new(sg, TAG_MPEG4_NavigationInfo);</span>
+<span class="lineNum">     142 </span><span class="lineNoCov">          0 :         gf_node_list_add_child(&amp;gr-&gt;children, (GF_Node*)ni);</span>
+<span class="lineNum">     143 </span><span class="lineNoCov">          0 :         gf_node_register((GF_Node *)ni, (GF_Node *)gr);</span>
+<span class="lineNum">     144 </span><span class="lineNoCov">          0 :         gf_sg_vrml_mf_reset(&amp;ni-&gt;type, GF_SG_VRML_MFSTRING);</span>
+<span class="lineNum">     145 </span><span class="lineNoCov">          0 :         gf_sg_vrml_mf_alloc(&amp;ni-&gt;type, GF_SG_VRML_MFSTRING, 1);</span>
+<span class="lineNum">     146 </span><span class="lineNoCov">          0 :         ni-&gt;type.vals[0] = gf_strdup(&quot;VR&quot;);</span>
+<span class="lineNum">     147 </span>            : 
+<span class="lineNum">     148 </span>            :         /*create ODs*/
+<span class="lineNum">     149 </span><span class="lineNoCov">          0 :         st = gf_sm_stream_new(load-&gt;ctx, 2, GF_STREAM_OD, 1);</span>
+<span class="lineNum">     150 </span><span class="lineNoCov">          0 :         au = gf_sm_stream_au_new(st, 0, 0, 1);</span>
+<span class="lineNum">     151 </span><span class="lineNoCov">          0 :         odU = (GF_ODUpdate*) gf_odf_com_new(GF_ODF_OD_UPDATE_TAG);</span>
+<span class="lineNum">     152 </span><span class="lineNoCov">          0 :         gf_list_add(au-&gt;commands, odU);</span>
+<span class="lineNum">     153 </span><span class="lineNoCov">          0 :         for (i=0; i&lt;6; i++) {</span>
+<span class="lineNum">     154 </span>            :                 GF_MuxInfo *mi;
+<span class="lineNum">     155 </span>            :                 FILE *img;
+<span class="lineNum">     156 </span><span class="lineNoCov">          0 :                 char szName[1024];</span>
+<span class="lineNum">     157 </span><span class="lineNoCov">          0 :                 od = (GF_ObjectDescriptor *) gf_odf_desc_new(GF_ODF_OD_TAG);</span>
+<span class="lineNum">     158 </span><span class="lineNoCov">          0 :                 od-&gt;objectDescriptorID = 2+i;</span>
+<span class="lineNum">     159 </span><span class="lineNoCov">          0 :                 esd = gf_odf_desc_esd_new(2);</span>
+<span class="lineNum">     160 </span><span class="lineNoCov">          0 :                 esd-&gt;decoderConfig-&gt;streamType = GF_STREAM_VISUAL;</span>
+<span class="lineNum">     161 </span><span class="lineNoCov">          0 :                 esd-&gt;decoderConfig-&gt;objectTypeIndication = GPAC_OTI_IMAGE_JPEG;</span>
+<span class="lineNum">     162 </span><span class="lineNoCov">          0 :                 esd-&gt;ESID = 3+i;</span>
+<span class="lineNum">     163 </span>            :                 /*extract image and remember it*/
+<span class="lineNum">     164 </span><span class="lineNoCov">          0 :                 mi = (GF_MuxInfo *) gf_odf_desc_new(GF_ODF_MUXINFO_TAG);</span>
+<span class="lineNum">     165 </span><span class="lineNoCov">          0 :                 gf_list_add(esd-&gt;extensionDescriptors, mi);</span>
+<span class="lineNum">     166 </span><span class="lineNoCov">          0 :                 mi-&gt;delete_file = 1;</span>
+<span class="lineNum">     167 </span><span class="lineNoCov">          0 :                 sprintf(szName, &quot;%s_img%d.jpg&quot;, load-&gt;fileName, esd-&gt;ESID);</span>
+<span class="lineNum">     168 </span><span class="lineNoCov">          0 :                 mi-&gt;file_name = gf_strdup(szName);</span>
+<span class="lineNum">     169 </span>            : 
+<span class="lineNum">     170 </span><span class="lineNoCov">          0 :                 gf_list_add(od-&gt;ESDescriptors, esd);</span>
+<span class="lineNum">     171 </span><span class="lineNoCov">          0 :                 gf_list_add(odU-&gt;objectDescriptors, od);</span>
+<span class="lineNum">     172 </span>            : 
+<span class="lineNum">     173 </span><span class="lineNoCov">          0 :                 samp = gf_isom_get_sample(src, tk, i+1, &amp;di);</span>
+<span class="lineNum">     174 </span><span class="lineNoCov">          0 :                 img = gf_fopen(mi-&gt;file_name, &quot;wb&quot;);</span>
+<span class="lineNum">     175 </span><span class="lineNoCov">          0 :                 gf_fwrite(samp-&gt;data, samp-&gt;dataLength, 1, img);</span>
+<span class="lineNum">     176 </span><span class="lineNoCov">          0 :                 gf_fclose(img);</span>
+<span class="lineNum">     177 </span><span class="lineNoCov">          0 :                 gf_isom_sample_del(&amp;samp);</span>
+<span class="lineNum">     178 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     179 </span><span class="lineNoCov">          0 :         gf_isom_delete(src);</span>
+<span class="lineNum">     180 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">     181 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     182 </span>            : 
+<span class="lineNum">     183 </span>            : #endif  /*GPAC_DISABLE_QTVR*/
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,69 @@
+*** xmlin-subt-sbtt-no-mime logs (GPAC version 0.6.2-DEV-revUNKNOWN-HEAD ) - test date 14/05/2017 22:30:17 ***
+
+
+*** Subtest "import": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/media/xmlin4/subt-sbtt-no-mime.nhml -new /Users/travis/build/gpac/gpac/tests/results/temp/subt-sbtt-no-mime.mp4" ***
+[33mText (Metadata, Subtitle or SimpleText) SampleEntry: mime is mandatory. Using text/plain.
+[0mSaving /Users/travis/build/gpac/gpac/tests/results/temp/subt-sbtt-no-mime.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "info": executing "MP4Box -noprog -for-test  -mem-track -info /Users/travis/build/gpac/gpac/tests/results/temp/subt-sbtt-no-mime.mp4" ***
+* Movie Info *
+	Timescale 600 - 1 track
+	Computed Duration 00:00:30.000 - Indicated Duration 00:00:30.000
+	Fragmented File: no
+	File suitable for progressive download (moov before mdat)
+	File Brand isom - version 1
+		Compatible brands: isom
+	Created: UNKNOWN DATE	Modified: UNKNOWN DATE
+File has no MPEG4 IOD/OD
+
+Track # 1 Info - TrackID 1 - TimeScale 1000
+Media Duration 00:00:30.000 - Indicated Duration 00:00:30.000
+Media Info: Language "Undetermined (und)" - Type "subt:sbtt" - 3 samples
+Textual Subtitle Stream - mime text/plain
+ Size 0 x 0 - Translation X=0 Y=0 - Layer 0
+	RFC6381 Codec Parameters: sbtt
+	All samples are sync
+
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "export-track": executing "MP4Box -noprog -for-test  -mem-track -raw 1 /Users/travis/build/gpac/gpac/tests/results/temp/subt-sbtt-no-mime.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/test.xml " ***
+[33mExtracting Text-based Subtitle Stream
+[0m[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Memory Block 0x7f8371816a00 (size 4096) allocated in:
+[0m[32mfile utils/bitstream.c at line 100
+[0m[32m             string dump: 
+[0m[32m[MemTracker] Memory Block 0x7f8371410560 (size 80) allocated in:
+[0m[32mfile utils/bitstream.c at line 73
+[0m[32m             string dump: 
+[0m[31m[MemTracker] Total: 4176 bytes allocated in 2 blocks
+[0m
+
+*** Subtest "export-samples": executing "MP4Box -noprog -for-test  -mem-track -raws 1 /Users/travis/build/gpac/gpac/tests/results/temp/subt-sbtt-no-mime.mp4" ***
+[33mExtracting Subtitle Text samples
+[0m[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "export-nhml": executing "MP4Box -noprog -for-test  -mem-track -nhml 1 /Users/travis/build/gpac/gpac/tests/results/temp/subt-sbtt-no-mime.mp4" ***
+[33mExporting NHML for track sbtt
+[0m[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "nhml-reimport": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/results/temp/subt-sbtt-no-mime_track1.nhml -new /Users/travis/build/gpac/gpac/tests/results/temp/subt-sbtt-no-mime_track1.mp4" ***
+[33mText (Metadata, Subtitle or SimpleText) SampleEntry: mime is mandatory. Using text/plain.
+[0mSaving /Users/travis/build/gpac/gpac/tests/results/temp/subt-sbtt-no-mime_track1.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m

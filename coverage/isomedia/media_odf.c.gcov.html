@@ -1,0 +1,599 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - isomedia/media_odf.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">isomedia</a> - media_odf.c<span style="font-size: 80%;"> (source / <a href="media_odf.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">223</td>
+            <td class="headerCovTableEntry">289</td>
+            <td class="headerCovTableEntryMed">77.2 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-05-14 22:31:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *                      GPAC - Multimedia Framework C SDK
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *                      Authors: Jean Le Feuvre
+<span class="lineNum">       5 </span>            :  *                      Copyright (c) Telecom ParisTech 2000-2012
+<span class="lineNum">       6 </span>            :  *                                      All rights reserved
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  *  This file is part of GPAC / ISO Media File Format sub-project
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  *  GPAC is free software; you can redistribute it and/or modify
+<span class="lineNum">      11 </span>            :  *  it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">      12 </span>            :  *  the Free Software Foundation; either version 2, or (at your option)
+<span class="lineNum">      13 </span>            :  *  any later version.
+<span class="lineNum">      14 </span>            :  *
+<span class="lineNum">      15 </span>            :  *  GPAC is distributed in the hope that it will be useful,
+<span class="lineNum">      16 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      17 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      18 </span>            :  *  GNU Lesser General Public License for more details.
+<span class="lineNum">      19 </span>            :  *
+<span class="lineNum">      20 </span>            :  *  You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      21 </span>            :  *  License along with this library; see the file COPYING.  If not, write to
+<span class="lineNum">      22 </span>            :  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+<span class="lineNum">      23 </span>            :  *
+<span class="lineNum">      24 </span>            :  */
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : #include &lt;gpac/internal/isomedia_dev.h&gt;
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span>            : #ifndef GPAC_DISABLE_ISOM
+<a name="29"><span class="lineNum">      29 </span>            : </a>
+<span class="lineNum">      30 </span>            : // Rewrite the good dependancies when an OD AU is extracted from the file
+<span class="lineNum">      31 </span>            : GF_Err Media_RewriteODFrame(GF_MediaBox *mdia, GF_ISOSample *sample)
+<span class="lineNum">      32 </span>            : {
+<span class="lineNum">      33 </span>            :         GF_Err e;
+<span class="lineNum">      34 </span>            :         GF_ODCodec *ODdecode;
+<span class="lineNum">      35 </span>            :         GF_ODCodec *ODencode;
+<span class="lineNum">      36 </span>            :         GF_ODCom *com;
+<span class="lineNum">      37 </span>            : 
+<span class="lineNum">      38 </span>            :         //the commands we proceed
+<span class="lineNum">      39 </span><span class="lineCov">        930 :         GF_ESDUpdate *esdU, *esdU2;</span>
+<span class="lineNum">      40 </span><span class="lineCov">        465 :         GF_ESDRemove *esdR, *esdR2;</span>
+<span class="lineNum">      41 </span><span class="lineCov">        465 :         GF_ODUpdate *odU, *odU2;</span>
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            :         //the desc they contain
+<span class="lineNum">      44 </span>            :         GF_ObjectDescriptor *od;
+<span class="lineNum">      45 </span><span class="lineCov">        465 :         GF_IsomObjectDescriptor *isom_od;</span>
+<span class="lineNum">      46 </span><span class="lineCov">        465 :         GF_ESD *esd;</span>
+<span class="lineNum">      47 </span>            :         GF_ES_ID_Ref *ref;
+<span class="lineNum">      48 </span>            :         GF_Descriptor *desc;
+<span class="lineNum">      49 </span><span class="lineCov">        465 :         GF_TrackReferenceTypeBox *mpod;</span>
+<span class="lineNum">      50 </span><span class="lineCov">        465 :         u32 i, j, skipped;</span>
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span><span class="lineCov">       1395 :         if (!mdia || !sample || !sample-&gt;data || !sample-&gt;dataLength) return GF_BAD_PARAM;</span>
+<span class="lineNum">      53 </span>            : 
+<span class="lineNum">      54 </span><span class="lineCov">        465 :         mpod = NULL;</span>
+<span class="lineNum">      55 </span><span class="lineCov">        465 :         e = Track_FindRef(mdia-&gt;mediaTrack, GF_ISOM_BOX_TYPE_MPOD, &amp;mpod);</span>
+<span class="lineNum">      56 </span><span class="lineCov">        465 :         if (e) return e;</span>
+<span class="lineNum">      57 </span>            :         //no references, nothing to do...
+<span class="lineNum">      58 </span><span class="lineCov">        465 :         if (!mpod) return GF_OK;</span>
+<span class="lineNum">      59 </span>            : 
+<span class="lineNum">      60 </span><span class="lineCov">        465 :         ODdecode = gf_odf_codec_new();</span>
+<span class="lineNum">      61 </span><span class="lineCov">        465 :         if (!ODdecode) return GF_OUT_OF_MEM;</span>
+<span class="lineNum">      62 </span><span class="lineCov">        465 :         ODencode = gf_odf_codec_new();</span>
+<span class="lineNum">      63 </span><span class="lineCov">        465 :         if (!ODencode) {</span>
+<span class="lineNum">      64 </span><span class="lineNoCov">          0 :                 gf_odf_codec_del(ODdecode);</span>
+<span class="lineNum">      65 </span><span class="lineNoCov">          0 :                 return GF_OUT_OF_MEM;</span>
+<span class="lineNum">      66 </span>            :         }
+<span class="lineNum">      67 </span><span class="lineCov">        465 :         e = gf_odf_codec_set_au(ODdecode, sample-&gt;data, sample-&gt;dataLength);</span>
+<span class="lineNum">      68 </span><span class="lineCov">        465 :         if (e) goto err_exit;</span>
+<span class="lineNum">      69 </span><span class="lineCov">        465 :         e = gf_odf_codec_decode(ODdecode);</span>
+<span class="lineNum">      70 </span><span class="lineCov">        465 :         if (e) goto err_exit;</span>
+<span class="lineNum">      71 </span>            : 
+<span class="lineNum">      72 </span>            :         while (1) {
+<span class="lineNum">      73 </span><span class="lineCov">        938 :                 com = gf_odf_codec_get_com(ODdecode);</span>
+<span class="lineNum">      74 </span><span class="lineCov">        938 :                 if (!com) break;</span>
+<span class="lineNum">      75 </span>            : 
+<span class="lineNum">      76 </span>            :                 //we only need to rewrite commands with ESDs inside: ESDUpdate and ODUpdate
+<span class="lineNum">      77 </span><span class="lineCov">        473 :                 switch (com-&gt;tag) {</span>
+<span class="lineNum">      78 </span>            :                 case GF_ODF_OD_UPDATE_TAG:
+<span class="lineNum">      79 </span><span class="lineCov">        463 :                         odU = (GF_ODUpdate *) com;</span>
+<span class="lineNum">      80 </span><span class="lineCov">        463 :                         odU2 = (GF_ODUpdate *) gf_odf_com_new(GF_ODF_OD_UPDATE_TAG);</span>
+<span class="lineNum">      81 </span>            : 
+<span class="lineNum">      82 </span><span class="lineCov">        463 :                         i=0;</span>
+<span class="lineNum">      83 </span><span class="lineCov">       2052 :                         while ((desc = (GF_Descriptor*)gf_list_enum(odU-&gt;objectDescriptors, &amp;i))) {</span>
+<span class="lineNum">      84 </span><span class="lineCov">        563 :                                 switch (desc-&gt;tag) {</span>
+<span class="lineNum">      85 </span>            :                                 case GF_ODF_OD_TAG:
+<span class="lineNum">      86 </span>            :                                 case GF_ODF_ISOM_OD_TAG:
+<span class="lineNum">      87 </span>            :                                 //IOD can be used in OD streams
+<span class="lineNum">      88 </span>            :                                 case GF_ODF_ISOM_IOD_TAG:
+<span class="lineNum">      89 </span>            :                                         break;
+<span class="lineNum">      90 </span>            :                                 default:
+<span class="lineNum">      91 </span><span class="lineNoCov">          0 :                                         return GF_ISOM_INVALID_FILE;</span>
+<span class="lineNum">      92 </span>            :                                 }
+<span class="lineNum">      93 </span><span class="lineCov">        563 :                                 e = gf_odf_desc_copy(desc, (GF_Descriptor **)&amp;isom_od);</span>
+<span class="lineNum">      94 </span><span class="lineCov">        563 :                                 if (e) goto err_exit;</span>
+<span class="lineNum">      95 </span>            : 
+<span class="lineNum">      96 </span>            :                                 //create our OD...
+<span class="lineNum">      97 </span><span class="lineCov">        563 :                                 if (desc-&gt;tag == GF_ODF_ISOM_IOD_TAG) {</span>
+<span class="lineNum">      98 </span><span class="lineNoCov">          0 :                                         od = (GF_ObjectDescriptor *) gf_malloc(sizeof(GF_InitialObjectDescriptor));</span>
+<span class="lineNum">      99 </span><span class="lineNoCov">          0 :                                 } else {</span>
+<span class="lineNum">     100 </span><span class="lineCov">        563 :                                         od = (GF_ObjectDescriptor *) gf_malloc(sizeof(GF_ObjectDescriptor));</span>
+<span class="lineNum">     101 </span>            :                                 }
+<span class="lineNum">     102 </span><span class="lineCov">        563 :                                 if (!od) {</span>
+<span class="lineNum">     103 </span>            :                                         e = GF_OUT_OF_MEM;
+<span class="lineNum">     104 </span><span class="lineNoCov">          0 :                                         goto err_exit;</span>
+<span class="lineNum">     105 </span>            :                                 }
+<span class="lineNum">     106 </span><span class="lineCov">        563 :                                 od-&gt;ESDescriptors = gf_list_new();</span>
+<span class="lineNum">     107 </span>            :                                 //and duplicate...
+<span class="lineNum">     108 </span><span class="lineCov">        563 :                                 od-&gt;objectDescriptorID = isom_od-&gt;objectDescriptorID;</span>
+<span class="lineNum">     109 </span><span class="lineCov">        563 :                                 od-&gt;tag = GF_ODF_OD_TAG;</span>
+<span class="lineNum">     110 </span><span class="lineCov">        563 :                                 od-&gt;URLString = isom_od-&gt;URLString;</span>
+<span class="lineNum">     111 </span><span class="lineCov">        563 :                                 isom_od-&gt;URLString = NULL;</span>
+<span class="lineNum">     112 </span><span class="lineCov">        563 :                                 od-&gt;extensionDescriptors = isom_od-&gt;extensionDescriptors;</span>
+<span class="lineNum">     113 </span><span class="lineCov">        563 :                                 isom_od-&gt;extensionDescriptors = NULL;</span>
+<span class="lineNum">     114 </span><span class="lineCov">        563 :                                 od-&gt;IPMP_Descriptors = isom_od-&gt;IPMP_Descriptors;</span>
+<span class="lineNum">     115 </span><span class="lineCov">        563 :                                 isom_od-&gt;IPMP_Descriptors = NULL;</span>
+<span class="lineNum">     116 </span><span class="lineCov">        563 :                                 od-&gt;OCIDescriptors = isom_od-&gt;OCIDescriptors;</span>
+<span class="lineNum">     117 </span><span class="lineCov">        563 :                                 isom_od-&gt;OCIDescriptors = NULL;</span>
+<span class="lineNum">     118 </span>            : 
+<span class="lineNum">     119 </span>            :                                 //init as IOD
+<span class="lineNum">     120 </span><span class="lineCov">        563 :                                 if (isom_od-&gt;tag == GF_ODF_ISOM_IOD_TAG) {</span>
+<span class="lineNum">     121 </span><span class="lineNoCov">          0 :                                         ((GF_InitialObjectDescriptor *)od)-&gt;audio_profileAndLevel = ((GF_IsomInitialObjectDescriptor *)isom_od)-&gt;audio_profileAndLevel;</span>
+<span class="lineNum">     122 </span><span class="lineNoCov">          0 :                                         ((GF_InitialObjectDescriptor *)od)-&gt;inlineProfileFlag = ((GF_IsomInitialObjectDescriptor *)isom_od)-&gt;inlineProfileFlag;</span>
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 :                                         ((GF_InitialObjectDescriptor *)od)-&gt;graphics_profileAndLevel = ((GF_IsomInitialObjectDescriptor *)isom_od)-&gt;graphics_profileAndLevel;</span>
+<span class="lineNum">     124 </span><span class="lineNoCov">          0 :                                         ((GF_InitialObjectDescriptor *)od)-&gt;OD_profileAndLevel = ((GF_IsomInitialObjectDescriptor *)isom_od)-&gt;OD_profileAndLevel;</span>
+<span class="lineNum">     125 </span><span class="lineNoCov">          0 :                                         ((GF_InitialObjectDescriptor *)od)-&gt;scene_profileAndLevel = ((GF_IsomInitialObjectDescriptor *)isom_od)-&gt;scene_profileAndLevel;</span>
+<span class="lineNum">     126 </span><span class="lineNoCov">          0 :                                         ((GF_InitialObjectDescriptor *)od)-&gt;visual_profileAndLevel = ((GF_IsomInitialObjectDescriptor *)isom_od)-&gt;visual_profileAndLevel;</span>
+<span class="lineNum">     127 </span><span class="lineNoCov">          0 :                                         ((GF_InitialObjectDescriptor *)od)-&gt;IPMPToolList = ((GF_IsomInitialObjectDescriptor *)isom_od)-&gt;IPMPToolList;</span>
+<span class="lineNum">     128 </span><span class="lineNoCov">          0 :                                         ((GF_IsomInitialObjectDescriptor *)isom_od)-&gt;IPMPToolList = NULL;</span>
+<span class="lineNum">     129 </span><span class="lineNoCov">          0 :                                 }</span>
+<span class="lineNum">     130 </span>            : 
+<span class="lineNum">     131 </span>            :                                 //then rewrite the ESDesc
+<span class="lineNum">     132 </span><span class="lineCov">        563 :                                 j=0;</span>
+<span class="lineNum">     133 </span><span class="lineCov">       1654 :                                 while ((ref = (GF_ES_ID_Ref*)gf_list_enum(isom_od-&gt;ES_ID_RefDescriptors, &amp;j))) {</span>
+<span class="lineNum">     134 </span>            :                                         //if the ref index is not valid, skip this desc...
+<span class="lineNum">     135 </span><span class="lineCov">       1056 :                                         if (!mpod-&gt;trackIDs || gf_isom_get_track_from_id(mdia-&gt;mediaTrack-&gt;moov, mpod-&gt;trackIDs[ref-&gt;trackRef - 1]) == NULL) continue;</span>
+<span class="lineNum">     136 </span>            :                                         //OK, get the esd
+<span class="lineNum">     137 </span><span class="lineCov">        528 :                                         e = GetESDForTime(mdia-&gt;mediaTrack-&gt;moov, mpod-&gt;trackIDs[ref-&gt;trackRef - 1], sample-&gt;DTS, &amp;esd);</span>
+<span class="lineNum">     138 </span><span class="lineCov">       1056 :                                         if (!e) e = gf_odf_desc_add_desc((GF_Descriptor *) od, (GF_Descriptor *) esd);</span>
+<span class="lineNum">     139 </span><span class="lineCov">        528 :                                         if (e) {</span>
+<span class="lineNum">     140 </span><span class="lineNoCov">          0 :                                                 gf_odf_desc_del((GF_Descriptor *)od);</span>
+<span class="lineNum">     141 </span><span class="lineNoCov">          0 :                                                 gf_odf_com_del((GF_ODCom **)&amp;odU2);</span>
+<span class="lineNum">     142 </span><span class="lineNoCov">          0 :                                                 gf_odf_desc_del((GF_Descriptor *)isom_od);</span>
+<span class="lineNum">     143 </span><span class="lineNoCov">          0 :                                                 gf_odf_com_del((GF_ODCom **)&amp;odU);</span>
+<span class="lineNum">     144 </span><span class="lineNoCov">          0 :                                                 goto err_exit;</span>
+<span class="lineNum">     145 </span>            :                                         }
+<span class="lineNum">     146 </span>            : 
+<span class="lineNum">     147 </span>            :                                 }
+<span class="lineNum">     148 </span>            :                                 //delete our desc
+<span class="lineNum">     149 </span><span class="lineCov">        563 :                                 gf_odf_desc_del((GF_Descriptor *)isom_od);</span>
+<span class="lineNum">     150 </span><span class="lineCov">        563 :                                 gf_list_add(odU2-&gt;objectDescriptors, od);</span>
+<span class="lineNum">     151 </span>            :                         }
+<span class="lineNum">     152 </span>            :                         //clean a bit
+<span class="lineNum">     153 </span><span class="lineCov">        463 :                         gf_odf_com_del((GF_ODCom **)&amp;odU);</span>
+<span class="lineNum">     154 </span><span class="lineCov">        463 :                         gf_odf_codec_add_com(ODencode, (GF_ODCom *)odU2);</span>
+<span class="lineNum">     155 </span><span class="lineCov">        463 :                         break;</span>
+<span class="lineNum">     156 </span>            : 
+<span class="lineNum">     157 </span>            :                 case GF_ODF_ESD_UPDATE_TAG:
+<span class="lineNum">     158 </span><span class="lineNoCov">          0 :                         esdU = (GF_ESDUpdate *) com;</span>
+<span class="lineNum">     159 </span><span class="lineNoCov">          0 :                         esdU2 = (GF_ESDUpdate *) gf_odf_com_new(GF_ODF_ESD_UPDATE_TAG);</span>
+<span class="lineNum">     160 </span><span class="lineNoCov">          0 :                         esdU2-&gt;ODID = esdU-&gt;ODID;</span>
+<span class="lineNum">     161 </span><span class="lineNoCov">          0 :                         i=0;</span>
+<span class="lineNum">     162 </span><span class="lineNoCov">          0 :                         while ((ref = (GF_ES_ID_Ref*)gf_list_enum(esdU-&gt;ESDescriptors, &amp;i))) {</span>
+<span class="lineNum">     163 </span>            :                                 //if the ref index is not valid, skip this desc...
+<span class="lineNum">     164 </span><span class="lineNoCov">          0 :                                 if (gf_isom_get_track_from_id(mdia-&gt;mediaTrack-&gt;moov, mpod-&gt;trackIDs[ref-&gt;trackRef - 1]) == NULL) continue;</span>
+<span class="lineNum">     165 </span>            :                                 //OK, get the esd
+<span class="lineNum">     166 </span><span class="lineNoCov">          0 :                                 e = GetESDForTime(mdia-&gt;mediaTrack-&gt;moov, mpod-&gt;trackIDs[ref-&gt;trackRef - 1], sample-&gt;DTS, &amp;esd);</span>
+<span class="lineNum">     167 </span><span class="lineNoCov">          0 :                                 if (e) goto err_exit;</span>
+<span class="lineNum">     168 </span><span class="lineNoCov">          0 :                                 gf_list_add(esdU2-&gt;ESDescriptors, esd);</span>
+<span class="lineNum">     169 </span>            :                         }
+<span class="lineNum">     170 </span><span class="lineNoCov">          0 :                         gf_odf_com_del((GF_ODCom **)&amp;esdU);</span>
+<span class="lineNum">     171 </span><span class="lineNoCov">          0 :                         gf_odf_codec_add_com(ODencode, (GF_ODCom *)esdU2);</span>
+<span class="lineNum">     172 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     173 </span>            : 
+<span class="lineNum">     174 </span>            :                 //brand new case: the ESRemove follows the same principle according to the spec...
+<span class="lineNum">     175 </span>            :                 case GF_ODF_ESD_REMOVE_REF_TAG:
+<span class="lineNum">     176 </span>            :                         //both commands have the same structure, only the tags change
+<span class="lineNum">     177 </span><span class="lineCov">          5 :                         esdR = (GF_ESDRemove *) com;</span>
+<span class="lineNum">     178 </span><span class="lineCov">          5 :                         esdR2 = (GF_ESDRemove *) gf_odf_com_new(GF_ODF_ESD_REMOVE_TAG);</span>
+<span class="lineNum">     179 </span><span class="lineCov">          5 :                         esdR2-&gt;ODID = esdR-&gt;ODID;</span>
+<span class="lineNum">     180 </span><span class="lineCov">          5 :                         esdR2-&gt;NbESDs = esdR-&gt;NbESDs;</span>
+<span class="lineNum">     181 </span>            :                         //alloc our stuff
+<span class="lineNum">     182 </span><span class="lineCov">          5 :                         esdR2-&gt;ES_ID = (unsigned short*)gf_malloc(sizeof(u32) * esdR-&gt;NbESDs);</span>
+<span class="lineNum">     183 </span><span class="lineCov">          5 :                         if (!esdR2-&gt;ES_ID) {</span>
+<span class="lineNum">     184 </span>            :                                 e = GF_OUT_OF_MEM;
+<span class="lineNum">     185 </span><span class="lineNoCov">          0 :                                 goto err_exit;</span>
+<span class="lineNum">     186 </span>            :                         }
+<span class="lineNum">     187 </span>            :                         skipped = 0;
+<span class="lineNum">     188 </span>            :                         //get the ES_ID in the mpod indicated in the ES_ID[]
+<span class="lineNum">     189 </span><span class="lineCov">         20 :                         for (i = 0; i &lt; esdR-&gt;NbESDs; i++) {</span>
+<span class="lineNum">     190 </span>            :                                 //if the ref index is not valid, remove this desc...
+<span class="lineNum">     191 </span><span class="lineCov">          5 :                                 if (gf_isom_get_track_from_id(mdia-&gt;mediaTrack-&gt;moov, mpod-&gt;trackIDs[esdR-&gt;ES_ID[i] - 1]) == NULL) {</span>
+<span class="lineNum">     192 </span><span class="lineNoCov">          0 :                                         skipped ++;</span>
+<span class="lineNum">     193 </span><span class="lineNoCov">          0 :                                 } else {</span>
+<span class="lineNum">     194 </span>            :                                         //the command in the file has the ref index of the trackID in the mpod
+<span class="lineNum">     195 </span><span class="lineCov">          5 :                                         esdR2-&gt;ES_ID[i - skipped] = mpod-&gt;trackIDs[esdR-&gt;ES_ID[i] - 1];</span>
+<span class="lineNum">     196 </span>            :                                 }
+<span class="lineNum">     197 </span>            :                         }
+<span class="lineNum">     198 </span>            :                         //gf_realloc...
+<span class="lineNum">     199 </span><span class="lineCov">          5 :                         if (skipped &amp;&amp; (skipped != esdR2-&gt;NbESDs) ) {</span>
+<span class="lineNum">     200 </span><span class="lineNoCov">          0 :                                 esdR2-&gt;NbESDs -= skipped;</span>
+<span class="lineNum">     201 </span><span class="lineNoCov">          0 :                                 esdR2-&gt;ES_ID = (unsigned short*)gf_realloc(esdR2-&gt;ES_ID, sizeof(u32) * esdR2-&gt;NbESDs);</span>
+<span class="lineNum">     202 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     203 </span><span class="lineCov">          5 :                         gf_odf_com_del((GF_ODCom **)&amp;esdR);</span>
+<span class="lineNum">     204 </span><span class="lineCov">          5 :                         gf_odf_codec_add_com(ODencode, (GF_ODCom *)esdR2);</span>
+<span class="lineNum">     205 </span><span class="lineCov">          5 :                         break;</span>
+<span class="lineNum">     206 </span>            : 
+<span class="lineNum">     207 </span>            :                 default:
+<span class="lineNum">     208 </span><span class="lineCov">          5 :                         e = gf_odf_codec_add_com(ODencode, com);</span>
+<span class="lineNum">     209 </span><span class="lineCov">          5 :                         if (e) goto err_exit;</span>
+<span class="lineNum">     210 </span>            :                 }
+<span class="lineNum">     211 </span>            :         }
+<span class="lineNum">     212 </span>            :         //encode our new AU
+<span class="lineNum">     213 </span><span class="lineCov">        465 :         e = gf_odf_codec_encode(ODencode, 1);</span>
+<span class="lineNum">     214 </span><span class="lineCov">        465 :         if (e) goto err_exit;</span>
+<span class="lineNum">     215 </span>            : 
+<span class="lineNum">     216 </span>            :         //and set the buffer in the sample
+<span class="lineNum">     217 </span><span class="lineCov">        465 :         gf_free(sample-&gt;data);</span>
+<span class="lineNum">     218 </span><span class="lineCov">        465 :         sample-&gt;data = NULL;</span>
+<span class="lineNum">     219 </span><span class="lineCov">        465 :         sample-&gt;dataLength = 0;</span>
+<span class="lineNum">     220 </span><span class="lineCov">        465 :         e = gf_odf_codec_get_au(ODencode, &amp;sample-&gt;data, &amp;sample-&gt;dataLength);</span>
+<span class="lineNum">     221 </span>            : 
+<span class="lineNum">     222 </span>            : err_exit:
+<span class="lineNum">     223 </span><span class="lineCov">        465 :         gf_odf_codec_del(ODdecode);</span>
+<span class="lineNum">     224 </span><span class="lineCov">        465 :         gf_odf_codec_del(ODencode);</span>
+<span class="lineNum">     225 </span><span class="lineCov">        465 :         return e;</span>
+<span class="lineNum">     226 </span><span class="lineCov">        465 : }</span>
+<span class="lineNum">     227 </span>            : 
+<a name="228"><span class="lineNum">     228 </span>            : </a>
+<span class="lineNum">     229 </span>            : // Update the dependancies when an OD AU is inserted in the file
+<span class="lineNum">     230 </span>            : GF_Err Media_ParseODFrame(GF_MediaBox *mdia, const GF_ISOSample *sample, GF_ISOSample **od_samp)
+<span class="lineNum">     231 </span>            : {
+<span class="lineNum">     232 </span>            :         GF_TrackReferenceBox *tref;
+<span class="lineNum">     233 </span><span class="lineCov">        388 :         GF_TrackReferenceTypeBox *mpod;</span>
+<span class="lineNum">     234 </span>            :         GF_Err e;
+<span class="lineNum">     235 </span><span class="lineCov">        194 :         GF_ODCom *com;</span>
+<span class="lineNum">     236 </span>            :         GF_ODCodec *ODencode;
+<span class="lineNum">     237 </span>            :         GF_ODCodec *ODdecode;
+<span class="lineNum">     238 </span><span class="lineCov">        194 :         u32 i, j;</span>
+<span class="lineNum">     239 </span>            :         //the commands we proceed
+<span class="lineNum">     240 </span><span class="lineCov">        194 :         GF_ESDUpdate *esdU, *esdU2;</span>
+<span class="lineNum">     241 </span>            :         GF_ESDRemove *esdR, *esdR2;
+<span class="lineNum">     242 </span><span class="lineCov">        194 :         GF_ODUpdate *odU, *odU2;</span>
+<span class="lineNum">     243 </span>            : 
+<span class="lineNum">     244 </span>            :         //the desc they contain
+<span class="lineNum">     245 </span><span class="lineCov">        194 :         GF_ObjectDescriptor *od;</span>
+<span class="lineNum">     246 </span>            :         GF_IsomObjectDescriptor *isom_od;
+<span class="lineNum">     247 </span>            :         GF_ESD *esd;
+<span class="lineNum">     248 </span>            :         GF_ES_ID_Ref *ref;
+<span class="lineNum">     249 </span>            :         GF_Descriptor *desc;
+<span class="lineNum">     250 </span>            : 
+<span class="lineNum">     251 </span><span class="lineCov">        194 :         *od_samp = NULL;</span>
+<span class="lineNum">     252 </span><span class="lineCov">        582 :         if (!mdia || !sample || !sample-&gt;data || !sample-&gt;dataLength) return GF_BAD_PARAM;</span>
+<span class="lineNum">     253 </span>            : 
+<span class="lineNum">     254 </span>            :         //First find the references, and create them if none
+<span class="lineNum">     255 </span><span class="lineCov">        194 :         tref = mdia-&gt;mediaTrack-&gt;References;</span>
+<span class="lineNum">     256 </span><span class="lineCov">        194 :         if (!tref) {</span>
+<span class="lineNum">     257 </span><span class="lineCov">        182 :                 tref = (GF_TrackReferenceBox *) gf_isom_box_new(GF_ISOM_BOX_TYPE_TREF);</span>
+<span class="lineNum">     258 </span><span class="lineCov">        182 :                 e = trak_AddBox((GF_Box*)mdia-&gt;mediaTrack, (GF_Box *) tref);</span>
+<span class="lineNum">     259 </span><span class="lineCov">        182 :                 if (e) return e;</span>
+<span class="lineNum">     260 </span>            :         }
+<span class="lineNum">     261 </span>            :         //then find the OD reference, and create it if none
+<span class="lineNum">     262 </span><span class="lineCov">        194 :         e = Track_FindRef(mdia-&gt;mediaTrack, GF_ISOM_BOX_TYPE_MPOD, &amp;mpod);</span>
+<span class="lineNum">     263 </span><span class="lineCov">        194 :         if (e) return e;</span>
+<span class="lineNum">     264 </span><span class="lineCov">        194 :         if (!mpod) {</span>
+<span class="lineNum">     265 </span><span class="lineCov">        188 :                 mpod = (GF_TrackReferenceTypeBox *) gf_isom_box_new(GF_ISOM_BOX_TYPE_REFT);</span>
+<span class="lineNum">     266 </span><span class="lineCov">        188 :                 mpod-&gt;reference_type = GF_ISOM_BOX_TYPE_MPOD;</span>
+<span class="lineNum">     267 </span><span class="lineCov">        188 :                 e = tref_AddBox((GF_Box*)tref, (GF_Box *)mpod);</span>
+<span class="lineNum">     268 </span><span class="lineCov">        188 :                 if (e) return e;</span>
+<span class="lineNum">     269 </span>            :         }
+<span class="lineNum">     270 </span>            : 
+<span class="lineNum">     271 </span>            :         //OK, create our codecs
+<span class="lineNum">     272 </span><span class="lineCov">        194 :         ODencode = gf_odf_codec_new();</span>
+<span class="lineNum">     273 </span><span class="lineCov">        194 :         if (!ODencode) return GF_OUT_OF_MEM;</span>
+<span class="lineNum">     274 </span><span class="lineCov">        194 :         ODdecode = gf_odf_codec_new();</span>
+<span class="lineNum">     275 </span><span class="lineCov">        194 :         if (!ODdecode) return GF_OUT_OF_MEM;</span>
+<span class="lineNum">     276 </span>            : 
+<span class="lineNum">     277 </span><span class="lineCov">        194 :         e = gf_odf_codec_set_au(ODdecode, sample-&gt;data, sample-&gt;dataLength);</span>
+<span class="lineNum">     278 </span><span class="lineCov">        194 :         if (e) goto err_exit;</span>
+<span class="lineNum">     279 </span><span class="lineCov">        194 :         e = gf_odf_codec_decode(ODdecode);</span>
+<span class="lineNum">     280 </span><span class="lineCov">        194 :         if (e) goto err_exit;</span>
+<span class="lineNum">     281 </span>            : 
+<span class="lineNum">     282 </span>            :         while (1) {
+<span class="lineNum">     283 </span><span class="lineCov">        392 :                 com = gf_odf_codec_get_com(ODdecode);</span>
+<span class="lineNum">     284 </span><span class="lineCov">        392 :                 if (!com) break;</span>
+<span class="lineNum">     285 </span>            : 
+<span class="lineNum">     286 </span>            :                 //check our commands
+<span class="lineNum">     287 </span><span class="lineCov">        198 :                 switch (com-&gt;tag) {</span>
+<span class="lineNum">     288 </span>            :                 //Rewrite OD Update
+<span class="lineNum">     289 </span>            :                 case GF_ODF_OD_UPDATE_TAG:
+<span class="lineNum">     290 </span>            :                         //duplicate our command
+<span class="lineNum">     291 </span><span class="lineCov">        194 :                         odU = (GF_ODUpdate *) com;</span>
+<span class="lineNum">     292 </span><span class="lineCov">        194 :                         odU2 = (GF_ODUpdate *) gf_odf_com_new(GF_ODF_OD_UPDATE_TAG);</span>
+<span class="lineNum">     293 </span>            : 
+<span class="lineNum">     294 </span><span class="lineCov">        194 :                         i=0;</span>
+<span class="lineNum">     295 </span><span class="lineCov">        858 :                         while ((desc = (GF_Descriptor*)gf_list_enum(odU-&gt;objectDescriptors, &amp;i))) {</span>
+<span class="lineNum">     296 </span>            :                                 //both OD and IODs are accepted
+<span class="lineNum">     297 </span><span class="lineCov">        235 :                                 switch (desc-&gt;tag) {</span>
+<span class="lineNum">     298 </span>            :                                 case GF_ODF_OD_TAG:
+<span class="lineNum">     299 </span>            :                                 case GF_ODF_IOD_TAG:
+<span class="lineNum">     300 </span>            :                                         break;
+<span class="lineNum">     301 </span>            :                                 default:
+<span class="lineNum">     302 </span>            :                                         e = GF_ODF_INVALID_DESCRIPTOR;
+<span class="lineNum">     303 </span><span class="lineNoCov">          0 :                                         goto err_exit;</span>
+<span class="lineNum">     304 </span>            :                                 }
+<span class="lineNum">     305 </span>            :                                 //get the esd
+<span class="lineNum">     306 </span><span class="lineCov">        235 :                                 e = gf_odf_desc_copy(desc, (GF_Descriptor **)&amp;od);</span>
+<span class="lineNum">     307 </span><span class="lineCov">        235 :                                 if (e) goto err_exit;</span>
+<span class="lineNum">     308 </span><span class="lineCov">        235 :                                 if (desc-&gt;tag == GF_ODF_OD_TAG) {</span>
+<span class="lineNum">     309 </span><span class="lineCov">        235 :                                         isom_od = (GF_IsomObjectDescriptor *) gf_malloc(sizeof(GF_IsomObjectDescriptor));</span>
+<span class="lineNum">     310 </span><span class="lineCov">        235 :                                         isom_od-&gt;tag = GF_ODF_ISOM_OD_TAG;</span>
+<span class="lineNum">     311 </span><span class="lineCov">        235 :                                 } else {</span>
+<span class="lineNum">     312 </span><span class="lineNoCov">          0 :                                         isom_od = (GF_IsomObjectDescriptor *) gf_malloc(sizeof(GF_IsomInitialObjectDescriptor));</span>
+<span class="lineNum">     313 </span><span class="lineNoCov">          0 :                                         isom_od-&gt;tag = GF_ODF_ISOM_IOD_TAG;</span>
+<span class="lineNum">     314 </span>            :                                         //copy PL
+<span class="lineNum">     315 </span><span class="lineNoCov">          0 :                                         ((GF_IsomInitialObjectDescriptor *)isom_od)-&gt;inlineProfileFlag = ((GF_InitialObjectDescriptor *)od)-&gt;inlineProfileFlag;</span>
+<span class="lineNum">     316 </span><span class="lineNoCov">          0 :                                         ((GF_IsomInitialObjectDescriptor *)isom_od)-&gt;graphics_profileAndLevel = ((GF_InitialObjectDescriptor *)od)-&gt;graphics_profileAndLevel;</span>
+<span class="lineNum">     317 </span><span class="lineNoCov">          0 :                                         ((GF_IsomInitialObjectDescriptor *)isom_od)-&gt;audio_profileAndLevel = ((GF_InitialObjectDescriptor *)od)-&gt;audio_profileAndLevel;</span>
+<span class="lineNum">     318 </span><span class="lineNoCov">          0 :                                         ((GF_IsomInitialObjectDescriptor *)isom_od)-&gt;OD_profileAndLevel = ((GF_InitialObjectDescriptor *)od)-&gt;OD_profileAndLevel;</span>
+<span class="lineNum">     319 </span><span class="lineNoCov">          0 :                                         ((GF_IsomInitialObjectDescriptor *)isom_od)-&gt;scene_profileAndLevel = ((GF_InitialObjectDescriptor *)od)-&gt;scene_profileAndLevel;</span>
+<span class="lineNum">     320 </span><span class="lineNoCov">          0 :                                         ((GF_IsomInitialObjectDescriptor *)isom_od)-&gt;visual_profileAndLevel = ((GF_InitialObjectDescriptor *)od)-&gt;visual_profileAndLevel;</span>
+<span class="lineNum">     321 </span><span class="lineNoCov">          0 :                                         ((GF_IsomInitialObjectDescriptor *)isom_od)-&gt;IPMPToolList = ((GF_InitialObjectDescriptor *)od)-&gt;IPMPToolList;</span>
+<span class="lineNum">     322 </span><span class="lineNoCov">          0 :                                         ((GF_InitialObjectDescriptor *)od)-&gt;IPMPToolList = NULL;</span>
+<span class="lineNum">     323 </span>            :                                 }
+<span class="lineNum">     324 </span>            :                                 //in OD stream only ref desc are accepted
+<span class="lineNum">     325 </span><span class="lineCov">        235 :                                 isom_od-&gt;ES_ID_RefDescriptors = gf_list_new();</span>
+<span class="lineNum">     326 </span><span class="lineCov">        235 :                                 isom_od-&gt;ES_ID_IncDescriptors = NULL;</span>
+<span class="lineNum">     327 </span>            : 
+<span class="lineNum">     328 </span>            :                                 //TO DO: check that a given sampleDescription exists
+<span class="lineNum">     329 </span><span class="lineCov">        235 :                                 isom_od-&gt;extensionDescriptors = od-&gt;extensionDescriptors;</span>
+<span class="lineNum">     330 </span><span class="lineCov">        235 :                                 od-&gt;extensionDescriptors = NULL;</span>
+<span class="lineNum">     331 </span><span class="lineCov">        235 :                                 isom_od-&gt;IPMP_Descriptors = od-&gt;IPMP_Descriptors;</span>
+<span class="lineNum">     332 </span><span class="lineCov">        235 :                                 od-&gt;IPMP_Descriptors = NULL;</span>
+<span class="lineNum">     333 </span><span class="lineCov">        235 :                                 isom_od-&gt;OCIDescriptors = od-&gt;OCIDescriptors;</span>
+<span class="lineNum">     334 </span><span class="lineCov">        235 :                                 od-&gt;OCIDescriptors = NULL;</span>
+<span class="lineNum">     335 </span><span class="lineCov">        235 :                                 isom_od-&gt;URLString = od-&gt;URLString;</span>
+<span class="lineNum">     336 </span><span class="lineCov">        235 :                                 od-&gt;URLString = NULL;</span>
+<span class="lineNum">     337 </span><span class="lineCov">        235 :                                 isom_od-&gt;objectDescriptorID = od-&gt;objectDescriptorID;</span>
+<span class="lineNum">     338 </span>            : 
+<span class="lineNum">     339 </span><span class="lineCov">        235 :                                 j=0;</span>
+<span class="lineNum">     340 </span><span class="lineCov">        691 :                                 while ((esd = (GF_ESD*)gf_list_enum(od-&gt;ESDescriptors, &amp;j))) {</span>
+<span class="lineNum">     341 </span><span class="lineCov">        221 :                                         ref = (GF_ES_ID_Ref *) gf_odf_desc_new(GF_ODF_ESD_REF_TAG);</span>
+<span class="lineNum">     342 </span>            :                                         //1 to 1 mapping trackID and ESID. Add this track to MPOD
+<span class="lineNum">     343 </span>            :                                         //if track does not exist, this will be remove while reading the OD stream
+<span class="lineNum">     344 </span><span class="lineCov">        221 :                                         e = reftype_AddRefTrack(mpod, esd-&gt;ESID, &amp;ref-&gt;trackRef);</span>
+<span class="lineNum">     345 </span><span class="lineCov">        221 :                                         if (e) goto err_exit;</span>
+<span class="lineNum">     346 </span><span class="lineCov">        221 :                                         e = gf_odf_desc_add_desc((GF_Descriptor *)isom_od, (GF_Descriptor *)ref);</span>
+<span class="lineNum">     347 </span><span class="lineCov">        221 :                                         if (e) goto err_exit;</span>
+<span class="lineNum">     348 </span>            :                                 }
+<span class="lineNum">     349 </span>            :                                 //delete our desc
+<span class="lineNum">     350 </span><span class="lineCov">        235 :                                 gf_odf_desc_del((GF_Descriptor *)od);</span>
+<span class="lineNum">     351 </span>            :                                 //and add the new one to our command
+<span class="lineNum">     352 </span><span class="lineCov">        235 :                                 gf_list_add(odU2-&gt;objectDescriptors, isom_od);</span>
+<span class="lineNum">     353 </span>            :                         }
+<span class="lineNum">     354 </span>            :                         //delete the command
+<span class="lineNum">     355 </span><span class="lineCov">        194 :                         gf_odf_com_del((GF_ODCom **)&amp;odU);</span>
+<span class="lineNum">     356 </span>            :                         //and add the new one to the codec
+<span class="lineNum">     357 </span><span class="lineCov">        194 :                         gf_odf_codec_add_com(ODencode, (GF_ODCom *)odU2);</span>
+<span class="lineNum">     358 </span><span class="lineCov">        194 :                         break;</span>
+<span class="lineNum">     359 </span>            : 
+<span class="lineNum">     360 </span>            :                 //Rewrite ESD Update
+<span class="lineNum">     361 </span>            :                 case GF_ODF_ESD_UPDATE_TAG:
+<span class="lineNum">     362 </span><span class="lineNoCov">          0 :                         esdU = (GF_ESDUpdate *) com;</span>
+<span class="lineNum">     363 </span><span class="lineNoCov">          0 :                         esdU2 = (GF_ESDUpdate *) gf_odf_com_new(GF_ODF_ESD_UPDATE_TAG);</span>
+<span class="lineNum">     364 </span><span class="lineNoCov">          0 :                         esdU2-&gt;ODID = esdU-&gt;ODID;</span>
+<span class="lineNum">     365 </span><span class="lineNoCov">          0 :                         i=0;</span>
+<span class="lineNum">     366 </span><span class="lineNoCov">          0 :                         while ((esd = (GF_ESD*)gf_list_enum(esdU-&gt;ESDescriptors, &amp;i))) {</span>
+<span class="lineNum">     367 </span><span class="lineNoCov">          0 :                                 ref = (GF_ES_ID_Ref *) gf_odf_desc_new(GF_ODF_ESD_REF_TAG);</span>
+<span class="lineNum">     368 </span>            :                                 //1 to 1 mapping trackID and ESID
+<span class="lineNum">     369 </span><span class="lineNoCov">          0 :                                 e = reftype_AddRefTrack(mpod, esd-&gt;ESID, &amp;ref-&gt;trackRef);</span>
+<span class="lineNum">     370 </span><span class="lineNoCov">          0 :                                 if (e) goto err_exit;</span>
+<span class="lineNum">     371 </span><span class="lineNoCov">          0 :                                 e = gf_list_add(esdU2-&gt;ESDescriptors, ref);</span>
+<span class="lineNum">     372 </span><span class="lineNoCov">          0 :                                 if (e) goto err_exit;</span>
+<span class="lineNum">     373 </span>            :                         }
+<span class="lineNum">     374 </span><span class="lineNoCov">          0 :                         gf_odf_com_del((GF_ODCom **)&amp;esdU);</span>
+<span class="lineNum">     375 </span><span class="lineNoCov">          0 :                         gf_odf_codec_add_com(ODencode, (GF_ODCom *)esdU2);</span>
+<span class="lineNum">     376 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     377 </span>            : 
+<span class="lineNum">     378 </span>            :                 //Brand new case: the ESRemove has to be rewritten too according to the specs...
+<span class="lineNum">     379 </span>            :                 case GF_ODF_ESD_REMOVE_TAG:
+<span class="lineNum">     380 </span><span class="lineCov">          2 :                         esdR = (GF_ESDRemove *) com;</span>
+<span class="lineNum">     381 </span><span class="lineCov">          2 :                         esdR2 = (GF_ESDRemove *) gf_odf_com_new(GF_ODF_ESD_REMOVE_TAG);</span>
+<span class="lineNum">     382 </span>            :                         //change the tag for the file format
+<span class="lineNum">     383 </span><span class="lineCov">          2 :                         esdR2-&gt;tag = GF_ODF_ESD_REMOVE_REF_TAG;</span>
+<span class="lineNum">     384 </span><span class="lineCov">          2 :                         esdR2-&gt;ODID = esdR-&gt;ODID;</span>
+<span class="lineNum">     385 </span><span class="lineCov">          2 :                         esdR2-&gt;NbESDs = esdR-&gt;NbESDs;</span>
+<span class="lineNum">     386 </span><span class="lineCov">          2 :                         if (esdR-&gt;NbESDs) {</span>
+<span class="lineNum">     387 </span>            :                                 //alloc our stuff
+<span class="lineNum">     388 </span><span class="lineCov">          2 :                                 esdR2-&gt;ES_ID = (unsigned short*)gf_malloc(sizeof(u32) * esdR-&gt;NbESDs);</span>
+<span class="lineNum">     389 </span><span class="lineCov">          2 :                                 if (!esdR2-&gt;ES_ID) {</span>
+<span class="lineNum">     390 </span>            :                                         e = GF_OUT_OF_MEM;
+<span class="lineNum">     391 </span><span class="lineNoCov">          0 :                                         goto err_exit;</span>
+<span class="lineNum">     392 </span>            :                                 }
+<span class="lineNum">     393 </span><span class="lineCov">          8 :                                 for (i = 0; i &lt; esdR-&gt;NbESDs; i++) {</span>
+<span class="lineNum">     394 </span>            :                                         //1 to 1 mapping trackID and ESID
+<span class="lineNum">     395 </span><span class="lineCov">          2 :                                         e = reftype_AddRefTrack(mpod, esdR-&gt;ES_ID[i], &amp;esdR2-&gt;ES_ID[i]);</span>
+<span class="lineNum">     396 </span><span class="lineCov">          2 :                                         if (e) goto err_exit;</span>
+<span class="lineNum">     397 </span>            :                                 }
+<span class="lineNum">     398 </span>            :                         }
+<span class="lineNum">     399 </span><span class="lineCov">          2 :                         gf_odf_com_del(&amp;com);</span>
+<span class="lineNum">     400 </span><span class="lineCov">          2 :                         gf_odf_codec_add_com(ODencode, (GF_ODCom *)esdR2);</span>
+<span class="lineNum">     401 </span><span class="lineCov">          2 :                         break;</span>
+<span class="lineNum">     402 </span>            : 
+<span class="lineNum">     403 </span>            :                 //Add the command as is
+<span class="lineNum">     404 </span>            :                 default:
+<span class="lineNum">     405 </span><span class="lineCov">          2 :                         e = gf_odf_codec_add_com(ODencode, com);</span>
+<span class="lineNum">     406 </span><span class="lineCov">          2 :                         if (e) goto err_exit;</span>
+<span class="lineNum">     407 </span>            :                 }
+<span class="lineNum">     408 </span>            :         }
+<span class="lineNum">     409 </span>            : 
+<span class="lineNum">     410 </span>            :         //encode our new AU
+<span class="lineNum">     411 </span><span class="lineCov">        194 :         e = gf_odf_codec_encode(ODencode, 1);</span>
+<span class="lineNum">     412 </span><span class="lineCov">        194 :         if (e) goto err_exit;</span>
+<span class="lineNum">     413 </span>            : 
+<span class="lineNum">     414 </span>            :         //and set the buffer in the sample
+<span class="lineNum">     415 </span><span class="lineCov">        194 :         *od_samp = gf_isom_sample_new();</span>
+<span class="lineNum">     416 </span><span class="lineCov">        194 :         (*od_samp)-&gt;CTS_Offset = sample-&gt;CTS_Offset;</span>
+<span class="lineNum">     417 </span><span class="lineCov">        194 :         (*od_samp)-&gt;DTS = sample-&gt;DTS;</span>
+<span class="lineNum">     418 </span><span class="lineCov">        194 :         (*od_samp)-&gt;IsRAP = sample-&gt;IsRAP;</span>
+<span class="lineNum">     419 </span><span class="lineCov">        194 :         e = gf_odf_codec_get_au(ODencode, &amp; (*od_samp)-&gt;data, &amp; (*od_samp)-&gt;dataLength);</span>
+<span class="lineNum">     420 </span><span class="lineCov">        194 :         if (e) {</span>
+<span class="lineNum">     421 </span><span class="lineNoCov">          0 :                 gf_isom_sample_del(od_samp);</span>
+<span class="lineNum">     422 </span><span class="lineNoCov">          0 :                 *od_samp = NULL;</span>
+<span class="lineNum">     423 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     424 </span>            : 
+<span class="lineNum">     425 </span>            : err_exit:
+<span class="lineNum">     426 </span>            : 
+<span class="lineNum">     427 </span><span class="lineCov">        194 :         gf_odf_codec_del(ODencode);</span>
+<span class="lineNum">     428 </span><span class="lineCov">        194 :         gf_odf_codec_del(ODdecode);</span>
+<span class="lineNum">     429 </span><span class="lineCov">        194 :         return e;</span>
+<span class="lineNum">     430 </span><span class="lineCov">        194 : }</span>
+<span class="lineNum">     431 </span>            : 
+<span class="lineNum">     432 </span>            : 
+<a name="433"><span class="lineNum">     433 </span>            : </a>
+<span class="lineNum">     434 </span>            : // Rewrite the good dependancies when an OD AU is extracted from the file
+<span class="lineNum">     435 </span>            : static u32 Media_FindOD_ID(GF_MediaBox *mdia, GF_ISOSample *sample, u32 track_id)
+<span class="lineNum">     436 </span>            : {
+<span class="lineNum">     437 </span>            :         GF_Err e;
+<span class="lineNum">     438 </span>            :         GF_ODCodec *ODdecode;
+<span class="lineNum">     439 </span>            :         GF_ODCom *com;
+<span class="lineNum">     440 </span>            :         u32 the_od_id;
+<span class="lineNum">     441 </span><span class="lineCov">         28 :         GF_ODUpdate *odU;</span>
+<span class="lineNum">     442 </span>            :         GF_ESD *esd;
+<span class="lineNum">     443 </span>            :         GF_Descriptor *desc;
+<span class="lineNum">     444 </span><span class="lineCov">         14 :         GF_TrackReferenceTypeBox *mpod;</span>
+<span class="lineNum">     445 </span><span class="lineCov">         14 :         u32 i, j;</span>
+<span class="lineNum">     446 </span>            : 
+<span class="lineNum">     447 </span><span class="lineCov">         42 :         if (!mdia || !sample || !sample-&gt;data || !sample-&gt;dataLength) return 0;</span>
+<span class="lineNum">     448 </span>            : 
+<span class="lineNum">     449 </span><span class="lineCov">         14 :         mpod = NULL;</span>
+<span class="lineNum">     450 </span><span class="lineCov">         14 :         e = Track_FindRef(mdia-&gt;mediaTrack, GF_ISOM_BOX_TYPE_MPOD, &amp;mpod);</span>
+<span class="lineNum">     451 </span><span class="lineCov">         14 :         if (e) return 0;</span>
+<span class="lineNum">     452 </span>            :         //no references, nothing to do...
+<span class="lineNum">     453 </span><span class="lineCov">         14 :         if (!mpod) return 0;</span>
+<span class="lineNum">     454 </span>            : 
+<span class="lineNum">     455 </span>            :         the_od_id = 0;
+<span class="lineNum">     456 </span>            : 
+<span class="lineNum">     457 </span><span class="lineCov">         14 :         ODdecode = gf_odf_codec_new();</span>
+<span class="lineNum">     458 </span><span class="lineCov">         14 :         if (!ODdecode) return 0;</span>
+<span class="lineNum">     459 </span><span class="lineCov">         14 :         e = gf_odf_codec_set_au(ODdecode, sample-&gt;data, sample-&gt;dataLength);</span>
+<span class="lineNum">     460 </span><span class="lineCov">         14 :         if (e) goto err_exit;</span>
+<span class="lineNum">     461 </span><span class="lineCov">         14 :         e = gf_odf_codec_decode(ODdecode);</span>
+<span class="lineNum">     462 </span><span class="lineCov">         14 :         if (e) goto err_exit;</span>
+<span class="lineNum">     463 </span>            : 
+<span class="lineNum">     464 </span>            :         while (1) {
+<span class="lineNum">     465 </span>            :                 GF_List *esd_list = NULL;
+<span class="lineNum">     466 </span><span class="lineCov">         24 :                 com = gf_odf_codec_get_com(ODdecode);</span>
+<span class="lineNum">     467 </span><span class="lineCov">         30 :                 if (!com) break;</span>
+<span class="lineNum">     468 </span><span class="lineCov">         18 :                 if (com-&gt;tag != GF_ODF_OD_UPDATE_TAG) continue;</span>
+<span class="lineNum">     469 </span><span class="lineCov">         18 :                 odU = (GF_ODUpdate *) com;</span>
+<span class="lineNum">     470 </span>            : 
+<span class="lineNum">     471 </span><span class="lineCov">         18 :                 i=0;</span>
+<span class="lineNum">     472 </span><span class="lineCov">         46 :                 while ((desc = (GF_Descriptor*)gf_list_enum(odU-&gt;objectDescriptors, &amp;i))) {</span>
+<span class="lineNum">     473 </span><span class="lineCov">         18 :                         switch (desc-&gt;tag) {</span>
+<span class="lineNum">     474 </span>            :                         case GF_ODF_OD_TAG:
+<span class="lineNum">     475 </span>            :                         case GF_ODF_IOD_TAG:
+<span class="lineNum">     476 </span><span class="lineCov">         18 :                                 esd_list = ((GF_ObjectDescriptor *)desc)-&gt;ESDescriptors;</span>
+<span class="lineNum">     477 </span>            :                                 break;
+<span class="lineNum">     478 </span>            :                         default:
+<span class="lineNum">     479 </span>            :                                 continue;
+<span class="lineNum">     480 </span>            :                         }
+<span class="lineNum">     481 </span><span class="lineCov">         18 :                         j=0;</span>
+<span class="lineNum">     482 </span><span class="lineCov">         46 :                         while ((esd = (GF_ESD*)gf_list_enum( esd_list, &amp;j))) {</span>
+<span class="lineNum">     483 </span><span class="lineCov">         18 :                                 if (esd-&gt;ESID==track_id) {</span>
+<span class="lineNum">     484 </span><span class="lineCov">          8 :                                         the_od_id = ((GF_IsomObjectDescriptor*)desc)-&gt;objectDescriptorID;</span>
+<span class="lineNum">     485 </span><span class="lineCov">          8 :                                         break;</span>
+<span class="lineNum">     486 </span>            :                                 }
+<span class="lineNum">     487 </span>            :                         }
+<span class="lineNum">     488 </span><span class="lineCov">         18 :                         if (the_od_id) break;</span>
+<span class="lineNum">     489 </span>            :                 }
+<span class="lineNum">     490 </span><span class="lineCov">         18 :                 gf_odf_com_del((GF_ODCom **)&amp;odU);</span>
+<span class="lineNum">     491 </span><span class="lineCov">         26 :                 if (the_od_id) break;</span>
+<span class="lineNum">     492 </span><span class="lineCov">         10 :         }</span>
+<span class="lineNum">     493 </span>            : 
+<span class="lineNum">     494 </span>            : err_exit:
+<span class="lineNum">     495 </span><span class="lineCov">         14 :         gf_odf_codec_del(ODdecode);</span>
+<span class="lineNum">     496 </span><span class="lineCov">         14 :         if (e) return 0;</span>
+<span class="lineNum">     497 </span><span class="lineCov">         14 :         return the_od_id;</span>
+<span class="lineNum">     498 </span><span class="lineCov">         14 : }</span>
+<span class="lineNum">     499 </span>            : 
+<a name="500"><span class="lineNum">     500 </span>            : </a>
+<span class="lineNum">     501 </span>            : GF_EXPORT
+<span class="lineNum">     502 </span>            : u32 gf_isom_find_od_for_track(GF_ISOFile *file, u32 track)
+<span class="lineNum">     503 </span>            : {
+<span class="lineNum">     504 </span><span class="lineCov">        278 :         u32 i, j, di, the_od_id;</span>
+<span class="lineNum">     505 </span>            :         GF_TrackBox *od_tk;
+<span class="lineNum">     506 </span><span class="lineCov">        139 :         GF_TrackBox *tk = gf_isom_get_track_from_file(file, track);</span>
+<span class="lineNum">     507 </span><span class="lineCov">        139 :         if (!tk) return 0;</span>
+<span class="lineNum">     508 </span>            : 
+<span class="lineNum">     509 </span><span class="lineCov">        139 :         i=0;</span>
+<span class="lineNum">     510 </span><span class="lineCov">        431 :         while ( (od_tk = (GF_TrackBox*)gf_list_enum(file-&gt;moov-&gt;trackList, &amp;i))) {</span>
+<span class="lineNum">     511 </span><span class="lineCov">        161 :                 if (od_tk-&gt;Media-&gt;handler-&gt;handlerType != GF_ISOM_MEDIA_OD) continue;</span>
+<span class="lineNum">     512 </span>            : 
+<span class="lineNum">     513 </span><span class="lineCov">         40 :                 for (j=0; j&lt;od_tk-&gt;Media-&gt;information-&gt;sampleTable-&gt;SampleSize-&gt;sampleCount; j++) {</span>
+<span class="lineNum">     514 </span><span class="lineCov">         14 :                         GF_ISOSample *samp = gf_isom_get_sample(file, i, j+1, &amp;di);</span>
+<span class="lineNum">     515 </span><span class="lineCov">         14 :                         the_od_id = Media_FindOD_ID(od_tk-&gt;Media, samp, tk-&gt;Header-&gt;trackID);</span>
+<span class="lineNum">     516 </span><span class="lineCov">         14 :                         gf_isom_sample_del(&amp;samp);</span>
+<span class="lineNum">     517 </span><span class="lineCov">         22 :                         if (the_od_id) return the_od_id;</span>
+<span class="lineNum">     518 </span><span class="lineCov">         20 :                 }</span>
+<span class="lineNum">     519 </span>            :         }
+<span class="lineNum">     520 </span><span class="lineCov">        131 :         return 0;</span>
+<span class="lineNum">     521 </span><span class="lineCov">        139 : }</span>
+<span class="lineNum">     522 </span>            : 
+<span class="lineNum">     523 </span>            : #endif /*GPAC_DISABLE_ISOM*/
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

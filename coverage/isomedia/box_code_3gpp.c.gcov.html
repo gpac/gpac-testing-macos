@@ -1,0 +1,1417 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - isomedia/box_code_3gpp.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">isomedia</a> - box_code_3gpp.c<span style="font-size: 80%;"> (source / <a href="box_code_3gpp.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">296</td>
+            <td class="headerCovTableEntry">783</td>
+            <td class="headerCovTableEntryLo">37.8 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-05-14 22:31:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">36</td>
+            <td class="headerCovTableEntry">102</td>
+            <td class="headerCovTableEntryLo">35.3 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *                      GPAC - Multimedia Framework C SDK
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *                      Authors: Jean Le Feuvre
+<span class="lineNum">       5 </span>            :  *                      Copyright (c) Telecom ParisTech 2000-2012
+<span class="lineNum">       6 </span>            :  *                                      All rights reserved
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  *  This file is part of GPAC / ISO Media File Format sub-project
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  *  GPAC is free software; you can redistribute it and/or modify
+<span class="lineNum">      11 </span>            :  *  it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">      12 </span>            :  *  the Free Software Foundation; either version 2, or (at your option)
+<span class="lineNum">      13 </span>            :  *  any later version.
+<span class="lineNum">      14 </span>            :  *
+<span class="lineNum">      15 </span>            :  *  GPAC is distributed in the hope that it will be useful,
+<span class="lineNum">      16 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      17 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      18 </span>            :  *  GNU Lesser General Public License for more details.
+<span class="lineNum">      19 </span>            :  *
+<span class="lineNum">      20 </span>            :  *  You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      21 </span>            :  *  License along with this library; see the file COPYING.  If not, write to
+<span class="lineNum">      22 </span>            :  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+<span class="lineNum">      23 </span>            :  *
+<span class="lineNum">      24 </span>            :  */
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : #include &lt;gpac/internal/isomedia_dev.h&gt;
+<span class="lineNum">      27 </span>            : 
+<a name="28"><span class="lineNum">      28 </span>            : #ifndef GPAC_DISABLE_ISOM</a>
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : void gppa_del(GF_Box *s)
+<span class="lineNum">      31 </span>            : {
+<span class="lineNum">      32 </span><span class="lineCov">         38 :         GF_3GPPAudioSampleEntryBox *ptr = (GF_3GPPAudioSampleEntryBox *)s;</span>
+<span class="lineNum">      33 </span><span class="lineCov">         19 :         if (ptr == NULL) return;</span>
+<span class="lineNum">      34 </span><span class="lineCov">         19 :         gf_isom_sample_entry_predestroy((GF_SampleEntryBox *)ptr);</span>
+<span class="lineNum">      35 </span>            : 
+<span class="lineNum">      36 </span><span class="lineCov">         38 :         if (ptr-&gt;info) gf_isom_box_del((GF_Box *)ptr-&gt;info);</span>
+<span class="lineNum">      37 </span><span class="lineCov">         19 :         gf_free(ptr);</span>
+<span class="lineNum">      38 </span><span class="lineCov">         38 : }</span>
+<a name="39"><span class="lineNum">      39 </span>            : </a>
+<span class="lineNum">      40 </span>            : 
+<span class="lineNum">      41 </span>            : GF_Err gppa_Read(GF_Box *s, GF_BitStream *bs)
+<span class="lineNum">      42 </span>            : {
+<span class="lineNum">      43 </span>            :         GF_Err e;
+<span class="lineNum">      44 </span><span class="lineCov">         28 :         GF_3GPPAudioSampleEntryBox *ptr = (GF_3GPPAudioSampleEntryBox *)s;</span>
+<span class="lineNum">      45 </span><span class="lineCov">         14 :         e = gf_isom_audio_sample_entry_read((GF_AudioSampleEntryBox*)s, bs);</span>
+<span class="lineNum">      46 </span><span class="lineCov">         14 :         if (e) return e;</span>
+<span class="lineNum">      47 </span><span class="lineCov">         14 :         e = gf_isom_parse_box((GF_Box **)&amp;ptr-&gt;info, bs);</span>
+<span class="lineNum">      48 </span><span class="lineCov">         14 :         if (e) return e;</span>
+<span class="lineNum">      49 </span>            : 
+<span class="lineNum">      50 </span><span class="lineCov">         14 :         switch (ptr-&gt;info-&gt;type) {</span>
+<span class="lineNum">      51 </span>            :         case GF_ISOM_BOX_TYPE_DAMR:
+<span class="lineNum">      52 </span>            :         case GF_ISOM_BOX_TYPE_DEVC:
+<span class="lineNum">      53 </span>            :         case GF_ISOM_BOX_TYPE_DQCP:
+<span class="lineNum">      54 </span>            :         case GF_ISOM_BOX_TYPE_DSMV:
+<span class="lineNum">      55 </span>            :         case GF_ISOM_BOX_TYPE_D263:
+<span class="lineNum">      56 </span><span class="lineCov">         14 :                 ptr-&gt;info-&gt;cfg.type = ptr-&gt;type;</span>
+<span class="lineNum">      57 </span>            :                 break;
+<span class="lineNum">      58 </span>            :         default:
+<span class="lineNum">      59 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_WARNING, GF_LOG_CONTAINER, (&quot;[iso file] Unknown 3GPP config box %s\n&quot;, gf_4cc_to_str(ptr-&gt;info-&gt;type) ));</span>
+<span class="lineNum">      60 </span><span class="lineNoCov">          0 :                 return GF_ISOM_INVALID_FILE;</span>
+<span class="lineNum">      61 </span>            :         }
+<span class="lineNum">      62 </span><span class="lineCov">         14 :         return GF_OK;</span>
+<a name="63"><span class="lineNum">      63 </span><span class="lineCov">         14 : }</span></a>
+<span class="lineNum">      64 </span>            : 
+<span class="lineNum">      65 </span>            : GF_Box *gppa_New(u32 type)
+<span class="lineNum">      66 </span>            : {
+<span class="lineNum">      67 </span><span class="lineCov">         95 :         ISOM_DECL_BOX_ALLOC(GF_3GPPAudioSampleEntryBox, type);</span>
+<span class="lineNum">      68 </span><span class="lineCov">         19 :         gf_isom_audio_sample_entry_init((GF_AudioSampleEntryBox*)tmp);</span>
+<span class="lineNum">      69 </span><span class="lineCov">         19 :         return (GF_Box *)tmp;</span>
+<span class="lineNum">      70 </span><span class="lineCov">         19 : }</span>
+<span class="lineNum">      71 </span>            : 
+<a name="72"><span class="lineNum">      72 </span>            : #ifndef GPAC_DISABLE_ISOM_WRITE</a>
+<span class="lineNum">      73 </span>            : 
+<span class="lineNum">      74 </span>            : GF_Err gppa_Write(GF_Box *s, GF_BitStream *bs)
+<span class="lineNum">      75 </span>            : {
+<span class="lineNum">      76 </span>            :         GF_Err e;
+<span class="lineNum">      77 </span><span class="lineCov">         18 :         GF_3GPPAudioSampleEntryBox *ptr = (GF_3GPPAudioSampleEntryBox *)s;</span>
+<span class="lineNum">      78 </span><span class="lineCov">          9 :         e = gf_isom_box_write_header(s, bs);</span>
+<span class="lineNum">      79 </span><span class="lineCov">          9 :         if (e) return e;</span>
+<span class="lineNum">      80 </span>            : 
+<span class="lineNum">      81 </span><span class="lineCov">          9 :         gf_isom_audio_sample_entry_write((GF_AudioSampleEntryBox*)s, bs);</span>
+<span class="lineNum">      82 </span><span class="lineCov">          9 :         return gf_isom_box_write((GF_Box *)ptr-&gt;info, bs);</span>
+<a name="83"><span class="lineNum">      83 </span><span class="lineCov">          9 : }</span></a>
+<span class="lineNum">      84 </span>            : 
+<span class="lineNum">      85 </span>            : GF_Err gppa_Size(GF_Box *s)
+<span class="lineNum">      86 </span>            : {
+<span class="lineNum">      87 </span>            :         GF_Err e;
+<span class="lineNum">      88 </span><span class="lineCov">         54 :         GF_3GPPAudioSampleEntryBox *ptr = (GF_3GPPAudioSampleEntryBox *)s;</span>
+<span class="lineNum">      89 </span><span class="lineCov">         27 :         e = gf_isom_box_get_size(s);</span>
+<span class="lineNum">      90 </span><span class="lineCov">         27 :         if (e) return e;</span>
+<span class="lineNum">      91 </span><span class="lineCov">         27 :         gf_isom_audio_sample_entry_size((GF_AudioSampleEntryBox*)s);</span>
+<span class="lineNum">      92 </span><span class="lineCov">         27 :         e = gf_isom_box_size((GF_Box *)ptr-&gt;info);</span>
+<span class="lineNum">      93 </span><span class="lineCov">         27 :         if (e) return e;</span>
+<span class="lineNum">      94 </span><span class="lineCov">         27 :         ptr-&gt;size += ptr-&gt;info-&gt;size;</span>
+<span class="lineNum">      95 </span><span class="lineCov">         27 :         return GF_OK;</span>
+<span class="lineNum">      96 </span><span class="lineCov">         27 : }</span>
+<span class="lineNum">      97 </span>            : 
+<span class="lineNum">      98 </span>            : #endif /*GPAC_DISABLE_ISOM_WRITE*/
+<a name="99"><span class="lineNum">      99 </span>            : </a>
+<span class="lineNum">     100 </span>            : 
+<span class="lineNum">     101 </span>            : GF_Box *gppv_New(u32 type)
+<span class="lineNum">     102 </span>            : {
+<span class="lineNum">     103 </span><span class="lineCov">         20 :         ISOM_DECL_BOX_ALLOC(GF_3GPPVisualSampleEntryBox, type);</span>
+<span class="lineNum">     104 </span><span class="lineCov">          4 :         gf_isom_video_sample_entry_init((GF_VisualSampleEntryBox *)tmp);</span>
+<a name="105"><span class="lineNum">     105 </span><span class="lineCov">          4 :         return (GF_Box *)tmp;</span></a>
+<span class="lineNum">     106 </span><span class="lineCov">          4 : }</span>
+<span class="lineNum">     107 </span>            : void gppv_del(GF_Box *s)
+<span class="lineNum">     108 </span>            : {
+<span class="lineNum">     109 </span><span class="lineCov">          8 :         GF_3GPPVisualSampleEntryBox *ptr = (GF_3GPPVisualSampleEntryBox *)s;</span>
+<span class="lineNum">     110 </span><span class="lineCov">          4 :         if (ptr == NULL) return;</span>
+<span class="lineNum">     111 </span><span class="lineCov">          4 :         gf_isom_sample_entry_predestroy((GF_SampleEntryBox *)ptr);</span>
+<span class="lineNum">     112 </span><span class="lineCov">          8 :         if (ptr-&gt;info) gf_isom_box_del((GF_Box *)ptr-&gt;info);</span>
+<span class="lineNum">     113 </span><span class="lineCov">          4 :         gf_free(ptr);</span>
+<a name="114"><span class="lineNum">     114 </span><span class="lineCov">          8 : }</span></a>
+<span class="lineNum">     115 </span>            : 
+<span class="lineNum">     116 </span>            : GF_Err gppv_Read(GF_Box *s, GF_BitStream *bs)
+<span class="lineNum">     117 </span>            : {
+<span class="lineNum">     118 </span>            :         GF_Err e;
+<span class="lineNum">     119 </span><span class="lineCov">          4 :         GF_3GPPVisualSampleEntryBox *ptr = (GF_3GPPVisualSampleEntryBox *)s;</span>
+<span class="lineNum">     120 </span><span class="lineCov">          2 :         e = gf_isom_video_sample_entry_read((GF_VisualSampleEntryBox *)ptr, bs);</span>
+<span class="lineNum">     121 </span><span class="lineCov">          2 :         if (e) return e;</span>
+<span class="lineNum">     122 </span>            :         /*FIXME - check for any other boxes...*/
+<span class="lineNum">     123 </span><span class="lineCov">          2 :         e = gf_isom_parse_box((GF_Box **)&amp;ptr-&gt;info, bs);</span>
+<span class="lineNum">     124 </span><span class="lineCov">          2 :         return e;</span>
+<span class="lineNum">     125 </span><span class="lineCov">          2 : }</span>
+<span class="lineNum">     126 </span>            : 
+<a name="127"><span class="lineNum">     127 </span>            : #ifndef GPAC_DISABLE_ISOM_WRITE</a>
+<span class="lineNum">     128 </span>            : 
+<span class="lineNum">     129 </span>            : GF_Err gppv_Write(GF_Box *s, GF_BitStream *bs)
+<span class="lineNum">     130 </span>            : {
+<span class="lineNum">     131 </span>            :         GF_Err e;
+<span class="lineNum">     132 </span><span class="lineCov">          4 :         GF_3GPPVisualSampleEntryBox *ptr = (GF_3GPPVisualSampleEntryBox*)s;</span>
+<span class="lineNum">     133 </span><span class="lineCov">          2 :         e = gf_isom_box_write_header(s, bs);</span>
+<span class="lineNum">     134 </span><span class="lineCov">          2 :         if (e) return e;</span>
+<span class="lineNum">     135 </span><span class="lineCov">          2 :         gf_isom_video_sample_entry_write((GF_VisualSampleEntryBox *)s, bs);</span>
+<span class="lineNum">     136 </span><span class="lineCov">          2 :         e = gf_isom_box_write((GF_Box *)ptr-&gt;info, bs);</span>
+<span class="lineNum">     137 </span><span class="lineCov">          2 :         if (e) return e;</span>
+<span class="lineNum">     138 </span><span class="lineCov">          2 :         return GF_OK;</span>
+<a name="139"><span class="lineNum">     139 </span><span class="lineCov">          2 : }</span></a>
+<span class="lineNum">     140 </span>            : 
+<span class="lineNum">     141 </span>            : GF_Err gppv_Size(GF_Box *s)
+<span class="lineNum">     142 </span>            : {
+<span class="lineNum">     143 </span>            :         GF_Err e;
+<span class="lineNum">     144 </span><span class="lineCov">         12 :         GF_3GPPVisualSampleEntryBox *ptr = (GF_3GPPVisualSampleEntryBox*)s;</span>
+<span class="lineNum">     145 </span><span class="lineCov">          6 :         e = gf_isom_box_get_size(s);</span>
+<span class="lineNum">     146 </span><span class="lineCov">          6 :         if (e) return e;</span>
+<span class="lineNum">     147 </span><span class="lineCov">          6 :         gf_isom_video_sample_entry_size((GF_VisualSampleEntryBox *)s);</span>
+<span class="lineNum">     148 </span><span class="lineCov">          6 :         e = gf_isom_box_size((GF_Box *)ptr-&gt;info);</span>
+<span class="lineNum">     149 </span><span class="lineCov">          6 :         if (e) return e;</span>
+<span class="lineNum">     150 </span><span class="lineCov">          6 :         ptr-&gt;size += ptr-&gt;info-&gt;size;</span>
+<span class="lineNum">     151 </span><span class="lineCov">          6 :         return GF_OK;</span>
+<span class="lineNum">     152 </span><span class="lineCov">          6 : }</span>
+<span class="lineNum">     153 </span>            : 
+<span class="lineNum">     154 </span>            : #endif /*GPAC_DISABLE_ISOM_WRITE*/
+<a name="155"><span class="lineNum">     155 </span>            : </a>
+<span class="lineNum">     156 </span>            : 
+<span class="lineNum">     157 </span>            : GF_Box *gppc_New(u32 type)
+<span class="lineNum">     158 </span>            : {
+<span class="lineNum">     159 </span><span class="lineCov">        115 :         ISOM_DECL_BOX_ALLOC(GF_3GPPConfigBox, type);</span>
+<span class="lineNum">     160 </span><span class="lineCov">         23 :         return (GF_Box *)tmp;</span>
+<a name="161"><span class="lineNum">     161 </span><span class="lineCov">         23 : }</span></a>
+<span class="lineNum">     162 </span>            : 
+<span class="lineNum">     163 </span>            : void gppc_del(GF_Box *s)
+<span class="lineNum">     164 </span>            : {
+<span class="lineNum">     165 </span><span class="lineCov">         46 :         GF_3GPPConfigBox *ptr = (GF_3GPPConfigBox *)s;</span>
+<span class="lineNum">     166 </span><span class="lineCov">         23 :         if (ptr == NULL) return;</span>
+<span class="lineNum">     167 </span><span class="lineCov">         23 :         gf_free(ptr);</span>
+<span class="lineNum">     168 </span><span class="lineCov">         46 : }</span>
+<a name="169"><span class="lineNum">     169 </span>            : </a>
+<span class="lineNum">     170 </span>            : 
+<span class="lineNum">     171 </span>            : GF_Err gppc_Read(GF_Box *s, GF_BitStream *bs)
+<span class="lineNum">     172 </span>            : {
+<span class="lineNum">     173 </span><span class="lineCov">         32 :         GF_3GPPConfigBox *ptr = (GF_3GPPConfigBox *)s;</span>
+<span class="lineNum">     174 </span><span class="lineCov">         16 :         if (ptr == NULL) return GF_BAD_PARAM;</span>
+<span class="lineNum">     175 </span><span class="lineCov">         32 :         memset(&amp;ptr-&gt;cfg, 0, sizeof(GF_3GPConfig));</span>
+<span class="lineNum">     176 </span>            : 
+<span class="lineNum">     177 </span><span class="lineCov">         32 :         ptr-&gt;cfg.vendor = gf_bs_read_u32(bs);</span>
+<span class="lineNum">     178 </span><span class="lineCov">         32 :         ptr-&gt;cfg.decoder_version = gf_bs_read_u8(bs);</span>
+<span class="lineNum">     179 </span>            : 
+<span class="lineNum">     180 </span><span class="lineCov">         32 :         switch (ptr-&gt;type) {</span>
+<span class="lineNum">     181 </span>            :         case GF_ISOM_BOX_TYPE_D263:
+<span class="lineNum">     182 </span><span class="lineCov">          2 :                 ptr-&gt;cfg.H263_level = gf_bs_read_u8(bs);</span>
+<span class="lineNum">     183 </span><span class="lineCov">          2 :                 ptr-&gt;cfg.H263_profile = gf_bs_read_u8(bs);</span>
+<span class="lineNum">     184 </span><span class="lineCov">          2 :                 break;</span>
+<span class="lineNum">     185 </span>            :         case GF_ISOM_BOX_TYPE_DAMR:
+<span class="lineNum">     186 </span><span class="lineCov">          2 :                 ptr-&gt;cfg.AMR_mode_set = gf_bs_read_u16(bs);</span>
+<span class="lineNum">     187 </span><span class="lineCov">          2 :                 ptr-&gt;cfg.AMR_mode_change_period = gf_bs_read_u8(bs);</span>
+<span class="lineNum">     188 </span><span class="lineCov">          2 :                 ptr-&gt;cfg.frames_per_sample = gf_bs_read_u8(bs);</span>
+<span class="lineNum">     189 </span><span class="lineCov">          2 :                 break;</span>
+<span class="lineNum">     190 </span>            :         case GF_ISOM_BOX_TYPE_DEVC:
+<span class="lineNum">     191 </span>            :         case GF_ISOM_BOX_TYPE_DQCP:
+<span class="lineNum">     192 </span>            :         case GF_ISOM_BOX_TYPE_DSMV:
+<span class="lineNum">     193 </span><span class="lineCov">         12 :                 ptr-&gt;cfg.frames_per_sample = gf_bs_read_u8(bs);</span>
+<span class="lineNum">     194 </span><span class="lineCov">         12 :                 break;</span>
+<span class="lineNum">     195 </span>            :         }
+<span class="lineNum">     196 </span><span class="lineCov">         16 :         return GF_OK;</span>
+<span class="lineNum">     197 </span><span class="lineCov">         16 : }</span>
+<span class="lineNum">     198 </span>            : 
+<a name="199"><span class="lineNum">     199 </span>            : #ifndef GPAC_DISABLE_ISOM_WRITE</a>
+<span class="lineNum">     200 </span>            : 
+<span class="lineNum">     201 </span>            : GF_Err gppc_Write(GF_Box *s, GF_BitStream *bs)
+<span class="lineNum">     202 </span>            : {
+<span class="lineNum">     203 </span>            :         GF_Err e;
+<span class="lineNum">     204 </span><span class="lineCov">         22 :         GF_3GPPConfigBox *ptr = (GF_3GPPConfigBox *)s;</span>
+<span class="lineNum">     205 </span><span class="lineCov">         11 :         e = gf_isom_box_write_header(s, bs);</span>
+<span class="lineNum">     206 </span><span class="lineCov">         11 :         if (e) return e;</span>
+<span class="lineNum">     207 </span>            : 
+<span class="lineNum">     208 </span><span class="lineCov">         22 :         gf_bs_write_u32(bs, ptr-&gt;cfg.vendor);</span>
+<span class="lineNum">     209 </span><span class="lineCov">         22 :         gf_bs_write_u8(bs, ptr-&gt;cfg.decoder_version);</span>
+<span class="lineNum">     210 </span><span class="lineCov">         22 :         switch (ptr-&gt;cfg.type) {</span>
+<span class="lineNum">     211 </span>            :         case GF_ISOM_SUBTYPE_3GP_H263:
+<span class="lineNum">     212 </span><span class="lineCov">          2 :                 gf_bs_write_u8(bs, ptr-&gt;cfg.H263_level);</span>
+<span class="lineNum">     213 </span><span class="lineCov">          2 :                 gf_bs_write_u8(bs, ptr-&gt;cfg.H263_profile);</span>
+<span class="lineNum">     214 </span><span class="lineCov">          2 :                 break;</span>
+<span class="lineNum">     215 </span>            :         case GF_ISOM_SUBTYPE_3GP_AMR:
+<span class="lineNum">     216 </span>            :         case GF_ISOM_SUBTYPE_3GP_AMR_WB:
+<span class="lineNum">     217 </span><span class="lineCov">          3 :                 gf_bs_write_u16(bs, ptr-&gt;cfg.AMR_mode_set);</span>
+<span class="lineNum">     218 </span><span class="lineCov">          3 :                 gf_bs_write_u8(bs, ptr-&gt;cfg.AMR_mode_change_period);</span>
+<span class="lineNum">     219 </span><span class="lineCov">          3 :                 gf_bs_write_u8(bs, ptr-&gt;cfg.frames_per_sample);</span>
+<span class="lineNum">     220 </span><span class="lineCov">          3 :                 break;</span>
+<span class="lineNum">     221 </span>            :         case GF_ISOM_SUBTYPE_3GP_EVRC:
+<span class="lineNum">     222 </span>            :         case GF_ISOM_SUBTYPE_3GP_QCELP:
+<span class="lineNum">     223 </span>            :         case GF_ISOM_SUBTYPE_3GP_SMV:
+<span class="lineNum">     224 </span><span class="lineCov">          6 :                 gf_bs_write_u8(bs, ptr-&gt;cfg.frames_per_sample);</span>
+<span class="lineNum">     225 </span><span class="lineCov">          6 :                 break;</span>
+<span class="lineNum">     226 </span>            :         }
+<span class="lineNum">     227 </span><span class="lineCov">         11 :         return GF_OK;</span>
+<a name="228"><span class="lineNum">     228 </span><span class="lineCov">         11 : }</span></a>
+<span class="lineNum">     229 </span>            : 
+<span class="lineNum">     230 </span>            : GF_Err gppc_Size(GF_Box *s)
+<span class="lineNum">     231 </span>            : {
+<span class="lineNum">     232 </span>            :         GF_Err e;
+<span class="lineNum">     233 </span><span class="lineCov">         66 :         GF_3GPPConfigBox *ptr = (GF_3GPPConfigBox *)s;</span>
+<span class="lineNum">     234 </span>            : 
+<span class="lineNum">     235 </span><span class="lineCov">         33 :         e = gf_isom_box_get_size(s);</span>
+<span class="lineNum">     236 </span><span class="lineCov">         33 :         if (e) return e;</span>
+<span class="lineNum">     237 </span><span class="lineCov">         66 :         s-&gt;size += 5;</span>
+<span class="lineNum">     238 </span><span class="lineCov">         66 :         switch (ptr-&gt;cfg.type) {</span>
+<span class="lineNum">     239 </span>            :         case GF_ISOM_SUBTYPE_3GP_H263:
+<span class="lineNum">     240 </span><span class="lineCov">          6 :                 s-&gt;size += 2;</span>
+<span class="lineNum">     241 </span><span class="lineCov">          6 :                 break;</span>
+<span class="lineNum">     242 </span>            :         case GF_ISOM_SUBTYPE_3GP_AMR:
+<span class="lineNum">     243 </span>            :         case GF_ISOM_SUBTYPE_3GP_AMR_WB:
+<span class="lineNum">     244 </span><span class="lineCov">          9 :                 s-&gt;size += 4;</span>
+<span class="lineNum">     245 </span><span class="lineCov">          9 :                 break;</span>
+<span class="lineNum">     246 </span>            :         case GF_ISOM_SUBTYPE_3GP_EVRC:
+<span class="lineNum">     247 </span>            :         case GF_ISOM_SUBTYPE_3GP_QCELP:
+<span class="lineNum">     248 </span>            :         case GF_ISOM_SUBTYPE_3GP_SMV:
+<span class="lineNum">     249 </span><span class="lineCov">         18 :                 s-&gt;size += 1;</span>
+<span class="lineNum">     250 </span><span class="lineCov">         18 :                 break;</span>
+<span class="lineNum">     251 </span>            :         }
+<span class="lineNum">     252 </span><span class="lineCov">         33 :         return GF_OK;</span>
+<span class="lineNum">     253 </span><span class="lineCov">         33 : }</span>
+<span class="lineNum">     254 </span>            : 
+<span class="lineNum">     255 </span>            : #endif /*GPAC_DISABLE_ISOM_WRITE*/
+<a name="256"><span class="lineNum">     256 </span>            : </a>
+<span class="lineNum">     257 </span>            : 
+<span class="lineNum">     258 </span>            : GF_Box *ftab_New()
+<span class="lineNum">     259 </span>            : {
+<span class="lineNum">     260 </span><span class="lineCov">        890 :         ISOM_DECL_BOX_ALLOC(GF_FontTableBox, GF_ISOM_BOX_TYPE_FTAB);</span>
+<a name="261"><span class="lineNum">     261 </span><span class="lineCov">        178 :         return (GF_Box *) tmp;</span></a>
+<span class="lineNum">     262 </span><span class="lineCov">        178 : }</span>
+<span class="lineNum">     263 </span>            : void ftab_del(GF_Box *s)
+<span class="lineNum">     264 </span>            : {
+<span class="lineNum">     265 </span><span class="lineCov">        356 :         GF_FontTableBox *ptr = (GF_FontTableBox *)s;</span>
+<span class="lineNum">     266 </span><span class="lineCov">        178 :         if (ptr-&gt;fonts) {</span>
+<span class="lineNum">     267 </span>            :                 u32 i;
+<span class="lineNum">     268 </span><span class="lineCov">        712 :                 for (i=0; i&lt;ptr-&gt;entry_count; i++)</span>
+<span class="lineNum">     269 </span><span class="lineCov">        356 :                         if (ptr-&gt;fonts[i].fontName) gf_free(ptr-&gt;fonts[i].fontName);</span>
+<span class="lineNum">     270 </span><span class="lineCov">        178 :                 gf_free(ptr-&gt;fonts);</span>
+<span class="lineNum">     271 </span><span class="lineCov">        178 :         }</span>
+<a name="272"><span class="lineNum">     272 </span><span class="lineCov">        178 :         gf_free(ptr);</span></a>
+<span class="lineNum">     273 </span><span class="lineCov">        178 : }</span>
+<span class="lineNum">     274 </span>            : GF_Err ftab_Read(GF_Box *s, GF_BitStream *bs)
+<span class="lineNum">     275 </span>            : {
+<span class="lineNum">     276 </span>            :         u32 i;
+<span class="lineNum">     277 </span><span class="lineCov">        306 :         GF_FontTableBox *ptr = (GF_FontTableBox *)s;</span>
+<span class="lineNum">     278 </span><span class="lineCov">        153 :         ptr-&gt;entry_count = gf_bs_read_u16(bs);</span>
+<span class="lineNum">     279 </span><span class="lineCov">        153 :         ptr-&gt;size -= 2;</span>
+<span class="lineNum">     280 </span><span class="lineCov">        153 :         if (ptr-&gt;size&lt;ptr-&gt;entry_count*3) {</span>
+<span class="lineNum">     281 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_WARNING, GF_LOG_CONTAINER, (&quot;[iso file] Corrupted ftap box, skipping\n&quot;));</span>
+<span class="lineNum">     282 </span><span class="lineNoCov">          0 :                 ptr-&gt;entry_count = 0;</span>
+<span class="lineNum">     283 </span><span class="lineNoCov">          0 :                 return GF_OK;</span>
+<span class="lineNum">     284 </span>            :         }
+<span class="lineNum">     285 </span><span class="lineCov">        153 :         ptr-&gt;fonts = (GF_FontRecord *) gf_malloc(sizeof(GF_FontRecord)*ptr-&gt;entry_count);</span>
+<span class="lineNum">     286 </span><span class="lineCov">        153 :         memset(ptr-&gt;fonts, 0, sizeof(GF_FontRecord)*ptr-&gt;entry_count);</span>
+<span class="lineNum">     287 </span><span class="lineCov">        612 :         for (i=0; i&lt;ptr-&gt;entry_count; i++) {</span>
+<span class="lineNum">     288 </span>            :                 u32 len;
+<span class="lineNum">     289 </span><span class="lineCov">        153 :                 ptr-&gt;fonts[i].fontID = gf_bs_read_u16(bs);</span>
+<span class="lineNum">     290 </span><span class="lineCov">        153 :                 len = gf_bs_read_u8(bs);</span>
+<span class="lineNum">     291 </span><span class="lineCov">        153 :                 if (len) {</span>
+<span class="lineNum">     292 </span><span class="lineCov">        153 :                         ptr-&gt;fonts[i].fontName = (char *)gf_malloc(sizeof(char)*(len+1));</span>
+<span class="lineNum">     293 </span><span class="lineCov">        153 :                         gf_bs_read_data(bs, ptr-&gt;fonts[i].fontName, len);</span>
+<span class="lineNum">     294 </span><span class="lineCov">        153 :                         ptr-&gt;fonts[i].fontName[len] = 0;</span>
+<span class="lineNum">     295 </span><span class="lineCov">        153 :                 }</span>
+<span class="lineNum">     296 </span>            :         }
+<span class="lineNum">     297 </span><span class="lineCov">        153 :         return GF_OK;</span>
+<span class="lineNum">     298 </span><span class="lineCov">        153 : }</span>
+<a name="299"><span class="lineNum">     299 </span>            : </a>
+<span class="lineNum">     300 </span>            : #ifndef GPAC_DISABLE_ISOM_WRITE
+<span class="lineNum">     301 </span>            : GF_Err ftab_Write(GF_Box *s, GF_BitStream *bs)
+<span class="lineNum">     302 </span>            : {
+<span class="lineNum">     303 </span>            :         GF_Err e;
+<span class="lineNum">     304 </span>            :         u32 i;
+<span class="lineNum">     305 </span><span class="lineCov">        102 :         GF_FontTableBox *ptr = (GF_FontTableBox *)s;</span>
+<span class="lineNum">     306 </span><span class="lineCov">         51 :         e = gf_isom_box_write_header(s, bs);</span>
+<span class="lineNum">     307 </span><span class="lineCov">         51 :         if (e) return e;</span>
+<span class="lineNum">     308 </span><span class="lineCov">         51 :         gf_bs_write_u16(bs, ptr-&gt;entry_count);</span>
+<span class="lineNum">     309 </span><span class="lineCov">        204 :         for (i=0; i&lt;ptr-&gt;entry_count; i++) {</span>
+<span class="lineNum">     310 </span><span class="lineCov">         51 :                 gf_bs_write_u16(bs, ptr-&gt;fonts[i].fontID);</span>
+<span class="lineNum">     311 </span><span class="lineCov">         51 :                 if (ptr-&gt;fonts[i].fontName) {</span>
+<span class="lineNum">     312 </span><span class="lineCov">         51 :                         u32 len = (u32) strlen(ptr-&gt;fonts[i].fontName);</span>
+<span class="lineNum">     313 </span><span class="lineCov">         51 :                         gf_bs_write_u8(bs, len);</span>
+<span class="lineNum">     314 </span><span class="lineCov">         51 :                         gf_bs_write_data(bs, ptr-&gt;fonts[i].fontName, len);</span>
+<span class="lineNum">     315 </span><span class="lineCov">         51 :                 } else {</span>
+<span class="lineNum">     316 </span><span class="lineNoCov">          0 :                         gf_bs_write_u8(bs, 0);</span>
+<span class="lineNum">     317 </span>            :                 }
+<span class="lineNum">     318 </span>            :         }
+<a name="319"><span class="lineNum">     319 </span><span class="lineCov">         51 :         return GF_OK;</span></a>
+<span class="lineNum">     320 </span><span class="lineCov">         51 : }</span>
+<span class="lineNum">     321 </span>            : GF_Err ftab_Size(GF_Box *s)
+<span class="lineNum">     322 </span>            : {
+<span class="lineNum">     323 </span>            :         u32 i;
+<span class="lineNum">     324 </span><span class="lineCov">        270 :         GF_FontTableBox *ptr = (GF_FontTableBox *)s;</span>
+<span class="lineNum">     325 </span><span class="lineCov">        135 :         GF_Err e = gf_isom_box_get_size(s);</span>
+<span class="lineNum">     326 </span><span class="lineCov">        135 :         if (e) return e;</span>
+<span class="lineNum">     327 </span><span class="lineCov">        135 :         s-&gt;size += 2;</span>
+<span class="lineNum">     328 </span><span class="lineCov">        540 :         for (i=0; i&lt;ptr-&gt;entry_count; i++) {</span>
+<span class="lineNum">     329 </span><span class="lineCov">        135 :                 s-&gt;size += 3;</span>
+<span class="lineNum">     330 </span><span class="lineCov">        270 :                 if (ptr-&gt;fonts[i].fontName) s-&gt;size += strlen(ptr-&gt;fonts[i].fontName);</span>
+<span class="lineNum">     331 </span>            :         }
+<span class="lineNum">     332 </span><span class="lineCov">        135 :         return GF_OK;</span>
+<span class="lineNum">     333 </span><span class="lineCov">        135 : }</span>
+<span class="lineNum">     334 </span>            : 
+<span class="lineNum">     335 </span>            : #endif /*GPAC_DISABLE_ISOM_WRITE*/
+<span class="lineNum">     336 </span>            : 
+<a name="337"><span class="lineNum">     337 </span>            : </a>
+<span class="lineNum">     338 </span>            : 
+<span class="lineNum">     339 </span>            : GF_Box *text_New()
+<span class="lineNum">     340 </span>            : {
+<span class="lineNum">     341 </span><span class="lineNoCov">          0 :         ISOM_DECL_BOX_ALLOC(GF_TextSampleEntryBox, GF_ISOM_BOX_TYPE_TEXT);</span>
+<span class="lineNum">     342 </span><span class="lineNoCov">          0 :         return (GF_Box *) tmp;</span>
+<a name="343"><span class="lineNum">     343 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     344 </span>            : 
+<span class="lineNum">     345 </span>            : void text_del(GF_Box *s)
+<span class="lineNum">     346 </span>            : {
+<span class="lineNum">     347 </span><span class="lineNoCov">          0 :         GF_TextSampleEntryBox *ptr = (GF_TextSampleEntryBox*)s;</span>
+<span class="lineNum">     348 </span><span class="lineNoCov">          0 :         gf_isom_sample_entry_predestroy((GF_SampleEntryBox *)s);</span>
+<span class="lineNum">     349 </span>            : 
+<span class="lineNum">     350 </span><span class="lineNoCov">          0 :         if (ptr-&gt;textName)</span>
+<span class="lineNum">     351 </span><span class="lineNoCov">          0 :                 gf_free(ptr-&gt;textName);</span>
+<span class="lineNum">     352 </span><span class="lineNoCov">          0 :         gf_free(ptr);</span>
+<a name="353"><span class="lineNum">     353 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     354 </span>            : 
+<span class="lineNum">     355 </span>            : GF_Box *tx3g_New()
+<span class="lineNum">     356 </span>            : {
+<span class="lineNum">     357 </span><span class="lineCov">        890 :         ISOM_DECL_BOX_ALLOC(GF_Tx3gSampleEntryBox, GF_ISOM_BOX_TYPE_TX3G);</span>
+<span class="lineNum">     358 </span><span class="lineCov">        178 :         return (GF_Box *) tmp;</span>
+<a name="359"><span class="lineNum">     359 </span><span class="lineCov">        178 : }</span></a>
+<span class="lineNum">     360 </span>            : 
+<span class="lineNum">     361 </span>            : void tx3g_del(GF_Box *s)
+<span class="lineNum">     362 </span>            : {
+<span class="lineNum">     363 </span><span class="lineCov">        356 :         GF_Tx3gSampleEntryBox *ptr = (GF_Tx3gSampleEntryBox*)s;</span>
+<span class="lineNum">     364 </span>            : 
+<span class="lineNum">     365 </span><span class="lineCov">        178 :         gf_isom_sample_entry_predestroy((GF_SampleEntryBox *)s);</span>
+<span class="lineNum">     366 </span>            : 
+<span class="lineNum">     367 </span><span class="lineCov">        178 :         if (ptr-&gt;font_table)</span>
+<span class="lineNum">     368 </span><span class="lineCov">        178 :                 gf_isom_box_del((GF_Box *)ptr-&gt;font_table);</span>
+<span class="lineNum">     369 </span><span class="lineCov">        178 :         gf_free(ptr);</span>
+<a name="370"><span class="lineNum">     370 </span><span class="lineCov">        178 : }</span></a>
+<span class="lineNum">     371 </span>            : 
+<span class="lineNum">     372 </span>            : static u32 gpp_read_rgba(GF_BitStream *bs)
+<span class="lineNum">     373 </span>            : {
+<span class="lineNum">     374 </span>            :         u8 r, g, b, a;
+<span class="lineNum">     375 </span>            :         u32 col;
+<span class="lineNum">     376 </span><span class="lineCov">        672 :         r = gf_bs_read_u8(bs);</span>
+<span class="lineNum">     377 </span><span class="lineCov">        336 :         g = gf_bs_read_u8(bs);</span>
+<span class="lineNum">     378 </span><span class="lineCov">        336 :         b = gf_bs_read_u8(bs);</span>
+<span class="lineNum">     379 </span><span class="lineCov">        336 :         a = gf_bs_read_u8(bs);</span>
+<span class="lineNum">     380 </span><span class="lineCov">        336 :         col = a;</span>
+<span class="lineNum">     381 </span><span class="lineCov">        336 :         col&lt;&lt;=8;</span>
+<span class="lineNum">     382 </span><span class="lineCov">        336 :         col |= r;</span>
+<span class="lineNum">     383 </span><span class="lineCov">        336 :         col&lt;&lt;=8;</span>
+<span class="lineNum">     384 </span><span class="lineCov">        336 :         col |= g;</span>
+<span class="lineNum">     385 </span><span class="lineCov">        336 :         col&lt;&lt;=8;</span>
+<span class="lineNum">     386 </span><span class="lineCov">        336 :         col |= b;</span>
+<span class="lineNum">     387 </span><span class="lineCov">        336 :         return col;</span>
+<span class="lineNum">     388 </span>            : }
+<a name="389"><span class="lineNum">     389 </span>            : </a>
+<span class="lineNum">     390 </span>            : #define GPP_BOX_SIZE    8
+<span class="lineNum">     391 </span>            : static void gpp_read_box(GF_BitStream *bs, GF_BoxRecord *rec)
+<span class="lineNum">     392 </span>            : {
+<span class="lineNum">     393 </span><span class="lineCov">        306 :         rec-&gt;top = gf_bs_read_u16(bs);</span>
+<span class="lineNum">     394 </span><span class="lineCov">        153 :         rec-&gt;left = gf_bs_read_u16(bs);</span>
+<span class="lineNum">     395 </span><span class="lineCov">        153 :         rec-&gt;bottom = gf_bs_read_u16(bs);</span>
+<span class="lineNum">     396 </span><span class="lineCov">        153 :         rec-&gt;right = gf_bs_read_u16(bs);</span>
+<span class="lineNum">     397 </span><span class="lineCov">        153 : }</span>
+<a name="398"><span class="lineNum">     398 </span>            : </a>
+<span class="lineNum">     399 </span>            : #define GPP_STYLE_SIZE  12
+<span class="lineNum">     400 </span>            : static void gpp_read_style(GF_BitStream *bs, GF_StyleRecord *rec)
+<span class="lineNum">     401 </span>            : {
+<span class="lineNum">     402 </span><span class="lineCov">        366 :         rec-&gt;startCharOffset = gf_bs_read_u16(bs);</span>
+<span class="lineNum">     403 </span><span class="lineCov">        183 :         rec-&gt;endCharOffset = gf_bs_read_u16(bs);</span>
+<span class="lineNum">     404 </span><span class="lineCov">        183 :         rec-&gt;fontID = gf_bs_read_u16(bs);</span>
+<span class="lineNum">     405 </span><span class="lineCov">        183 :         rec-&gt;style_flags = gf_bs_read_u8(bs);</span>
+<span class="lineNum">     406 </span><span class="lineCov">        183 :         rec-&gt;font_size = gf_bs_read_u8(bs);</span>
+<span class="lineNum">     407 </span><span class="lineCov">        183 :         rec-&gt;text_color = gpp_read_rgba(bs);</span>
+<a name="408"><span class="lineNum">     408 </span><span class="lineCov">        183 : }</span></a>
+<span class="lineNum">     409 </span>            : 
+<span class="lineNum">     410 </span>            : GF_Err tx3g_Read(GF_Box *s, GF_BitStream *bs)
+<span class="lineNum">     411 </span>            : {
+<span class="lineNum">     412 </span>            :         GF_Err e;
+<span class="lineNum">     413 </span><span class="lineCov">        306 :         GF_Box *a;</span>
+<span class="lineNum">     414 </span><span class="lineCov">        153 :         GF_Tx3gSampleEntryBox *ptr = (GF_Tx3gSampleEntryBox*)s;</span>
+<span class="lineNum">     415 </span>            : 
+<span class="lineNum">     416 </span><span class="lineCov">        153 :         if (ptr-&gt;size &lt; 18 + GPP_BOX_SIZE + GPP_STYLE_SIZE) return GF_ISOM_INVALID_FILE;</span>
+<span class="lineNum">     417 </span>            : 
+<span class="lineNum">     418 </span><span class="lineCov">        153 :         gf_bs_read_data(bs, ptr-&gt;reserved, 6);</span>
+<span class="lineNum">     419 </span><span class="lineCov">        153 :         ptr-&gt;dataReferenceIndex = gf_bs_read_u16(bs);</span>
+<span class="lineNum">     420 </span><span class="lineCov">        153 :         ptr-&gt;displayFlags = gf_bs_read_u32(bs);</span>
+<span class="lineNum">     421 </span><span class="lineCov">        153 :         ptr-&gt;horizontal_justification = gf_bs_read_u8(bs);</span>
+<span class="lineNum">     422 </span><span class="lineCov">        153 :         ptr-&gt;vertical_justification = gf_bs_read_u8(bs);</span>
+<span class="lineNum">     423 </span><span class="lineCov">        153 :         ptr-&gt;back_color = gpp_read_rgba(bs);</span>
+<span class="lineNum">     424 </span><span class="lineCov">        153 :         gpp_read_box(bs, &amp;ptr-&gt;default_box);</span>
+<span class="lineNum">     425 </span><span class="lineCov">        153 :         gpp_read_style(bs, &amp;ptr-&gt;default_style);</span>
+<span class="lineNum">     426 </span><span class="lineCov">        153 :         ptr-&gt;size -= 18 + GPP_BOX_SIZE + GPP_STYLE_SIZE;</span>
+<span class="lineNum">     427 </span>            : 
+<span class="lineNum">     428 </span><span class="lineCov">        470 :         while (ptr-&gt;size&gt;=8) {</span>
+<span class="lineNum">     429 </span><span class="lineCov">        164 :                 e = gf_isom_parse_box(&amp;a, bs);</span>
+<span class="lineNum">     430 </span><span class="lineCov">        164 :                 if (e) return e;</span>
+<span class="lineNum">     431 </span><span class="lineCov">        164 :                 if (ptr-&gt;size&lt;a-&gt;size) {</span>
+<span class="lineNum">     432 </span><span class="lineNoCov">          0 :                         GF_LOG(GF_LOG_WARNING, GF_LOG_CONTAINER, (&quot;[iso file] Box \&quot;%s\&quot; larger than remaining bytes in tx3g - ignoring box\n&quot;, gf_4cc_to_str(a-&gt;type)));</span>
+<span class="lineNum">     433 </span><span class="lineNoCov">          0 :                         ptr-&gt;size = 0;</span>
+<span class="lineNum">     434 </span><span class="lineNoCov">          0 :                         gf_isom_box_del(a);</span>
+<span class="lineNum">     435 </span><span class="lineNoCov">          0 :                         return GF_OK;</span>
+<span class="lineNum">     436 </span>            :                 }
+<span class="lineNum">     437 </span>            : 
+<span class="lineNum">     438 </span><span class="lineCov">        164 :                 ptr-&gt;size -= a-&gt;size;</span>
+<span class="lineNum">     439 </span><span class="lineCov">        164 :                 if (a-&gt;type==GF_ISOM_BOX_TYPE_FTAB) {</span>
+<span class="lineNum">     440 </span><span class="lineCov">        153 :                         if (ptr-&gt;font_table) gf_isom_box_del((GF_Box *) ptr-&gt;font_table);</span>
+<span class="lineNum">     441 </span><span class="lineCov">        153 :                         ptr-&gt;font_table = (GF_FontTableBox *)a;</span>
+<span class="lineNum">     442 </span><span class="lineCov">        153 :                 } else {</span>
+<span class="lineNum">     443 </span><span class="lineCov">         11 :                         e = gf_isom_box_add_default(s, a);</span>
+<span class="lineNum">     444 </span><span class="lineCov">         11 :                         if (e) return e;</span>
+<span class="lineNum">     445 </span>            :                 }
+<span class="lineNum">     446 </span>            :         }
+<span class="lineNum">     447 </span><span class="lineCov">        153 :         return GF_OK;</span>
+<span class="lineNum">     448 </span><span class="lineCov">        153 : }</span>
+<a name="449"><span class="lineNum">     449 </span>            : </a>
+<span class="lineNum">     450 </span>            : /*this is a quicktime specific box - see apple documentation*/
+<span class="lineNum">     451 </span>            : GF_Err text_Read(GF_Box *s, GF_BitStream *bs)
+<span class="lineNum">     452 </span>            : {
+<span class="lineNum">     453 </span>            :         u16 pSize;
+<span class="lineNum">     454 </span><span class="lineNoCov">          0 :         GF_TextSampleEntryBox *ptr = (GF_TextSampleEntryBox*)s;</span>
+<span class="lineNum">     455 </span><span class="lineNoCov">          0 :         gf_bs_read_data(bs, ptr-&gt;reserved, 6);</span>
+<span class="lineNum">     456 </span><span class="lineNoCov">          0 :         ptr-&gt;dataReferenceIndex = gf_bs_read_u16(bs);</span>
+<span class="lineNum">     457 </span>            : 
+<span class="lineNum">     458 </span><span class="lineNoCov">          0 :         ptr-&gt;displayFlags = gf_bs_read_u32(bs);                      /*Display flags*/</span>
+<span class="lineNum">     459 </span><span class="lineNoCov">          0 :         ptr-&gt;textJustification = gf_bs_read_u32(bs); /*Text justification*/</span>
+<span class="lineNum">     460 </span><span class="lineNoCov">          0 :         gf_bs_read_data(bs, ptr-&gt;background_color, 6);       /*Background color*/</span>
+<span class="lineNum">     461 </span><span class="lineNoCov">          0 :         gpp_read_box(bs, &amp;ptr-&gt;default_box);                     /*Default text box*/</span>
+<span class="lineNum">     462 </span><span class="lineNoCov">          0 :         gf_bs_read_data(bs, ptr-&gt;reserved1, 8);                      /*Reserved*/</span>
+<span class="lineNum">     463 </span><span class="lineNoCov">          0 :         ptr-&gt;fontNumber = gf_bs_read_u16(bs);                        /*Font number*/</span>
+<span class="lineNum">     464 </span><span class="lineNoCov">          0 :         ptr-&gt;fontFace   = gf_bs_read_u16(bs);                        /*Font face*/</span>
+<span class="lineNum">     465 </span><span class="lineNoCov">          0 :         ptr-&gt;reserved2  = gf_bs_read_u8(bs);                 /*Reserved*/</span>
+<span class="lineNum">     466 </span><span class="lineNoCov">          0 :         ptr-&gt;reserved3  = gf_bs_read_u16(bs);                        /*Reserved*/</span>
+<span class="lineNum">     467 </span><span class="lineNoCov">          0 :         gf_bs_read_data(bs, ptr-&gt;foreground_color, 6);       /*Foreground color*/</span>
+<span class="lineNum">     468 </span><span class="lineNoCov">          0 :         if (ptr-&gt;size &lt; 51)</span>
+<span class="lineNum">     469 </span><span class="lineNoCov">          0 :                 return GF_ISOM_INVALID_FILE;</span>
+<span class="lineNum">     470 </span><span class="lineNoCov">          0 :         ptr-&gt;size -= 51;</span>
+<span class="lineNum">     471 </span><span class="lineNoCov">          0 :         if (!ptr-&gt;size)</span>
+<span class="lineNum">     472 </span><span class="lineNoCov">          0 :                 return GF_OK; /*ffmpeg compatibility with iPod streams: no pascal string*/</span>
+<span class="lineNum">     473 </span>            : 
+<span class="lineNum">     474 </span><span class="lineNoCov">          0 :         pSize = gf_bs_read_u8(bs); /*a Pascal string begins with its size: get textName size*/</span>
+<span class="lineNum">     475 </span><span class="lineNoCov">          0 :         ptr-&gt;size -= 1;</span>
+<span class="lineNum">     476 </span><span class="lineNoCov">          0 :         if (ptr-&gt;size &lt; pSize) {</span>
+<span class="lineNum">     477 </span><span class="lineNoCov">          0 :                 u32 s = pSize;</span>
+<span class="lineNum">     478 </span>            :                 size_t i = 0;
+<span class="lineNum">     479 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_DEBUG, GF_LOG_CONTAINER, (&quot;[iso file] text box doesn't use a Pascal string: trying to decode anyway.\n&quot;));</span>
+<span class="lineNum">     480 </span><span class="lineNoCov">          0 :                 ptr-&gt;textName = (char*)gf_malloc((u32) ptr-&gt;size + 1 + 1);</span>
+<span class="lineNum">     481 </span><span class="lineNoCov">          0 :                 do {</span>
+<span class="lineNum">     482 </span><span class="lineNoCov">          0 :                         char c = (char)s;</span>
+<span class="lineNum">     483 </span><span class="lineNoCov">          0 :                         if (c == '\0') {</span>
+<span class="lineNum">     484 </span><span class="lineNoCov">          0 :                                 break;</span>
+<span class="lineNum">     485 </span><span class="lineNoCov">          0 :                         } else if ((c &gt;= 'a' &amp;&amp; c &lt;= 'z') || (c &gt;= 'A' &amp;&amp; c &lt;= 'Z')) {</span>
+<span class="lineNum">     486 </span><span class="lineNoCov">          0 :                                 ptr-&gt;textName[i] = c;</span>
+<span class="lineNum">     487 </span>            :                         } else {
+<span class="lineNum">     488 </span><span class="lineNoCov">          0 :                                 gf_free(ptr-&gt;textName);</span>
+<span class="lineNum">     489 </span><span class="lineNoCov">          0 :                                 ptr-&gt;textName = NULL;</span>
+<span class="lineNum">     490 </span><span class="lineNoCov">          0 :                                 GF_LOG(GF_LOG_WARNING, GF_LOG_CONTAINER, (&quot;[iso file] text box doesn't use a Pascal string and contains non-chars. Abort.\n&quot;));</span>
+<span class="lineNum">     491 </span><span class="lineNoCov">          0 :                                 return GF_ISOM_INVALID_FILE;</span>
+<span class="lineNum">     492 </span>            :                         }
+<span class="lineNum">     493 </span><span class="lineNoCov">          0 :                         i++;</span>
+<span class="lineNum">     494 </span><span class="lineNoCov">          0 :                         if (!ptr-&gt;size)</span>
+<span class="lineNum">     495 </span><span class="lineNoCov">          0 :                                 break;</span>
+<span class="lineNum">     496 </span><span class="lineNoCov">          0 :                         ptr-&gt;size--;</span>
+<span class="lineNum">     497 </span><span class="lineNoCov">          0 :                         s = gf_bs_read_u8(bs);</span>
+<span class="lineNum">     498 </span><span class="lineNoCov">          0 :                 } while (s);</span>
+<span class="lineNum">     499 </span>            : 
+<span class="lineNum">     500 </span><span class="lineNoCov">          0 :                 ptr-&gt;textName[i] = '\0';                             /*Font name*/</span>
+<span class="lineNum">     501 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_WARNING, GF_LOG_CONTAINER, (&quot;[iso file] text box doesn't use a Pascal string: \&quot;%s\&quot; detected.\n&quot;, ptr-&gt;textName));</span>
+<span class="lineNum">     502 </span><span class="lineNoCov">          0 :                 return GF_OK;</span>
+<span class="lineNum">     503 </span>            :         }
+<span class="lineNum">     504 </span><span class="lineNoCov">          0 :         if (pSize) {</span>
+<span class="lineNum">     505 </span><span class="lineNoCov">          0 :                 ptr-&gt;textName = (char*) gf_malloc(pSize+1 * sizeof(char));</span>
+<span class="lineNum">     506 </span><span class="lineNoCov">          0 :                 if (gf_bs_read_data(bs, ptr-&gt;textName, pSize) != pSize) {</span>
+<span class="lineNum">     507 </span><span class="lineNoCov">          0 :                         gf_free(ptr-&gt;textName);</span>
+<span class="lineNum">     508 </span><span class="lineNoCov">          0 :                         ptr-&gt;textName = NULL;</span>
+<span class="lineNum">     509 </span><span class="lineNoCov">          0 :                         return GF_ISOM_INVALID_FILE;</span>
+<span class="lineNum">     510 </span>            :                 }
+<span class="lineNum">     511 </span><span class="lineNoCov">          0 :                 ptr-&gt;textName[pSize] = '\0';                         /*Font name*/</span>
+<span class="lineNum">     512 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     513 </span><span class="lineNoCov">          0 :         ptr-&gt;size -= pSize;</span>
+<span class="lineNum">     514 </span>            : 
+<span class="lineNum">     515 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<a name="516"><span class="lineNum">     516 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     517 </span>            : 
+<span class="lineNum">     518 </span>            : void gpp_write_rgba(GF_BitStream *bs, u32 col)
+<span class="lineNum">     519 </span>            : {
+<span class="lineNum">     520 </span><span class="lineCov">        666 :         gf_bs_write_u8(bs, (col&gt;&gt;16) &amp; 0xFF);</span>
+<span class="lineNum">     521 </span><span class="lineCov">        333 :         gf_bs_write_u8(bs, (col&gt;&gt;8) &amp; 0xFF);</span>
+<span class="lineNum">     522 </span><span class="lineCov">        333 :         gf_bs_write_u8(bs, (col) &amp; 0xFF);</span>
+<span class="lineNum">     523 </span><span class="lineCov">        333 :         gf_bs_write_u8(bs, (col&gt;&gt;24) &amp; 0xFF);</span>
+<a name="524"><span class="lineNum">     524 </span><span class="lineCov">        333 : }</span></a>
+<span class="lineNum">     525 </span>            : 
+<span class="lineNum">     526 </span>            : void gpp_write_box(GF_BitStream *bs, GF_BoxRecord *rec)
+<span class="lineNum">     527 </span>            : {
+<span class="lineNum">     528 </span><span class="lineCov">        152 :         gf_bs_write_u16(bs, rec-&gt;top);</span>
+<span class="lineNum">     529 </span><span class="lineCov">         76 :         gf_bs_write_u16(bs, rec-&gt;left);</span>
+<span class="lineNum">     530 </span><span class="lineCov">         76 :         gf_bs_write_u16(bs, rec-&gt;bottom);</span>
+<span class="lineNum">     531 </span><span class="lineCov">         76 :         gf_bs_write_u16(bs, rec-&gt;right);</span>
+<span class="lineNum">     532 </span><span class="lineCov">         76 : }</span>
+<a name="533"><span class="lineNum">     533 </span>            : </a>
+<span class="lineNum">     534 </span>            : #define GPP_STYLE_SIZE  12
+<span class="lineNum">     535 </span>            : void gpp_write_style(GF_BitStream *bs, GF_StyleRecord *rec)
+<span class="lineNum">     536 </span>            : {
+<span class="lineNum">     537 </span><span class="lineCov">        514 :         gf_bs_write_u16(bs, rec-&gt;startCharOffset);</span>
+<span class="lineNum">     538 </span><span class="lineCov">        257 :         gf_bs_write_u16(bs, rec-&gt;endCharOffset);</span>
+<span class="lineNum">     539 </span><span class="lineCov">        257 :         gf_bs_write_u16(bs, rec-&gt;fontID);</span>
+<span class="lineNum">     540 </span><span class="lineCov">        257 :         gf_bs_write_u8(bs, rec-&gt;style_flags);</span>
+<span class="lineNum">     541 </span><span class="lineCov">        257 :         gf_bs_write_u8(bs, rec-&gt;font_size);</span>
+<span class="lineNum">     542 </span><span class="lineCov">        257 :         gpp_write_rgba(bs, rec-&gt;text_color);</span>
+<span class="lineNum">     543 </span><span class="lineCov">        257 : }</span>
+<span class="lineNum">     544 </span>            : 
+<a name="545"><span class="lineNum">     545 </span>            : #ifndef GPAC_DISABLE_ISOM_WRITE</a>
+<span class="lineNum">     546 </span>            : 
+<span class="lineNum">     547 </span>            : GF_Err tx3g_Write(GF_Box *s, GF_BitStream *bs)
+<span class="lineNum">     548 </span>            : {
+<span class="lineNum">     549 </span>            :         GF_Err e;
+<span class="lineNum">     550 </span><span class="lineCov">        102 :         GF_Tx3gSampleEntryBox *ptr = (GF_Tx3gSampleEntryBox*)s;</span>
+<span class="lineNum">     551 </span>            : 
+<span class="lineNum">     552 </span><span class="lineCov">         51 :         e = gf_isom_box_write_header(s, bs);</span>
+<span class="lineNum">     553 </span><span class="lineCov">         51 :         if (e) return e;</span>
+<span class="lineNum">     554 </span><span class="lineCov">         51 :         gf_bs_write_data(bs, ptr-&gt;reserved, 6);</span>
+<span class="lineNum">     555 </span><span class="lineCov">         51 :         gf_bs_write_u16(bs, ptr-&gt;dataReferenceIndex);</span>
+<span class="lineNum">     556 </span><span class="lineCov">         51 :         gf_bs_write_u32(bs, ptr-&gt;displayFlags);</span>
+<span class="lineNum">     557 </span><span class="lineCov">         51 :         gf_bs_write_u8(bs, ptr-&gt;horizontal_justification);</span>
+<span class="lineNum">     558 </span><span class="lineCov">         51 :         gf_bs_write_u8(bs, ptr-&gt;vertical_justification);</span>
+<span class="lineNum">     559 </span><span class="lineCov">         51 :         gpp_write_rgba(bs, ptr-&gt;back_color);</span>
+<span class="lineNum">     560 </span><span class="lineCov">         51 :         gpp_write_box(bs, &amp;ptr-&gt;default_box);</span>
+<span class="lineNum">     561 </span><span class="lineCov">         51 :         gpp_write_style(bs, &amp;ptr-&gt;default_style);</span>
+<span class="lineNum">     562 </span><span class="lineCov">         51 :         return gf_isom_box_write((GF_Box *) ptr-&gt;font_table, bs);</span>
+<a name="563"><span class="lineNum">     563 </span><span class="lineCov">         51 : }</span></a>
+<span class="lineNum">     564 </span>            : 
+<span class="lineNum">     565 </span>            : GF_Err text_Write(GF_Box *s, GF_BitStream *bs)
+<span class="lineNum">     566 </span>            : {
+<span class="lineNum">     567 </span>            :         GF_Err e;
+<span class="lineNum">     568 </span>            :         u16 pSize;
+<span class="lineNum">     569 </span><span class="lineNoCov">          0 :         GF_TextSampleEntryBox *ptr = (GF_TextSampleEntryBox*)s;</span>
+<span class="lineNum">     570 </span>            : 
+<span class="lineNum">     571 </span><span class="lineNoCov">          0 :         e = gf_isom_box_write_header(s, bs);</span>
+<span class="lineNum">     572 </span><span class="lineNoCov">          0 :         if (e) return e;</span>
+<span class="lineNum">     573 </span><span class="lineNoCov">          0 :         gf_bs_write_data(bs, ptr-&gt;reserved, 6);</span>
+<span class="lineNum">     574 </span><span class="lineNoCov">          0 :         gf_bs_write_u16(bs, ptr-&gt;dataReferenceIndex);</span>
+<span class="lineNum">     575 </span><span class="lineNoCov">          0 :         gf_bs_write_u32(bs, ptr-&gt;displayFlags);                      /*Display flags*/</span>
+<span class="lineNum">     576 </span><span class="lineNoCov">          0 :         gf_bs_write_u32(bs, ptr-&gt;textJustification); /*Text justification*/</span>
+<span class="lineNum">     577 </span><span class="lineNoCov">          0 :         gf_bs_write_data(bs, ptr-&gt;background_color, 6);      /*Background color*/</span>
+<span class="lineNum">     578 </span><span class="lineNoCov">          0 :         gpp_write_box(bs, &amp;ptr-&gt;default_box);                    /*Default text box*/</span>
+<span class="lineNum">     579 </span><span class="lineNoCov">          0 :         gf_bs_write_data(bs, ptr-&gt;reserved1, 8);             /*Reserved*/</span>
+<span class="lineNum">     580 </span><span class="lineNoCov">          0 :         gf_bs_write_u16(bs, ptr-&gt;fontNumber);                        /*Font number*/</span>
+<span class="lineNum">     581 </span><span class="lineNoCov">          0 :         gf_bs_write_u16(bs, ptr-&gt;fontFace);                          /*Font face*/</span>
+<span class="lineNum">     582 </span><span class="lineNoCov">          0 :         gf_bs_write_u8(bs, ptr-&gt;reserved2);                          /*Reserved*/</span>
+<span class="lineNum">     583 </span><span class="lineNoCov">          0 :         gf_bs_write_u16(bs, ptr-&gt;reserved3);                 /*Reserved*/</span>
+<span class="lineNum">     584 </span><span class="lineNoCov">          0 :         gf_bs_write_data(bs, ptr-&gt;foreground_color, 6);      /*Foreground color*/</span>
+<span class="lineNum">     585 </span>            :         //pSize assignment below is not a mistake
+<span class="lineNum">     586 </span><span class="lineNoCov">          0 :         if (ptr-&gt;textName &amp;&amp; (pSize = (u16) strlen(ptr-&gt;textName))) {</span>
+<span class="lineNum">     587 </span><span class="lineNoCov">          0 :                 gf_bs_write_u8(bs, pSize);                                      /*a Pascal string begins with its size*/</span>
+<span class="lineNum">     588 </span><span class="lineNoCov">          0 :                 gf_bs_write_data(bs, ptr-&gt;textName, pSize);  /*Font name*/</span>
+<span class="lineNum">     589 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     590 </span><span class="lineNoCov">          0 :                 gf_bs_write_u8(bs, 0);</span>
+<span class="lineNum">     591 </span>            :         }
+<span class="lineNum">     592 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<a name="593"><span class="lineNum">     593 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     594 </span>            : 
+<span class="lineNum">     595 </span>            : GF_Err tx3g_Size(GF_Box *s)
+<span class="lineNum">     596 </span>            : {
+<span class="lineNum">     597 </span><span class="lineCov">        270 :         GF_Tx3gSampleEntryBox *ptr = (GF_Tx3gSampleEntryBox*)s;</span>
+<span class="lineNum">     598 </span><span class="lineCov">        135 :         GF_Err e = gf_isom_box_get_size(s);</span>
+<span class="lineNum">     599 </span><span class="lineCov">        135 :         if (e) return e;</span>
+<span class="lineNum">     600 </span>            :         /*base + this  + box + style*/
+<span class="lineNum">     601 </span><span class="lineCov">        135 :         s-&gt;size += 18 + GPP_BOX_SIZE + GPP_STYLE_SIZE;</span>
+<span class="lineNum">     602 </span><span class="lineCov">        135 :         if (ptr-&gt;font_table) {</span>
+<span class="lineNum">     603 </span><span class="lineCov">        135 :                 e = gf_isom_box_size((GF_Box *) ptr-&gt;font_table);</span>
+<span class="lineNum">     604 </span><span class="lineCov">        135 :                 if (e) return e;</span>
+<span class="lineNum">     605 </span><span class="lineCov">        135 :                 s-&gt;size += ptr-&gt;font_table-&gt;size;</span>
+<span class="lineNum">     606 </span><span class="lineCov">        135 :         }</span>
+<span class="lineNum">     607 </span><span class="lineCov">        135 :         return GF_OK;</span>
+<a name="608"><span class="lineNum">     608 </span><span class="lineCov">        135 : }</span></a>
+<span class="lineNum">     609 </span>            : 
+<span class="lineNum">     610 </span>            : GF_Err text_Size(GF_Box *s)
+<span class="lineNum">     611 </span>            : {
+<span class="lineNum">     612 </span><span class="lineNoCov">          0 :         GF_TextSampleEntryBox *ptr = (GF_TextSampleEntryBox*)s;</span>
+<span class="lineNum">     613 </span><span class="lineNoCov">          0 :         GF_Err e = gf_isom_box_get_size(s);</span>
+<span class="lineNum">     614 </span><span class="lineNoCov">          0 :         if (e) return e;</span>
+<span class="lineNum">     615 </span>            :         /*base + this + string length*/
+<span class="lineNum">     616 </span><span class="lineNoCov">          0 :         s-&gt;size += 51 + 1;</span>
+<span class="lineNum">     617 </span><span class="lineNoCov">          0 :         if (ptr-&gt;textName)</span>
+<span class="lineNum">     618 </span><span class="lineNoCov">          0 :                 s-&gt;size += strlen(ptr-&gt;textName);</span>
+<span class="lineNum">     619 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">     620 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     621 </span>            : 
+<a name="622"><span class="lineNum">     622 </span>            : #endif</a>
+<span class="lineNum">     623 </span>            : 
+<span class="lineNum">     624 </span>            : GF_Box *styl_New()
+<span class="lineNum">     625 </span>            : {
+<span class="lineNum">     626 </span><span class="lineCov">        600 :         ISOM_DECL_BOX_ALLOC(GF_TextStyleBox, GF_ISOM_BOX_TYPE_STYL);</span>
+<span class="lineNum">     627 </span><span class="lineCov">        120 :         return (GF_Box *) tmp;</span>
+<a name="628"><span class="lineNum">     628 </span><span class="lineCov">        120 : }</span></a>
+<span class="lineNum">     629 </span>            : 
+<span class="lineNum">     630 </span>            : void styl_del(GF_Box *s)
+<span class="lineNum">     631 </span>            : {
+<span class="lineNum">     632 </span><span class="lineCov">        240 :         GF_TextStyleBox*ptr = (GF_TextStyleBox*)s;</span>
+<span class="lineNum">     633 </span><span class="lineCov">        240 :         if (ptr-&gt;styles) gf_free(ptr-&gt;styles);</span>
+<span class="lineNum">     634 </span><span class="lineCov">        120 :         gf_free(ptr);</span>
+<a name="635"><span class="lineNum">     635 </span><span class="lineCov">        120 : }</span></a>
+<span class="lineNum">     636 </span>            : 
+<span class="lineNum">     637 </span>            : GF_Err styl_Read(GF_Box *s, GF_BitStream *bs)
+<span class="lineNum">     638 </span>            : {
+<span class="lineNum">     639 </span>            :         u32 i;
+<span class="lineNum">     640 </span><span class="lineCov">         48 :         GF_TextStyleBox*ptr = (GF_TextStyleBox*)s;</span>
+<span class="lineNum">     641 </span><span class="lineCov">         24 :         ptr-&gt;entry_count = gf_bs_read_u16(bs);</span>
+<span class="lineNum">     642 </span><span class="lineCov">         24 :         if (ptr-&gt;entry_count) {</span>
+<span class="lineNum">     643 </span><span class="lineCov">         24 :                 ptr-&gt;styles = (GF_StyleRecord*)gf_malloc(sizeof(GF_StyleRecord)*ptr-&gt;entry_count);</span>
+<span class="lineNum">     644 </span><span class="lineCov">        108 :                 for (i=0; i&lt;ptr-&gt;entry_count; i++) {</span>
+<span class="lineNum">     645 </span><span class="lineCov">         30 :                         gpp_read_style(bs, &amp;ptr-&gt;styles[i]);</span>
+<span class="lineNum">     646 </span>            :                 }
+<span class="lineNum">     647 </span>            :         }
+<span class="lineNum">     648 </span><span class="lineCov">         24 :         return GF_OK;</span>
+<span class="lineNum">     649 </span>            : }
+<a name="650"><span class="lineNum">     650 </span>            : </a>
+<span class="lineNum">     651 </span>            : #ifndef GPAC_DISABLE_ISOM_WRITE
+<span class="lineNum">     652 </span>            : GF_Err styl_Write(GF_Box *s, GF_BitStream *bs)
+<span class="lineNum">     653 </span>            : {
+<span class="lineNum">     654 </span>            :         GF_Err e;
+<span class="lineNum">     655 </span>            :         u32 i;
+<span class="lineNum">     656 </span><span class="lineCov">        192 :         GF_TextStyleBox*ptr = (GF_TextStyleBox*)s;</span>
+<span class="lineNum">     657 </span><span class="lineCov">         96 :         e = gf_isom_box_write_header(s, bs);</span>
+<span class="lineNum">     658 </span><span class="lineCov">         96 :         if (e) return e;</span>
+<span class="lineNum">     659 </span>            : 
+<span class="lineNum">     660 </span><span class="lineCov">         96 :         gf_bs_write_u16(bs, ptr-&gt;entry_count);</span>
+<span class="lineNum">     661 </span><span class="lineCov">        554 :         for (i=0; i&lt;ptr-&gt;entry_count; i++) gpp_write_style(bs, &amp;ptr-&gt;styles[i]);</span>
+<span class="lineNum">     662 </span><span class="lineCov">         96 :         return GF_OK;</span>
+<a name="663"><span class="lineNum">     663 </span><span class="lineCov">         96 : }</span></a>
+<span class="lineNum">     664 </span>            : 
+<span class="lineNum">     665 </span>            : GF_Err styl_Size(GF_Box *s)
+<span class="lineNum">     666 </span>            : {
+<span class="lineNum">     667 </span><span class="lineCov">        192 :         GF_TextStyleBox*ptr = (GF_TextStyleBox*)s;</span>
+<span class="lineNum">     668 </span><span class="lineCov">         96 :         GF_Err e = gf_isom_box_get_size(s);</span>
+<span class="lineNum">     669 </span><span class="lineCov">         96 :         if (e) return e;</span>
+<span class="lineNum">     670 </span><span class="lineCov">         96 :         s-&gt;size += 2 + ptr-&gt;entry_count * GPP_STYLE_SIZE;</span>
+<span class="lineNum">     671 </span><span class="lineCov">         96 :         return GF_OK;</span>
+<span class="lineNum">     672 </span><span class="lineCov">         96 : }</span>
+<span class="lineNum">     673 </span>            : 
+<a name="674"><span class="lineNum">     674 </span>            : #endif /*GPAC_DISABLE_ISOM_WRITE*/</a>
+<span class="lineNum">     675 </span>            : 
+<span class="lineNum">     676 </span>            : GF_Box *hlit_New()
+<span class="lineNum">     677 </span>            : {
+<span class="lineNum">     678 </span><span class="lineNoCov">          0 :         ISOM_DECL_BOX_ALLOC(GF_TextHighlightBox, GF_ISOM_BOX_TYPE_HLIT);</span>
+<span class="lineNum">     679 </span><span class="lineNoCov">          0 :         return (GF_Box *) tmp;</span>
+<a name="680"><span class="lineNum">     680 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     681 </span>            : 
+<span class="lineNum">     682 </span>            : void hlit_del(GF_Box *s)
+<span class="lineNum">     683 </span>            : {
+<span class="lineNum">     684 </span><span class="lineNoCov">          0 :         gf_free(s);</span>
+<a name="685"><span class="lineNum">     685 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     686 </span>            : 
+<span class="lineNum">     687 </span>            : GF_Err hlit_Read(GF_Box *s, GF_BitStream *bs)
+<span class="lineNum">     688 </span>            : {
+<span class="lineNum">     689 </span><span class="lineNoCov">          0 :         GF_TextHighlightBox *ptr = (GF_TextHighlightBox *)s;</span>
+<span class="lineNum">     690 </span><span class="lineNoCov">          0 :         ptr-&gt;startcharoffset = gf_bs_read_u16(bs);</span>
+<span class="lineNum">     691 </span><span class="lineNoCov">          0 :         ptr-&gt;endcharoffset = gf_bs_read_u16(bs);</span>
+<span class="lineNum">     692 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">     693 </span>            : }
+<a name="694"><span class="lineNum">     694 </span>            : </a>
+<span class="lineNum">     695 </span>            : #ifndef GPAC_DISABLE_ISOM_WRITE
+<span class="lineNum">     696 </span>            : GF_Err hlit_Write(GF_Box *s, GF_BitStream *bs)
+<span class="lineNum">     697 </span>            : {
+<span class="lineNum">     698 </span>            :         GF_Err e;
+<span class="lineNum">     699 </span><span class="lineNoCov">          0 :         GF_TextHighlightBox *ptr = (GF_TextHighlightBox *)s;</span>
+<span class="lineNum">     700 </span><span class="lineNoCov">          0 :         e = gf_isom_box_write_header(s, bs);</span>
+<span class="lineNum">     701 </span><span class="lineNoCov">          0 :         if (e) return e;</span>
+<span class="lineNum">     702 </span><span class="lineNoCov">          0 :         gf_bs_write_u16(bs, ptr-&gt;startcharoffset);</span>
+<span class="lineNum">     703 </span><span class="lineNoCov">          0 :         gf_bs_write_u16(bs, ptr-&gt;endcharoffset);</span>
+<span class="lineNum">     704 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<a name="705"><span class="lineNum">     705 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     706 </span>            : 
+<span class="lineNum">     707 </span>            : GF_Err hlit_Size(GF_Box *s)
+<span class="lineNum">     708 </span>            : {
+<span class="lineNum">     709 </span><span class="lineNoCov">          0 :         GF_Err e = gf_isom_box_get_size(s);</span>
+<span class="lineNum">     710 </span><span class="lineNoCov">          0 :         if (e) return e;</span>
+<span class="lineNum">     711 </span><span class="lineNoCov">          0 :         s-&gt;size += 4;</span>
+<span class="lineNum">     712 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">     713 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     714 </span>            : 
+<a name="715"><span class="lineNum">     715 </span>            : #endif /*GPAC_DISABLE_ISOM_WRITE*/</a>
+<span class="lineNum">     716 </span>            : 
+<span class="lineNum">     717 </span>            : GF_Box *hclr_New()
+<span class="lineNum">     718 </span>            : {
+<span class="lineNum">     719 </span><span class="lineNoCov">          0 :         ISOM_DECL_BOX_ALLOC(GF_TextHighlightColorBox, GF_ISOM_BOX_TYPE_HCLR);</span>
+<span class="lineNum">     720 </span><span class="lineNoCov">          0 :         return (GF_Box *) tmp;</span>
+<a name="721"><span class="lineNum">     721 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     722 </span>            : 
+<span class="lineNum">     723 </span>            : void hclr_del(GF_Box *s)
+<span class="lineNum">     724 </span>            : {
+<span class="lineNum">     725 </span><span class="lineNoCov">          0 :         gf_free(s);</span>
+<a name="726"><span class="lineNum">     726 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     727 </span>            : 
+<span class="lineNum">     728 </span>            : GF_Err hclr_Read(GF_Box *s, GF_BitStream *bs)
+<span class="lineNum">     729 </span>            : {
+<span class="lineNum">     730 </span><span class="lineNoCov">          0 :         GF_TextHighlightColorBox*ptr = (GF_TextHighlightColorBox*)s;</span>
+<span class="lineNum">     731 </span><span class="lineNoCov">          0 :         ptr-&gt;hil_color = gpp_read_rgba(bs);</span>
+<span class="lineNum">     732 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">     733 </span>            : }
+<a name="734"><span class="lineNum">     734 </span>            : </a>
+<span class="lineNum">     735 </span>            : #ifndef GPAC_DISABLE_ISOM_WRITE
+<span class="lineNum">     736 </span>            : GF_Err hclr_Write(GF_Box *s, GF_BitStream *bs)
+<span class="lineNum">     737 </span>            : {
+<span class="lineNum">     738 </span>            :         GF_Err e;
+<span class="lineNum">     739 </span><span class="lineNoCov">          0 :         GF_TextHighlightColorBox*ptr = (GF_TextHighlightColorBox*)s;</span>
+<span class="lineNum">     740 </span><span class="lineNoCov">          0 :         e = gf_isom_box_write_header(s, bs);</span>
+<span class="lineNum">     741 </span><span class="lineNoCov">          0 :         if (e) return e;</span>
+<span class="lineNum">     742 </span><span class="lineNoCov">          0 :         gpp_write_rgba(bs, ptr-&gt;hil_color);</span>
+<span class="lineNum">     743 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<a name="744"><span class="lineNum">     744 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     745 </span>            : 
+<span class="lineNum">     746 </span>            : GF_Err hclr_Size(GF_Box *s)
+<span class="lineNum">     747 </span>            : {
+<span class="lineNum">     748 </span><span class="lineNoCov">          0 :         GF_Err e = gf_isom_box_get_size(s);</span>
+<span class="lineNum">     749 </span><span class="lineNoCov">          0 :         if (e) return e;</span>
+<span class="lineNum">     750 </span><span class="lineNoCov">          0 :         s-&gt;size += 4;</span>
+<span class="lineNum">     751 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">     752 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     753 </span>            : 
+<a name="754"><span class="lineNum">     754 </span>            : #endif /*GPAC_DISABLE_ISOM_WRITE*/</a>
+<span class="lineNum">     755 </span>            : 
+<span class="lineNum">     756 </span>            : GF_Box *krok_New()
+<span class="lineNum">     757 </span>            : {
+<span class="lineNum">     758 </span><span class="lineNoCov">          0 :         ISOM_DECL_BOX_ALLOC(GF_TextKaraokeBox, GF_ISOM_BOX_TYPE_KROK);</span>
+<span class="lineNum">     759 </span><span class="lineNoCov">          0 :         return (GF_Box *) tmp;</span>
+<a name="760"><span class="lineNum">     760 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     761 </span>            : 
+<span class="lineNum">     762 </span>            : void krok_del(GF_Box *s)
+<span class="lineNum">     763 </span>            : {
+<span class="lineNum">     764 </span><span class="lineNoCov">          0 :         GF_TextKaraokeBox*ptr = (GF_TextKaraokeBox*)s;</span>
+<span class="lineNum">     765 </span><span class="lineNoCov">          0 :         if (ptr-&gt;records) gf_free(ptr-&gt;records);</span>
+<span class="lineNum">     766 </span><span class="lineNoCov">          0 :         gf_free(ptr);</span>
+<a name="767"><span class="lineNum">     767 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     768 </span>            : 
+<span class="lineNum">     769 </span>            : GF_Err krok_Read(GF_Box *s, GF_BitStream *bs)
+<span class="lineNum">     770 </span>            : {
+<span class="lineNum">     771 </span><span class="lineNoCov">          0 :         GF_TextKaraokeBox*ptr = (GF_TextKaraokeBox*)s;</span>
+<span class="lineNum">     772 </span>            : 
+<span class="lineNum">     773 </span><span class="lineNoCov">          0 :         ptr-&gt;highlight_starttime = gf_bs_read_u32(bs);</span>
+<span class="lineNum">     774 </span><span class="lineNoCov">          0 :         ptr-&gt;nb_entries = gf_bs_read_u16(bs);</span>
+<span class="lineNum">     775 </span><span class="lineNoCov">          0 :         if (ptr-&gt;nb_entries) {</span>
+<span class="lineNum">     776 </span>            :                 u32 i;
+<span class="lineNum">     777 </span><span class="lineNoCov">          0 :                 ptr-&gt;records = (KaraokeRecord*)gf_malloc(sizeof(KaraokeRecord)*ptr-&gt;nb_entries);</span>
+<span class="lineNum">     778 </span><span class="lineNoCov">          0 :                 for (i=0; i&lt;ptr-&gt;nb_entries; i++) {</span>
+<span class="lineNum">     779 </span><span class="lineNoCov">          0 :                         ptr-&gt;records[i].highlight_endtime = gf_bs_read_u32(bs);</span>
+<span class="lineNum">     780 </span><span class="lineNoCov">          0 :                         ptr-&gt;records[i].start_charoffset = gf_bs_read_u16(bs);</span>
+<span class="lineNum">     781 </span><span class="lineNoCov">          0 :                         ptr-&gt;records[i].end_charoffset = gf_bs_read_u16(bs);</span>
+<span class="lineNum">     782 </span>            :                 }
+<span class="lineNum">     783 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     784 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">     785 </span>            : }
+<a name="786"><span class="lineNum">     786 </span>            : </a>
+<span class="lineNum">     787 </span>            : #ifndef GPAC_DISABLE_ISOM_WRITE
+<span class="lineNum">     788 </span>            : GF_Err krok_Write(GF_Box *s, GF_BitStream *bs)
+<span class="lineNum">     789 </span>            : {
+<span class="lineNum">     790 </span>            :         GF_Err e;
+<span class="lineNum">     791 </span>            :         u32 i;
+<span class="lineNum">     792 </span><span class="lineNoCov">          0 :         GF_TextKaraokeBox*ptr = (GF_TextKaraokeBox*)s;</span>
+<span class="lineNum">     793 </span><span class="lineNoCov">          0 :         e = gf_isom_box_write_header(s, bs);</span>
+<span class="lineNum">     794 </span><span class="lineNoCov">          0 :         if (e) return e;</span>
+<span class="lineNum">     795 </span>            : 
+<span class="lineNum">     796 </span><span class="lineNoCov">          0 :         gf_bs_write_u32(bs, ptr-&gt;highlight_starttime);</span>
+<span class="lineNum">     797 </span><span class="lineNoCov">          0 :         gf_bs_write_u16(bs, ptr-&gt;nb_entries);</span>
+<span class="lineNum">     798 </span><span class="lineNoCov">          0 :         for (i=0; i&lt;ptr-&gt;nb_entries; i++) {</span>
+<span class="lineNum">     799 </span><span class="lineNoCov">          0 :                 gf_bs_write_u32(bs, ptr-&gt;records[i].highlight_endtime);</span>
+<span class="lineNum">     800 </span><span class="lineNoCov">          0 :                 gf_bs_write_u16(bs, ptr-&gt;records[i].start_charoffset);</span>
+<span class="lineNum">     801 </span><span class="lineNoCov">          0 :                 gf_bs_write_u16(bs, ptr-&gt;records[i].end_charoffset);</span>
+<span class="lineNum">     802 </span>            :         }
+<span class="lineNum">     803 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<a name="804"><span class="lineNum">     804 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     805 </span>            : 
+<span class="lineNum">     806 </span>            : GF_Err krok_Size(GF_Box *s)
+<span class="lineNum">     807 </span>            : {
+<span class="lineNum">     808 </span><span class="lineNoCov">          0 :         GF_TextKaraokeBox*ptr = (GF_TextKaraokeBox*)s;</span>
+<span class="lineNum">     809 </span><span class="lineNoCov">          0 :         GF_Err e = gf_isom_box_get_size(s);</span>
+<span class="lineNum">     810 </span><span class="lineNoCov">          0 :         if (e) return e;</span>
+<span class="lineNum">     811 </span><span class="lineNoCov">          0 :         s-&gt;size += 6 * 8*ptr-&gt;nb_entries;</span>
+<span class="lineNum">     812 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">     813 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     814 </span>            : 
+<a name="815"><span class="lineNum">     815 </span>            : #endif /*GPAC_DISABLE_ISOM_WRITE*/</a>
+<span class="lineNum">     816 </span>            : 
+<span class="lineNum">     817 </span>            : GF_Box *dlay_New()
+<span class="lineNum">     818 </span>            : {
+<span class="lineNum">     819 </span><span class="lineNoCov">          0 :         ISOM_DECL_BOX_ALLOC(GF_TextScrollDelayBox, GF_ISOM_BOX_TYPE_DLAY);</span>
+<span class="lineNum">     820 </span><span class="lineNoCov">          0 :         return (GF_Box *) tmp;</span>
+<a name="821"><span class="lineNum">     821 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     822 </span>            : 
+<span class="lineNum">     823 </span>            : void dlay_del(GF_Box *s)
+<span class="lineNum">     824 </span>            : {
+<span class="lineNum">     825 </span><span class="lineNoCov">          0 :         gf_free(s);</span>
+<a name="826"><span class="lineNum">     826 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     827 </span>            : 
+<span class="lineNum">     828 </span>            : GF_Err dlay_Read(GF_Box *s, GF_BitStream *bs)
+<span class="lineNum">     829 </span>            : {
+<span class="lineNum">     830 </span><span class="lineNoCov">          0 :         GF_TextScrollDelayBox*ptr = (GF_TextScrollDelayBox*)s;</span>
+<span class="lineNum">     831 </span><span class="lineNoCov">          0 :         ptr-&gt;scroll_delay = gf_bs_read_u32(bs);</span>
+<span class="lineNum">     832 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">     833 </span>            : }
+<a name="834"><span class="lineNum">     834 </span>            : </a>
+<span class="lineNum">     835 </span>            : #ifndef GPAC_DISABLE_ISOM_WRITE
+<span class="lineNum">     836 </span>            : GF_Err dlay_Write(GF_Box *s, GF_BitStream *bs)
+<span class="lineNum">     837 </span>            : {
+<span class="lineNum">     838 </span>            :         GF_Err e;
+<span class="lineNum">     839 </span><span class="lineNoCov">          0 :         GF_TextScrollDelayBox*ptr = (GF_TextScrollDelayBox*)s;</span>
+<span class="lineNum">     840 </span><span class="lineNoCov">          0 :         e = gf_isom_box_write_header(s, bs);</span>
+<span class="lineNum">     841 </span><span class="lineNoCov">          0 :         if (e) return e;</span>
+<span class="lineNum">     842 </span><span class="lineNoCov">          0 :         gf_bs_write_u32(bs, ptr-&gt;scroll_delay);</span>
+<span class="lineNum">     843 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<a name="844"><span class="lineNum">     844 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     845 </span>            : 
+<span class="lineNum">     846 </span>            : GF_Err dlay_Size(GF_Box *s)
+<span class="lineNum">     847 </span>            : {
+<span class="lineNum">     848 </span><span class="lineNoCov">          0 :         GF_Err e = gf_isom_box_get_size(s);</span>
+<span class="lineNum">     849 </span><span class="lineNoCov">          0 :         if (e) return e;</span>
+<span class="lineNum">     850 </span><span class="lineNoCov">          0 :         s-&gt;size += 4;</span>
+<span class="lineNum">     851 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">     852 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     853 </span>            : 
+<a name="854"><span class="lineNum">     854 </span>            : #endif /*GPAC_DISABLE_ISOM_WRITE*/</a>
+<span class="lineNum">     855 </span>            : 
+<span class="lineNum">     856 </span>            : GF_Box *href_New()
+<span class="lineNum">     857 </span>            : {
+<span class="lineNum">     858 </span><span class="lineNoCov">          0 :         ISOM_DECL_BOX_ALLOC(GF_TextHyperTextBox, GF_ISOM_BOX_TYPE_HREF);</span>
+<span class="lineNum">     859 </span><span class="lineNoCov">          0 :         return (GF_Box *) tmp;</span>
+<a name="860"><span class="lineNum">     860 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     861 </span>            : 
+<span class="lineNum">     862 </span>            : void href_del(GF_Box *s)
+<span class="lineNum">     863 </span>            : {
+<span class="lineNum">     864 </span><span class="lineNoCov">          0 :         GF_TextHyperTextBox*ptr = (GF_TextHyperTextBox*)s;</span>
+<span class="lineNum">     865 </span><span class="lineNoCov">          0 :         if (ptr-&gt;URL) gf_free(ptr-&gt;URL);</span>
+<span class="lineNum">     866 </span><span class="lineNoCov">          0 :         if (ptr-&gt;URL_hint) gf_free(ptr-&gt;URL_hint);</span>
+<span class="lineNum">     867 </span><span class="lineNoCov">          0 :         gf_free(ptr);</span>
+<a name="868"><span class="lineNum">     868 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     869 </span>            : 
+<span class="lineNum">     870 </span>            : GF_Err href_Read(GF_Box *s, GF_BitStream *bs)
+<span class="lineNum">     871 </span>            : {
+<span class="lineNum">     872 </span>            :         u32 len;
+<span class="lineNum">     873 </span><span class="lineNoCov">          0 :         GF_TextHyperTextBox*ptr = (GF_TextHyperTextBox*)s;</span>
+<span class="lineNum">     874 </span><span class="lineNoCov">          0 :         ptr-&gt;startcharoffset = gf_bs_read_u16(bs);</span>
+<span class="lineNum">     875 </span><span class="lineNoCov">          0 :         ptr-&gt;endcharoffset = gf_bs_read_u16(bs);</span>
+<span class="lineNum">     876 </span><span class="lineNoCov">          0 :         len = gf_bs_read_u8(bs);</span>
+<span class="lineNum">     877 </span><span class="lineNoCov">          0 :         if (len) {</span>
+<span class="lineNum">     878 </span><span class="lineNoCov">          0 :                 ptr-&gt;URL = (char *) gf_malloc(sizeof(char) * (len+1));</span>
+<span class="lineNum">     879 </span><span class="lineNoCov">          0 :                 gf_bs_read_data(bs, ptr-&gt;URL, len);</span>
+<span class="lineNum">     880 </span><span class="lineNoCov">          0 :                 ptr-&gt;URL[len] = 0;</span>
+<span class="lineNum">     881 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     882 </span><span class="lineNoCov">          0 :         len = gf_bs_read_u8(bs);</span>
+<span class="lineNum">     883 </span><span class="lineNoCov">          0 :         if (len) {</span>
+<span class="lineNum">     884 </span><span class="lineNoCov">          0 :                 ptr-&gt;URL_hint = (char *) gf_malloc(sizeof(char) * (len+1));</span>
+<span class="lineNum">     885 </span><span class="lineNoCov">          0 :                 gf_bs_read_data(bs, ptr-&gt;URL_hint, len);</span>
+<span class="lineNum">     886 </span><span class="lineNoCov">          0 :                 ptr-&gt;URL_hint[len]= 0;</span>
+<span class="lineNum">     887 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     888 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">     889 </span>            : }
+<a name="890"><span class="lineNum">     890 </span>            : </a>
+<span class="lineNum">     891 </span>            : #ifndef GPAC_DISABLE_ISOM_WRITE
+<span class="lineNum">     892 </span>            : GF_Err href_Write(GF_Box *s, GF_BitStream *bs)
+<span class="lineNum">     893 </span>            : {
+<span class="lineNum">     894 </span>            :         u32 len;
+<span class="lineNum">     895 </span>            :         GF_Err e;
+<span class="lineNum">     896 </span><span class="lineNoCov">          0 :         GF_TextHyperTextBox*ptr = (GF_TextHyperTextBox*)s;</span>
+<span class="lineNum">     897 </span><span class="lineNoCov">          0 :         e = gf_isom_box_write_header(s, bs);</span>
+<span class="lineNum">     898 </span><span class="lineNoCov">          0 :         if (e) return e;</span>
+<span class="lineNum">     899 </span>            : 
+<span class="lineNum">     900 </span><span class="lineNoCov">          0 :         gf_bs_write_u16(bs, ptr-&gt;startcharoffset);</span>
+<span class="lineNum">     901 </span><span class="lineNoCov">          0 :         gf_bs_write_u16(bs, ptr-&gt;endcharoffset);</span>
+<span class="lineNum">     902 </span><span class="lineNoCov">          0 :         if (ptr-&gt;URL) {</span>
+<span class="lineNum">     903 </span><span class="lineNoCov">          0 :                 len = (u32) strlen(ptr-&gt;URL);</span>
+<span class="lineNum">     904 </span><span class="lineNoCov">          0 :                 gf_bs_write_u8(bs, len);</span>
+<span class="lineNum">     905 </span><span class="lineNoCov">          0 :                 gf_bs_write_data(bs, ptr-&gt;URL, len);</span>
+<span class="lineNum">     906 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     907 </span><span class="lineNoCov">          0 :                 gf_bs_write_u8(bs, 0);</span>
+<span class="lineNum">     908 </span>            :         }
+<span class="lineNum">     909 </span><span class="lineNoCov">          0 :         if (ptr-&gt;URL_hint) {</span>
+<span class="lineNum">     910 </span><span class="lineNoCov">          0 :                 len = (u32) strlen(ptr-&gt;URL_hint);</span>
+<span class="lineNum">     911 </span><span class="lineNoCov">          0 :                 gf_bs_write_u8(bs, len);</span>
+<span class="lineNum">     912 </span><span class="lineNoCov">          0 :                 gf_bs_write_data(bs, ptr-&gt;URL_hint, len);</span>
+<span class="lineNum">     913 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     914 </span><span class="lineNoCov">          0 :                 gf_bs_write_u8(bs, 0);</span>
+<span class="lineNum">     915 </span>            :         }
+<span class="lineNum">     916 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<a name="917"><span class="lineNum">     917 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     918 </span>            : 
+<span class="lineNum">     919 </span>            : GF_Err href_Size(GF_Box *s)
+<span class="lineNum">     920 </span>            : {
+<span class="lineNum">     921 </span><span class="lineNoCov">          0 :         GF_TextHyperTextBox*ptr = (GF_TextHyperTextBox*)s;</span>
+<span class="lineNum">     922 </span><span class="lineNoCov">          0 :         GF_Err e = gf_isom_box_get_size(s);</span>
+<span class="lineNum">     923 </span><span class="lineNoCov">          0 :         if (e) return e;</span>
+<span class="lineNum">     924 </span><span class="lineNoCov">          0 :         s-&gt;size += 6;</span>
+<span class="lineNum">     925 </span><span class="lineNoCov">          0 :         if (ptr-&gt;URL) s-&gt;size += strlen(ptr-&gt;URL);</span>
+<span class="lineNum">     926 </span><span class="lineNoCov">          0 :         if (ptr-&gt;URL_hint) s-&gt;size += strlen(ptr-&gt;URL_hint);</span>
+<span class="lineNum">     927 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">     928 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     929 </span>            : 
+<span class="lineNum">     930 </span>            : #endif /*GPAC_DISABLE_ISOM_WRITE*/
+<a name="931"><span class="lineNum">     931 </span>            : </a>
+<span class="lineNum">     932 </span>            : 
+<span class="lineNum">     933 </span>            : GF_Box *tbox_New()
+<span class="lineNum">     934 </span>            : {
+<span class="lineNum">     935 </span><span class="lineNoCov">          0 :         ISOM_DECL_BOX_ALLOC(GF_TextBoxBox, GF_ISOM_BOX_TYPE_TBOX);</span>
+<span class="lineNum">     936 </span><span class="lineNoCov">          0 :         return (GF_Box *) tmp;</span>
+<a name="937"><span class="lineNum">     937 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     938 </span>            : 
+<span class="lineNum">     939 </span>            : void tbox_del(GF_Box *s)
+<span class="lineNum">     940 </span>            : {
+<span class="lineNum">     941 </span><span class="lineNoCov">          0 :         gf_free(s);</span>
+<a name="942"><span class="lineNum">     942 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     943 </span>            : 
+<span class="lineNum">     944 </span>            : GF_Err tbox_Read(GF_Box *s, GF_BitStream *bs)
+<span class="lineNum">     945 </span>            : {
+<span class="lineNum">     946 </span><span class="lineNoCov">          0 :         GF_TextBoxBox*ptr = (GF_TextBoxBox*)s;</span>
+<span class="lineNum">     947 </span><span class="lineNoCov">          0 :         gpp_read_box(bs, &amp;ptr-&gt;box);</span>
+<span class="lineNum">     948 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">     949 </span>            : }
+<a name="950"><span class="lineNum">     950 </span>            : </a>
+<span class="lineNum">     951 </span>            : #ifndef GPAC_DISABLE_ISOM_WRITE
+<span class="lineNum">     952 </span>            : GF_Err tbox_Write(GF_Box *s, GF_BitStream *bs)
+<span class="lineNum">     953 </span>            : {
+<span class="lineNum">     954 </span>            :         GF_Err e;
+<span class="lineNum">     955 </span><span class="lineNoCov">          0 :         GF_TextBoxBox*ptr = (GF_TextBoxBox*)s;</span>
+<span class="lineNum">     956 </span><span class="lineNoCov">          0 :         e = gf_isom_box_write_header(s, bs);</span>
+<span class="lineNum">     957 </span><span class="lineNoCov">          0 :         if (e) return e;</span>
+<span class="lineNum">     958 </span><span class="lineNoCov">          0 :         gpp_write_box(bs, &amp;ptr-&gt;box);</span>
+<span class="lineNum">     959 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<a name="960"><span class="lineNum">     960 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     961 </span>            : 
+<span class="lineNum">     962 </span>            : GF_Err tbox_Size(GF_Box *s)
+<span class="lineNum">     963 </span>            : {
+<span class="lineNum">     964 </span><span class="lineNoCov">          0 :         GF_Err e = gf_isom_box_get_size(s);</span>
+<span class="lineNum">     965 </span><span class="lineNoCov">          0 :         if (e) return e;</span>
+<span class="lineNum">     966 </span><span class="lineNoCov">          0 :         s-&gt;size += 8;</span>
+<span class="lineNum">     967 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">     968 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     969 </span>            : 
+<span class="lineNum">     970 </span>            : #endif /*GPAC_DISABLE_ISOM_WRITE*/
+<a name="971"><span class="lineNum">     971 </span>            : </a>
+<span class="lineNum">     972 </span>            : 
+<span class="lineNum">     973 </span>            : GF_Box *blnk_New()
+<span class="lineNum">     974 </span>            : {
+<span class="lineNum">     975 </span><span class="lineNoCov">          0 :         ISOM_DECL_BOX_ALLOC(GF_TextBlinkBox, GF_ISOM_BOX_TYPE_BLNK);</span>
+<span class="lineNum">     976 </span><span class="lineNoCov">          0 :         return (GF_Box *) tmp;</span>
+<a name="977"><span class="lineNum">     977 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     978 </span>            : 
+<span class="lineNum">     979 </span>            : void blnk_del(GF_Box *s)
+<span class="lineNum">     980 </span>            : {
+<span class="lineNum">     981 </span><span class="lineNoCov">          0 :         gf_free(s);</span>
+<a name="982"><span class="lineNum">     982 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     983 </span>            : 
+<span class="lineNum">     984 </span>            : GF_Err blnk_Read(GF_Box *s, GF_BitStream *bs)
+<span class="lineNum">     985 </span>            : {
+<span class="lineNum">     986 </span><span class="lineNoCov">          0 :         GF_TextBlinkBox*ptr = (GF_TextBlinkBox*)s;</span>
+<span class="lineNum">     987 </span><span class="lineNoCov">          0 :         ptr-&gt;startcharoffset = gf_bs_read_u16(bs);</span>
+<span class="lineNum">     988 </span><span class="lineNoCov">          0 :         ptr-&gt;endcharoffset = gf_bs_read_u16(bs);</span>
+<span class="lineNum">     989 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">     990 </span>            : }
+<a name="991"><span class="lineNum">     991 </span>            : </a>
+<span class="lineNum">     992 </span>            : #ifndef GPAC_DISABLE_ISOM_WRITE
+<span class="lineNum">     993 </span>            : GF_Err blnk_Write(GF_Box *s, GF_BitStream *bs)
+<span class="lineNum">     994 </span>            : {
+<span class="lineNum">     995 </span>            :         GF_Err e;
+<span class="lineNum">     996 </span><span class="lineNoCov">          0 :         GF_TextBlinkBox*ptr = (GF_TextBlinkBox*)s;</span>
+<span class="lineNum">     997 </span><span class="lineNoCov">          0 :         e = gf_isom_box_write_header(s, bs);</span>
+<span class="lineNum">     998 </span><span class="lineNoCov">          0 :         if (e) return e;</span>
+<span class="lineNum">     999 </span><span class="lineNoCov">          0 :         gf_bs_write_u16(bs, ptr-&gt;startcharoffset);</span>
+<span class="lineNum">    1000 </span><span class="lineNoCov">          0 :         gf_bs_write_u16(bs, ptr-&gt;endcharoffset);</span>
+<span class="lineNum">    1001 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<a name="1002"><span class="lineNum">    1002 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">    1003 </span>            : 
+<span class="lineNum">    1004 </span>            : GF_Err blnk_Size(GF_Box *s)
+<span class="lineNum">    1005 </span>            : {
+<span class="lineNum">    1006 </span><span class="lineNoCov">          0 :         GF_Err e = gf_isom_box_get_size(s);</span>
+<span class="lineNum">    1007 </span><span class="lineNoCov">          0 :         if (e) return e;</span>
+<span class="lineNum">    1008 </span><span class="lineNoCov">          0 :         s-&gt;size += 4;</span>
+<span class="lineNum">    1009 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">    1010 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">    1011 </span>            : 
+<a name="1012"><span class="lineNum">    1012 </span>            : #endif /*GPAC_DISABLE_ISOM_WRITE*/</a>
+<span class="lineNum">    1013 </span>            : 
+<span class="lineNum">    1014 </span>            : GF_Box *twrp_New()
+<span class="lineNum">    1015 </span>            : {
+<span class="lineNum">    1016 </span><span class="lineNoCov">          0 :         ISOM_DECL_BOX_ALLOC(GF_TextWrapBox, GF_ISOM_BOX_TYPE_TWRP);</span>
+<span class="lineNum">    1017 </span><span class="lineNoCov">          0 :         return (GF_Box *) tmp;</span>
+<a name="1018"><span class="lineNum">    1018 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">    1019 </span>            : 
+<span class="lineNum">    1020 </span>            : void twrp_del(GF_Box *s)
+<span class="lineNum">    1021 </span>            : {
+<span class="lineNum">    1022 </span><span class="lineNoCov">          0 :         gf_free(s);</span>
+<a name="1023"><span class="lineNum">    1023 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">    1024 </span>            : 
+<span class="lineNum">    1025 </span>            : GF_Err twrp_Read(GF_Box *s, GF_BitStream *bs)
+<span class="lineNum">    1026 </span>            : {
+<span class="lineNum">    1027 </span><span class="lineNoCov">          0 :         GF_TextWrapBox*ptr = (GF_TextWrapBox*)s;</span>
+<span class="lineNum">    1028 </span><span class="lineNoCov">          0 :         ptr-&gt;wrap_flag = gf_bs_read_u8(bs);</span>
+<span class="lineNum">    1029 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">    1030 </span>            : }
+<a name="1031"><span class="lineNum">    1031 </span>            : </a>
+<span class="lineNum">    1032 </span>            : #ifndef GPAC_DISABLE_ISOM_WRITE
+<span class="lineNum">    1033 </span>            : GF_Err twrp_Write(GF_Box *s, GF_BitStream *bs)
+<span class="lineNum">    1034 </span>            : {
+<span class="lineNum">    1035 </span>            :         GF_Err e;
+<span class="lineNum">    1036 </span><span class="lineNoCov">          0 :         GF_TextWrapBox*ptr = (GF_TextWrapBox*)s;</span>
+<span class="lineNum">    1037 </span><span class="lineNoCov">          0 :         e = gf_isom_box_write_header(s, bs);</span>
+<span class="lineNum">    1038 </span><span class="lineNoCov">          0 :         if (e) return e;</span>
+<span class="lineNum">    1039 </span><span class="lineNoCov">          0 :         gf_bs_write_u8(bs, ptr-&gt;wrap_flag);</span>
+<a name="1040"><span class="lineNum">    1040 </span><span class="lineNoCov">          0 :         return GF_OK;</span></a>
+<span class="lineNum">    1041 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">    1042 </span>            : GF_Err twrp_Size(GF_Box *s)
+<span class="lineNum">    1043 </span>            : {
+<span class="lineNum">    1044 </span><span class="lineNoCov">          0 :         GF_Err e = gf_isom_box_get_size(s);</span>
+<span class="lineNum">    1045 </span><span class="lineNoCov">          0 :         if (e) return e;</span>
+<span class="lineNum">    1046 </span><span class="lineNoCov">          0 :         s-&gt;size += 1;</span>
+<span class="lineNum">    1047 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">    1048 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">    1049 </span>            : 
+<a name="1050"><span class="lineNum">    1050 </span>            : #endif /*GPAC_DISABLE_ISOM_WRITE*/</a>
+<span class="lineNum">    1051 </span>            : 
+<span class="lineNum">    1052 </span>            : void tsel_del(GF_Box *s)
+<span class="lineNum">    1053 </span>            : {
+<span class="lineNum">    1054 </span>            :         GF_TrackSelectionBox *ptr;
+<span class="lineNum">    1055 </span><span class="lineNoCov">          0 :         ptr = (GF_TrackSelectionBox *) s;</span>
+<span class="lineNum">    1056 </span><span class="lineNoCov">          0 :         if (ptr == NULL) return;</span>
+<span class="lineNum">    1057 </span><span class="lineNoCov">          0 :         if (ptr-&gt;attributeList) gf_free(ptr-&gt;attributeList);</span>
+<span class="lineNum">    1058 </span><span class="lineNoCov">          0 :         gf_free(ptr);</span>
+<a name="1059"><span class="lineNum">    1059 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">    1060 </span>            : 
+<span class="lineNum">    1061 </span>            : GF_Err tsel_Read(GF_Box *s,GF_BitStream *bs)
+<span class="lineNum">    1062 </span>            : {
+<span class="lineNum">    1063 </span>            :         GF_Err e;
+<span class="lineNum">    1064 </span>            :         u32 i;
+<span class="lineNum">    1065 </span><span class="lineNoCov">          0 :         GF_TrackSelectionBox *ptr = (GF_TrackSelectionBox *) s;</span>
+<span class="lineNum">    1066 </span><span class="lineNoCov">          0 :         e = gf_isom_full_box_read(s, bs);</span>
+<span class="lineNum">    1067 </span><span class="lineNoCov">          0 :         if (e) return e;</span>
+<span class="lineNum">    1068 </span><span class="lineNoCov">          0 :         ptr-&gt;switchGroup = gf_bs_read_u32(bs);</span>
+<span class="lineNum">    1069 </span><span class="lineNoCov">          0 :         ptr-&gt;size -= 4;</span>
+<span class="lineNum">    1070 </span><span class="lineNoCov">          0 :         if (ptr-&gt;size % 4) return GF_ISOM_INVALID_FILE;</span>
+<span class="lineNum">    1071 </span><span class="lineNoCov">          0 :         ptr-&gt;attributeListCount = (u32)ptr-&gt;size/4;</span>
+<span class="lineNum">    1072 </span><span class="lineNoCov">          0 :         ptr-&gt;attributeList = gf_malloc(ptr-&gt;attributeListCount*sizeof(u32));</span>
+<span class="lineNum">    1073 </span><span class="lineNoCov">          0 :         if (ptr-&gt;attributeList == NULL) return GF_OUT_OF_MEM;</span>
+<span class="lineNum">    1074 </span>            : 
+<span class="lineNum">    1075 </span><span class="lineNoCov">          0 :         for (i=0; i&lt; ptr-&gt;attributeListCount; i++) {</span>
+<span class="lineNum">    1076 </span><span class="lineNoCov">          0 :                 ptr-&gt;attributeList[i] = gf_bs_read_u32(bs);</span>
+<span class="lineNum">    1077 </span>            :         }
+<span class="lineNum">    1078 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<a name="1079"><span class="lineNum">    1079 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">    1080 </span>            : 
+<span class="lineNum">    1081 </span>            : GF_Box *tsel_New()
+<span class="lineNum">    1082 </span>            : {
+<span class="lineNum">    1083 </span><span class="lineNoCov">          0 :         ISOM_DECL_BOX_ALLOC(GF_TrackSelectionBox, GF_ISOM_BOX_TYPE_TSEL);</span>
+<span class="lineNum">    1084 </span>            :         gf_isom_full_box_init((GF_Box *)tmp);
+<span class="lineNum">    1085 </span><span class="lineNoCov">          0 :         return (GF_Box *)tmp;</span>
+<span class="lineNum">    1086 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">    1087 </span>            : 
+<span class="lineNum">    1088 </span>            : 
+<a name="1089"><span class="lineNum">    1089 </span>            : #ifndef GPAC_DISABLE_ISOM_WRITE</a>
+<span class="lineNum">    1090 </span>            : 
+<span class="lineNum">    1091 </span>            : GF_Err tsel_Write(GF_Box *s, GF_BitStream *bs)
+<span class="lineNum">    1092 </span>            : {
+<span class="lineNum">    1093 </span>            :         GF_Err e;
+<span class="lineNum">    1094 </span>            :         u32 i;
+<span class="lineNum">    1095 </span><span class="lineNoCov">          0 :         GF_TrackSelectionBox *ptr = (GF_TrackSelectionBox *) s;</span>
+<span class="lineNum">    1096 </span>            : 
+<span class="lineNum">    1097 </span><span class="lineNoCov">          0 :         e = gf_isom_full_box_write(s, bs);</span>
+<span class="lineNum">    1098 </span><span class="lineNoCov">          0 :         if (e) return e;</span>
+<span class="lineNum">    1099 </span><span class="lineNoCov">          0 :         gf_bs_write_u32(bs,ptr-&gt;switchGroup);</span>
+<span class="lineNum">    1100 </span>            : 
+<span class="lineNum">    1101 </span><span class="lineNoCov">          0 :         for (i = 0; i &lt; ptr-&gt;attributeListCount; i++ ) {</span>
+<span class="lineNum">    1102 </span><span class="lineNoCov">          0 :                 gf_bs_write_u32(bs, ptr-&gt;attributeList[i]);</span>
+<span class="lineNum">    1103 </span>            :         }
+<span class="lineNum">    1104 </span>            : 
+<span class="lineNum">    1105 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<a name="1106"><span class="lineNum">    1106 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">    1107 </span>            : 
+<span class="lineNum">    1108 </span>            : GF_Err tsel_Size(GF_Box *s)
+<span class="lineNum">    1109 </span>            : {
+<span class="lineNum">    1110 </span>            :         GF_Err e;
+<span class="lineNum">    1111 </span><span class="lineNoCov">          0 :         GF_TrackSelectionBox *ptr = (GF_TrackSelectionBox *) s;</span>
+<span class="lineNum">    1112 </span><span class="lineNoCov">          0 :         e = gf_isom_full_box_get_size(s);</span>
+<span class="lineNum">    1113 </span><span class="lineNoCov">          0 :         if (e) return e;</span>
+<span class="lineNum">    1114 </span><span class="lineNoCov">          0 :         ptr-&gt;size += 4 + (4*ptr-&gt;attributeListCount);</span>
+<span class="lineNum">    1115 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">    1116 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">    1117 </span>            : 
+<span class="lineNum">    1118 </span>            : #endif /*GPAC_DISABLE_ISOM_WRITE*/
+<a name="1119"><span class="lineNum">    1119 </span>            : </a>
+<span class="lineNum">    1120 </span>            : 
+<span class="lineNum">    1121 </span>            : GF_Box *dimC_New()
+<span class="lineNum">    1122 </span>            : {
+<span class="lineNum">    1123 </span><span class="lineNoCov">          0 :         ISOM_DECL_BOX_ALLOC(GF_DIMSSceneConfigBox, GF_ISOM_BOX_TYPE_DIMC);</span>
+<span class="lineNum">    1124 </span>            :         gf_isom_full_box_init((GF_Box *)tmp);
+<a name="1125"><span class="lineNum">    1125 </span><span class="lineNoCov">          0 :         return (GF_Box *)tmp;</span></a>
+<span class="lineNum">    1126 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">    1127 </span>            : void dimC_del(GF_Box *s)
+<span class="lineNum">    1128 </span>            : {
+<span class="lineNum">    1129 </span><span class="lineNoCov">          0 :         GF_DIMSSceneConfigBox *p = (GF_DIMSSceneConfigBox *)s;</span>
+<span class="lineNum">    1130 </span><span class="lineNoCov">          0 :         if (p-&gt;contentEncoding) gf_free(p-&gt;contentEncoding);</span>
+<span class="lineNum">    1131 </span><span class="lineNoCov">          0 :         if (p-&gt;textEncoding) gf_free(p-&gt;textEncoding);</span>
+<span class="lineNum">    1132 </span><span class="lineNoCov">          0 :         gf_free(p);</span>
+<a name="1133"><span class="lineNum">    1133 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">    1134 </span>            : 
+<span class="lineNum">    1135 </span>            : GF_Err dimC_Read(GF_Box *s, GF_BitStream *bs)
+<span class="lineNum">    1136 </span>            : {
+<span class="lineNum">    1137 </span><span class="lineNoCov">          0 :         char str[1024];</span>
+<span class="lineNum">    1138 </span>            :         u32 i;
+<span class="lineNum">    1139 </span><span class="lineNoCov">          0 :         GF_DIMSSceneConfigBox *p = (GF_DIMSSceneConfigBox *)s;</span>
+<span class="lineNum">    1140 </span><span class="lineNoCov">          0 :         GF_Err e = gf_isom_full_box_read(s, bs);</span>
+<span class="lineNum">    1141 </span><span class="lineNoCov">          0 :         if (e) return e;</span>
+<span class="lineNum">    1142 </span>            : 
+<span class="lineNum">    1143 </span><span class="lineNoCov">          0 :         p-&gt;profile = gf_bs_read_u8(bs);</span>
+<span class="lineNum">    1144 </span><span class="lineNoCov">          0 :         p-&gt;level = gf_bs_read_u8(bs);</span>
+<span class="lineNum">    1145 </span><span class="lineNoCov">          0 :         p-&gt;pathComponents = gf_bs_read_int(bs, 4);</span>
+<span class="lineNum">    1146 </span><span class="lineNoCov">          0 :         p-&gt;fullRequestHost = gf_bs_read_int(bs, 1);</span>
+<span class="lineNum">    1147 </span><span class="lineNoCov">          0 :         p-&gt;streamType = gf_bs_read_int(bs, 1);</span>
+<span class="lineNum">    1148 </span><span class="lineNoCov">          0 :         p-&gt;containsRedundant = gf_bs_read_int(bs, 2);</span>
+<span class="lineNum">    1149 </span><span class="lineNoCov">          0 :         s-&gt;size -= 3;</span>
+<span class="lineNum">    1150 </span>            : 
+<span class="lineNum">    1151 </span>            :         i=0;
+<span class="lineNum">    1152 </span><span class="lineNoCov">          0 :         str[0]=0;</span>
+<span class="lineNum">    1153 </span><span class="lineNoCov">          0 :         while (1) {</span>
+<span class="lineNum">    1154 </span><span class="lineNoCov">          0 :                 str[i] = gf_bs_read_u8(bs);</span>
+<span class="lineNum">    1155 </span><span class="lineNoCov">          0 :                 if (!str[i]) break;</span>
+<span class="lineNum">    1156 </span><span class="lineNoCov">          0 :                 i++;</span>
+<span class="lineNum">    1157 </span>            :         }
+<span class="lineNum">    1158 </span><span class="lineNoCov">          0 :         if (s-&gt;size &lt; i) return GF_ISOM_INVALID_FILE;</span>
+<span class="lineNum">    1159 </span><span class="lineNoCov">          0 :         s-&gt;size -= i;</span>
+<span class="lineNum">    1160 </span><span class="lineNoCov">          0 :         p-&gt;textEncoding = gf_strdup(str);</span>
+<span class="lineNum">    1161 </span>            : 
+<span class="lineNum">    1162 </span>            :         i=0;
+<span class="lineNum">    1163 </span><span class="lineNoCov">          0 :         str[0]=0;</span>
+<span class="lineNum">    1164 </span><span class="lineNoCov">          0 :         while (1) {</span>
+<span class="lineNum">    1165 </span><span class="lineNoCov">          0 :                 str[i] = gf_bs_read_u8(bs);</span>
+<span class="lineNum">    1166 </span><span class="lineNoCov">          0 :                 if (!str[i]) break;</span>
+<span class="lineNum">    1167 </span><span class="lineNoCov">          0 :                 i++;</span>
+<span class="lineNum">    1168 </span>            :         }
+<span class="lineNum">    1169 </span><span class="lineNoCov">          0 :         if (s-&gt;size &lt; i) return GF_ISOM_INVALID_FILE;</span>
+<span class="lineNum">    1170 </span><span class="lineNoCov">          0 :         s-&gt;size -= i;</span>
+<span class="lineNum">    1171 </span><span class="lineNoCov">          0 :         p-&gt;contentEncoding = gf_strdup(str);</span>
+<span class="lineNum">    1172 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">    1173 </span><span class="lineNoCov">          0 : }</span>
+<a name="1174"><span class="lineNum">    1174 </span>            : </a>
+<span class="lineNum">    1175 </span>            : #ifndef GPAC_DISABLE_ISOM_WRITE
+<span class="lineNum">    1176 </span>            : GF_Err dimC_Write(GF_Box *s, GF_BitStream *bs)
+<span class="lineNum">    1177 </span>            : {
+<span class="lineNum">    1178 </span><span class="lineNoCov">          0 :         GF_DIMSSceneConfigBox *p = (GF_DIMSSceneConfigBox *)s;</span>
+<span class="lineNum">    1179 </span><span class="lineNoCov">          0 :         GF_Err e = gf_isom_full_box_write(s, bs);</span>
+<span class="lineNum">    1180 </span><span class="lineNoCov">          0 :         if (e) return e;</span>
+<span class="lineNum">    1181 </span><span class="lineNoCov">          0 :         gf_bs_write_u8(bs, p-&gt;profile);</span>
+<span class="lineNum">    1182 </span><span class="lineNoCov">          0 :         gf_bs_write_u8(bs, p-&gt;level);</span>
+<span class="lineNum">    1183 </span><span class="lineNoCov">          0 :         gf_bs_write_int(bs, p-&gt;pathComponents, 4);</span>
+<span class="lineNum">    1184 </span><span class="lineNoCov">          0 :         gf_bs_write_int(bs, p-&gt;fullRequestHost, 1);</span>
+<span class="lineNum">    1185 </span><span class="lineNoCov">          0 :         gf_bs_write_int(bs, p-&gt;streamType, 1);</span>
+<span class="lineNum">    1186 </span><span class="lineNoCov">          0 :         gf_bs_write_int(bs, p-&gt;containsRedundant, 2);</span>
+<span class="lineNum">    1187 </span><span class="lineNoCov">          0 :         gf_bs_write_data(bs, p-&gt;textEncoding, (u32) strlen(p-&gt;textEncoding)+1);</span>
+<span class="lineNum">    1188 </span><span class="lineNoCov">          0 :         gf_bs_write_data(bs, p-&gt;contentEncoding, (u32) strlen(p-&gt;contentEncoding)+1);</span>
+<a name="1189"><span class="lineNum">    1189 </span><span class="lineNoCov">          0 :         return GF_OK;</span></a>
+<span class="lineNum">    1190 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">    1191 </span>            : GF_Err dimC_Size(GF_Box *s)
+<span class="lineNum">    1192 </span>            : {
+<span class="lineNum">    1193 </span><span class="lineNoCov">          0 :         GF_DIMSSceneConfigBox *p = (GF_DIMSSceneConfigBox *)s;</span>
+<span class="lineNum">    1194 </span><span class="lineNoCov">          0 :         GF_Err e = gf_isom_full_box_get_size(s);</span>
+<span class="lineNum">    1195 </span><span class="lineNoCov">          0 :         if (e) return e;</span>
+<span class="lineNum">    1196 </span><span class="lineNoCov">          0 :         s-&gt;size += 3 + 1 + strlen(p-&gt;textEncoding) + 1 + strlen(p-&gt;contentEncoding);</span>
+<span class="lineNum">    1197 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">    1198 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">    1199 </span>            : #endif /*GPAC_DISABLE_ISOM_WRITE*/
+<span class="lineNum">    1200 </span>            : 
+<a name="1201"><span class="lineNum">    1201 </span>            : </a>
+<span class="lineNum">    1202 </span>            : 
+<span class="lineNum">    1203 </span>            : GF_Box *diST_New()
+<span class="lineNum">    1204 </span>            : {
+<span class="lineNum">    1205 </span><span class="lineNoCov">          0 :         ISOM_DECL_BOX_ALLOC(GF_DIMSScriptTypesBox, GF_ISOM_BOX_TYPE_DIST);</span>
+<a name="1206"><span class="lineNum">    1206 </span><span class="lineNoCov">          0 :         return (GF_Box *)tmp;</span></a>
+<span class="lineNum">    1207 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">    1208 </span>            : void diST_del(GF_Box *s)
+<span class="lineNum">    1209 </span>            : {
+<span class="lineNum">    1210 </span><span class="lineNoCov">          0 :         GF_DIMSScriptTypesBox *p = (GF_DIMSScriptTypesBox *)s;</span>
+<span class="lineNum">    1211 </span><span class="lineNoCov">          0 :         if (p-&gt;content_script_types) gf_free(p-&gt;content_script_types);</span>
+<span class="lineNum">    1212 </span><span class="lineNoCov">          0 :         gf_free(p);</span>
+<a name="1213"><span class="lineNum">    1213 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">    1214 </span>            : 
+<span class="lineNum">    1215 </span>            : GF_Err diST_Read(GF_Box *s, GF_BitStream *bs)
+<span class="lineNum">    1216 </span>            : {
+<span class="lineNum">    1217 </span>            :         u32 i;
+<span class="lineNum">    1218 </span><span class="lineNoCov">          0 :         char str[1024];</span>
+<span class="lineNum">    1219 </span><span class="lineNoCov">          0 :         GF_DIMSScriptTypesBox *p = (GF_DIMSScriptTypesBox *)s;</span>
+<span class="lineNum">    1220 </span>            : 
+<span class="lineNum">    1221 </span>            :         i=0;
+<span class="lineNum">    1222 </span><span class="lineNoCov">          0 :         str[0]=0;</span>
+<span class="lineNum">    1223 </span><span class="lineNoCov">          0 :         while (1) {</span>
+<span class="lineNum">    1224 </span><span class="lineNoCov">          0 :                 str[i] = gf_bs_read_u8(bs);</span>
+<span class="lineNum">    1225 </span><span class="lineNoCov">          0 :                 if (!str[i]) break;</span>
+<span class="lineNum">    1226 </span><span class="lineNoCov">          0 :                 i++;</span>
+<span class="lineNum">    1227 </span>            :         }
+<span class="lineNum">    1228 </span><span class="lineNoCov">          0 :         if (s-&gt;size &lt; i) return GF_ISOM_INVALID_FILE;</span>
+<span class="lineNum">    1229 </span><span class="lineNoCov">          0 :         s-&gt;size -= i;</span>
+<span class="lineNum">    1230 </span><span class="lineNoCov">          0 :         p-&gt;content_script_types = gf_strdup(str);</span>
+<span class="lineNum">    1231 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">    1232 </span><span class="lineNoCov">          0 : }</span>
+<a name="1233"><span class="lineNum">    1233 </span>            : </a>
+<span class="lineNum">    1234 </span>            : #ifndef GPAC_DISABLE_ISOM_WRITE
+<span class="lineNum">    1235 </span>            : GF_Err diST_Write(GF_Box *s, GF_BitStream *bs)
+<span class="lineNum">    1236 </span>            : {
+<span class="lineNum">    1237 </span><span class="lineNoCov">          0 :         GF_DIMSScriptTypesBox *p = (GF_DIMSScriptTypesBox *)s;</span>
+<span class="lineNum">    1238 </span><span class="lineNoCov">          0 :         GF_Err e = gf_isom_box_write_header(s, bs);</span>
+<span class="lineNum">    1239 </span><span class="lineNoCov">          0 :         if (e) return e;</span>
+<span class="lineNum">    1240 </span><span class="lineNoCov">          0 :         if (p-&gt;content_script_types)</span>
+<span class="lineNum">    1241 </span><span class="lineNoCov">          0 :                 gf_bs_write_data(bs, p-&gt;content_script_types, (u32) strlen(p-&gt;content_script_types)+1);</span>
+<span class="lineNum">    1242 </span>            :         else
+<span class="lineNum">    1243 </span><span class="lineNoCov">          0 :                 gf_bs_write_u8(bs, 0);</span>
+<a name="1244"><span class="lineNum">    1244 </span><span class="lineNoCov">          0 :         return GF_OK;</span></a>
+<span class="lineNum">    1245 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">    1246 </span>            : GF_Err diST_Size(GF_Box *s)
+<span class="lineNum">    1247 </span>            : {
+<span class="lineNum">    1248 </span><span class="lineNoCov">          0 :         GF_Err e = gf_isom_box_get_size(s);</span>
+<span class="lineNum">    1249 </span><span class="lineNoCov">          0 :         GF_DIMSScriptTypesBox *p = (GF_DIMSScriptTypesBox *)s;</span>
+<span class="lineNum">    1250 </span><span class="lineNoCov">          0 :         if (e) return e;</span>
+<span class="lineNum">    1251 </span><span class="lineNoCov">          0 :         s-&gt;size += p-&gt;content_script_types ? (strlen(p-&gt;content_script_types)+1) : 1;</span>
+<span class="lineNum">    1252 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">    1253 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">    1254 </span>            : #endif /*GPAC_DISABLE_ISOM_WRITE*/
+<a name="1255"><span class="lineNum">    1255 </span>            : </a>
+<span class="lineNum">    1256 </span>            : 
+<span class="lineNum">    1257 </span>            : GF_Box *dims_New()
+<span class="lineNum">    1258 </span>            : {
+<span class="lineNum">    1259 </span><span class="lineNoCov">          0 :         ISOM_DECL_BOX_ALLOC(GF_DIMSSampleEntryBox, GF_ISOM_BOX_TYPE_DIMS);</span>
+<a name="1260"><span class="lineNum">    1260 </span><span class="lineNoCov">          0 :         return (GF_Box*)tmp;</span></a>
+<span class="lineNum">    1261 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">    1262 </span>            : void dims_del(GF_Box *s)
+<span class="lineNum">    1263 </span>            : {
+<span class="lineNum">    1264 </span><span class="lineNoCov">          0 :         GF_DIMSSampleEntryBox *p = (GF_DIMSSampleEntryBox *)s;</span>
+<span class="lineNum">    1265 </span><span class="lineNoCov">          0 :         gf_isom_sample_entry_predestroy((GF_SampleEntryBox *)s);</span>
+<span class="lineNum">    1266 </span>            : 
+<span class="lineNum">    1267 </span><span class="lineNoCov">          0 :         if (p-&gt;config) gf_isom_box_del((GF_Box *)p-&gt;config);</span>
+<span class="lineNum">    1268 </span><span class="lineNoCov">          0 :         if (p-&gt;scripts) gf_isom_box_del((GF_Box *)p-&gt;scripts);</span>
+<span class="lineNum">    1269 </span><span class="lineNoCov">          0 :         gf_free(p);</span>
+<a name="1270"><span class="lineNum">    1270 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">    1271 </span>            : 
+<span class="lineNum">    1272 </span>            : static GF_Err dims_AddBox(GF_Box *s, GF_Box *a)
+<span class="lineNum">    1273 </span>            : {
+<span class="lineNum">    1274 </span><span class="lineNoCov">          0 :         GF_DIMSSampleEntryBox *ptr = (GF_DIMSSampleEntryBox  *)s;</span>
+<span class="lineNum">    1275 </span><span class="lineNoCov">          0 :         switch (a-&gt;type) {</span>
+<span class="lineNum">    1276 </span>            :         case GF_ISOM_BOX_TYPE_DIMC:
+<span class="lineNum">    1277 </span><span class="lineNoCov">          0 :                 if (ptr-&gt;config) ERROR_ON_DUPLICATED_BOX(a, ptr)</span>
+<span class="lineNum">    1278 </span><span class="lineNoCov">          0 :                         ptr-&gt;config = (GF_DIMSSceneConfigBox*)a;</span>
+<span class="lineNum">    1279 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">    1280 </span>            :         case GF_ISOM_BOX_TYPE_DIST:
+<span class="lineNum">    1281 </span><span class="lineNoCov">          0 :                 if (ptr-&gt;scripts) ERROR_ON_DUPLICATED_BOX(a, ptr)</span>
+<span class="lineNum">    1282 </span><span class="lineNoCov">          0 :                         ptr-&gt;scripts = (GF_DIMSScriptTypesBox*)a;</span>
+<span class="lineNum">    1283 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">    1284 </span>            :         case GF_ISOM_BOX_TYPE_SINF:
+<span class="lineNum">    1285 </span><span class="lineNoCov">          0 :                 gf_list_add(ptr-&gt;protections, a);</span>
+<span class="lineNum">    1286 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">    1287 </span>            :         default:
+<span class="lineNum">    1288 </span><span class="lineNoCov">          0 :                 return gf_isom_box_add_default(s, a);</span>
+<span class="lineNum">    1289 </span>            :         }
+<a name="1290"><span class="lineNum">    1290 </span><span class="lineNoCov">          0 :         return GF_OK;</span></a>
+<span class="lineNum">    1291 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">    1292 </span>            : GF_Err dims_Read(GF_Box *s, GF_BitStream *bs)
+<span class="lineNum">    1293 </span>            : {
+<span class="lineNum">    1294 </span><span class="lineNoCov">          0 :         GF_DIMSSampleEntryBox *p = (GF_DIMSSampleEntryBox *)s;</span>
+<span class="lineNum">    1295 </span><span class="lineNoCov">          0 :         gf_bs_read_data(bs, p-&gt;reserved, 6);</span>
+<span class="lineNum">    1296 </span><span class="lineNoCov">          0 :         p-&gt;dataReferenceIndex = gf_bs_read_u16(bs);</span>
+<span class="lineNum">    1297 </span><span class="lineNoCov">          0 :         p-&gt;size -= 8;</span>
+<span class="lineNum">    1298 </span><span class="lineNoCov">          0 :         return gf_isom_read_box_list(s, bs, dims_AddBox);</span>
+<span class="lineNum">    1299 </span>            : }
+<a name="1300"><span class="lineNum">    1300 </span>            : </a>
+<span class="lineNum">    1301 </span>            : #ifndef GPAC_DISABLE_ISOM_WRITE
+<span class="lineNum">    1302 </span>            : GF_Err dims_Write(GF_Box *s, GF_BitStream *bs)
+<span class="lineNum">    1303 </span>            : {
+<span class="lineNum">    1304 </span><span class="lineNoCov">          0 :         GF_DIMSSampleEntryBox *p = (GF_DIMSSampleEntryBox *)s;</span>
+<span class="lineNum">    1305 </span><span class="lineNoCov">          0 :         GF_Err e = gf_isom_box_write_header(s, bs);</span>
+<span class="lineNum">    1306 </span><span class="lineNoCov">          0 :         if (e) return e;</span>
+<span class="lineNum">    1307 </span><span class="lineNoCov">          0 :         gf_bs_write_data(bs, p-&gt;reserved, 6);</span>
+<span class="lineNum">    1308 </span><span class="lineNoCov">          0 :         gf_bs_write_u16(bs, p-&gt;dataReferenceIndex);</span>
+<span class="lineNum">    1309 </span><span class="lineNoCov">          0 :         if (p-&gt;config) {</span>
+<span class="lineNum">    1310 </span><span class="lineNoCov">          0 :                 e = gf_isom_box_write((GF_Box *)p-&gt;config, bs);</span>
+<span class="lineNum">    1311 </span><span class="lineNoCov">          0 :                 if (e) return e;</span>
+<span class="lineNum">    1312 </span>            :         }
+<span class="lineNum">    1313 </span><span class="lineNoCov">          0 :         if (p-&gt;scripts) {</span>
+<span class="lineNum">    1314 </span><span class="lineNoCov">          0 :                 e = gf_isom_box_write((GF_Box *)p-&gt;scripts, bs);</span>
+<span class="lineNum">    1315 </span><span class="lineNoCov">          0 :                 if (e) return e;</span>
+<span class="lineNum">    1316 </span>            :         }
+<span class="lineNum">    1317 </span><span class="lineNoCov">          0 :         return gf_isom_box_array_write(s, p-&gt;protections, bs);</span>
+<a name="1318"><span class="lineNum">    1318 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">    1319 </span>            : 
+<span class="lineNum">    1320 </span>            : GF_Err dims_Size(GF_Box *s)
+<span class="lineNum">    1321 </span>            : {
+<span class="lineNum">    1322 </span><span class="lineNoCov">          0 :         GF_Err e = gf_isom_box_get_size(s);</span>
+<span class="lineNum">    1323 </span><span class="lineNoCov">          0 :         GF_DIMSSampleEntryBox *p = (GF_DIMSSampleEntryBox *)s;</span>
+<span class="lineNum">    1324 </span><span class="lineNoCov">          0 :         if (e) return e;</span>
+<span class="lineNum">    1325 </span><span class="lineNoCov">          0 :         s-&gt;size += 8;</span>
+<span class="lineNum">    1326 </span>            : 
+<span class="lineNum">    1327 </span><span class="lineNoCov">          0 :         if (p-&gt;config) {</span>
+<span class="lineNum">    1328 </span><span class="lineNoCov">          0 :                 e = gf_isom_box_size((GF_Box *) p-&gt;config);</span>
+<span class="lineNum">    1329 </span><span class="lineNoCov">          0 :                 if (e) return e;</span>
+<span class="lineNum">    1330 </span><span class="lineNoCov">          0 :                 p-&gt;size += p-&gt;config-&gt;size;</span>
+<span class="lineNum">    1331 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">    1332 </span><span class="lineNoCov">          0 :         if (p-&gt;scripts) {</span>
+<span class="lineNum">    1333 </span><span class="lineNoCov">          0 :                 e = gf_isom_box_size((GF_Box *) p-&gt;scripts);</span>
+<span class="lineNum">    1334 </span><span class="lineNoCov">          0 :                 if (e) return e;</span>
+<span class="lineNum">    1335 </span><span class="lineNoCov">          0 :                 p-&gt;size += p-&gt;scripts-&gt;size;</span>
+<span class="lineNum">    1336 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">    1337 </span><span class="lineNoCov">          0 :         return gf_isom_box_array_size(s, p-&gt;protections);</span>
+<span class="lineNum">    1338 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">    1339 </span>            : #endif /*GPAC_DISABLE_ISOM_WRITE*/
+<span class="lineNum">    1340 </span>            : 
+<span class="lineNum">    1341 </span>            : #endif /*GPAC_DISABLE_ISOM*/
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

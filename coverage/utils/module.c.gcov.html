@@ -1,0 +1,611 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - utils/module.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">utils</a> - module.c<span style="font-size: 80%;"> (source / <a href="module.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">146</td>
+            <td class="headerCovTableEntry">209</td>
+            <td class="headerCovTableEntryLo">69.9 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-05-14 22:31:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">13</td>
+            <td class="headerCovTableEntry">15</td>
+            <td class="headerCovTableEntryMed">86.7 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *                      GPAC - Multimedia Framework C SDK
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *                      Authors: Jean Le Feuvre
+<span class="lineNum">       5 </span>            :  *                      Copyright (c) Telecom ParisTech 2000-2012
+<span class="lineNum">       6 </span>            :  *                                      All rights reserved
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  *  This file is part of GPAC / common tools sub-project
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  *  GPAC is free software; you can redistribute it and/or modify
+<span class="lineNum">      11 </span>            :  *  it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">      12 </span>            :  *  the Free Software Foundation; either version 2, or (at your option)
+<span class="lineNum">      13 </span>            :  *  any later version.
+<span class="lineNum">      14 </span>            :  *
+<span class="lineNum">      15 </span>            :  *  GPAC is distributed in the hope that it will be useful,
+<span class="lineNum">      16 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      17 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      18 </span>            :  *  GNU Lesser General Public License for more details.
+<span class="lineNum">      19 </span>            :  *
+<span class="lineNum">      20 </span>            :  *  You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      21 </span>            :  *  License along with this library; see the file COPYING.  If not, write to
+<span class="lineNum">      22 </span>            :  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+<span class="lineNum">      23 </span>            :  *
+<span class="lineNum">      24 </span>            :  */
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : #include &quot;module_wrap.h&quot;
+<span class="lineNum">      27 </span>            : #include &lt;gpac/config_file.h&gt;
+<span class="lineNum">      28 </span>            : #include &lt;gpac/tools.h&gt;
+<span class="lineNum">      29 </span>            : #include &lt;gpac/network.h&gt;
+<a name="30"><span class="lineNum">      30 </span>            : </a>
+<span class="lineNum">      31 </span>            : #ifndef GPAC_MODULE_CUSTOM_LOAD
+<span class="lineNum">      32 </span>            : static void load_all_modules(GF_ModuleManager *mgr)
+<span class="lineNum">      33 </span>            : {
+<span class="lineNum">      34 </span>            : #define LOAD_PLUGIN(    __name  )       { \
+<span class="lineNum">      35 </span>            :         GF_InterfaceRegister *gf_register_module_##__name();    \
+<span class="lineNum">      36 </span>            :         pr = gf_register_module_##__name();\
+<span class="lineNum">      37 </span>            :         if (!pr) {\
+<span class="lineNum">      38 </span>            :                 GF_LOG(GF_LOG_ERROR, GF_LOG_CORE, (&quot;Failed to statically load module ##__name\n&quot;));\
+<span class="lineNum">      39 </span>            :         } else {\
+<span class="lineNum">      40 </span>            :                 gf_list_add(mgr-&gt;plugin_registry, pr);       \
+<span class="lineNum">      41 </span>            :         }       \
+<span class="lineNum">      42 </span>            :         }
+<span class="lineNum">      43 </span>            : 
+<span class="lineNum">      44 </span>            : #ifdef GPAC_STATIC_MODULES
+<span class="lineNum">      45 </span>            :         GF_InterfaceRegister *pr;
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span>            : #ifdef GPAC_HAS_FAAD
+<span class="lineNum">      48 </span>            :         LOAD_PLUGIN(aac_in);
+<span class="lineNum">      49 </span>            : #endif
+<span class="lineNum">      50 </span>            : #ifdef GPAC_HAS_AC3
+<span class="lineNum">      51 </span>            :         LOAD_PLUGIN(ac3);
+<span class="lineNum">      52 </span>            : #endif
+<span class="lineNum">      53 </span>            :         LOAD_PLUGIN(amr_in);
+<span class="lineNum">      54 </span>            :         
+<span class="lineNum">      55 </span>            : #ifdef GPAC_HAS_ALSA
+<span class="lineNum">      56 </span>            :         LOAD_PLUGIN(alsa);
+<span class="lineNum">      57 </span>            : #endif
+<span class="lineNum">      58 </span>            :         LOAD_PLUGIN(audio_filter);
+<span class="lineNum">      59 </span>            :         LOAD_PLUGIN(bifs);
+<span class="lineNum">      60 </span>            : #ifndef GPAC_DISABLE_SMGR
+<span class="lineNum">      61 </span>            :         LOAD_PLUGIN(ctx_load);
+<span class="lineNum">      62 </span>            : #endif
+<span class="lineNum">      63 </span>            : #ifdef GPAC_HAS_DIRECTFB
+<span class="lineNum">      64 </span>            :         LOAD_PLUGIN(directfb_out);
+<span class="lineNum">      65 </span>            : #endif
+<span class="lineNum">      66 </span>            :         LOAD_PLUGIN(dummy_in);
+<span class="lineNum">      67 </span>            : #ifdef GPAC_HAS_DIRECTX
+<span class="lineNum">      68 </span>            :         LOAD_PLUGIN(dx_out);
+<span class="lineNum">      69 </span>            : #endif
+<span class="lineNum">      70 </span>            : #ifdef GPAC_HAS_FFMPEG
+<span class="lineNum">      71 </span>            :         LOAD_PLUGIN(ffmpeg);
+<span class="lineNum">      72 </span>            : #endif
+<span class="lineNum">      73 </span>            : #ifdef GPAC_HAS_FREENECT
+<span class="lineNum">      74 </span>            :         LOAD_PLUGIN(freenect);
+<span class="lineNum">      75 </span>            : #endif
+<span class="lineNum">      76 </span>            : #ifdef GPAC_HAS_FREETYPE
+<span class="lineNum">      77 </span>            :         LOAD_PLUGIN(ftfont);
+<span class="lineNum">      78 </span>            : #endif
+<span class="lineNum">      79 </span>            : #ifdef GPAC_HAS_SPIDERMONKEY
+<span class="lineNum">      80 </span>            :         LOAD_PLUGIN(gpac_js);
+<span class="lineNum">      81 </span>            : #endif
+<span class="lineNum">      82 </span>            :         LOAD_PLUGIN(img_in);
+<span class="lineNum">      83 </span>            :         LOAD_PLUGIN(isma_ea);
+<span class="lineNum">      84 </span>            :         LOAD_PLUGIN(isom);
+<span class="lineNum">      85 </span>            : #ifdef GPAC_HAS_JACK
+<span class="lineNum">      86 </span>            :         LOAD_PLUGIN(jack);
+<span class="lineNum">      87 </span>            : #endif
+<span class="lineNum">      88 </span>            : #ifndef GPAC_DISABLE_SVG
+<span class="lineNum">      89 </span>            :         LOAD_PLUGIN(laser);
+<span class="lineNum">      90 </span>            : #endif
+<span class="lineNum">      91 </span>            : #ifdef GPAC_HAS_MAD
+<span class="lineNum">      92 </span>            :         LOAD_PLUGIN(mp3_in);
+<span class="lineNum">      93 </span>            : #endif
+<span class="lineNum">      94 </span>            :         LOAD_PLUGIN(mpd_in);
+<span class="lineNum">      95 </span>            : #ifndef GPAC_DISABLE_MEDIA_IMPORT
+<span class="lineNum">      96 </span>            :         LOAD_PLUGIN(mpegts_in);
+<span class="lineNum">      97 </span>            : #endif
+<span class="lineNum">      98 </span>            : #ifdef GPAC_HAS_SPIDERMONKEY
+<span class="lineNum">      99 </span>            :         LOAD_PLUGIN(mse_in);
+<span class="lineNum">     100 </span>            : #endif
+<span class="lineNum">     101 </span>            :         LOAD_PLUGIN(odf_dec);
+<span class="lineNum">     102 </span>            : #ifdef GPAC_HAS_OGG
+<span class="lineNum">     103 </span>            :         LOAD_PLUGIN(ogg_in);
+<span class="lineNum">     104 </span>            : #endif
+<span class="lineNum">     105 </span>            : #ifdef GPAC_HAS_OPENHEVC
+<span class="lineNum">     106 </span>            :         LOAD_PLUGIN(openhevc);
+<span class="lineNum">     107 </span>            : #endif
+<span class="lineNum">     108 </span>            : #ifdef GPAC_HAS_OPENSVC
+<span class="lineNum">     109 </span>            :         LOAD_PLUGIN(opensvc);
+<span class="lineNum">     110 </span>            : #endif
+<span class="lineNum">     111 </span>            : #ifndef GPAC_DISABLE_LOADER_BT
+<span class="lineNum">     112 </span>            :         LOAD_PLUGIN(osd);
+<span class="lineNum">     113 </span>            : #endif
+<span class="lineNum">     114 </span>            : #ifdef GPAC_HAS_OSS
+<span class="lineNum">     115 </span>            :         LOAD_PLUGIN(oss);
+<span class="lineNum">     116 </span>            : #endif
+<span class="lineNum">     117 </span>            : #ifdef GPAC_HAS_PULSEAUDIO
+<span class="lineNum">     118 </span>            :         LOAD_PLUGIN(pulseaudio);
+<span class="lineNum">     119 </span>            : #endif
+<span class="lineNum">     120 </span>            :         LOAD_PLUGIN(raw_out);
+<span class="lineNum">     121 </span>            : #ifdef GPAC_HAS_FFMPEG
+<span class="lineNum">     122 </span>            :         //    LOAD_PLUGIN(redirect_av);
+<span class="lineNum">     123 </span>            : #endif
+<span class="lineNum">     124 </span>            :         LOAD_PLUGIN(rtp_in);
+<span class="lineNum">     125 </span>            :         LOAD_PLUGIN(saf_in);
+<span class="lineNum">     126 </span>            : #ifdef GPAC_HAS_SDL
+<span class="lineNum">     127 </span>            :         LOAD_PLUGIN(sdl_out);
+<span class="lineNum">     128 </span>            : #endif
+<span class="lineNum">     129 </span>            :         LOAD_PLUGIN(soft_raster);
+<span class="lineNum">     130 </span>            : #if !defined(GPAC_DISABLE_SMGR) &amp;&amp; !defined(GPAC_DISABLE_SVG)
+<span class="lineNum">     131 </span>            :         LOAD_PLUGIN(svg_in);
+<span class="lineNum">     132 </span>            : #endif
+<span class="lineNum">     133 </span>            :         LOAD_PLUGIN(timedtext);
+<span class="lineNum">     134 </span>            :         LOAD_PLUGIN(validator);
+<span class="lineNum">     135 </span>            : #ifdef GPAC_HAS_WAVEOUT
+<span class="lineNum">     136 </span>            :         LOAD_PLUGIN(wave_out);
+<span class="lineNum">     137 </span>            : #endif
+<span class="lineNum">     138 </span>            : #ifndef GPAC_DISABLE_VTT
+<span class="lineNum">     139 </span>            :         LOAD_PLUGIN(vtt_dec);
+<span class="lineNum">     140 </span>            : #endif
+<span class="lineNum">     141 </span>            : #ifndef GPAC_DISABLE_SVG
+<span class="lineNum">     142 </span>            :         LOAD_PLUGIN(widgetman);
+<span class="lineNum">     143 </span>            : #endif
+<span class="lineNum">     144 </span>            : #ifdef GPAC_HAS_X11
+<span class="lineNum">     145 </span>            :         LOAD_PLUGIN(x11_out);
+<span class="lineNum">     146 </span>            : #endif
+<span class="lineNum">     147 </span>            : #ifdef GPAC_HAS_XVID
+<span class="lineNum">     148 </span>            :         LOAD_PLUGIN(xvid);
+<span class="lineNum">     149 </span>            : #endif
+<span class="lineNum">     150 </span>            : 
+<span class="lineNum">     151 </span>            : #if defined(GPAC_IPHONE) || defined(__DARWIN__) || defined(__APPLE__)
+<span class="lineNum">     152 </span>            :     LOAD_PLUGIN(vtb);
+<span class="lineNum">     153 </span>            : #endif
+<span class="lineNum">     154 </span>            : 
+<span class="lineNum">     155 </span>            :         //todo fix project for iOS
+<span class="lineNum">     156 </span>            : #ifdef GPAC_IPHONE
+<span class="lineNum">     157 </span>            :         //these do not compile with xcode 4.2
+<span class="lineNum">     158 </span>            : //    LOAD_PLUGIN(ios_cam);
+<span class="lineNum">     159 </span>            : //    LOAD_PLUGIN(ios_mpegv);
+<span class="lineNum">     160 </span>            : #endif
+<span class="lineNum">     161 </span>            : 
+<span class="lineNum">     162 </span>            : 
+<span class="lineNum">     163 </span>            : #endif //GPAC_STATIC_MODULES
+<span class="lineNum">     164 </span>            : 
+<span class="lineNum">     165 </span>            : #undef LOAD_PLUGIN
+<span class="lineNum">     166 </span>            : 
+<span class="lineNum">     167 </span><span class="lineCov">          2 : }</span>
+<span class="lineNum">     168 </span>            : #endif //GPAC_MODULE_CUSTOM_LOAD
+<a name="169"><span class="lineNum">     169 </span>            : </a>
+<span class="lineNum">     170 </span>            : GF_EXPORT
+<span class="lineNum">     171 </span>            : GF_Err gf_module_load_static(GF_ModuleManager *pm, GF_InterfaceRegister *(*register_module)())
+<span class="lineNum">     172 </span>            : {
+<span class="lineNum">     173 </span><span class="lineNoCov">          0 :         GF_InterfaceRegister *pr = register_module();</span>
+<span class="lineNum">     174 </span>            :         GF_Err rc;
+<span class="lineNum">     175 </span>            : 
+<span class="lineNum">     176 </span><span class="lineNoCov">          0 :         if (!pr) {</span>
+<span class="lineNum">     177 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_CORE, (&quot;Failed to statically loaded module\n&quot;));</span>
+<span class="lineNum">     178 </span><span class="lineNoCov">          0 :                 return GF_NOT_SUPPORTED;</span>
+<span class="lineNum">     179 </span>            :         }
+<span class="lineNum">     180 </span>            : 
+<span class="lineNum">     181 </span><span class="lineNoCov">          0 :         rc = gf_list_add(pm-&gt;plugin_registry, pr);</span>
+<span class="lineNum">     182 </span><span class="lineNoCov">          0 :         if (rc != GF_OK) {</span>
+<span class="lineNum">     183 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_CORE, (&quot;Failed to statically loaded module\n&quot;));</span>
+<span class="lineNum">     184 </span><span class="lineNoCov">          0 :                 return rc;</span>
+<span class="lineNum">     185 </span>            :         }
+<span class="lineNum">     186 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">     187 </span><span class="lineNoCov">          0 : }</span>
+<a name="188"><span class="lineNum">     188 </span>            : </a>
+<span class="lineNum">     189 </span>            : GF_EXPORT
+<span class="lineNum">     190 </span>            : GF_ModuleManager *gf_modules_new(const char *directory, GF_Config *config)
+<span class="lineNum">     191 </span>            : {
+<span class="lineNum">     192 </span>            :         GF_ModuleManager *tmp;
+<span class="lineNum">     193 </span>            :         u32 loadedModules;
+<span class="lineNum">     194 </span>            :         const char *opt;
+<span class="lineNum">     195 </span><span class="lineCov">          2 :         u32 num_dirs = 0;</span>
+<span class="lineNum">     196 </span>            : 
+<span class="lineNum">     197 </span><span class="lineCov">          1 :         if (!config) return NULL;</span>
+<span class="lineNum">     198 </span>            : 
+<span class="lineNum">     199 </span>            :         /* Try to resolve directory from config file */
+<span class="lineNum">     200 </span><span class="lineCov">          2 :         GF_SAFEALLOC(tmp, GF_ModuleManager);</span>
+<span class="lineNum">     201 </span><span class="lineCov">          1 :         if (!tmp) return NULL;</span>
+<span class="lineNum">     202 </span><span class="lineCov">          1 :         tmp-&gt;cfg = config;</span>
+<span class="lineNum">     203 </span><span class="lineCov">          1 :         tmp-&gt;mutex = gf_mx_new(&quot;Module Manager&quot;);</span>
+<span class="lineNum">     204 </span><span class="lineCov">          1 :         gf_modules_get_module_directories(tmp, &amp;num_dirs);</span>
+<span class="lineNum">     205 </span>            : 
+<span class="lineNum">     206 </span>            :         /* Initialize module list */
+<span class="lineNum">     207 </span><span class="lineCov">          1 :         tmp-&gt;plug_list = gf_list_new();</span>
+<span class="lineNum">     208 </span><span class="lineCov">          1 :         if (!tmp-&gt;plug_list) {</span>
+<span class="lineNum">     209 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_CORE, (&quot;OUT OF MEMORY, cannot create list of modules !!!\n&quot;));</span>
+<span class="lineNum">     210 </span><span class="lineNoCov">          0 :                 gf_free(tmp);</span>
+<span class="lineNum">     211 </span><span class="lineNoCov">          0 :                 return NULL;</span>
+<span class="lineNum">     212 </span>            :         }
+<span class="lineNum">     213 </span><span class="lineCov">          1 :         tmp-&gt;plugin_registry = gf_list_new();</span>
+<span class="lineNum">     214 </span><span class="lineCov">          1 :         if (!tmp-&gt;plugin_registry) {</span>
+<span class="lineNum">     215 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_CORE, (&quot;OUT OF MEMORY, cannot create list of static module registers !!!\n&quot;));</span>
+<span class="lineNum">     216 </span><span class="lineNoCov">          0 :                 gf_list_del(tmp-&gt;plug_list);</span>
+<span class="lineNum">     217 </span><span class="lineNoCov">          0 :                 gf_free(tmp);</span>
+<span class="lineNum">     218 </span><span class="lineNoCov">          0 :                 return NULL;</span>
+<span class="lineNum">     219 </span>            :         }
+<span class="lineNum">     220 </span>            : 
+<span class="lineNum">     221 </span><span class="lineCov">          1 :         opt = gf_cfg_get_key(config, &quot;Systems&quot;, &quot;ModuleUnload&quot;);</span>
+<span class="lineNum">     222 </span><span class="lineCov">          1 :         if (opt &amp;&amp; !strcmp(opt, &quot;no&quot;)) {</span>
+<span class="lineNum">     223 </span><span class="lineNoCov">          0 :                 tmp-&gt;no_unload = GF_TRUE;</span>
+<span class="lineNum">     224 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     225 </span>            : #ifndef GPAC_MODULE_CUSTOM_LOAD
+<span class="lineNum">     226 </span><span class="lineCov">          1 :         load_all_modules(tmp);</span>
+<span class="lineNum">     227 </span>            : #endif
+<span class="lineNum">     228 </span><span class="lineCov">          1 :         loadedModules = gf_modules_refresh(tmp);</span>
+<span class="lineNum">     229 </span><span class="lineCov">          1 :         GF_LOG(GF_LOG_INFO, GF_LOG_CORE, (&quot;Loaded %d modules from directory %s.\n&quot;, loadedModules, directory));</span>
+<span class="lineNum">     230 </span>            : 
+<span class="lineNum">     231 </span><span class="lineCov">          1 :         return tmp;</span>
+<span class="lineNum">     232 </span><span class="lineCov">          1 : }</span>
+<a name="233"><span class="lineNum">     233 </span>            : </a>
+<span class="lineNum">     234 </span>            : GF_EXPORT
+<span class="lineNum">     235 </span>            : void gf_modules_del(GF_ModuleManager *pm)
+<span class="lineNum">     236 </span>            : {
+<span class="lineNum">     237 </span>            :         u32 i;
+<span class="lineNum">     238 </span>            :         ModuleInstance *inst;
+<span class="lineNum">     239 </span><span class="lineCov">          2 :         if (!pm) return;</span>
+<span class="lineNum">     240 </span>            :         /*unload all modules*/
+<span class="lineNum">     241 </span><span class="lineCov">        104 :         while (gf_list_count(pm-&gt;plug_list)) {</span>
+<span class="lineNum">     242 </span><span class="lineCov">         69 :                 inst = (ModuleInstance *) gf_list_get(pm-&gt;plug_list, 0);</span>
+<span class="lineNum">     243 </span><span class="lineCov">         34 :                 gf_modules_free_module(inst);</span>
+<span class="lineNum">     244 </span><span class="lineCov">         34 :                 gf_list_rem(pm-&gt;plug_list, 0);</span>
+<span class="lineNum">     245 </span>            :         }
+<span class="lineNum">     246 </span><span class="lineCov">          1 :         gf_list_del(pm-&gt;plug_list);</span>
+<span class="lineNum">     247 </span>            : 
+<span class="lineNum">     248 </span>            :         /* Delete module directories*/
+<span class="lineNum">     249 </span><span class="lineCov">          4 :         for (i = 0; i &lt; pm-&gt;num_dirs; i++) {</span>
+<span class="lineNum">     250 </span><span class="lineCov">          1 :                 gf_free((void*)pm-&gt;dirs[i]);</span>
+<span class="lineNum">     251 </span>            :         }
+<span class="lineNum">     252 </span>            : 
+<span class="lineNum">     253 </span>            :         /*remove all static modules registry*/
+<span class="lineNum">     254 </span><span class="lineCov">          1 :         while (gf_list_count(pm-&gt;plugin_registry)) {</span>
+<span class="lineNum">     255 </span><span class="lineNoCov">          0 :                 GF_InterfaceRegister *reg  = (GF_InterfaceRegister *) gf_list_get(pm-&gt;plugin_registry, 0);</span>
+<span class="lineNum">     256 </span><span class="lineNoCov">          0 :                 gf_free(reg);</span>
+<span class="lineNum">     257 </span><span class="lineNoCov">          0 :                 gf_list_rem(pm-&gt;plugin_registry, 0);</span>
+<span class="lineNum">     258 </span>            :         }
+<span class="lineNum">     259 </span>            : 
+<span class="lineNum">     260 </span><span class="lineCov">          2 :         if (pm-&gt;plugin_registry) gf_list_del(pm-&gt;plugin_registry);</span>
+<span class="lineNum">     261 </span><span class="lineCov">          1 :         gf_mx_del(pm-&gt;mutex);</span>
+<span class="lineNum">     262 </span><span class="lineCov">          1 :         gf_free(pm);</span>
+<a name="263"><span class="lineNum">     263 </span><span class="lineCov">          2 : }</span></a>
+<span class="lineNum">     264 </span>            : 
+<span class="lineNum">     265 </span>            : Bool gf_module_is_loaded(GF_ModuleManager *pm, char *filename)
+<span class="lineNum">     266 </span>            : {
+<span class="lineNum">     267 </span><span class="lineCov">         68 :         u32 i = 0;</span>
+<span class="lineNum">     268 </span>            :         ModuleInstance *inst;
+<span class="lineNum">     269 </span><span class="lineCov">        629 :         while ( (inst = (ModuleInstance *) gf_list_enum(pm-&gt;plug_list, &amp;i) ) ) {</span>
+<span class="lineNum">     270 </span><span class="lineCov">        561 :                 if (!strcmp(inst-&gt;name, filename)) return GF_TRUE;</span>
+<span class="lineNum">     271 </span>            :         }
+<span class="lineNum">     272 </span><span class="lineCov">         34 :         return GF_FALSE;</span>
+<span class="lineNum">     273 </span><span class="lineCov">         34 : }</span>
+<a name="274"><span class="lineNum">     274 </span>            : </a>
+<span class="lineNum">     275 </span>            : GF_EXPORT
+<span class="lineNum">     276 </span>            : u32 gf_modules_get_count(GF_ModuleManager *pm)
+<span class="lineNum">     277 </span>            : {
+<span class="lineNum">     278 </span><span class="lineCov">        218 :         if (!pm) return 0;</span>
+<span class="lineNum">     279 </span><span class="lineCov">        109 :         return gf_list_count(pm-&gt;plug_list);</span>
+<span class="lineNum">     280 </span><span class="lineCov">        109 : }</span>
+<a name="281"><span class="lineNum">     281 </span>            : </a>
+<span class="lineNum">     282 </span>            : GF_EXPORT
+<span class="lineNum">     283 </span>            : const char **gf_modules_get_module_directories(GF_ModuleManager *pm, u32* num_dirs)
+<span class="lineNum">     284 </span>            : {
+<span class="lineNum">     285 </span>            :         char* directories;
+<span class="lineNum">     286 </span>            :         char* tmp_dirs;
+<span class="lineNum">     287 </span>            :         char * pch;
+<span class="lineNum">     288 </span><span class="lineCov">          2 :         if (!pm) return NULL;</span>
+<span class="lineNum">     289 </span><span class="lineCov">          1 :         if (pm-&gt;num_dirs &gt; 0 ) {</span>
+<span class="lineNum">     290 </span><span class="lineNoCov">          0 :                 *num_dirs = pm-&gt;num_dirs;</span>
+<span class="lineNum">     291 </span><span class="lineNoCov">          0 :                 return pm-&gt;dirs;</span>
+<span class="lineNum">     292 </span>            :         }
+<span class="lineNum">     293 </span><span class="lineCov">          1 :         if (!pm-&gt;cfg) return NULL;</span>
+<span class="lineNum">     294 </span>            : 
+<span class="lineNum">     295 </span>            :         /* Get directory from config file */
+<span class="lineNum">     296 </span><span class="lineCov">          1 :         directories = (char*)gf_cfg_get_key(pm-&gt;cfg, &quot;General&quot;, &quot;ModulesDirectory&quot;);</span>
+<span class="lineNum">     297 </span><span class="lineCov">          1 :         if (! directories) {</span>
+<span class="lineNum">     298 </span>            : #ifndef GPAC_IPHONE
+<span class="lineNum">     299 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_CORE, (&quot;Module directory not found - check the configuration file exit and the \&quot;ModulesDirectory\&quot; key is set\n&quot;));</span>
+<span class="lineNum">     300 </span>            : #endif
+<span class="lineNum">     301 </span><span class="lineNoCov">          0 :                 return NULL;</span>
+<span class="lineNum">     302 </span>            :         }
+<span class="lineNum">     303 </span>            : 
+<span class="lineNum">     304 </span>            : //      tmp_dirs = gf_strdup(directories);
+<span class="lineNum">     305 </span>            :         tmp_dirs = directories;
+<span class="lineNum">     306 </span><span class="lineCov">          1 :         pch = strtok (tmp_dirs,&quot;;&quot;);</span>
+<span class="lineNum">     307 </span>            : 
+<span class="lineNum">     308 </span><span class="lineCov">          4 :         while (pch != NULL)</span>
+<span class="lineNum">     309 </span>            :         {
+<span class="lineNum">     310 </span><span class="lineCov">          1 :                 if (pm-&gt;num_dirs == MAX_MODULE_DIRS) {</span>
+<span class="lineNum">     311 </span><span class="lineNoCov">          0 :                         GF_LOG(GF_LOG_WARNING, GF_LOG_CORE, (&quot;Reach maximum number of module directories  - check the configuration file and the \&quot;ModulesDirectory\&quot; key.\n&quot;));</span>
+<span class="lineNum">     312 </span>            :                         break;
+<span class="lineNum">     313 </span>            :                 }
+<span class="lineNum">     314 </span>            : 
+<span class="lineNum">     315 </span><span class="lineCov">          1 :                 pm-&gt;dirs[pm-&gt;num_dirs] = gf_strdup(pch);</span>
+<span class="lineNum">     316 </span><span class="lineCov">          1 :                 pm-&gt;num_dirs++;</span>
+<span class="lineNum">     317 </span><span class="lineCov">          1 :                 pch = strtok (NULL, &quot;;&quot;);</span>
+<span class="lineNum">     318 </span>            :         }
+<span class="lineNum">     319 </span>            : //      gf_free(tmp_dirs);
+<span class="lineNum">     320 </span><span class="lineCov">          1 :         *num_dirs = pm-&gt;num_dirs;</span>
+<span class="lineNum">     321 </span><span class="lineCov">          1 :         return pm-&gt;dirs;</span>
+<span class="lineNum">     322 </span><span class="lineCov">          1 : }</span>
+<a name="323"><span class="lineNum">     323 </span>            : </a>
+<span class="lineNum">     324 </span>            : GF_EXPORT
+<span class="lineNum">     325 </span>            : GF_BaseInterface *gf_modules_load_interface(GF_ModuleManager *pm, u32 whichplug, u32 InterfaceFamily)
+<span class="lineNum">     326 </span>            : {
+<span class="lineNum">     327 </span>            :         const char *opt;
+<span class="lineNum">     328 </span><span class="lineCov">        524 :         char szKey[32];</span>
+<span class="lineNum">     329 </span>            :         ModuleInstance *inst;
+<span class="lineNum">     330 </span>            :         GF_BaseInterface *ifce;
+<span class="lineNum">     331 </span>            : 
+<span class="lineNum">     332 </span><span class="lineCov">        262 :         if (!pm) {</span>
+<span class="lineNum">     333 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_CORE, (&quot;[Core] gf_modules_load_interface() : No Module Manager set\n&quot;));</span>
+<span class="lineNum">     334 </span><span class="lineNoCov">          0 :                 return NULL;</span>
+<span class="lineNum">     335 </span>            :         }
+<span class="lineNum">     336 </span><span class="lineCov">        262 :         gf_mx_p(pm-&gt;mutex);</span>
+<span class="lineNum">     337 </span><span class="lineCov">        262 :         inst = (ModuleInstance *) gf_list_get(pm-&gt;plug_list, whichplug);</span>
+<span class="lineNum">     338 </span><span class="lineCov">        262 :         if (!inst) {</span>
+<span class="lineNum">     339 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_CORE, (&quot;[Core] gf_modules_load_interface() : no module %d exist.\n&quot;, whichplug));</span>
+<span class="lineNum">     340 </span><span class="lineNoCov">          0 :                 gf_mx_v(pm-&gt;mutex);</span>
+<span class="lineNum">     341 </span><span class="lineNoCov">          0 :                 return NULL;</span>
+<span class="lineNum">     342 </span>            :         }
+<span class="lineNum">     343 </span><span class="lineCov">        262 :         GF_LOG(GF_LOG_DEBUG, GF_LOG_CORE, (&quot;[Core] Load interface...%s\n&quot;, inst-&gt;name));</span>
+<span class="lineNum">     344 </span>            :         /*look in cache*/
+<span class="lineNum">     345 </span><span class="lineCov">        262 :         if (!pm-&gt;cfg) {</span>
+<span class="lineNum">     346 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_CORE, (&quot;[Core] No pm-&gt;cfg has been set !!!\n&quot;));</span>
+<span class="lineNum">     347 </span><span class="lineNoCov">          0 :                 gf_mx_v(pm-&gt;mutex);</span>
+<span class="lineNum">     348 </span><span class="lineNoCov">          0 :                 return NULL;</span>
+<span class="lineNum">     349 </span>            :         }
+<span class="lineNum">     350 </span><span class="lineCov">        262 :         opt = gf_cfg_get_key(pm-&gt;cfg, &quot;PluginsCache&quot;, inst-&gt;name);</span>
+<span class="lineNum">     351 </span><span class="lineCov">        262 :         if (opt) {</span>
+<span class="lineNum">     352 </span><span class="lineCov">        228 :                 const char * ifce_str = gf_4cc_to_str(InterfaceFamily);</span>
+<span class="lineNum">     353 </span><span class="lineCov">        228 :                 snprintf(szKey, 32, &quot;%s:yes&quot;, ifce_str ? ifce_str : &quot;(null)&quot;);</span>
+<span class="lineNum">     354 </span><span class="lineCov">        228 :                 if (!strstr(opt, szKey)) {</span>
+<span class="lineNum">     355 </span><span class="lineCov">        191 :                         gf_mx_v(pm-&gt;mutex);</span>
+<span class="lineNum">     356 </span><span class="lineCov">        191 :                         return NULL;</span>
+<span class="lineNum">     357 </span>            :                 }
+<span class="lineNum">     358 </span><span class="lineCov">         37 :         }</span>
+<span class="lineNum">     359 </span><span class="lineCov">         71 :         if (!gf_modules_load_library(inst)) {</span>
+<span class="lineNum">     360 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_CORE, (&quot;[Core] Cannot load library %s\n&quot;, inst-&gt;name));</span>
+<span class="lineNum">     361 </span><span class="lineNoCov">          0 :                 gf_cfg_set_key(pm-&gt;cfg, &quot;PluginsCache&quot;, inst-&gt;name, &quot;Invalid Plugin&quot;);</span>
+<span class="lineNum">     362 </span><span class="lineNoCov">          0 :                 gf_mx_v(pm-&gt;mutex);</span>
+<span class="lineNum">     363 </span><span class="lineNoCov">          0 :                 return NULL;</span>
+<span class="lineNum">     364 </span>            :         }
+<span class="lineNum">     365 </span><span class="lineCov">         71 :         if (!inst-&gt;query_func) {</span>
+<span class="lineNum">     366 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_CORE, (&quot;[Core] Library %s missing GPAC export symbols\n&quot;, inst-&gt;name));</span>
+<span class="lineNum">     367 </span><span class="lineNoCov">          0 :                 gf_cfg_set_key(pm-&gt;cfg, &quot;PluginsCache&quot;, inst-&gt;name, &quot;Invalid Plugin&quot;);</span>
+<span class="lineNum">     368 </span><span class="lineNoCov">          0 :                 goto err_exit;</span>
+<span class="lineNum">     369 </span>            :         }
+<span class="lineNum">     370 </span>            : 
+<span class="lineNum">     371 </span>            :         /*build cache*/
+<span class="lineNum">     372 </span><span class="lineCov">         71 :         if (!opt) {</span>
+<span class="lineNum">     373 </span>            :                 u32 i;
+<span class="lineNum">     374 </span>            :                 Bool found = GF_FALSE;
+<span class="lineNum">     375 </span>            :                 char *key;
+<span class="lineNum">     376 </span><span class="lineCov">         34 :                 const u32 *si = inst-&gt;query_func();</span>
+<span class="lineNum">     377 </span><span class="lineCov">         34 :                 if (!si) {</span>
+<span class="lineNum">     378 </span><span class="lineNoCov">          0 :                         GF_LOG(GF_LOG_WARNING, GF_LOG_CORE, (&quot;[Core] GPAC module %s has no supported interfaces - disabling\n&quot;, inst-&gt;name));</span>
+<span class="lineNum">     379 </span><span class="lineNoCov">          0 :                         gf_cfg_set_key(pm-&gt;cfg, &quot;PluginsCache&quot;, inst-&gt;name, &quot;Invalid Plugin&quot;);</span>
+<span class="lineNum">     380 </span><span class="lineNoCov">          0 :                         goto err_exit;</span>
+<span class="lineNum">     381 </span>            :                 }
+<span class="lineNum">     382 </span>            :                 i=0;
+<span class="lineNum">     383 </span><span class="lineCov">        156 :                 while (si[i]) i++;</span>
+<span class="lineNum">     384 </span>            : 
+<span class="lineNum">     385 </span><span class="lineCov">         34 :                 key = (char*)gf_malloc(sizeof(char) * 10 * i);</span>
+<span class="lineNum">     386 </span><span class="lineCov">         34 :                 key[0] = 0;</span>
+<span class="lineNum">     387 </span>            :                 i=0;
+<span class="lineNum">     388 </span><span class="lineCov">        156 :                 while (si[i]) {</span>
+<span class="lineNum">     389 </span><span class="lineCov">         44 :                         snprintf(szKey, 32, &quot;%s:yes &quot;, gf_4cc_to_str(si[i]));</span>
+<span class="lineNum">     390 </span><span class="lineCov">         44 :                         strcat(key, szKey);</span>
+<span class="lineNum">     391 </span><span class="lineCov">         44 :                         if (InterfaceFamily==si[i]) found = GF_TRUE;</span>
+<span class="lineNum">     392 </span><span class="lineCov">         44 :                         i++;</span>
+<span class="lineNum">     393 </span>            :                 }
+<span class="lineNum">     394 </span><span class="lineCov">         34 :                 gf_cfg_set_key(pm-&gt;cfg, &quot;PluginsCache&quot;, inst-&gt;name, key);</span>
+<span class="lineNum">     395 </span><span class="lineCov">         34 :                 gf_free(key);</span>
+<span class="lineNum">     396 </span><span class="lineCov">         68 :                 if (!found) goto err_exit;</span>
+<span class="lineNum">     397 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     398 </span>            : 
+<span class="lineNum">     399 </span><span class="lineCov">         74 :         if (!inst-&gt;query_func || !inst-&gt;query_func(InterfaceFamily) ) goto err_exit;</span>
+<span class="lineNum">     400 </span><span class="lineCov">         37 :         ifce = (GF_BaseInterface *) inst-&gt;load_func(InterfaceFamily);</span>
+<span class="lineNum">     401 </span>            :         /*sanity check*/
+<span class="lineNum">     402 </span><span class="lineCov">         37 :         if (!ifce) goto err_exit;</span>
+<span class="lineNum">     403 </span><span class="lineCov">         74 :         if (!ifce-&gt;module_name || (ifce-&gt;InterfaceType != InterfaceFamily)) {</span>
+<span class="lineNum">     404 </span><span class="lineNoCov">          0 :                 inst-&gt;destroy_func(ifce);</span>
+<span class="lineNum">     405 </span><span class="lineNoCov">          0 :                 goto err_exit;</span>
+<span class="lineNum">     406 </span>            :         }
+<span class="lineNum">     407 </span><span class="lineCov">         37 :         gf_list_add(inst-&gt;interfaces, ifce);</span>
+<span class="lineNum">     408 </span>            :         /*keep track of parent*/
+<span class="lineNum">     409 </span><span class="lineCov">         37 :         ifce-&gt;HPLUG = inst;</span>
+<span class="lineNum">     410 </span><span class="lineCov">         37 :         GF_LOG(GF_LOG_DEBUG, GF_LOG_CORE, (&quot;[Core] Load interface %s DONE.\n&quot;, inst-&gt;name));</span>
+<span class="lineNum">     411 </span><span class="lineCov">         37 :         gf_mx_v(pm-&gt;mutex);</span>
+<span class="lineNum">     412 </span><span class="lineCov">         37 :         return ifce;</span>
+<span class="lineNum">     413 </span>            : 
+<span class="lineNum">     414 </span>            : err_exit:
+<span class="lineNum">     415 </span><span class="lineCov">         34 :         GF_LOG(GF_LOG_DEBUG, GF_LOG_CORE, (&quot;[Core] Load interface %s exit label, freing library...\n&quot;, inst-&gt;name));</span>
+<span class="lineNum">     416 </span><span class="lineCov">         34 :         gf_modules_unload_library(inst);</span>
+<span class="lineNum">     417 </span><span class="lineCov">         34 :         GF_LOG(GF_LOG_DEBUG, GF_LOG_CORE, (&quot;[Core] Load interface %s EXIT.\n&quot;, inst-&gt;name));</span>
+<span class="lineNum">     418 </span><span class="lineCov">         34 :         gf_mx_v(pm-&gt;mutex);</span>
+<span class="lineNum">     419 </span><span class="lineCov">         34 :         return NULL;</span>
+<span class="lineNum">     420 </span><span class="lineCov">        262 : }</span>
+<span class="lineNum">     421 </span>            : 
+<a name="422"><span class="lineNum">     422 </span>            : </a>
+<span class="lineNum">     423 </span>            : GF_EXPORT
+<span class="lineNum">     424 </span>            : GF_BaseInterface *gf_modules_load_interface_by_name(GF_ModuleManager *pm, const char *plug_name, u32 InterfaceFamily)
+<span class="lineNum">     425 </span>            : {
+<span class="lineNum">     426 </span>            :         const char *file_name;
+<span class="lineNum">     427 </span>            :         u32 i, count;
+<span class="lineNum">     428 </span>            :         GF_BaseInterface *ifce;
+<span class="lineNum">     429 </span><span class="lineCov">         16 :         if (!pm || !plug_name || !pm-&gt;plug_list || !pm-&gt;cfg) {</span>
+<span class="lineNum">     430 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_CORE, (&quot;[Core] gf_modules_load_interface_by_name has bad parameters pm=%p, plug_name=%s.\n&quot;, pm, plug_name));</span>
+<span class="lineNum">     431 </span><span class="lineNoCov">          0 :                 return NULL;</span>
+<span class="lineNum">     432 </span>            :         }
+<span class="lineNum">     433 </span><span class="lineCov">          4 :         count = gf_list_count(pm-&gt;plug_list);</span>
+<span class="lineNum">     434 </span>            :         /*look for cache entry*/
+<span class="lineNum">     435 </span><span class="lineCov">          4 :         file_name = gf_cfg_get_key(pm-&gt;cfg, &quot;PluginsCache&quot;, plug_name);</span>
+<span class="lineNum">     436 </span>            : 
+<span class="lineNum">     437 </span><span class="lineCov">          4 :         if (file_name) {</span>
+<span class="lineNum">     438 </span>            : 
+<span class="lineNum">     439 </span><span class="lineNoCov">          0 :                 for (i=0; i&lt;count; i++) {</span>
+<span class="lineNum">     440 </span><span class="lineNoCov">          0 :                         ModuleInstance *inst = (ModuleInstance *) gf_list_get(pm-&gt;plug_list, i);</span>
+<span class="lineNum">     441 </span><span class="lineNoCov">          0 :                         if (!strcmp(inst-&gt;name,  file_name)) {</span>
+<span class="lineNum">     442 </span><span class="lineNoCov">          0 :                                 ifce = gf_modules_load_interface(pm, i, InterfaceFamily);</span>
+<span class="lineNum">     443 </span><span class="lineNoCov">          0 :                                 if (ifce) return ifce;</span>
+<span class="lineNum">     444 </span>            :                         }
+<span class="lineNum">     445 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     446 </span>            :         }
+<span class="lineNum">     447 </span><span class="lineCov">          4 :         GF_LOG(GF_LOG_INFO, GF_LOG_CORE, (&quot;[Core] Plugin %s of type %d not found in cache, searching for it...\n&quot;, plug_name, InterfaceFamily));</span>
+<span class="lineNum">     448 </span><span class="lineCov">        134 :         for (i=0; i&lt;count; i++) {</span>
+<span class="lineNum">     449 </span>            :                 const char *mod_filename;
+<span class="lineNum">     450 </span><span class="lineCov">         67 :                 ifce = gf_modules_load_interface(pm, i, InterfaceFamily);</span>
+<span class="lineNum">     451 </span><span class="lineCov">        126 :                 if (!ifce) continue;</span>
+<span class="lineNum">     452 </span><span class="lineCov">         32 :                 if (ifce-&gt;module_name &amp;&amp; !strnicmp(ifce-&gt;module_name, plug_name, MIN(strlen(ifce-&gt;module_name), strlen(plug_name)) )) {</span>
+<span class="lineNum">     453 </span>            :                         /*update cache entry*/
+<span class="lineNum">     454 </span><span class="lineCov">          4 :                         gf_cfg_set_key(pm-&gt;cfg, &quot;PluginsCache&quot;, plug_name, ((ModuleInstance*)ifce-&gt;HPLUG)-&gt;name);</span>
+<span class="lineNum">     455 </span><span class="lineCov">          4 :                         GF_LOG(GF_LOG_DEBUG, GF_LOG_CORE, (&quot;[Core] Added plugin cache %s for %s\n&quot;, plug_name, ((ModuleInstance*)ifce-&gt;HPLUG)-&gt;name));</span>
+<span class="lineNum">     456 </span><span class="lineCov">          4 :                         return ifce;</span>
+<span class="lineNum">     457 </span>            :                 }
+<span class="lineNum">     458 </span>            :                 /*check direct adressing by dynamic lib name*/
+<span class="lineNum">     459 </span><span class="lineCov">          4 :                 mod_filename = gf_module_get_file_name(ifce);</span>
+<span class="lineNum">     460 </span><span class="lineCov">          8 :                 if (mod_filename &amp;&amp; strstr(mod_filename, plug_name)) {</span>
+<span class="lineNum">     461 </span><span class="lineNoCov">          0 :                         return ifce;</span>
+<span class="lineNum">     462 </span>            :                 }
+<span class="lineNum">     463 </span><span class="lineCov">          4 :                 gf_modules_close_interface(ifce);</span>
+<span class="lineNum">     464 </span><span class="lineCov">          4 :         }</span>
+<span class="lineNum">     465 </span><span class="lineNoCov">          0 :         GF_LOG(GF_LOG_WARNING, GF_LOG_CORE, (&quot;[Core] Plugin %s not found in %d modules.\n&quot;, plug_name, count));</span>
+<span class="lineNum">     466 </span><span class="lineNoCov">          0 :         return NULL;</span>
+<span class="lineNum">     467 </span><span class="lineCov">          4 : }</span>
+<a name="468"><span class="lineNum">     468 </span>            : </a>
+<span class="lineNum">     469 </span>            : GF_EXPORT
+<span class="lineNum">     470 </span>            : GF_Err gf_modules_close_interface(GF_BaseInterface *ifce)
+<span class="lineNum">     471 </span>            : {
+<span class="lineNum">     472 </span>            :         ModuleInstance *par;
+<span class="lineNum">     473 </span>            :         s32 i;
+<span class="lineNum">     474 </span><span class="lineCov">         72 :         if (!ifce) return GF_BAD_PARAM;</span>
+<span class="lineNum">     475 </span><span class="lineCov">         36 :         par = (ModuleInstance *) ifce-&gt;HPLUG;</span>
+<span class="lineNum">     476 </span>            : 
+<span class="lineNum">     477 </span><span class="lineCov">         72 :         if (!par || !ifce-&gt;InterfaceType) return GF_BAD_PARAM;</span>
+<span class="lineNum">     478 </span>            : 
+<span class="lineNum">     479 </span><span class="lineCov">         36 :         i = gf_list_find(par-&gt;plugman-&gt;plug_list, par);</span>
+<span class="lineNum">     480 </span><span class="lineCov">         36 :         if (i&lt;0) return GF_BAD_PARAM;</span>
+<span class="lineNum">     481 </span>            : 
+<span class="lineNum">     482 </span><span class="lineCov">         36 :         i = gf_list_find(par-&gt;interfaces, ifce);</span>
+<span class="lineNum">     483 </span><span class="lineCov">         36 :         if (i&lt;0) return GF_BAD_PARAM;</span>
+<span class="lineNum">     484 </span><span class="lineCov">         36 :         gf_list_rem(par-&gt;interfaces, (u32) i);</span>
+<span class="lineNum">     485 </span><span class="lineCov">         36 :         par-&gt;destroy_func(ifce);</span>
+<span class="lineNum">     486 </span><span class="lineCov">         36 :         gf_modules_unload_library(par);</span>
+<span class="lineNum">     487 </span>            :         //GF_LOG(GF_LOG_DEBUG, GF_LOG_CORE, (&quot;[Core] interface %s unloaded\n&quot;, ifce-&gt;module_name));
+<span class="lineNum">     488 </span><span class="lineCov">         36 :         return GF_OK;</span>
+<span class="lineNum">     489 </span><span class="lineCov">         36 : }</span>
+<a name="490"><span class="lineNum">     490 </span>            : </a>
+<span class="lineNum">     491 </span>            : GF_EXPORT
+<span class="lineNum">     492 </span>            : const char *gf_modules_get_option(GF_BaseInterface *ifce, const char *secName, const char *keyName)
+<span class="lineNum">     493 </span>            : {
+<span class="lineNum">     494 </span>            :         GF_Config *cfg;
+<span class="lineNum">     495 </span><span class="lineCov">         48 :         if (!ifce || !ifce-&gt;HPLUG) return NULL;</span>
+<span class="lineNum">     496 </span><span class="lineCov">         16 :         cfg = ((ModuleInstance *)ifce-&gt;HPLUG)-&gt;plugman-&gt;cfg;</span>
+<span class="lineNum">     497 </span><span class="lineCov">         16 :         if (!cfg) return NULL;</span>
+<span class="lineNum">     498 </span><span class="lineCov">         16 :         return gf_cfg_get_ikey(cfg, secName, keyName);</span>
+<span class="lineNum">     499 </span><span class="lineCov">         16 : }</span>
+<a name="500"><span class="lineNum">     500 </span>            : </a>
+<span class="lineNum">     501 </span>            : GF_EXPORT
+<span class="lineNum">     502 </span>            : GF_Err gf_modules_set_option(GF_BaseInterface *ifce, const char *secName, const char *keyName, const char *keyValue)
+<span class="lineNum">     503 </span>            : {
+<span class="lineNum">     504 </span>            :         GF_Config *cfg;
+<span class="lineNum">     505 </span><span class="lineCov">       1422 :         if (!ifce || !ifce-&gt;HPLUG) return GF_BAD_PARAM;</span>
+<span class="lineNum">     506 </span><span class="lineCov">        474 :         cfg = ((ModuleInstance *)ifce-&gt;HPLUG)-&gt;plugman-&gt;cfg;</span>
+<span class="lineNum">     507 </span><span class="lineCov">        474 :         if (!cfg) return GF_NOT_SUPPORTED;</span>
+<span class="lineNum">     508 </span><span class="lineCov">        474 :         return gf_cfg_set_key(cfg, secName, keyName, keyValue);</span>
+<span class="lineNum">     509 </span><span class="lineCov">        474 : }</span>
+<a name="510"><span class="lineNum">     510 </span>            : </a>
+<span class="lineNum">     511 </span>            : GF_EXPORT
+<span class="lineNum">     512 </span>            : GF_Config *gf_modules_get_config(GF_BaseInterface *ifce)
+<span class="lineNum">     513 </span>            : {
+<span class="lineNum">     514 </span><span class="lineCov">          3 :         if (!ifce || !ifce-&gt;HPLUG) return NULL;</span>
+<span class="lineNum">     515 </span><span class="lineCov">          1 :         return ((ModuleInstance *)ifce-&gt;HPLUG)-&gt;plugman-&gt;cfg;</span>
+<span class="lineNum">     516 </span><span class="lineCov">          1 : }</span>
+<a name="517"><span class="lineNum">     517 </span>            : </a>
+<span class="lineNum">     518 </span>            : GF_EXPORT
+<span class="lineNum">     519 </span>            : const char *gf_modules_get_file_name(GF_ModuleManager *pm, u32 i)
+<span class="lineNum">     520 </span>            : {
+<span class="lineNum">     521 </span><span class="lineNoCov">          0 :         ModuleInstance *inst = (ModuleInstance *) gf_list_get(pm-&gt;plug_list, i);</span>
+<span class="lineNum">     522 </span><span class="lineNoCov">          0 :         if (!inst) return NULL;</span>
+<span class="lineNum">     523 </span><span class="lineNoCov">          0 :         return inst-&gt;name;</span>
+<span class="lineNum">     524 </span><span class="lineNoCov">          0 : }</span>
+<a name="525"><span class="lineNum">     525 </span>            : </a>
+<span class="lineNum">     526 </span>            : GF_EXPORT
+<span class="lineNum">     527 </span>            : const char *gf_module_get_file_name(GF_BaseInterface *ifce)
+<span class="lineNum">     528 </span>            : {
+<span class="lineNum">     529 </span><span class="lineCov">          8 :         ModuleInstance *inst = (ModuleInstance *) ifce-&gt;HPLUG;</span>
+<span class="lineNum">     530 </span><span class="lineCov">          4 :         if (!inst) return NULL;</span>
+<span class="lineNum">     531 </span><span class="lineCov">          4 :         return inst-&gt;name;</span>
+<span class="lineNum">     532 </span><span class="lineCov">          4 : }</span>
+<span class="lineNum">     533 </span>            : 
+<span class="lineNum">     534 </span>            : 
+<span class="lineNum">     535 </span>            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

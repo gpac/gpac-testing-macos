@@ -1,0 +1,1142 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - media_tools/html5_mse.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">media_tools</a> - html5_mse.c<span style="font-size: 80%;"> (source / <a href="html5_mse.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">589</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-05-14 22:31:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">35</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            : *                       GPAC - Multimedia Framework C SDK
+<span class="lineNum">       3 </span>            : *
+<span class="lineNum">       4 </span>            :  *                      Authors: Cyril COncolato
+<span class="lineNum">       5 </span>            :  *                      Copyright (c) Telecom ParisTech 2013-
+<span class="lineNum">       6 </span>            : *                                       All rights reserved
+<span class="lineNum">       7 </span>            : *
+<span class="lineNum">       8 </span>            : *  This file is part of GPAC / Media Source
+<span class="lineNum">       9 </span>            : *
+<span class="lineNum">      10 </span>            : *  GPAC is free software; you can redistribute it and/or modify
+<span class="lineNum">      11 </span>            : *  it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">      12 </span>            : *  the Free Software Foundation; either version 2, or (at your option)
+<span class="lineNum">      13 </span>            : *  any later version.
+<span class="lineNum">      14 </span>            : *
+<span class="lineNum">      15 </span>            : *  GPAC is distributed in the hope that it will be useful,
+<span class="lineNum">      16 </span>            : *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      17 </span>            : *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      18 </span>            : *  GNU Lesser General Public License for more details.
+<span class="lineNum">      19 </span>            : *
+<span class="lineNum">      20 </span>            : *  You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      21 </span>            : *  License along with this library; see the file COPYING.  If not, write to
+<span class="lineNum">      22 </span>            : *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+<span class="lineNum">      23 </span>            : *
+<span class="lineNum">      24 </span>            : */
+<span class="lineNum">      25 </span>            : #include &lt;gpac/setup.h&gt;
+<span class="lineNum">      26 </span>            : 
+<span class="lineNum">      27 </span>            : #ifndef GPAC_DISABLE_MSE
+<span class="lineNum">      28 </span>            : 
+<span class="lineNum">      29 </span>            : #include &lt;gpac/html5_mse.h&gt;
+<a name="30"><span class="lineNum">      30 </span>            : #include &lt;gpac/internal/isomedia_dev.h&gt;</a>
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            : GF_HTML_MediaSource *gf_mse_media_source_new()
+<span class="lineNum">      33 </span>            : {
+<span class="lineNum">      34 </span>            :         GF_HTML_MediaSource *ms;
+<span class="lineNum">      35 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(ms, GF_HTML_MediaSource);</span>
+<span class="lineNum">      36 </span><span class="lineNoCov">          0 :         if (!ms) return NULL;</span>
+<span class="lineNum">      37 </span><span class="lineNoCov">          0 :         ms-&gt;sourceBuffers.list = gf_list_new();</span>
+<span class="lineNum">      38 </span><span class="lineNoCov">          0 :         ms-&gt;sourceBuffers.parent = ms;</span>
+<span class="lineNum">      39 </span><span class="lineNoCov">          0 :         ms-&gt;sourceBuffers.evt_target = gf_dom_event_target_new(GF_DOM_EVENT_TARGET_MSE_SOURCEBUFFERLIST, &amp;ms-&gt;sourceBuffers);</span>
+<span class="lineNum">      40 </span><span class="lineNoCov">          0 :         ms-&gt;activeSourceBuffers.list = gf_list_new();</span>
+<span class="lineNum">      41 </span><span class="lineNoCov">          0 :         ms-&gt;activeSourceBuffers.parent = ms;</span>
+<span class="lineNum">      42 </span><span class="lineNoCov">          0 :         ms-&gt;activeSourceBuffers.evt_target = gf_dom_event_target_new(GF_DOM_EVENT_TARGET_MSE_SOURCEBUFFERLIST, &amp;ms-&gt;activeSourceBuffers);</span>
+<span class="lineNum">      43 </span><span class="lineNoCov">          0 :         ms-&gt;reference_count = 1;</span>
+<span class="lineNum">      44 </span><span class="lineNoCov">          0 :         ms-&gt;evt_target = gf_dom_event_target_new(GF_DOM_EVENT_TARGET_MSE_MEDIASOURCE, ms);</span>
+<span class="lineNum">      45 </span><span class="lineNoCov">          0 :         ms-&gt;durationType = DURATION_NAN;</span>
+<span class="lineNum">      46 </span><span class="lineNoCov">          0 :         return ms;</span>
+<span class="lineNum">      47 </span><span class="lineNoCov">          0 : }</span>
+<a name="48"><span class="lineNum">      48 </span>            : </a>
+<span class="lineNum">      49 </span>            : GF_EXPORT
+<span class="lineNum">      50 </span>            : void gf_mse_mediasource_del(GF_HTML_MediaSource *ms, Bool del_js)
+<span class="lineNum">      51 </span>            : {
+<span class="lineNum">      52 </span><span class="lineNoCov">          0 :         if (ms) {</span>
+<span class="lineNum">      53 </span><span class="lineNoCov">          0 :                 if (del_js) {</span>
+<span class="lineNum">      54 </span>            :                         /* finalize the object from the JS perspective */
+<span class="lineNum">      55 </span><span class="lineNoCov">          0 :                         ms-&gt;c = NULL;</span>
+<span class="lineNum">      56 </span><span class="lineNoCov">          0 :                         ms-&gt;_this = NULL;</span>
+<span class="lineNum">      57 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">      58 </span>            :                 /* only delete the object if it is not used elsewhere */
+<span class="lineNum">      59 </span><span class="lineNoCov">          0 :                 if (ms-&gt;reference_count) {</span>
+<span class="lineNum">      60 </span><span class="lineNoCov">          0 :                         ms-&gt;reference_count--;</span>
+<span class="lineNum">      61 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">      62 </span><span class="lineNoCov">          0 :                 if (!ms-&gt;reference_count) {</span>
+<span class="lineNum">      63 </span>            :                         u32 i;
+<span class="lineNum">      64 </span><span class="lineNoCov">          0 :                         for (i = 0; i &lt; gf_list_count(ms-&gt;sourceBuffers.list); i++) {</span>
+<span class="lineNum">      65 </span><span class="lineNoCov">          0 :                                 GF_HTML_SourceBuffer *sb = (GF_HTML_SourceBuffer *)gf_list_get(ms-&gt;sourceBuffers.list, i);</span>
+<span class="lineNum">      66 </span>            : 
+<span class="lineNum">      67 </span><span class="lineNoCov">          0 :                                 if (sb-&gt;parser &amp;&amp; sb-&gt;parser_connected)</span>
+<span class="lineNum">      68 </span><span class="lineNoCov">          0 :                                         sb-&gt;parser-&gt;CloseService(sb-&gt;parser);</span>
+<span class="lineNum">      69 </span>            : 
+<span class="lineNum">      70 </span><span class="lineNoCov">          0 :                                 gf_mse_source_buffer_del(sb);</span>
+<span class="lineNum">      71 </span>            :                         }
+<span class="lineNum">      72 </span><span class="lineNoCov">          0 :                         gf_list_del(ms-&gt;sourceBuffers.list);</span>
+<span class="lineNum">      73 </span>            :                         /* all source buffer should have been deleted in the deletion of sourceBuffers */
+<span class="lineNum">      74 </span><span class="lineNoCov">          0 :                         gf_list_del(ms-&gt;activeSourceBuffers.list);</span>
+<span class="lineNum">      75 </span><span class="lineNoCov">          0 :                         if (ms-&gt;blobURI) gf_free(ms-&gt;blobURI);</span>
+<span class="lineNum">      76 </span><span class="lineNoCov">          0 :                         gf_free(ms-&gt;evt_target);</span>
+<span class="lineNum">      77 </span><span class="lineNoCov">          0 :                         gf_free(ms);</span>
+<span class="lineNum">      78 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">      79 </span>            :         }
+<a name="80"><span class="lineNum">      80 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      81 </span>            : 
+<span class="lineNum">      82 </span>            : void gf_mse_fire_event(GF_DOMEventTarget *target, GF_EventType event_type)
+<span class="lineNum">      83 </span>            : {
+<span class="lineNum">      84 </span>            :         GF_SceneGraph *sg = NULL;
+<span class="lineNum">      85 </span><span class="lineNoCov">          0 :         GF_DOM_Event  mse_event;</span>
+<span class="lineNum">      86 </span><span class="lineNoCov">          0 :         memset(&amp;mse_event, 0, sizeof(GF_DOM_Event));</span>
+<span class="lineNum">      87 </span><span class="lineNoCov">          0 :         mse_event.type = event_type;</span>
+<span class="lineNum">      88 </span><span class="lineNoCov">          0 :         mse_event.target = target-&gt;ptr;</span>
+<span class="lineNum">      89 </span><span class="lineNoCov">          0 :         mse_event.target_type = target-&gt;ptr_type;</span>
+<span class="lineNum">      90 </span><span class="lineNoCov">          0 :         switch(target-&gt;ptr_type) {</span>
+<span class="lineNum">      91 </span>            :         case GF_DOM_EVENT_TARGET_MSE_MEDIASOURCE:
+<span class="lineNum">      92 </span>            :         {
+<span class="lineNum">      93 </span><span class="lineNoCov">          0 :                 GF_HTML_MediaSource *ms = (GF_HTML_MediaSource *)target-&gt;ptr;</span>
+<span class="lineNum">      94 </span><span class="lineNoCov">          0 :                 sg = ms-&gt;sg;</span>
+<span class="lineNum">      95 </span>            :         }
+<span class="lineNum">      96 </span><span class="lineNoCov">          0 :         break;</span>
+<span class="lineNum">      97 </span>            :         case GF_DOM_EVENT_TARGET_MSE_SOURCEBUFFERLIST:
+<span class="lineNum">      98 </span>            :         {
+<span class="lineNum">      99 </span><span class="lineNoCov">          0 :                 GF_HTML_SourceBufferList *list = (GF_HTML_SourceBufferList *)target-&gt;ptr;</span>
+<span class="lineNum">     100 </span><span class="lineNoCov">          0 :                 sg = list-&gt;parent-&gt;sg;</span>
+<span class="lineNum">     101 </span>            :         }
+<span class="lineNum">     102 </span><span class="lineNoCov">          0 :         break;</span>
+<span class="lineNum">     103 </span>            :         case GF_DOM_EVENT_TARGET_MSE_SOURCEBUFFER:
+<span class="lineNum">     104 </span>            :         {
+<span class="lineNum">     105 </span><span class="lineNoCov">          0 :                 GF_HTML_SourceBuffer *sb = (GF_HTML_SourceBuffer *)target-&gt;ptr;</span>
+<span class="lineNum">     106 </span><span class="lineNoCov">          0 :                 sg = sb-&gt;mediasource-&gt;sg;</span>
+<span class="lineNum">     107 </span>            :         }
+<span class="lineNum">     108 </span><span class="lineNoCov">          0 :         break;</span>
+<span class="lineNum">     109 </span>            :         default:
+<span class="lineNum">     110 </span>            :                 break;
+<span class="lineNum">     111 </span>            :         }
+<span class="lineNum">     112 </span>            :         assert(sg);
+<span class="lineNum">     113 </span><span class="lineNoCov">          0 :         gf_sg_fire_dom_event(target, &amp;mse_event, sg, NULL);</span>
+<span class="lineNum">     114 </span><span class="lineNoCov">          0 : }</span>
+<a name="115"><span class="lineNum">     115 </span>            : </a>
+<span class="lineNum">     116 </span>            : GF_EXPORT
+<span class="lineNum">     117 </span>            : void gf_mse_mediasource_open(GF_HTML_MediaSource *ms, struct _mediaobj *mo)
+<span class="lineNum">     118 </span>            : {
+<span class="lineNum">     119 </span><span class="lineNoCov">          0 :         if (!ms) return;</span>
+<span class="lineNum">     120 </span><span class="lineNoCov">          0 :         if (!mo) {</span>
+<span class="lineNum">     121 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_DEBUG, GF_LOG_MEDIA, (&quot;[MSE] Cannot open media source without a media object\n&quot;));</span>
+<span class="lineNum">     122 </span>            :                 return;
+<span class="lineNum">     123 </span>            :         }
+<span class="lineNum">     124 </span><span class="lineNoCov">          0 :         ms-&gt;readyState = MEDIA_SOURCE_READYSTATE_OPEN;</span>
+<span class="lineNum">     125 </span>            :         /* getting the Scene Tree node attached to this media source */
+<span class="lineNum">     126 </span><span class="lineNoCov">          0 :         ms-&gt;node = (GF_Node *)gf_event_target_get_node(gf_mo_event_target_get(mo, 0));</span>
+<span class="lineNum">     127 </span><span class="lineNoCov">          0 :         ms-&gt;sg = gf_node_get_graph(ms-&gt;node);</span>
+<span class="lineNum">     128 </span><span class="lineNoCov">          0 :         gf_mse_fire_event(ms-&gt;evt_target, GF_EVENT_HTML_MSE_SOURCE_OPEN);</span>
+<span class="lineNum">     129 </span><span class="lineNoCov">          0 : }</span>
+<a name="130"><span class="lineNum">     130 </span>            : </a>
+<span class="lineNum">     131 </span>            : GF_EXPORT
+<span class="lineNum">     132 </span>            : void gf_mse_mediasource_close(GF_HTML_MediaSource *ms)
+<span class="lineNum">     133 </span>            : {
+<span class="lineNum">     134 </span><span class="lineNoCov">          0 :         if (!ms) return;</span>
+<span class="lineNum">     135 </span><span class="lineNoCov">          0 :         ms-&gt;readyState = MEDIA_SOURCE_READYSTATE_CLOSED;</span>
+<span class="lineNum">     136 </span><span class="lineNoCov">          0 :         gf_mse_fire_event(ms-&gt;evt_target, GF_EVENT_HTML_MSE_SOURCE_CLOSE);</span>
+<span class="lineNum">     137 </span><span class="lineNoCov">          0 : }</span>
+<a name="138"><span class="lineNum">     138 </span>            : </a>
+<span class="lineNum">     139 </span>            : GF_EXPORT
+<span class="lineNum">     140 </span>            : void gf_mse_mediasource_end(GF_HTML_MediaSource *ms)
+<span class="lineNum">     141 </span>            : {
+<span class="lineNum">     142 </span><span class="lineNoCov">          0 :         if (!ms) return;</span>
+<span class="lineNum">     143 </span><span class="lineNoCov">          0 :         ms-&gt;readyState = MEDIA_SOURCE_READYSTATE_ENDED;</span>
+<span class="lineNum">     144 </span><span class="lineNoCov">          0 :         gf_mse_fire_event(ms-&gt;evt_target, GF_EVENT_HTML_MSE_SOURCE_ENDED);</span>
+<a name="145"><span class="lineNum">     145 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     146 </span>            : 
+<span class="lineNum">     147 </span>            : GF_HTML_SourceBuffer *gf_mse_source_buffer_new(GF_HTML_MediaSource *mediasource)
+<span class="lineNum">     148 </span>            : {
+<span class="lineNum">     149 </span><span class="lineNoCov">          0 :         char name[256];</span>
+<span class="lineNum">     150 </span>            :         GF_HTML_SourceBuffer *source;
+<span class="lineNum">     151 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(source, GF_HTML_SourceBuffer);</span>
+<span class="lineNum">     152 </span><span class="lineNoCov">          0 :         if (!source) return NULL;</span>
+<span class="lineNum">     153 </span><span class="lineNoCov">          0 :         sprintf(name, &quot;SourceBuffer_Thread_%p&quot;, source);</span>
+<span class="lineNum">     154 </span><span class="lineNoCov">          0 :         source-&gt;mediasource = mediasource;</span>
+<span class="lineNum">     155 </span><span class="lineNoCov">          0 :         source-&gt;buffered = gf_html_timeranges_new(1);</span>
+<span class="lineNum">     156 </span><span class="lineNoCov">          0 :         source-&gt;input_buffer = gf_list_new();</span>
+<span class="lineNum">     157 </span><span class="lineNoCov">          0 :         source-&gt;tracks = gf_list_new();</span>
+<span class="lineNum">     158 </span><span class="lineNoCov">          0 :         source-&gt;threads = gf_list_new();</span>
+<span class="lineNum">     159 </span><span class="lineNoCov">          0 :         source-&gt;parser_thread = gf_th_new(name);</span>
+<span class="lineNum">     160 </span><span class="lineNoCov">          0 :         source-&gt;remove_thread = gf_th_new(name);</span>
+<span class="lineNum">     161 </span><span class="lineNoCov">          0 :         source-&gt;append_mode = MEDIA_SOURCE_APPEND_MODE_SEGMENTS;</span>
+<span class="lineNum">     162 </span><span class="lineNoCov">          0 :         source-&gt;appendWindowStart = 0;</span>
+<span class="lineNum">     163 </span><span class="lineNoCov">          0 :         source-&gt;appendWindowEnd = GF_MAX_DOUBLE;</span>
+<span class="lineNum">     164 </span><span class="lineNoCov">          0 :         source-&gt;evt_target = gf_dom_event_target_new(GF_DOM_EVENT_TARGET_MSE_SOURCEBUFFER, source);</span>
+<span class="lineNum">     165 </span><span class="lineNoCov">          0 :         source-&gt;timescale = 1;</span>
+<span class="lineNum">     166 </span><span class="lineNoCov">          0 :         return source;</span>
+<a name="167"><span class="lineNum">     167 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     168 </span>            : 
+<span class="lineNum">     169 </span>            : void gf_mse_mediasource_add_source_buffer(GF_HTML_MediaSource *ms, GF_HTML_SourceBuffer *sb)
+<span class="lineNum">     170 </span>            : {
+<span class="lineNum">     171 </span><span class="lineNoCov">          0 :         gf_list_add(ms-&gt;sourceBuffers.list, sb);</span>
+<span class="lineNum">     172 </span><span class="lineNoCov">          0 :         gf_mse_fire_event(ms-&gt;sourceBuffers.evt_target, GF_EVENT_HTML_MSE_ADD_SOURCE_BUFFER);</span>
+<span class="lineNum">     173 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     174 </span>            : 
+<span class="lineNum">     175 </span>            : /* Not yet used
+<span class="lineNum">     176 </span>            : void gf_mse_add_active_source_buffer(GF_HTML_MediaSource *ms, GF_HTML_SourceBuffer *sb)
+<span class="lineNum">     177 </span>            : {
+<span class="lineNum">     178 </span>            :     gf_list_add(ms-&gt;activeSourceBuffers.list, sb);
+<span class="lineNum">     179 </span>            :         gf_mse_fire_event(ms-&gt;activeSourceBuffers.evt_target, GF_EVENT_HTML_MSE_ADD_SOURCE_BUFFER);
+<a name="180"><span class="lineNum">     180 </span>            : } */</a>
+<span class="lineNum">     181 </span>            : 
+<span class="lineNum">     182 </span>            : void gf_mse_remove_active_source_buffer(GF_HTML_MediaSource *ms, GF_HTML_SourceBuffer *sb) {
+<span class="lineNum">     183 </span>            :         s32 activePos;
+<span class="lineNum">     184 </span><span class="lineNoCov">          0 :         activePos = gf_list_find(ms-&gt;activeSourceBuffers.list, sb);</span>
+<span class="lineNum">     185 </span><span class="lineNoCov">          0 :         if (activePos &gt;= 0) {</span>
+<span class="lineNum">     186 </span><span class="lineNoCov">          0 :                 gf_list_rem(ms-&gt;activeSourceBuffers.list, activePos);</span>
+<span class="lineNum">     187 </span><span class="lineNoCov">          0 :                 gf_mse_fire_event(ms-&gt;activeSourceBuffers.evt_target, GF_EVENT_HTML_MSE_REMOVE_SOURCE_BUFFER);</span>
+<span class="lineNum">     188 </span><span class="lineNoCov">          0 :         }</span>
+<a name="189"><span class="lineNum">     189 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     190 </span>            : 
+<span class="lineNum">     191 </span>            : static void gf_mse_reset_input_buffer(GF_List *input_buffer)
+<span class="lineNum">     192 </span>            : {
+<span class="lineNum">     193 </span><span class="lineNoCov">          0 :         while (gf_list_count(input_buffer)) {</span>
+<span class="lineNum">     194 </span><span class="lineNoCov">          0 :                 GF_HTML_ArrayBuffer *b = (GF_HTML_ArrayBuffer *)gf_list_get(input_buffer, 0);</span>
+<span class="lineNum">     195 </span><span class="lineNoCov">          0 :                 gf_list_rem(input_buffer, 0);</span>
+<span class="lineNum">     196 </span><span class="lineNoCov">          0 :                 gf_arraybuffer_del(b, GF_FALSE);</span>
+<span class="lineNum">     197 </span>            :         }
+<span class="lineNum">     198 </span><span class="lineNoCov">          0 : }</span>
+<a name="199"><span class="lineNum">     199 </span>            : </a>
+<span class="lineNum">     200 </span>            : /* Deletes all unparsed data buffers from all tracks in the source buffer */
+<span class="lineNum">     201 </span>            : static void gf_mse_source_buffer_reset_parser(GF_HTML_SourceBuffer *sb)
+<span class="lineNum">     202 </span>            : {
+<span class="lineNum">     203 </span>            :         u32 i, track_count;
+<span class="lineNum">     204 </span><span class="lineNoCov">          0 :         track_count = gf_list_count(sb-&gt;tracks);</span>
+<span class="lineNum">     205 </span>            : 
+<span class="lineNum">     206 </span>            :         /* wait until all remaining entire AU are parsed and then flush the remaining bytes in the parser */
+<span class="lineNum">     207 </span>            : 
+<span class="lineNum">     208 </span><span class="lineNoCov">          0 :         for (i = 0; i &lt; track_count; i++)</span>
+<span class="lineNum">     209 </span>            :         {
+<span class="lineNum">     210 </span><span class="lineNoCov">          0 :                 GF_HTML_Track *track = (GF_HTML_Track *)gf_list_get(sb-&gt;tracks, i);</span>
+<span class="lineNum">     211 </span><span class="lineNoCov">          0 :                 track-&gt;last_dts_set     = GF_FALSE;</span>
+<span class="lineNum">     212 </span><span class="lineNoCov">          0 :                 track-&gt;highest_pts_set  = GF_FALSE;</span>
+<span class="lineNum">     213 </span><span class="lineNoCov">          0 :                 track-&gt;needs_rap        = GF_TRUE;</span>
+<span class="lineNum">     214 </span>            :         }
+<span class="lineNum">     215 </span><span class="lineNoCov">          0 :         sb-&gt;group_end_timestamp_set = GF_FALSE;</span>
+<span class="lineNum">     216 </span><span class="lineNoCov">          0 :         gf_mse_reset_input_buffer(sb-&gt;input_buffer);</span>
+<span class="lineNum">     217 </span><span class="lineNoCov">          0 :         sb-&gt;append_state = MEDIA_SOURCE_APPEND_STATE_WAITING_FOR_SEGMENT;</span>
+<a name="218"><span class="lineNum">     218 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     219 </span>            : 
+<span class="lineNum">     220 </span>            : GF_Err gf_mse_source_buffer_abort(GF_HTML_SourceBuffer *sb)
+<span class="lineNum">     221 </span>            : {
+<span class="lineNum">     222 </span><span class="lineNoCov">          0 :         if (sb-&gt;updating) {</span>
+<span class="lineNum">     223 </span>            :                 /* setting to false should stop the parsing thread */
+<span class="lineNum">     224 </span><span class="lineNoCov">          0 :                 sb-&gt;updating = GF_FALSE;</span>
+<span class="lineNum">     225 </span><span class="lineNoCov">          0 :                 gf_mse_fire_event(sb-&gt;evt_target, GF_EVENT_HTML_MSE_UPDATE_ABORT);</span>
+<span class="lineNum">     226 </span><span class="lineNoCov">          0 :                 gf_mse_fire_event(sb-&gt;evt_target, GF_EVENT_HTML_MSE_UPDATE_END);</span>
+<span class="lineNum">     227 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     228 </span><span class="lineNoCov">          0 :         gf_mse_source_buffer_reset_parser(sb);</span>
+<span class="lineNum">     229 </span><span class="lineNoCov">          0 :         sb-&gt;appendWindowStart = 0;</span>
+<span class="lineNum">     230 </span><span class="lineNoCov">          0 :         sb-&gt;appendWindowEnd = GF_MAX_DOUBLE;</span>
+<span class="lineNum">     231 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<a name="232"><span class="lineNum">     232 </span>            : }</a>
+<span class="lineNum">     233 </span>            : 
+<span class="lineNum">     234 </span>            : GF_Err gf_mse_remove_source_buffer(GF_HTML_MediaSource *ms, GF_HTML_SourceBuffer *sb) {
+<span class="lineNum">     235 </span>            :         s32 pos;
+<span class="lineNum">     236 </span><span class="lineNoCov">          0 :         pos = gf_list_find(ms-&gt;sourceBuffers.list, sb);</span>
+<span class="lineNum">     237 </span><span class="lineNoCov">          0 :         if (pos &lt; 0) {</span>
+<span class="lineNum">     238 </span><span class="lineNoCov">          0 :                 return GF_NOT_FOUND;</span>
+<span class="lineNum">     239 </span>            :         } else {
+<span class="lineNum">     240 </span><span class="lineNoCov">          0 :                 gf_mse_source_buffer_abort(sb);</span>
+<span class="lineNum">     241 </span>            :                 /* TODO: update the audio/video/text tracks */
+<span class="lineNum">     242 </span><span class="lineNoCov">          0 :                 gf_mse_remove_active_source_buffer(ms, sb);</span>
+<span class="lineNum">     243 </span><span class="lineNoCov">          0 :                 gf_list_rem(ms-&gt;sourceBuffers.list, pos);</span>
+<span class="lineNum">     244 </span><span class="lineNoCov">          0 :                 gf_mse_fire_event(ms-&gt;sourceBuffers.evt_target, GF_EVENT_HTML_MSE_REMOVE_SOURCE_BUFFER);</span>
+<span class="lineNum">     245 </span><span class="lineNoCov">          0 :                 gf_mse_source_buffer_del(sb);</span>
+<span class="lineNum">     246 </span>            :         }
+<span class="lineNum">     247 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">     248 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     249 </span>            : 
+<span class="lineNum">     250 </span>            : /* TODO: not yet used
+<span class="lineNum">     251 </span>            : void gf_mse_detach(GF_HTML_MediaSource *ms) {
+<span class="lineNum">     252 </span>            :         u32 count;
+<span class="lineNum">     253 </span>            :         u32 i;
+<span class="lineNum">     254 </span>            :         GF_HTML_SourceBuffer *sb;
+<span class="lineNum">     255 </span>            :         ms-&gt;readyState = MEDIA_SOURCE_READYSTATE_CLOSED;
+<span class="lineNum">     256 </span>            :         ms-&gt;durationType = DURATION_NAN;
+<span class="lineNum">     257 </span>            :         count = gf_list_count(ms-&gt;sourceBuffers.list);
+<span class="lineNum">     258 </span>            :         for (i = 0; i &lt; count; i++) {
+<span class="lineNum">     259 </span>            :                 sb = (GF_HTML_SourceBuffer *)gf_list_get(ms-&gt;sourceBuffers.list, i);
+<span class="lineNum">     260 </span>            :                 gf_mse_remove_source_buffer(ms, sb);
+<span class="lineNum">     261 </span>            :         }
+<a name="262"><span class="lineNum">     262 </span>            : } */</a>
+<span class="lineNum">     263 </span>            : 
+<span class="lineNum">     264 </span>            : void gf_mse_source_buffer_del(GF_HTML_SourceBuffer *sb)
+<span class="lineNum">     265 </span>            : {
+<span class="lineNum">     266 </span><span class="lineNoCov">          0 :         GF_HTML_TrackList tlist;</span>
+<span class="lineNum">     267 </span><span class="lineNoCov">          0 :         gf_html_timeranges_del(sb-&gt;buffered);</span>
+<span class="lineNum">     268 </span><span class="lineNoCov">          0 :         gf_mse_reset_input_buffer(sb-&gt;input_buffer);</span>
+<span class="lineNum">     269 </span><span class="lineNoCov">          0 :         gf_list_del(sb-&gt;input_buffer);</span>
+<span class="lineNum">     270 </span>            : 
+<span class="lineNum">     271 </span><span class="lineNoCov">          0 :         if (sb-&gt;prev_buffer) gf_arraybuffer_del((GF_HTML_ArrayBuffer *)sb-&gt;prev_buffer, GF_FALSE);</span>
+<span class="lineNum">     272 </span>            : 
+<span class="lineNum">     273 </span><span class="lineNoCov">          0 :         tlist.tracks = sb-&gt;tracks;</span>
+<span class="lineNum">     274 </span><span class="lineNoCov">          0 :         gf_html_tracklist_del(&amp;tlist);</span>
+<span class="lineNum">     275 </span>            :         {
+<span class="lineNum">     276 </span>            :                 u32 i, count;
+<span class="lineNum">     277 </span><span class="lineNoCov">          0 :                 count = gf_list_count(sb-&gt;threads);</span>
+<span class="lineNum">     278 </span><span class="lineNoCov">          0 :                 for(i = 0; i &lt; count; i++) {</span>
+<span class="lineNum">     279 </span><span class="lineNoCov">          0 :                         GF_Thread *t = (GF_Thread *)gf_list_get(sb-&gt;threads, i);</span>
+<span class="lineNum">     280 </span><span class="lineNoCov">          0 :                         gf_th_del(t);</span>
+<span class="lineNum">     281 </span>            :                 }
+<span class="lineNum">     282 </span><span class="lineNoCov">          0 :                 gf_list_del(sb-&gt;threads);</span>
+<span class="lineNum">     283 </span>            :         }
+<span class="lineNum">     284 </span><span class="lineNoCov">          0 :         gf_th_del(sb-&gt;parser_thread);</span>
+<span class="lineNum">     285 </span><span class="lineNoCov">          0 :         gf_th_del(sb-&gt;remove_thread);</span>
+<span class="lineNum">     286 </span>            : 
+<span class="lineNum">     287 </span><span class="lineNoCov">          0 :         if (sb-&gt;service_desc) gf_odf_desc_del((GF_Descriptor *)sb-&gt;service_desc);</span>
+<span class="lineNum">     288 </span><span class="lineNoCov">          0 :         gf_free(sb);</span>
+<span class="lineNum">     289 </span>            : 
+<a name="290"><span class="lineNum">     290 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     291 </span>            : 
+<span class="lineNum">     292 </span>            : void gf_mse_source_buffer_set_update(GF_HTML_SourceBuffer *sb, Bool update)
+<span class="lineNum">     293 </span>            : {
+<span class="lineNum">     294 </span><span class="lineNoCov">          0 :         if (sb-&gt;updating == update) return;</span>
+<span class="lineNum">     295 </span><span class="lineNoCov">          0 :         sb-&gt;updating = update;</span>
+<span class="lineNum">     296 </span><span class="lineNoCov">          0 :         if (update) {</span>
+<span class="lineNum">     297 </span><span class="lineNoCov">          0 :                 gf_mse_fire_event(sb-&gt;evt_target, GF_EVENT_HTML_MSE_UPDATE_START);</span>
+<span class="lineNum">     298 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     299 </span><span class="lineNoCov">          0 :                 gf_mse_fire_event(sb-&gt;evt_target, GF_EVENT_HTML_MSE_UPDATE);</span>
+<span class="lineNum">     300 </span><span class="lineNoCov">          0 :                 gf_mse_fire_event(sb-&gt;evt_target, GF_EVENT_HTML_MSE_UPDATE_END);</span>
+<span class="lineNum">     301 </span>            :         }
+<span class="lineNum">     302 </span><span class="lineNoCov">          0 : }</span>
+<a name="303"><span class="lineNum">     303 </span>            : </a>
+<span class="lineNum">     304 </span>            : /*locates and loads an input service (demuxer, parser) for this source buffer based on mime type or segment name*/
+<span class="lineNum">     305 </span>            : GF_Err gf_mse_source_buffer_load_parser(GF_HTML_SourceBuffer *sourcebuffer, const char *mime)
+<span class="lineNum">     306 </span>            : {
+<span class="lineNum">     307 </span>            :         GF_InputService *parser = NULL;
+<span class="lineNum">     308 </span>            : 
+<span class="lineNum">     309 </span>            :         const char *sPlug;
+<span class="lineNum">     310 </span><span class="lineNoCov">          0 :         if (mime) {</span>
+<span class="lineNum">     311 </span>            :                 /* strip the 'codecs' and 'profile' parameters from the MIME type */
+<span class="lineNum">     312 </span><span class="lineNoCov">          0 :                 char *param = (char *)strchr(mime, ';');</span>
+<span class="lineNum">     313 </span><span class="lineNoCov">          0 :                 if (param) {</span>
+<span class="lineNum">     314 </span><span class="lineNoCov">          0 :                         *param = 0;</span>
+<span class="lineNum">     315 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     316 </span>            : 
+<span class="lineNum">     317 </span>            :                 /* Check MIME type to start the right InputService */
+<span class="lineNum">     318 </span><span class="lineNoCov">          0 :                 sPlug = gf_cfg_get_key(sourcebuffer-&gt;mediasource-&gt;service-&gt;term-&gt;user-&gt;config, &quot;MimeTypes&quot;, mime);</span>
+<span class="lineNum">     319 </span><span class="lineNoCov">          0 :                 if (sPlug) sPlug = strrchr(sPlug, '&quot;');</span>
+<span class="lineNum">     320 </span><span class="lineNoCov">          0 :                 if (sPlug) {</span>
+<span class="lineNum">     321 </span><span class="lineNoCov">          0 :                         sPlug += 2;</span>
+<span class="lineNum">     322 </span><span class="lineNoCov">          0 :                         parser = (GF_InputService *) gf_modules_load_interface_by_name(sourcebuffer-&gt;mediasource-&gt;service-&gt;term-&gt;user-&gt;modules, sPlug, GF_NET_CLIENT_INTERFACE);</span>
+<span class="lineNum">     323 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     324 </span>            : 
+<span class="lineNum">     325 </span><span class="lineNoCov">          0 :                 if (param) {</span>
+<span class="lineNum">     326 </span><span class="lineNoCov">          0 :                         *param = ';';</span>
+<span class="lineNum">     327 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     328 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     329 </span><span class="lineNoCov">          0 :         if (parser) {</span>
+<span class="lineNum">     330 </span><span class="lineNoCov">          0 :                 sourcebuffer-&gt;parser = parser;</span>
+<span class="lineNum">     331 </span><span class="lineNoCov">          0 :                 parser-&gt;query_proxy = gf_mse_proxy;</span>
+<span class="lineNum">     332 </span><span class="lineNoCov">          0 :                 parser-&gt;proxy_udta = sourcebuffer;</span>
+<span class="lineNum">     333 </span><span class="lineNoCov">          0 :                 parser-&gt;proxy_type = GF_TRUE;</span>
+<span class="lineNum">     334 </span><span class="lineNoCov">          0 :                 return GF_OK;</span>
+<span class="lineNum">     335 </span>            :         } else {
+<span class="lineNum">     336 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_DASH, (&quot;[MSE] Error locating plugin for source - mime type %s\n&quot;, mime));</span>
+<span class="lineNum">     337 </span><span class="lineNoCov">          0 :                 return GF_BAD_PARAM;</span>
+<span class="lineNum">     338 </span>            :         }
+<span class="lineNum">     339 </span><span class="lineNoCov">          0 : }</span>
+<a name="340"><span class="lineNum">     340 </span>            : </a>
+<span class="lineNum">     341 </span>            : /* create a track based on the ESD and adds it to the source buffer */
+<span class="lineNum">     342 </span>            : static GF_HTML_Track *gf_mse_source_buffer_add_track(GF_HTML_SourceBuffer *sb, GF_ESD *esd)
+<span class="lineNum">     343 </span>            : {
+<span class="lineNum">     344 </span>            :         GF_HTML_Track *track;
+<span class="lineNum">     345 </span>            :         GF_HTML_TrackType type;
+<span class="lineNum">     346 </span>            : 
+<span class="lineNum">     347 </span>            :         track = NULL;
+<span class="lineNum">     348 </span>            :         type = HTML_MEDIA_TRACK_TYPE_UNKNOWN;
+<span class="lineNum">     349 </span><span class="lineNoCov">          0 :         if (esd-&gt;decoderConfig-&gt;streamType==GF_STREAM_VISUAL) {</span>
+<span class="lineNum">     350 </span>            :                 type = HTML_MEDIA_TRACK_TYPE_VIDEO;
+<span class="lineNum">     351 </span><span class="lineNoCov">          0 :         } else if (esd-&gt;decoderConfig-&gt;streamType==GF_STREAM_AUDIO) {</span>
+<span class="lineNum">     352 </span>            :                 type = HTML_MEDIA_TRACK_TYPE_AUDIO;
+<span class="lineNum">     353 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     354 </span>            :                 /* TODO: Text tracks */
+<span class="lineNum">     355 </span>            :         }
+<span class="lineNum">     356 </span>            : 
+<span class="lineNum">     357 </span><span class="lineNoCov">          0 :         track = gf_html_media_track_new(type, &quot;&quot;, GF_TRUE, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;);</span>
+<span class="lineNum">     358 </span><span class="lineNoCov">          0 :         if (track) {</span>
+<span class="lineNum">     359 </span><span class="lineNoCov">          0 :                 char mx_name[256];</span>
+<span class="lineNum">     360 </span><span class="lineNoCov">          0 :                 track-&gt;bin_id = esd-&gt;ESID;</span>
+<span class="lineNum">     361 </span><span class="lineNoCov">          0 :                 track-&gt;buffer = gf_list_new();</span>
+<span class="lineNum">     362 </span><span class="lineNoCov">          0 :                 sprintf(mx_name, &quot;track_mutex_%d&quot;, track-&gt;bin_id);</span>
+<span class="lineNum">     363 </span><span class="lineNoCov">          0 :                 track-&gt;buffer_mutex = gf_mx_new(mx_name);</span>
+<span class="lineNum">     364 </span><span class="lineNoCov">          0 :                 track-&gt;timescale = esd-&gt;slConfig-&gt;timestampResolution;</span>
+<span class="lineNum">     365 </span><span class="lineNoCov">          0 :                 gf_list_add(sb-&gt;tracks, track);</span>
+<span class="lineNum">     366 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     367 </span><span class="lineNoCov">          0 :         return track;</span>
+<span class="lineNum">     368 </span>            : }
+<span class="lineNum">     369 </span>            : 
+<a name="370"><span class="lineNum">     370 </span>            : /* Creates the different tracks based on the demuxer parser information</a>
+<span class="lineNum">     371 </span>            :    Needs the parser to be setup and the initialization segment passed */
+<span class="lineNum">     372 </span>            : static GF_Err gf_mse_source_buffer_setup_tracks(GF_HTML_SourceBuffer *sb)
+<span class="lineNum">     373 </span>            : {
+<span class="lineNum">     374 </span><span class="lineNoCov">          0 :         if (!sb || !sb-&gt;parser || !sb-&gt;parser_connected) return GF_BAD_PARAM;</span>
+<span class="lineNum">     375 </span><span class="lineNoCov">          0 :         sb-&gt;service_desc = (GF_ObjectDescriptor *)sb-&gt;parser-&gt;GetServiceDescriptor(sb-&gt;parser, GF_MEDIA_OBJECT_UNDEF, NULL);</span>
+<span class="lineNum">     376 </span><span class="lineNoCov">          0 :         if (sb-&gt;service_desc) {</span>
+<span class="lineNum">     377 </span>            :                 u32 count;
+<span class="lineNum">     378 </span><span class="lineNoCov">          0 :                 count = gf_list_count(sb-&gt;service_desc-&gt;ESDescriptors);</span>
+<span class="lineNum">     379 </span><span class="lineNoCov">          0 :                 if (count) {</span>
+<span class="lineNum">     380 </span>            :                         u32 i;
+<span class="lineNum">     381 </span><span class="lineNoCov">          0 :                         for (i = 0; i &lt; count; i++) {</span>
+<span class="lineNum">     382 </span><span class="lineNoCov">          0 :                                 GF_ESD *esd = (GF_ESD *)gf_list_get(sb-&gt;service_desc-&gt;ESDescriptors, i);</span>
+<span class="lineNum">     383 </span><span class="lineNoCov">          0 :                                 gf_mse_source_buffer_add_track(sb, esd);</span>
+<span class="lineNum">     384 </span>            :                         }
+<span class="lineNum">     385 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     386 </span>            :                 return GF_OK;
+<span class="lineNum">     387 </span>            :         } else {
+<span class="lineNum">     388 </span><span class="lineNoCov">          0 :                 return GF_BAD_PARAM;</span>
+<span class="lineNum">     389 </span>            :         }
+<span class="lineNum">     390 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     391 </span>            : 
+<a name="392"><span class="lineNum">     392 </span>            : /* Adds the ObjectDescriptor to the associated track (creating a new track if needed)</a>
+<span class="lineNum">     393 </span>            :    Called in response to addmedia events received from the parser */
+<span class="lineNum">     394 </span>            : static GF_Err gf_mse_source_buffer_store_track_desc(GF_HTML_SourceBuffer *sb, GF_ObjectDescriptor *od)
+<span class="lineNum">     395 </span>            : {
+<span class="lineNum">     396 </span>            :         u32 i;
+<span class="lineNum">     397 </span>            :         u32 count;
+<span class="lineNum">     398 </span>            :         GF_ESD *esd;
+<span class="lineNum">     399 </span>            :         Bool found = GF_FALSE;
+<span class="lineNum">     400 </span>            :         GF_HTML_Track *track;
+<span class="lineNum">     401 </span>            : 
+<span class="lineNum">     402 </span><span class="lineNoCov">          0 :         esd = (GF_ESD *)gf_list_get(od-&gt;ESDescriptors, 0);</span>
+<span class="lineNum">     403 </span><span class="lineNoCov">          0 :         count = gf_list_count(sb-&gt;tracks);</span>
+<span class="lineNum">     404 </span><span class="lineNoCov">          0 :         for (i = 0; i &lt; count; i++) {</span>
+<span class="lineNum">     405 </span><span class="lineNoCov">          0 :                 track = (GF_HTML_Track *)gf_list_get(sb-&gt;tracks, i);</span>
+<span class="lineNum">     406 </span><span class="lineNoCov">          0 :                 if (track-&gt;bin_id == esd-&gt;ESID) {</span>
+<span class="lineNum">     407 </span><span class="lineNoCov">          0 :                         track-&gt;od = od;</span>
+<span class="lineNum">     408 </span>            :                         found = GF_TRUE;
+<span class="lineNum">     409 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     410 </span>            :                 }
+<span class="lineNum">     411 </span>            :         }
+<span class="lineNum">     412 </span><span class="lineNoCov">          0 :         if (!found) {</span>
+<span class="lineNum">     413 </span><span class="lineNoCov">          0 :                 track = gf_mse_source_buffer_add_track(sb, esd);</span>
+<span class="lineNum">     414 </span><span class="lineNoCov">          0 :                 if (track) {</span>
+<span class="lineNum">     415 </span><span class="lineNoCov">          0 :                         track-&gt;od = od;</span>
+<span class="lineNum">     416 </span>            :                 } else {
+<span class="lineNum">     417 </span>            :                         /* TODO: error */
+<span class="lineNum">     418 </span><span class="lineNoCov">          0 :                         return GF_BAD_PARAM;</span>
+<span class="lineNum">     419 </span>            :                 }
+<span class="lineNum">     420 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     421 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">     422 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     423 </span>            : 
+<span class="lineNum">     424 </span>            : #define SECONDS_TO_TIMESCALE(s) ((s)*track-&gt;timescale)
+<span class="lineNum">     425 </span>            : #define TIMESCALE_TO_SECONDS(u) ((u)*1.0/track-&gt;timescale)
+<a name="426"><span class="lineNum">     426 </span>            : </a>
+<span class="lineNum">     427 </span>            : 
+<span class="lineNum">     428 </span>            : GF_HTML_MediaTimeRanges *gf_mse_timeranges_from_track_packets(GF_HTML_Track *track) {
+<span class="lineNum">     429 </span>            :         u32 i, count;
+<span class="lineNum">     430 </span>            :         GF_HTML_MediaTimeRanges *ranges;
+<span class="lineNum">     431 </span>            :         u64 start;
+<span class="lineNum">     432 </span>            :         u64 end=0;
+<span class="lineNum">     433 </span>            :         Bool end_set = GF_FALSE;
+<span class="lineNum">     434 </span>            :         GF_MSE_Packet *packet;
+<span class="lineNum">     435 </span>            : 
+<span class="lineNum">     436 </span><span class="lineNoCov">          0 :         ranges = gf_html_timeranges_new(track-&gt;timescale);</span>
+<span class="lineNum">     437 </span><span class="lineNoCov">          0 :         count = gf_list_count(track-&gt;buffer);</span>
+<span class="lineNum">     438 </span><span class="lineNoCov">          0 :         for (i = 0; i &lt; count; i++) {</span>
+<span class="lineNum">     439 </span><span class="lineNoCov">          0 :                 packet = (GF_MSE_Packet *)gf_list_get(track-&gt;buffer, i);</span>
+<span class="lineNum">     440 </span><span class="lineNoCov">          0 :                 if (end_set == GF_FALSE|| packet-&gt;sl_header.compositionTimeStamp &gt; end) {</span>
+<span class="lineNum">     441 </span><span class="lineNoCov">          0 :                         if (end_set == GF_TRUE) {</span>
+<span class="lineNum">     442 </span><span class="lineNoCov">          0 :                                 gf_html_timeranges_add_end(ranges, end);</span>
+<span class="lineNum">     443 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     444 </span><span class="lineNoCov">          0 :                         start = packet-&gt;sl_header.compositionTimeStamp;</span>
+<span class="lineNum">     445 </span><span class="lineNoCov">          0 :                         gf_html_timeranges_add_start(ranges, start);</span>
+<span class="lineNum">     446 </span><span class="lineNoCov">          0 :                         end = packet-&gt;sl_header.compositionTimeStamp + packet-&gt;sl_header.au_duration;</span>
+<span class="lineNum">     447 </span>            :                         end_set = GF_TRUE;
+<span class="lineNum">     448 </span><span class="lineNoCov">          0 :                 } else if (packet-&gt;sl_header.compositionTimeStamp == end) {</span>
+<span class="lineNum">     449 </span><span class="lineNoCov">          0 :                         end = packet-&gt;sl_header.compositionTimeStamp + packet-&gt;sl_header.au_duration;</span>
+<span class="lineNum">     450 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     451 </span>            :         }
+<span class="lineNum">     452 </span><span class="lineNoCov">          0 :         if (end_set == GF_TRUE) {</span>
+<span class="lineNum">     453 </span><span class="lineNoCov">          0 :                 gf_html_timeranges_add_end(ranges, end);</span>
+<span class="lineNum">     454 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     455 </span><span class="lineNoCov">          0 :         return ranges;</span>
+<span class="lineNum">     456 </span>            : }
+<a name="457"><span class="lineNum">     457 </span>            : </a>
+<span class="lineNum">     458 </span>            : /* Traverses the list of Access Units already demuxed &amp; parsed to update the buffered status */
+<span class="lineNum">     459 </span>            : void gf_mse_source_buffer_update_buffered(GF_HTML_SourceBuffer *sb) {
+<span class="lineNum">     460 </span>            :         u32 i;
+<span class="lineNum">     461 </span>            :         u32 track_count;
+<span class="lineNum">     462 </span>            : 
+<span class="lineNum">     463 </span><span class="lineNoCov">          0 :         track_count = gf_list_count(sb-&gt;tracks);</span>
+<span class="lineNum">     464 </span><span class="lineNoCov">          0 :         gf_html_timeranges_reset(sb-&gt;buffered);</span>
+<span class="lineNum">     465 </span><span class="lineNoCov">          0 :         for (i = 0; i &lt; track_count; i++) {</span>
+<span class="lineNum">     466 </span>            :                 GF_HTML_MediaTimeRanges *track_ranges;
+<span class="lineNum">     467 </span><span class="lineNoCov">          0 :                 GF_HTML_Track *track = (GF_HTML_Track *)gf_list_get(sb-&gt;tracks, i);</span>
+<span class="lineNum">     468 </span><span class="lineNoCov">          0 :                 gf_mx_p(track-&gt;buffer_mutex);</span>
+<span class="lineNum">     469 </span><span class="lineNoCov">          0 :                 track_ranges = gf_mse_timeranges_from_track_packets(track);</span>
+<span class="lineNum">     470 </span><span class="lineNoCov">          0 :                 if (i != 0) {</span>
+<span class="lineNum">     471 </span>            :                         GF_HTML_MediaTimeRanges *tmp;
+<span class="lineNum">     472 </span><span class="lineNoCov">          0 :                         tmp = gf_html_timeranges_intersection(sb-&gt;buffered, track_ranges);</span>
+<span class="lineNum">     473 </span><span class="lineNoCov">          0 :                         gf_html_timeranges_del(track_ranges);</span>
+<span class="lineNum">     474 </span><span class="lineNoCov">          0 :                         gf_list_del(sb-&gt;buffered-&gt;times);</span>
+<span class="lineNum">     475 </span><span class="lineNoCov">          0 :                         sb-&gt;buffered-&gt;times = tmp-&gt;times;</span>
+<span class="lineNum">     476 </span><span class="lineNoCov">          0 :                         sb-&gt;buffered-&gt;timescale = tmp-&gt;timescale;</span>
+<span class="lineNum">     477 </span><span class="lineNoCov">          0 :                         gf_free(tmp);</span>
+<span class="lineNum">     478 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     479 </span><span class="lineNoCov">          0 :                         gf_list_del(sb-&gt;buffered-&gt;times);</span>
+<span class="lineNum">     480 </span><span class="lineNoCov">          0 :                         sb-&gt;buffered-&gt;times = track_ranges-&gt;times;</span>
+<span class="lineNum">     481 </span><span class="lineNoCov">          0 :                         sb-&gt;buffered-&gt;timescale = track_ranges-&gt;timescale;</span>
+<span class="lineNum">     482 </span><span class="lineNoCov">          0 :                         gf_free(track_ranges);</span>
+<span class="lineNum">     483 </span>            :                 }
+<span class="lineNum">     484 </span><span class="lineNoCov">          0 :                 gf_mx_v(track-&gt;buffer_mutex);</span>
+<span class="lineNum">     485 </span>            :         }
+<a name="486"><span class="lineNum">     486 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     487 </span>            : 
+<span class="lineNum">     488 </span>            : void gf_mse_source_buffer_set_timestampOffset(GF_HTML_SourceBuffer *sb, double d) {
+<span class="lineNum">     489 </span>            :         u32 i;
+<span class="lineNum">     490 </span><span class="lineNoCov">          0 :         sb-&gt;timestampOffset = (s64)(d*sb-&gt;timescale);</span>
+<span class="lineNum">     491 </span><span class="lineNoCov">          0 :         if (sb-&gt;append_mode == MEDIA_SOURCE_APPEND_MODE_SEQUENCE) {</span>
+<span class="lineNum">     492 </span><span class="lineNoCov">          0 :                 sb-&gt;group_start_timestamp_flag = GF_TRUE;</span>
+<span class="lineNum">     493 </span><span class="lineNoCov">          0 :                 sb-&gt;group_start_timestamp = sb-&gt;timestampOffset;</span>
+<span class="lineNum">     494 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     495 </span><span class="lineNoCov">          0 :         for (i = 0; i &lt; gf_list_count(sb-&gt;tracks); i++) {</span>
+<span class="lineNum">     496 </span><span class="lineNoCov">          0 :                 GF_HTML_Track *track = (GF_HTML_Track *)gf_list_get(sb-&gt;tracks, i);</span>
+<span class="lineNum">     497 </span><span class="lineNoCov">          0 :                 track-&gt;timestampOffset = sb-&gt;timestampOffset*track-&gt;timescale;</span>
+<span class="lineNum">     498 </span>            :         }
+<a name="499"><span class="lineNum">     499 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     500 </span>            : 
+<span class="lineNum">     501 </span>            : void gf_mse_source_buffer_set_timescale(GF_HTML_SourceBuffer *sb, u32 new_timescale) {
+<span class="lineNum">     502 </span><span class="lineNoCov">          0 :         u32 old_timescale = sb-&gt;timescale;</span>
+<span class="lineNum">     503 </span><span class="lineNoCov">          0 :         if (old_timescale == new_timescale) return;</span>
+<span class="lineNum">     504 </span><span class="lineNoCov">          0 :         sb-&gt;timescale = new_timescale;</span>
+<span class="lineNum">     505 </span><span class="lineNoCov">          0 :         sb-&gt;timestampOffset = (s64)((sb-&gt;timestampOffset * new_timescale * 1.0)/old_timescale);</span>
+<span class="lineNum">     506 </span><span class="lineNoCov">          0 :         if (sb-&gt;group_start_timestamp_flag) {</span>
+<span class="lineNum">     507 </span><span class="lineNoCov">          0 :                 sb-&gt;group_start_timestamp = (u64)((sb-&gt;group_start_timestamp * new_timescale * 1.0)/old_timescale);</span>
+<span class="lineNum">     508 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     509 </span><span class="lineNoCov">          0 :         if (sb-&gt;group_end_timestamp_set) {</span>
+<span class="lineNum">     510 </span><span class="lineNoCov">          0 :                 sb-&gt;group_end_timestamp = (u64)((sb-&gt;group_end_timestamp * new_timescale * 1.0)/old_timescale);</span>
+<span class="lineNum">     511 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     512 </span><span class="lineNoCov">          0 :         sb-&gt;remove_start = (u64)((sb-&gt;remove_start * new_timescale * 1.0)/old_timescale);</span>
+<span class="lineNum">     513 </span><span class="lineNoCov">          0 :         sb-&gt;remove_end = (u64)((sb-&gt;remove_end * new_timescale * 1.0)/old_timescale);</span>
+<span class="lineNum">     514 </span>            : 
+<a name="515"><span class="lineNum">     515 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     516 </span>            : 
+<span class="lineNum">     517 </span>            : void gf_mse_packet_del(GF_MSE_Packet *packet) {
+<span class="lineNum">     518 </span><span class="lineNoCov">          0 :         gf_free(packet-&gt;data);</span>
+<span class="lineNum">     519 </span><span class="lineNoCov">          0 :         gf_free(packet);</span>
+<a name="520"><span class="lineNum">     520 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     521 </span>            : 
+<span class="lineNum">     522 </span>            : static GF_MSE_Packet *gf_mse_find_overlapped_packet(GF_HTML_Track           *track,
+<span class="lineNum">     523 </span>            :         GF_MSE_Packet           *packet)
+<span class="lineNum">     524 </span>            : {
+<span class="lineNum">     525 </span>            :         u32     i;
+<span class="lineNum">     526 </span>            :         u32     count;
+<span class="lineNum">     527 </span>            :         Bool    found_previous;
+<span class="lineNum">     528 </span>            : 
+<span class="lineNum">     529 </span>            :         found_previous = GF_FALSE;
+<span class="lineNum">     530 </span><span class="lineNoCov">          0 :         gf_mx_p(track-&gt;buffer_mutex);</span>
+<span class="lineNum">     531 </span><span class="lineNoCov">          0 :         count = gf_list_count(track-&gt;buffer);</span>
+<span class="lineNum">     532 </span><span class="lineNoCov">          0 :         for (i = 0; i &lt; count; i++)</span>
+<span class="lineNum">     533 </span>            :         {
+<span class="lineNum">     534 </span><span class="lineNoCov">          0 :                 GF_MSE_Packet *p = (GF_MSE_Packet *)gf_list_get(track-&gt;buffer, i);</span>
+<span class="lineNum">     535 </span><span class="lineNoCov">          0 :                 if (p-&gt;sl_header.compositionTimeStamp &lt; packet-&gt;sl_header.compositionTimeStamp) {</span>
+<span class="lineNum">     536 </span>            :                         found_previous = GF_TRUE;
+<span class="lineNum">     537 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     538 </span><span class="lineNoCov">          0 :                 if (found_previous == GF_TRUE &amp;&amp; p-&gt;sl_header.compositionTimeStamp &gt; packet-&gt;sl_header.compositionTimeStamp) {</span>
+<span class="lineNum">     539 </span><span class="lineNoCov">          0 :                         gf_mx_v(track-&gt;buffer_mutex);</span>
+<span class="lineNum">     540 </span><span class="lineNoCov">          0 :                         return p;</span>
+<span class="lineNum">     541 </span>            :                 }
+<span class="lineNum">     542 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     543 </span><span class="lineNoCov">          0 :         gf_mx_v(track-&gt;buffer_mutex);</span>
+<span class="lineNum">     544 </span><span class="lineNoCov">          0 :         return NULL;</span>
+<a name="545"><span class="lineNum">     545 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     546 </span>            : 
+<span class="lineNum">     547 </span>            : static void gf_mse_remove_frames_from_to(GF_HTML_Track *track,
+<span class="lineNum">     548 </span>            :         u64           from,
+<span class="lineNum">     549 </span>            :         u64           to)
+<span class="lineNum">     550 </span>            : {
+<span class="lineNum">     551 </span>            :         u32     i;
+<span class="lineNum">     552 </span>            : 
+<span class="lineNum">     553 </span><span class="lineNoCov">          0 :         gf_mx_p(track-&gt;buffer_mutex);</span>
+<span class="lineNum">     554 </span>            :         i = 0;
+<span class="lineNum">     555 </span><span class="lineNoCov">          0 :         while (i &lt; gf_list_count(track-&gt;buffer)) {</span>
+<span class="lineNum">     556 </span><span class="lineNoCov">          0 :                 GF_MSE_Packet *frame = (GF_MSE_Packet *)gf_list_get(track-&gt;buffer, i);</span>
+<span class="lineNum">     557 </span><span class="lineNoCov">          0 :                 if (frame-&gt;sl_header.compositionTimeStamp &gt;= to) {</span>
+<span class="lineNum">     558 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     559 </span><span class="lineNoCov">          0 :                 } else if (frame-&gt;sl_header.compositionTimeStamp &gt;= from &amp;&amp; frame-&gt;sl_header.compositionTimeStamp &lt; to) {</span>
+<span class="lineNum">     560 </span><span class="lineNoCov">          0 :                         GF_LOG(GF_LOG_DEBUG, GF_LOG_DASH, (&quot;[MSE] Removing frame with PTS %g s (%d frames remaining)\n&quot;, TIMESCALE_TO_SECONDS(frame-&gt;sl_header.compositionTimeStamp), gf_list_count(track-&gt;buffer)));</span>
+<span class="lineNum">     561 </span><span class="lineNoCov">          0 :                         gf_list_rem(track-&gt;buffer, i);</span>
+<span class="lineNum">     562 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     563 </span><span class="lineNoCov">          0 :                         i++;</span>
+<span class="lineNum">     564 </span>            :                 }
+<span class="lineNum">     565 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     566 </span><span class="lineNoCov">          0 :         gf_mx_v(track-&gt;buffer_mutex);</span>
+<a name="567"><span class="lineNum">     567 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     568 </span>            : 
+<span class="lineNum">     569 </span>            : static void gf_mse_track_buffer_add_packet(GF_HTML_Track *track, GF_MSE_Packet *frame)
+<span class="lineNum">     570 </span>            : {
+<span class="lineNum">     571 </span>            :         u32 i, count;
+<span class="lineNum">     572 </span>            :         Bool inserted = GF_FALSE;
+<span class="lineNum">     573 </span>            : 
+<span class="lineNum">     574 </span><span class="lineNoCov">          0 :         gf_mx_p(track-&gt;buffer_mutex);</span>
+<span class="lineNum">     575 </span>            :         /* TODO: improve insertion*/
+<span class="lineNum">     576 </span><span class="lineNoCov">          0 :         count = gf_list_count(track-&gt;buffer);</span>
+<span class="lineNum">     577 </span><span class="lineNoCov">          0 :         for (i = 0; i &lt; count; i++) {</span>
+<span class="lineNum">     578 </span><span class="lineNoCov">          0 :                 GF_MSE_Packet *next_frame =  (GF_MSE_Packet *)gf_list_get(track-&gt;buffer, i);</span>
+<span class="lineNum">     579 </span><span class="lineNoCov">          0 :                 if (frame-&gt;sl_header.decodingTimeStamp &lt; next_frame-&gt;sl_header.decodingTimeStamp) {</span>
+<span class="lineNum">     580 </span><span class="lineNoCov">          0 :                         gf_list_insert(track-&gt;buffer, frame, i);</span>
+<span class="lineNum">     581 </span>            :                         /* if the frame had no duration, we can now tell its duration because of the next frame */
+<span class="lineNum">     582 </span><span class="lineNoCov">          0 :                         if (!frame-&gt;sl_header.au_duration) {</span>
+<span class="lineNum">     583 </span><span class="lineNoCov">          0 :                                 frame-&gt;sl_header.au_duration = (u32)(next_frame-&gt;sl_header.decodingTimeStamp - frame-&gt;sl_header.decodingTimeStamp);</span>
+<span class="lineNum">     584 </span>            :                                 /* we need also to check the duration of the previous frame */
+<span class="lineNum">     585 </span><span class="lineNoCov">          0 :                                 if (i &gt; 0) {</span>
+<span class="lineNum">     586 </span><span class="lineNoCov">          0 :                                         GF_MSE_Packet *prev_frame =  (GF_MSE_Packet *)gf_list_get(track-&gt;buffer, i-1);</span>
+<span class="lineNum">     587 </span>            :                                         /* we update the frame duration if the newly inserted frame modifies it */
+<span class="lineNum">     588 </span><span class="lineNoCov">          0 :                                         if (!prev_frame-&gt;sl_header.au_duration ||</span>
+<span class="lineNum">     589 </span><span class="lineNoCov">          0 :                                                 prev_frame-&gt;sl_header.au_duration &gt; frame-&gt;sl_header.decodingTimeStamp - prev_frame-&gt;sl_header.decodingTimeStamp) {</span>
+<span class="lineNum">     590 </span><span class="lineNoCov">          0 :                                                 prev_frame-&gt;sl_header.au_duration = (u32)(frame-&gt;sl_header.decodingTimeStamp - prev_frame-&gt;sl_header.decodingTimeStamp);</span>
+<span class="lineNum">     591 </span><span class="lineNoCov">          0 :                                         }</span>
+<span class="lineNum">     592 </span><span class="lineNoCov">          0 :                                 }</span>
+<span class="lineNum">     593 </span>            :                         }
+<span class="lineNum">     594 </span>            :                         inserted = GF_TRUE;
+<span class="lineNum">     595 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     596 </span>            :                 }
+<span class="lineNum">     597 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     598 </span><span class="lineNoCov">          0 :         if (!inserted) {</span>
+<span class="lineNum">     599 </span><span class="lineNoCov">          0 :                 gf_list_add(track-&gt;buffer, frame);</span>
+<span class="lineNum">     600 </span>            :                 /* if the frame is inserted last, we cannot know its duration until a new frame is appended or unless the transport format carried it */
+<span class="lineNum">     601 </span><span class="lineNoCov">          0 :                 count = gf_list_count(track-&gt;buffer);</span>
+<span class="lineNum">     602 </span><span class="lineNoCov">          0 :                 if (count &gt; 1) {</span>
+<span class="lineNum">     603 </span><span class="lineNoCov">          0 :                         GF_MSE_Packet *prev_frame =  (GF_MSE_Packet *)gf_list_get(track-&gt;buffer, count-2);</span>
+<span class="lineNum">     604 </span>            :                         /* we update the frame duration if the newly inserted frame modifies it */
+<span class="lineNum">     605 </span><span class="lineNoCov">          0 :                         if (!prev_frame-&gt;sl_header.au_duration ||</span>
+<span class="lineNum">     606 </span><span class="lineNoCov">          0 :                                 prev_frame-&gt;sl_header.au_duration &gt; frame-&gt;sl_header.decodingTimeStamp - prev_frame-&gt;sl_header.decodingTimeStamp) {</span>
+<span class="lineNum">     607 </span><span class="lineNoCov">          0 :                                 prev_frame-&gt;sl_header.au_duration = (u32)(frame-&gt;sl_header.decodingTimeStamp - prev_frame-&gt;sl_header.decodingTimeStamp);</span>
+<span class="lineNum">     608 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     609 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     610 </span>            :         }
+<span class="lineNum">     611 </span><span class="lineNoCov">          0 :         GF_LOG(GF_LOG_DEBUG, GF_LOG_DASH, (&quot;[MSE] Adding frame with PTS %g s and duration %g s (%d frames in buffer)\n&quot;, TIMESCALE_TO_SECONDS(frame-&gt;sl_header.compositionTimeStamp), TIMESCALE_TO_SECONDS(frame-&gt;sl_header.au_duration), gf_list_count(track-&gt;buffer)));</span>
+<span class="lineNum">     612 </span><span class="lineNoCov">          0 :         gf_mx_v(track-&gt;buffer_mutex);</span>
+<a name="613"><span class="lineNum">     613 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     614 </span>            : 
+<span class="lineNum">     615 </span>            : static GF_Err gf_mse_process_coded_frame(GF_HTML_SourceBuffer    *sb,
+<span class="lineNum">     616 </span>            :         GF_HTML_Track           *track,
+<span class="lineNum">     617 </span>            :         GF_MSE_Packet           *frame,
+<span class="lineNum">     618 </span>            :         Bool *stored)
+<span class="lineNum">     619 </span>            : {
+<span class="lineNum">     620 </span><span class="lineNoCov">          0 :         s64 PTS_with_offset = frame-&gt;sl_header.compositionTimeStamp + frame-&gt;sl_header.timeStampOffset;</span>
+<span class="lineNum">     621 </span><span class="lineNoCov">          0 :         s64 DTS_with_offset = frame-&gt;sl_header.decodingTimeStamp + frame-&gt;sl_header.timeStampOffset;</span>
+<span class="lineNum">     622 </span><span class="lineNoCov">          0 :         *stored = GF_FALSE;</span>
+<span class="lineNum">     623 </span>            : 
+<span class="lineNum">     624 </span><span class="lineNoCov">          0 :         if (sb-&gt;append_mode == MEDIA_SOURCE_APPEND_MODE_SEQUENCE &amp;&amp; sb-&gt;group_start_timestamp_flag) {</span>
+<span class="lineNum">     625 </span>            :                 u32 i, count;
+<span class="lineNum">     626 </span>            :                 /* compute the new offset without taking care of the previous one, since this is a new coded frame group */
+<span class="lineNum">     627 </span>            :                 /* first adjust existing times to the new timescale */
+<span class="lineNum">     628 </span><span class="lineNoCov">          0 :                 gf_mse_source_buffer_set_timescale(sb, track-&gt;timescale);</span>
+<span class="lineNum">     629 </span><span class="lineNoCov">          0 :                 sb-&gt;timestampOffset = (sb-&gt;group_start_timestamp - frame-&gt;sl_header.compositionTimeStamp);</span>
+<span class="lineNum">     630 </span><span class="lineNoCov">          0 :                 track-&gt;timestampOffset = (sb-&gt;group_start_timestamp - frame-&gt;sl_header.compositionTimeStamp);</span>
+<span class="lineNum">     631 </span><span class="lineNoCov">          0 :                 sb-&gt;group_end_timestamp = sb-&gt;group_start_timestamp;</span>
+<span class="lineNum">     632 </span><span class="lineNoCov">          0 :                 count = gf_list_count(sb-&gt;tracks);</span>
+<span class="lineNum">     633 </span><span class="lineNoCov">          0 :                 for (i = 0; i &lt; count; i++) {</span>
+<span class="lineNum">     634 </span><span class="lineNoCov">          0 :                         GF_HTML_Track *t = (GF_HTML_Track *)gf_list_get(sb-&gt;tracks, i);</span>
+<span class="lineNum">     635 </span><span class="lineNoCov">          0 :                         t-&gt;needs_rap = GF_TRUE;</span>
+<span class="lineNum">     636 </span>            :                 }
+<span class="lineNum">     637 </span><span class="lineNoCov">          0 :                 sb-&gt;group_start_timestamp_flag = GF_FALSE;</span>
+<span class="lineNum">     638 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     639 </span>            : 
+<span class="lineNum">     640 </span><span class="lineNoCov">          0 :         if (track-&gt;timestampOffset != 0) {</span>
+<span class="lineNum">     641 </span><span class="lineNoCov">          0 :                 frame-&gt;sl_header.timeStampOffset = track-&gt;timestampOffset;</span>
+<span class="lineNum">     642 </span><span class="lineNoCov">          0 :                 PTS_with_offset = frame-&gt;sl_header.compositionTimeStamp + frame-&gt;sl_header.timeStampOffset;</span>
+<span class="lineNum">     643 </span><span class="lineNoCov">          0 :                 DTS_with_offset = frame-&gt;sl_header.decodingTimeStamp + frame-&gt;sl_header.timeStampOffset;</span>
+<span class="lineNum">     644 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     645 </span>            : 
+<span class="lineNum">     646 </span><span class="lineNoCov">          0 :         if (track-&gt;last_dts_set) {</span>
+<span class="lineNum">     647 </span><span class="lineNoCov">          0 :                 if (DTS_with_offset &lt; (s64) track-&gt;last_dts ||</span>
+<span class="lineNum">     648 </span><span class="lineNoCov">          0 :                         DTS_with_offset - track-&gt;last_dts &gt; 2*track-&gt;last_dur) {</span>
+<span class="lineNum">     649 </span>            :                         /* A discontinuity in the timestamps is detected, this triggers the start of a new coded frame group */
+<span class="lineNum">     650 </span><span class="lineNoCov">          0 :                         if (sb-&gt;append_mode == MEDIA_SOURCE_APPEND_MODE_SEGMENTS) {</span>
+<span class="lineNum">     651 </span>            :                                 /* the current group ends at the start of this frame */
+<span class="lineNum">     652 </span>            :                                 /* check if sb.timescale has to be adjusted first with gf_mse_source_buffer_set_timescale(sb, track-&gt;timescale);*/
+<span class="lineNum">     653 </span><span class="lineNoCov">          0 :                                 sb-&gt;group_end_timestamp = PTS_with_offset;</span>
+<span class="lineNum">     654 </span><span class="lineNoCov">          0 :                                 sb-&gt;group_end_timestamp_set = GF_TRUE;</span>
+<span class="lineNum">     655 </span><span class="lineNoCov">          0 :                         } else { /* sb-&gt;append_mode == MEDIA_SOURCE_APPEND_MODE_SEQUENCE */</span>
+<span class="lineNum">     656 </span>            :                                 /* check if sb.timescale has to be adjusted first with gf_mse_source_buffer_set_timescale(sb, track-&gt;timescale);*/
+<span class="lineNum">     657 </span><span class="lineNoCov">          0 :                                 sb-&gt;group_start_timestamp = sb-&gt;group_end_timestamp;</span>
+<span class="lineNum">     658 </span><span class="lineNoCov">          0 :                                 sb-&gt;group_start_timestamp_flag = GF_TRUE;</span>
+<span class="lineNum">     659 </span>            :                         }
+<span class="lineNum">     660 </span>            :                         {
+<span class="lineNum">     661 </span>            :                                 u32 i, count;
+<span class="lineNum">     662 </span><span class="lineNoCov">          0 :                                 count = gf_list_count(sb-&gt;tracks);</span>
+<span class="lineNum">     663 </span><span class="lineNoCov">          0 :                                 for (i = 0; i &lt; count; i++) {</span>
+<span class="lineNum">     664 </span><span class="lineNoCov">          0 :                                         GF_HTML_Track *t = (GF_HTML_Track *)gf_list_get(sb-&gt;tracks, i);</span>
+<span class="lineNum">     665 </span><span class="lineNoCov">          0 :                                         t-&gt;last_dts_set = GF_FALSE;</span>
+<span class="lineNum">     666 </span><span class="lineNoCov">          0 :                                         t-&gt;last_dts = 0;</span>
+<span class="lineNum">     667 </span><span class="lineNoCov">          0 :                                         t-&gt;last_dur = 0;</span>
+<span class="lineNum">     668 </span><span class="lineNoCov">          0 :                                         t-&gt;highest_pts_set = GF_FALSE;</span>
+<span class="lineNum">     669 </span><span class="lineNoCov">          0 :                                         t-&gt;highest_pts = 0;</span>
+<span class="lineNum">     670 </span><span class="lineNoCov">          0 :                                         t-&gt;needs_rap = GF_TRUE;</span>
+<span class="lineNum">     671 </span>            :                                 }
+<span class="lineNum">     672 </span>            :                         }
+<span class="lineNum">     673 </span><span class="lineNoCov">          0 :                         return gf_mse_process_coded_frame(sb, track, frame, stored);</span>
+<span class="lineNum">     674 </span>            :                 }
+<span class="lineNum">     675 </span>            :         }
+<span class="lineNum">     676 </span>            : 
+<span class="lineNum">     677 </span>            :         /* we only update the timestamps in the frame when we are sure the offset is the right one */
+<span class="lineNum">     678 </span><span class="lineNoCov">          0 :         frame-&gt;sl_header.compositionTimeStamp += frame-&gt;sl_header.timeStampOffset;</span>
+<span class="lineNum">     679 </span><span class="lineNoCov">          0 :         frame-&gt;sl_header.decodingTimeStamp += frame-&gt;sl_header.timeStampOffset;</span>
+<span class="lineNum">     680 </span><span class="lineNoCov">          0 :         frame-&gt;sl_header.timeStampOffset = 0;</span>
+<span class="lineNum">     681 </span>            : 
+<span class="lineNum">     682 </span><span class="lineNoCov">          0 :         if (frame-&gt;sl_header.compositionTimeStamp &lt; SECONDS_TO_TIMESCALE(sb-&gt;appendWindowStart)) {</span>
+<span class="lineNum">     683 </span><span class="lineNoCov">          0 :                 track-&gt;needs_rap = GF_TRUE;</span>
+<span class="lineNum">     684 </span><span class="lineNoCov">          0 :                 return GF_OK;</span>
+<span class="lineNum">     685 </span>            :         }
+<span class="lineNum">     686 </span>            : 
+<span class="lineNum">     687 </span><span class="lineNoCov">          0 :         if (frame-&gt;sl_header.compositionTimeStamp + frame-&gt;sl_header.au_duration &gt; SECONDS_TO_TIMESCALE(sb-&gt;appendWindowEnd)) {</span>
+<span class="lineNum">     688 </span><span class="lineNoCov">          0 :                 track-&gt;needs_rap = GF_TRUE;</span>
+<span class="lineNum">     689 </span><span class="lineNoCov">          0 :                 return GF_OK;</span>
+<span class="lineNum">     690 </span>            :         }
+<span class="lineNum">     691 </span>            : 
+<span class="lineNum">     692 </span><span class="lineNoCov">          0 :         if (track-&gt;needs_rap) {</span>
+<span class="lineNum">     693 </span><span class="lineNoCov">          0 :                 if (!frame-&gt;sl_header.randomAccessPointFlag) {</span>
+<span class="lineNum">     694 </span><span class="lineNoCov">          0 :                         return GF_OK;</span>
+<span class="lineNum">     695 </span>            :                 }
+<span class="lineNum">     696 </span><span class="lineNoCov">          0 :                 track-&gt;needs_rap = GF_FALSE;</span>
+<span class="lineNum">     697 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     698 </span>            : 
+<span class="lineNum">     699 </span><span class="lineNoCov">          0 :         if (!track-&gt;last_dts_set) {</span>
+<span class="lineNum">     700 </span>            :                 /* find a frame in the track buffer whose PTS is less than the current packet and whose PTS + dur is greater than the current packet */
+<span class="lineNum">     701 </span>            :                 GF_MSE_Packet           *overlapped_packet;
+<span class="lineNum">     702 </span><span class="lineNoCov">          0 :                 overlapped_packet = gf_mse_find_overlapped_packet(track, frame);</span>
+<span class="lineNum">     703 </span><span class="lineNoCov">          0 :                 if (overlapped_packet) {</span>
+<span class="lineNum">     704 </span><span class="lineNoCov">          0 :                         gf_mse_remove_frames_from_to(track, overlapped_packet-&gt;sl_header.compositionTimeStamp,</span>
+<span class="lineNum">     705 </span><span class="lineNoCov">          0 :                                                      overlapped_packet-&gt;sl_header.compositionTimeStamp + (u64)SECONDS_TO_TIMESCALE(0.000001));</span>
+<span class="lineNum">     706 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     707 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     708 </span>            : 
+<span class="lineNum">     709 </span><span class="lineNoCov">          0 :         if (!track-&gt;highest_pts_set) {</span>
+<span class="lineNum">     710 </span>            :                 /* this is the first time a frame is processed in the append sequence */
+<span class="lineNum">     711 </span><span class="lineNoCov">          0 :                 gf_mse_remove_frames_from_to(track, frame-&gt;sl_header.compositionTimeStamp, frame-&gt;sl_header.compositionTimeStamp + frame-&gt;sl_header.au_duration);</span>
+<span class="lineNum">     712 </span><span class="lineNoCov">          0 :         } else if (track-&gt;highest_pts &lt;= frame-&gt;sl_header.compositionTimeStamp) {</span>
+<span class="lineNum">     713 </span>            :                 /* the highest pts has already been set in this append sequence, so we just need to remove frames from that point on, it's safe */
+<span class="lineNum">     714 </span><span class="lineNoCov">          0 :                 gf_mse_remove_frames_from_to(track, track-&gt;highest_pts, track-&gt;highest_pts + track-&gt;last_dur);</span>
+<span class="lineNum">     715 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     716 </span>            : 
+<span class="lineNum">     717 </span>            :         /* remove dependencies !! */
+<span class="lineNum">     718 </span>            : 
+<span class="lineNum">     719 </span>            :         /* TODO: spliced frames */
+<span class="lineNum">     720 </span>            : 
+<span class="lineNum">     721 </span><span class="lineNoCov">          0 :         *stored = GF_TRUE;</span>
+<span class="lineNum">     722 </span>            :         /* adds the packet and update the previous frame duration */
+<span class="lineNum">     723 </span><span class="lineNoCov">          0 :         gf_mse_track_buffer_add_packet(track, frame);</span>
+<span class="lineNum">     724 </span>            : 
+<span class="lineNum">     725 </span><span class="lineNoCov">          0 :         track-&gt;last_dts = frame-&gt;sl_header.decodingTimeStamp;</span>
+<span class="lineNum">     726 </span><span class="lineNoCov">          0 :         track-&gt;last_dts_set = GF_TRUE;</span>
+<span class="lineNum">     727 </span><span class="lineNoCov">          0 :         if (frame-&gt;sl_header.au_duration) {</span>
+<span class="lineNum">     728 </span><span class="lineNoCov">          0 :                 track-&gt;last_dur = frame-&gt;sl_header.au_duration;</span>
+<span class="lineNum">     729 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     730 </span>            :                 /* assuming CFR - FIXME */
+<span class="lineNum">     731 </span><span class="lineNoCov">          0 :                 frame-&gt;sl_header.au_duration = track-&gt;last_dur;</span>
+<span class="lineNum">     732 </span>            :         }
+<span class="lineNum">     733 </span>            : 
+<span class="lineNum">     734 </span><span class="lineNoCov">          0 :         if (!track-&gt;highest_pts_set ||</span>
+<span class="lineNum">     735 </span><span class="lineNoCov">          0 :                 (frame-&gt;sl_header.compositionTimeStamp + track-&gt;last_dur) &gt; track-&gt;highest_pts) {</span>
+<span class="lineNum">     736 </span><span class="lineNoCov">          0 :                 track-&gt;highest_pts_set = GF_TRUE;</span>
+<span class="lineNum">     737 </span><span class="lineNoCov">          0 :                 track-&gt;highest_pts = frame-&gt;sl_header.compositionTimeStamp + frame-&gt;sl_header.au_duration;</span>
+<span class="lineNum">     738 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     739 </span>            : 
+<span class="lineNum">     740 </span><span class="lineNoCov">          0 :         if (!sb-&gt;group_end_timestamp_set || (frame-&gt;sl_header.compositionTimeStamp + frame-&gt;sl_header.au_duration &gt; sb-&gt;group_end_timestamp)) {</span>
+<span class="lineNum">     741 </span>            :                 /* check if sb.timescale has to be adjusted first with gf_mse_source_buffer_set_timescale(sb, track-&gt;timescale);*/
+<span class="lineNum">     742 </span><span class="lineNoCov">          0 :                 sb-&gt;group_end_timestamp = frame-&gt;sl_header.compositionTimeStamp + frame-&gt;sl_header.au_duration;</span>
+<span class="lineNum">     743 </span><span class="lineNoCov">          0 :                 sb-&gt;group_end_timestamp_set = GF_TRUE;</span>
+<span class="lineNum">     744 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     745 </span>            : 
+<span class="lineNum">     746 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">     747 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     748 </span>            : 
+<span class="lineNum">     749 </span>            : /* Thread run function: called as a result of an append buffer
+<span class="lineNum">     750 </span>            :  * Parses/Demultiplexes media segments and places the parsed AU in the track buffers
+<span class="lineNum">     751 </span>            :  *
+<a name="752"><span class="lineNum">     752 </span>            :  * \param par the GF_HTML_SourceBuffer object used for the append</a>
+<span class="lineNum">     753 </span>            :  */
+<span class="lineNum">     754 </span>            : u32 gf_mse_parse_segment(void *par)
+<span class="lineNum">     755 </span>            : {
+<span class="lineNum">     756 </span>            :         GF_MSE_Packet           *packet;
+<span class="lineNum">     757 </span>            :         GF_HTML_Track           *track;
+<span class="lineNum">     758 </span><span class="lineNoCov">          0 :         GF_HTML_SourceBuffer    *sb = (GF_HTML_SourceBuffer *)par;</span>
+<span class="lineNum">     759 </span>            :         u32                     i;
+<span class="lineNum">     760 </span>            :         u32                     track_count;
+<span class="lineNum">     761 </span>            : 
+<span class="lineNum">     762 </span><span class="lineNoCov">          0 :         if (!sb-&gt;parser_connected) {</span>
+<span class="lineNum">     763 </span><span class="lineNoCov">          0 :                 GF_HTML_ArrayBuffer *buffer = (GF_HTML_ArrayBuffer *)gf_list_get(sb-&gt;input_buffer, 0);</span>
+<span class="lineNum">     764 </span><span class="lineNoCov">          0 :                 gf_list_rem(sb-&gt;input_buffer, 0);</span>
+<span class="lineNum">     765 </span>            :                 assert(buffer);
+<span class="lineNum">     766 </span>            :                 /* we expect an initialization segment to connect the service */
+<span class="lineNum">     767 </span><span class="lineNoCov">          0 :                 if (!buffer-&gt;is_init) {</span>
+<span class="lineNum">     768 </span>            :                         /* TODO: set the media element decode error and run the end of stream algo */
+<span class="lineNum">     769 </span><span class="lineNoCov">          0 :                         goto exit;</span>
+<span class="lineNum">     770 </span>            :                 }
+<span class="lineNum">     771 </span><span class="lineNoCov">          0 :                 sb-&gt;parser-&gt;ConnectService(sb-&gt;parser, sb-&gt;mediasource-&gt;service, buffer-&gt;url);</span>
+<span class="lineNum">     772 </span><span class="lineNoCov">          0 :                 sb-&gt;prev_buffer = buffer;</span>
+<span class="lineNum">     773 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     774 </span>            :                 /* we expect a media segment */
+<span class="lineNum">     775 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_DEBUG, GF_LOG_DASH, (&quot;[MSE] Starting to fetch AUs from parser\n&quot;));</span>
+<span class="lineNum">     776 </span>            : 
+<span class="lineNum">     777 </span>            :                 /* For each track, ask the parser for all the Access Unit, until it is empty
+<span class="lineNum">     778 </span>            :                  * AU are placed as GF_MSE_Packets in the track buffer
+<span class="lineNum">     779 </span>            :                  */
+<span class="lineNum">     780 </span><span class="lineNoCov">          0 :                 track_count = gf_list_count(sb-&gt;tracks);</span>
+<span class="lineNum">     781 </span><span class="lineNoCov">          0 :                 while (sb-&gt;updating) {</span>
+<span class="lineNum">     782 </span>            :                         u32 track_with_data = 0;
+<span class="lineNum">     783 </span><span class="lineNoCov">          0 :                         for (i = 0; i &lt; track_count; i++) {</span>
+<span class="lineNum">     784 </span><span class="lineNoCov">          0 :                                 Bool stored = GF_FALSE;</span>
+<span class="lineNum">     785 </span>            :                                 GF_Err e;
+<span class="lineNum">     786 </span><span class="lineNoCov">          0 :                                 track = (GF_HTML_Track *)gf_list_get(sb-&gt;tracks, i);</span>
+<span class="lineNum">     787 </span><span class="lineNoCov">          0 :                                 GF_SAFEALLOC(packet, GF_MSE_Packet);</span>
+<span class="lineNum">     788 </span><span class="lineNoCov">          0 :                                 if (!packet) continue;</span>
+<span class="lineNum">     789 </span>            :                                 
+<span class="lineNum">     790 </span>            :                                 assert(track-&gt;channel);
+<span class="lineNum">     791 </span><span class="lineNoCov">          0 :                                 e = sb-&gt;parser-&gt;ChannelGetSLP(sb-&gt;parser, track-&gt;channel,</span>
+<span class="lineNum">     792 </span><span class="lineNoCov">          0 :                                                               &amp;packet-&gt;data, &amp;packet-&gt;size, &amp;packet-&gt;sl_header,</span>
+<span class="lineNum">     793 </span><span class="lineNoCov">          0 :                                                               &amp;packet-&gt;is_compressed, &amp;packet-&gt;status, &amp;packet-&gt;is_new_data);</span>
+<span class="lineNum">     794 </span><span class="lineNoCov">          0 :                                 if (e!=GF_OK) {</span>
+<span class="lineNum">     795 </span><span class="lineNoCov">          0 :                                         GF_LOG(GF_LOG_ERROR, GF_LOG_DASH, (&quot;[MSE] Failed to fetch AU from channel\n&quot;));</span>
+<span class="lineNum">     796 </span>            :                                 }
+<span class="lineNum">     797 </span><span class="lineNoCov">          0 :                                 else if (packet-&gt;status == GF_OK &amp;&amp; packet-&gt;is_new_data &amp;&amp; packet-&gt;size) {</span>
+<span class="lineNum">     798 </span>            :                                         char *data;
+<span class="lineNum">     799 </span>            :                                         assert(packet-&gt;is_new_data &amp;&amp; packet-&gt;size);
+<span class="lineNum">     800 </span><span class="lineNoCov">          0 :                                         data = (char *)gf_malloc(packet-&gt;size);</span>
+<span class="lineNum">     801 </span><span class="lineNoCov">          0 :                                         GF_LOG(GF_LOG_DEBUG, GF_LOG_DASH, (&quot;[MSE] New AU parsed with PTS %g s\n&quot;, TIMESCALE_TO_SECONDS(packet-&gt;sl_header.compositionTimeStamp)));</span>
+<span class="lineNum">     802 </span><span class="lineNoCov">          0 :                                         memcpy(data, packet-&gt;data, packet-&gt;size);</span>
+<span class="lineNum">     803 </span><span class="lineNoCov">          0 :                                         packet-&gt;data = data;</span>
+<span class="lineNum">     804 </span><span class="lineNoCov">          0 :                                         gf_mse_process_coded_frame(sb, track, packet, &amp;stored);</span>
+<span class="lineNum">     805 </span><span class="lineNoCov">          0 :                                         track_with_data++;</span>
+<span class="lineNum">     806 </span><span class="lineNoCov">          0 :                                         sb-&gt;parser-&gt;ChannelReleaseSLP(sb-&gt;parser, track-&gt;channel);</span>
+<span class="lineNum">     807 </span><span class="lineNoCov">          0 :                                 }</span>
+<span class="lineNum">     808 </span>            : 
+<span class="lineNum">     809 </span><span class="lineNoCov">          0 :                                 if (!stored) gf_free(packet);</span>
+<span class="lineNum">     810 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     811 </span><span class="lineNoCov">          0 :                         if (!track_with_data) {</span>
+<span class="lineNum">     812 </span>            :                                 /* try to delete the previous buffer */
+<span class="lineNum">     813 </span><span class="lineNoCov">          0 :                                 gf_arraybuffer_del((GF_HTML_ArrayBuffer *)sb-&gt;prev_buffer, GF_FALSE);</span>
+<span class="lineNum">     814 </span><span class="lineNoCov">          0 :                                 sb-&gt;prev_buffer = NULL;</span>
+<span class="lineNum">     815 </span>            :                                 /* get ready to receive a new segment and start a new thread */
+<span class="lineNum">     816 </span><span class="lineNoCov">          0 :                                 break;</span>
+<span class="lineNum">     817 </span>            :                         }
+<span class="lineNum">     818 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     819 </span>            :                 /* reaching here, the parser does not have enough data to produce new AU */
+<span class="lineNum">     820 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_DEBUG, GF_LOG_DASH, (&quot;[MSE] Done fetching AUs from parser\n&quot;));</span>
+<span class="lineNum">     821 </span>            :         }
+<span class="lineNum">     822 </span>            : exit:
+<span class="lineNum">     823 </span><span class="lineNoCov">          0 :         gf_mse_source_buffer_set_update(sb, GF_FALSE);</span>
+<span class="lineNum">     824 </span><span class="lineNoCov">          0 :         return 0;</span>
+<span class="lineNum">     825 </span><span class="lineNoCov">          0 : }</span>
+<a name="826"><span class="lineNum">     826 </span>            : </a>
+<span class="lineNum">     827 </span>            : 
+<span class="lineNum">     828 </span>            : void gf_mse_source_buffer_append_arraybuffer(GF_HTML_SourceBuffer *sb, GF_HTML_ArrayBuffer *buffer)
+<span class="lineNum">     829 </span>            : {
+<span class="lineNum">     830 </span>            :         assert(sb-&gt;parser);
+<span class="lineNum">     831 </span><span class="lineNoCov">          0 :         gf_mse_source_buffer_set_update(sb, GF_TRUE);</span>
+<span class="lineNum">     832 </span>            : 
+<span class="lineNum">     833 </span><span class="lineNoCov">          0 :         buffer-&gt;url = (char *)gf_malloc(256);</span>
+<span class="lineNum">     834 </span><span class="lineNoCov">          0 :         sprintf(buffer-&gt;url, &quot;gmem://%d@%p&quot;, buffer-&gt;length, buffer-&gt;data);</span>
+<span class="lineNum">     835 </span><span class="lineNoCov">          0 :         buffer-&gt;reference_count++;</span>
+<span class="lineNum">     836 </span>            : #ifndef GPAC_DISABLE_ISOM
+<span class="lineNum">     837 </span><span class="lineNoCov">          0 :         buffer-&gt;is_init = (gf_isom_probe_file(buffer-&gt;url) == 2 ? GF_TRUE : GF_FALSE);</span>
+<span class="lineNum">     838 </span>            : #endif
+<span class="lineNum">     839 </span><span class="lineNoCov">          0 :         GF_LOG(GF_LOG_DEBUG, GF_LOG_DASH, (&quot;[MSE] Appending segment %s to SourceBuffer %p\n&quot;, buffer-&gt;url, sb));</span>
+<span class="lineNum">     840 </span>            : 
+<span class="lineNum">     841 </span><span class="lineNoCov">          0 :         gf_list_add(sb-&gt;input_buffer, buffer);</span>
+<span class="lineNum">     842 </span>            :         /* Call the parser (asynchronously) and return */
+<span class="lineNum">     843 </span>            :         /* the updating attribute will be positioned back to 0 when the parser is done */
+<span class="lineNum">     844 </span>            :         {
+<span class="lineNum">     845 </span><span class="lineNoCov">          0 :                 GF_Thread *t = gf_th_new(NULL);</span>
+<span class="lineNum">     846 </span><span class="lineNoCov">          0 :                 gf_list_add(sb-&gt;threads, t);</span>
+<span class="lineNum">     847 </span><span class="lineNoCov">          0 :                 gf_th_run(t, gf_mse_parse_segment, sb);</span>
+<span class="lineNum">     848 </span>            :         }
+<span class="lineNum">     849 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     850 </span>            : 
+<a name="851"><span class="lineNum">     851 </span>            : /* Threaded function called upon request from JS</a>
+<span class="lineNum">     852 </span>            :    - Removes data in each track buffer until the next RAP is found */
+<span class="lineNum">     853 </span>            : static u32 gf_mse_source_buffer_remove(void *par)
+<span class="lineNum">     854 </span>            : {
+<span class="lineNum">     855 </span><span class="lineNoCov">          0 :         GF_HTML_SourceBuffer    *sb = (GF_HTML_SourceBuffer *)par;</span>
+<span class="lineNum">     856 </span>            :         u32                     i;
+<span class="lineNum">     857 </span>            :         u32                     j;
+<span class="lineNum">     858 </span>            :         u32                     track_count;
+<span class="lineNum">     859 </span>            :         u32                     frame_count;
+<span class="lineNum">     860 </span>            :         u64                     end = 0;
+<span class="lineNum">     861 </span>            : 
+<span class="lineNum">     862 </span><span class="lineNoCov">          0 :         gf_mse_source_buffer_set_update(sb, GF_TRUE);</span>
+<span class="lineNum">     863 </span>            : 
+<span class="lineNum">     864 </span><span class="lineNoCov">          0 :         GF_LOG(GF_LOG_DEBUG, GF_LOG_DASH, (&quot;[MSE] Removing media until next RAP\n&quot;));</span>
+<span class="lineNum">     865 </span>            : 
+<span class="lineNum">     866 </span><span class="lineNoCov">          0 :         track_count = gf_list_count(sb-&gt;tracks);</span>
+<span class="lineNum">     867 </span><span class="lineNoCov">          0 :         for (i = 0; i &lt; track_count; i++) {</span>
+<span class="lineNum">     868 </span><span class="lineNoCov">          0 :                 GF_HTML_Track *track = (GF_HTML_Track *)gf_list_get(sb-&gt;tracks, i);</span>
+<span class="lineNum">     869 </span><span class="lineNoCov">          0 :                 gf_mse_source_buffer_set_timescale(sb, track-&gt;timescale);</span>
+<span class="lineNum">     870 </span>            :                 /* find the next random access point */
+<span class="lineNum">     871 </span><span class="lineNoCov">          0 :                 gf_mx_p(track-&gt;buffer_mutex);</span>
+<span class="lineNum">     872 </span><span class="lineNoCov">          0 :                 frame_count = gf_list_count(track-&gt;buffer);</span>
+<span class="lineNum">     873 </span><span class="lineNoCov">          0 :                 for (j = 0; j &lt; frame_count; j++) {</span>
+<span class="lineNum">     874 </span><span class="lineNoCov">          0 :                         GF_MSE_Packet *frame = (GF_MSE_Packet *)gf_list_get(track-&gt;buffer, j);</span>
+<span class="lineNum">     875 </span><span class="lineNoCov">          0 :                         if (frame-&gt;sl_header.randomAccessPointFlag &amp;&amp;</span>
+<span class="lineNum">     876 </span><span class="lineNoCov">          0 :                                 frame-&gt;sl_header.compositionTimeStamp &gt;= sb-&gt;remove_end) {</span>
+<span class="lineNum">     877 </span>            :                                 end = frame-&gt;sl_header.compositionTimeStamp;
+<span class="lineNum">     878 </span><span class="lineNoCov">          0 :                                 break;</span>
+<span class="lineNum">     879 </span>            :                         }
+<span class="lineNum">     880 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     881 </span><span class="lineNoCov">          0 :                 gf_mx_v(track-&gt;buffer_mutex);</span>
+<span class="lineNum">     882 </span><span class="lineNoCov">          0 :                 if (!end) end = (u64)SECONDS_TO_TIMESCALE(sb-&gt;remove_end);</span>
+<span class="lineNum">     883 </span>            : 
+<span class="lineNum">     884 </span>            :                 /* remove up to the next RAP found */
+<span class="lineNum">     885 </span><span class="lineNoCov">          0 :                 gf_mse_remove_frames_from_to(track, sb-&gt;remove_start, end);</span>
+<span class="lineNum">     886 </span>            :         }
+<span class="lineNum">     887 </span><span class="lineNoCov">          0 :         gf_mse_source_buffer_set_update(sb, GF_FALSE);</span>
+<span class="lineNum">     888 </span><span class="lineNoCov">          0 :         return 0;</span>
+<a name="889"><span class="lineNum">     889 </span>            : }</a>
+<span class="lineNum">     890 </span>            : 
+<span class="lineNum">     891 </span>            : void gf_mse_remove(GF_HTML_SourceBuffer *sb, double start, double end)
+<span class="lineNum">     892 </span>            : {
+<span class="lineNum">     893 </span><span class="lineNoCov">          0 :         sb-&gt;remove_start = (u64)(start*sb-&gt;timescale);</span>
+<span class="lineNum">     894 </span><span class="lineNoCov">          0 :         sb-&gt;remove_end = (u64)(end*sb-&gt;timescale);</span>
+<span class="lineNum">     895 </span>            :         {
+<span class="lineNum">     896 </span><span class="lineNoCov">          0 :                 GF_Thread *t = gf_th_new(NULL);</span>
+<span class="lineNum">     897 </span><span class="lineNoCov">          0 :                 gf_list_add(sb-&gt;threads, t);</span>
+<span class="lineNum">     898 </span><span class="lineNoCov">          0 :                 gf_th_run(t, gf_mse_source_buffer_remove, sb);</span>
+<span class="lineNum">     899 </span>            :         }
+<span class="lineNum">     900 </span><span class="lineNoCov">          0 : }</span>
+<a name="901"><span class="lineNum">     901 </span>            : </a>
+<span class="lineNum">     902 </span>            : /* Callback functions used by a media parser when parsing events happens */
+<span class="lineNum">     903 </span>            : GF_Err gf_mse_proxy(GF_InputService *parser, GF_NetworkCommand *command)
+<span class="lineNum">     904 </span>            : {
+<span class="lineNum">     905 </span><span class="lineNoCov">          0 :         if (!parser || !command || !parser-&gt;proxy_udta) {</span>
+<span class="lineNum">     906 </span><span class="lineNoCov">          0 :                 return GF_BAD_PARAM;</span>
+<span class="lineNum">     907 </span>            :         } else {
+<span class="lineNum">     908 </span><span class="lineNoCov">          0 :                 GF_HTML_SourceBuffer *sb = (GF_HTML_SourceBuffer *)parser-&gt;proxy_udta;</span>
+<span class="lineNum">     909 </span><span class="lineNoCov">          0 :                 switch (command-&gt;command_type) {</span>
+<span class="lineNum">     910 </span>            :                 case GF_NET_SERVICE_QUERY_INIT_RANGE:
+<span class="lineNum">     911 </span>            :                         break;
+<span class="lineNum">     912 </span>            :                 case GF_NET_SERVICE_QUERY_NEXT:
+<span class="lineNum">     913 </span>            :                         /* The parser is asking for the next media segment in the buffer,
+<span class="lineNum">     914 </span>            :                            check for the media time and give the right one */
+<span class="lineNum">     915 </span>            :                 {
+<span class="lineNum">     916 </span>            :                         GF_HTML_ArrayBuffer *buffer;
+<span class="lineNum">     917 </span>            :                         /* The input buffer should not be modified by append operations at the same time, no need to protect access */
+<span class="lineNum">     918 </span><span class="lineNoCov">          0 :                         buffer = (GF_HTML_ArrayBuffer *)gf_list_get(sb-&gt;input_buffer, 0);</span>
+<span class="lineNum">     919 </span><span class="lineNoCov">          0 :                         if (buffer) {</span>
+<span class="lineNum">     920 </span><span class="lineNoCov">          0 :                                 command-&gt;url_query.discontinuity_type = 0;</span>
+<span class="lineNum">     921 </span><span class="lineNoCov">          0 :                                 command-&gt;url_query.current_download = GF_FALSE;</span>
+<span class="lineNum">     922 </span><span class="lineNoCov">          0 :                                 command-&gt;url_query.start_range = 0;</span>
+<span class="lineNum">     923 </span><span class="lineNoCov">          0 :                                 command-&gt;url_query.end_range = 0;</span>
+<span class="lineNum">     924 </span><span class="lineNoCov">          0 :                                 command-&gt;url_query.switch_start_range = 0;</span>
+<span class="lineNum">     925 </span><span class="lineNoCov">          0 :                                 command-&gt;url_query.switch_end_range = 0;</span>
+<span class="lineNum">     926 </span><span class="lineNoCov">          0 :                                 command-&gt;url_query.next_url_init_or_switch_segment = NULL;</span>
+<span class="lineNum">     927 </span><span class="lineNoCov">          0 :                                 if (buffer-&gt;is_init) {</span>
+<span class="lineNum">     928 </span><span class="lineNoCov">          0 :                                         GF_HTML_ArrayBuffer *next = (GF_HTML_ArrayBuffer *)gf_list_get(sb-&gt;input_buffer, 1);</span>
+<span class="lineNum">     929 </span><span class="lineNoCov">          0 :                                         command-&gt;url_query.discontinuity_type = 1;</span>
+<span class="lineNum">     930 </span><span class="lineNoCov">          0 :                                         if (next) {</span>
+<span class="lineNum">     931 </span><span class="lineNoCov">          0 :                                                 GF_LOG(GF_LOG_DEBUG, GF_LOG_DASH, (&quot;[MSE] Next segment to parse %s with init \n&quot;, next-&gt;url, buffer-&gt;url));</span>
+<span class="lineNum">     932 </span><span class="lineNoCov">          0 :                                                 command-&gt;url_query.next_url = next-&gt;url;</span>
+<span class="lineNum">     933 </span><span class="lineNoCov">          0 :                                                 command-&gt;url_query.next_url_init_or_switch_segment = buffer-&gt;url;</span>
+<span class="lineNum">     934 </span><span class="lineNoCov">          0 :                                                 gf_list_rem(sb-&gt;input_buffer, 0);</span>
+<span class="lineNum">     935 </span><span class="lineNoCov">          0 :                                                 gf_list_rem(sb-&gt;input_buffer, 0);</span>
+<span class="lineNum">     936 </span><span class="lineNoCov">          0 :                                         } else {</span>
+<span class="lineNum">     937 </span><span class="lineNoCov">          0 :                                                 GF_LOG(GF_LOG_DEBUG, GF_LOG_DASH, (&quot;[MSE] Only one init segment to parse %s, need to wait\n&quot;, buffer-&gt;url));</span>
+<span class="lineNum">     938 </span><span class="lineNoCov">          0 :                                                 command-&gt;url_query.next_url = NULL;</span>
+<span class="lineNum">     939 </span>            :                                         }
+<span class="lineNum">     940 </span><span class="lineNoCov">          0 :                                 } else {</span>
+<span class="lineNum">     941 </span><span class="lineNoCov">          0 :                                         GF_LOG(GF_LOG_DEBUG, GF_LOG_DASH, (&quot;[MSE] Next segment to parse %s\n&quot;, buffer-&gt;url));</span>
+<span class="lineNum">     942 </span><span class="lineNoCov">          0 :                                         command-&gt;url_query.next_url = buffer-&gt;url;</span>
+<span class="lineNum">     943 </span><span class="lineNoCov">          0 :                                         gf_list_rem(sb-&gt;input_buffer, 0);</span>
+<span class="lineNum">     944 </span>            :                                 }
+<span class="lineNum">     945 </span><span class="lineNoCov">          0 :                                 sb-&gt;prev_buffer = buffer;</span>
+<span class="lineNum">     946 </span><span class="lineNoCov">          0 :                         } else {</span>
+<span class="lineNum">     947 </span><span class="lineNoCov">          0 :                                 command-&gt;url_query.next_url = NULL;</span>
+<span class="lineNum">     948 </span><span class="lineNoCov">          0 :                                 command-&gt;url_query.discontinuity_type = 0;</span>
+<span class="lineNum">     949 </span>            :                         }
+<span class="lineNum">     950 </span>            :                 }
+<span class="lineNum">     951 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     952 </span>            :                 case GF_NET_SERVICE_STATUS_PROXY:
+<span class="lineNum">     953 </span>            :                         /* The parser is informing the proxy about its status changes:
+<span class="lineNum">     954 </span>            :                             - new track found
+<span class="lineNum">     955 </span>            :                                 - all tracks parsed
+<span class="lineNum">     956 </span>            :                                 - connect/disconnect
+<span class="lineNum">     957 </span>            :                                 - */
+<span class="lineNum">     958 </span><span class="lineNoCov">          0 :                         if (command-&gt;status.is_add_media) {</span>
+<span class="lineNum">     959 </span><span class="lineNoCov">          0 :                                 if (command-&gt;status.desc) {</span>
+<span class="lineNum">     960 </span><span class="lineNoCov">          0 :                                         gf_mse_source_buffer_store_track_desc(sb, (GF_ObjectDescriptor *)command-&gt;status.desc);</span>
+<span class="lineNum">     961 </span><span class="lineNoCov">          0 :                                 } else {</span>
+<span class="lineNum">     962 </span>            :                                         /* this is the last add media, we can switch updating to false */
+<span class="lineNum">     963 </span>            :                                         /* the first init segment was correctly processed */
+<span class="lineNum">     964 </span><span class="lineNoCov">          0 :                                         gf_mse_source_buffer_set_update(sb, GF_FALSE);</span>
+<span class="lineNum">     965 </span>            :                                         /* TODO: set active tracks and send addsourcebuffer event */
+<span class="lineNum">     966 </span>            :                                         /* TODO: send media loadedmetadata event */
+<span class="lineNum">     967 </span>            :                                 }
+<span class="lineNum">     968 </span><span class="lineNoCov">          0 :                                 gf_service_declare_media(sb-&gt;mediasource-&gt;service, command-&gt;status.desc, (command-&gt;status.desc ? GF_TRUE : GF_FALSE));</span>
+<span class="lineNum">     969 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     970 </span>            :                         /* general connection/disconnection messages from the media parser (not track related) */
+<span class="lineNum">     971 </span><span class="lineNoCov">          0 :                         else if (!command-&gt;status.channel) {</span>
+<span class="lineNum">     972 </span>            :                                 /* connection message */
+<span class="lineNum">     973 </span><span class="lineNoCov">          0 :                                 if (!command-&gt;status.is_disconnect) {</span>
+<span class="lineNum">     974 </span><span class="lineNoCov">          0 :                                         if (command-&gt;status.e == GF_OK) {</span>
+<span class="lineNum">     975 </span>            :                                                 /* nothing needs to be done. Setup is done with final add media */
+<span class="lineNum">     976 </span><span class="lineNoCov">          0 :                                                 sb-&gt;parser_connected = GF_TRUE;</span>
+<span class="lineNum">     977 </span><span class="lineNoCov">          0 :                                                 sb-&gt;mediasource-&gt;durationType = DURATION_INFINITY;</span>
+<span class="lineNum">     978 </span><span class="lineNoCov">          0 :                                                 gf_mse_source_buffer_setup_tracks(sb);</span>
+<span class="lineNum">     979 </span><span class="lineNoCov">          0 :                                         } else {</span>
+<span class="lineNum">     980 </span>            :                                                 /* wrong first init segment */
+<span class="lineNum">     981 </span>            :                                                 /* TODO: fire an error event */
+<span class="lineNum">     982 </span>            :                                         }
+<span class="lineNum">     983 </span><span class="lineNoCov">          0 :                                         gf_service_connect_ack(sb-&gt;mediasource-&gt;service, command-&gt;status.channel, command-&gt;status.e);</span>
+<span class="lineNum">     984 </span><span class="lineNoCov">          0 :                                 } else {</span>
+<span class="lineNum">     985 </span><span class="lineNoCov">          0 :                                         gf_service_disconnect_ack(sb-&gt;mediasource-&gt;service, command-&gt;status.channel, command-&gt;status.e);</span>
+<span class="lineNum">     986 </span>            :                                 }
+<span class="lineNum">     987 </span>            :                         }
+<span class="lineNum">     988 </span>            :                         /* channel (track related) specific connection/disconnection messages from the media parser */
+<span class="lineNum">     989 </span>            :                         else {
+<span class="lineNum">     990 </span><span class="lineNoCov">          0 :                                 if (!command-&gt;status.is_disconnect) {</span>
+<span class="lineNum">     991 </span><span class="lineNoCov">          0 :                                         gf_service_connect_ack(sb-&gt;mediasource-&gt;service, command-&gt;status.channel, command-&gt;status.e);</span>
+<span class="lineNum">     992 </span><span class="lineNoCov">          0 :                                 } else {</span>
+<span class="lineNum">     993 </span><span class="lineNoCov">          0 :                                         gf_service_disconnect_ack(sb-&gt;mediasource-&gt;service, command-&gt;status.channel, command-&gt;status.e);</span>
+<span class="lineNum">     994 </span>            :                                 }
+<span class="lineNum">     995 </span>            :                         }
+<span class="lineNum">     996 </span>            :                         break;
+<span class="lineNum">     997 </span>            :                 default:
+<span class="lineNum">     998 </span><span class="lineNoCov">          0 :                         gf_service_command(sb-&gt;mediasource-&gt;service, command, GF_OK);</span>
+<span class="lineNum">     999 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1000 </span>            :                 }
+<span class="lineNum">    1001 </span>            :                 return GF_OK;
+<span class="lineNum">    1002 </span>            :         }
+<span class="lineNum">    1003 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">    1004 </span>            : 
+<span class="lineNum">    1005 </span>            : /* Track Buffer Managment:
+<span class="lineNum">    1006 </span>            :  * - Access Units are parsed/demultiplexed from the SourceBuffer input buffer and placed into individual track buffers
+<span class="lineNum">    1007 </span>            :  * - The parsing/demux is done in a separate thread (so access to the the track buffer is protected by a mutex)
+<span class="lineNum">    1008 </span>            :  *
+<span class="lineNum">    1009 </span>            :  * Track Buffer Length: number of Access Units */
+<span class="lineNum">    1010 </span>            : #define MSE_TRACK_BUFFER_LENGTH 1000
+<span class="lineNum">    1011 </span>            : 
+<a name="1012"><span class="lineNum">    1012 </span>            : /* When an Access Unit can be released, we check if it needs to be kept or not in the track buffer */</a>
+<span class="lineNum">    1013 </span>            : GF_EXPORT
+<span class="lineNum">    1014 </span>            : GF_Err gf_mse_track_buffer_release_packet(GF_HTML_Track *track) {
+<span class="lineNum">    1015 </span>            :         GF_MSE_Packet *packet;
+<span class="lineNum">    1016 </span><span class="lineNoCov">          0 :         gf_mx_p(track-&gt;buffer_mutex);</span>
+<span class="lineNum">    1017 </span><span class="lineNoCov">          0 :         packet = (GF_MSE_Packet *)gf_list_get(track-&gt;buffer, track-&gt;packet_index);</span>
+<span class="lineNum">    1018 </span><span class="lineNoCov">          0 :         if (packet) {</span>
+<span class="lineNum">    1019 </span><span class="lineNoCov">          0 :                 track-&gt;packet_index++;</span>
+<span class="lineNum">    1020 </span><span class="lineNoCov">          0 :                 if (gf_list_count(track-&gt;buffer) &gt; MSE_TRACK_BUFFER_LENGTH) {</span>
+<span class="lineNum">    1021 </span><span class="lineNoCov">          0 :                         packet = (GF_MSE_Packet *)gf_list_get(track-&gt;buffer, 0);</span>
+<span class="lineNum">    1022 </span><span class="lineNoCov">          0 :                         track-&gt;packet_index--;</span>
+<span class="lineNum">    1023 </span><span class="lineNoCov">          0 :                         gf_list_rem(track-&gt;buffer, 0);</span>
+<span class="lineNum">    1024 </span><span class="lineNoCov">          0 :                         gf_free(packet-&gt;data);</span>
+<span class="lineNum">    1025 </span><span class="lineNoCov">          0 :                         gf_free(packet);</span>
+<span class="lineNum">    1026 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">    1027 </span>            :         }
+<span class="lineNum">    1028 </span><span class="lineNoCov">          0 :         gf_mx_v(track-&gt;buffer_mutex);</span>
+<span class="lineNum">    1029 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">    1030 </span>            : }
+<span class="lineNum">    1031 </span>            : 
+<a name="1032"><span class="lineNum">    1032 </span>            : /* Requests from the decoders to get the next Access Unit: we get it from the track buffer */</a>
+<span class="lineNum">    1033 </span>            : GF_EXPORT
+<span class="lineNum">    1034 </span>            : GF_Err gf_mse_track_buffer_get_next_packet(GF_HTML_Track *track,
+<span class="lineNum">    1035 </span>            :         char **out_data_ptr, u32 *out_data_size,
+<span class="lineNum">    1036 </span>            :         GF_SLHeader *out_sl_hdr, Bool *sl_compressed,
+<span class="lineNum">    1037 </span>            :         GF_Err *out_reception_status, Bool *is_new_data)
+<span class="lineNum">    1038 </span>            : {
+<span class="lineNum">    1039 </span>            :         GF_MSE_Packet *packet;
+<span class="lineNum">    1040 </span>            :         u32 count;
+<span class="lineNum">    1041 </span><span class="lineNoCov">          0 :         gf_mx_p(track-&gt;buffer_mutex);</span>
+<span class="lineNum">    1042 </span><span class="lineNoCov">          0 :         count = gf_list_count(track-&gt;buffer);</span>
+<span class="lineNum">    1043 </span><span class="lineNoCov">          0 :         packet = (GF_MSE_Packet *)gf_list_get(track-&gt;buffer, track-&gt;packet_index);</span>
+<span class="lineNum">    1044 </span><span class="lineNoCov">          0 :         if (packet) {</span>
+<span class="lineNum">    1045 </span><span class="lineNoCov">          0 :                 *out_data_ptr = packet-&gt;data;</span>
+<span class="lineNum">    1046 </span><span class="lineNoCov">          0 :                 *out_data_size = packet-&gt;size;</span>
+<span class="lineNum">    1047 </span><span class="lineNoCov">          0 :                 *out_sl_hdr = packet-&gt;sl_header;</span>
+<span class="lineNum">    1048 </span><span class="lineNoCov">          0 :                 *sl_compressed = packet-&gt;is_compressed;</span>
+<span class="lineNum">    1049 </span><span class="lineNoCov">          0 :                 *out_reception_status = packet-&gt;status;</span>
+<span class="lineNum">    1050 </span><span class="lineNoCov">          0 :                 *is_new_data = packet-&gt;is_new_data;</span>
+<span class="lineNum">    1051 </span><span class="lineNoCov">          0 :                 packet-&gt;is_new_data = GF_FALSE;</span>
+<span class="lineNum">    1052 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_DEBUG, GF_LOG_DASH, (&quot;[MSE_IN] Sending AU #%d/%d to decoder with PTS %g s\n&quot;, track-&gt;packet_index, count, TIMESCALE_TO_SECONDS(packet-&gt;sl_header.compositionTimeStamp)));</span>
+<span class="lineNum">    1053 </span>            :         } else {
+<span class="lineNum">    1054 </span><span class="lineNoCov">          0 :                 *out_data_ptr = NULL;</span>
+<span class="lineNum">    1055 </span><span class="lineNoCov">          0 :                 *out_data_size = 0;</span>
+<span class="lineNum">    1056 </span><span class="lineNoCov">          0 :                 *sl_compressed = GF_FALSE;</span>
+<span class="lineNum">    1057 </span><span class="lineNoCov">          0 :                 *out_reception_status = GF_OK;</span>
+<span class="lineNum">    1058 </span><span class="lineNoCov">          0 :                 *is_new_data = GF_FALSE;</span>
+<span class="lineNum">    1059 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_DEBUG, GF_LOG_DASH, (&quot;[MSE_In] No AU for decoder\n&quot;));</span>
+<span class="lineNum">    1060 </span>            :         }
+<span class="lineNum">    1061 </span><span class="lineNoCov">          0 :         gf_mx_v(track-&gt;buffer_mutex);</span>
+<span class="lineNum">    1062 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">    1063 </span>            : }
+<span class="lineNum">    1064 </span>            : 
+<span class="lineNum">    1065 </span>            : 
+<span class="lineNum">    1066 </span>            : #endif //GPAC_DISABLE_MSE
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

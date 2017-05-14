@@ -1,0 +1,1911 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - scenegraph/vrml_tools.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">scenegraph</a> - vrml_tools.c<span style="font-size: 80%;"> (source / <a href="vrml_tools.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">467</td>
+            <td class="headerCovTableEntry">869</td>
+            <td class="headerCovTableEntryLo">53.7 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-05-14 22:31:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">63</td>
+            <td class="headerCovTableEntry">94</td>
+            <td class="headerCovTableEntryLo">67.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *                      GPAC - Multimedia Framework C SDK
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *                      Authors: Jean Le Feuvre
+<span class="lineNum">       5 </span>            :  *                      Copyright (c) Telecom ParisTech 2000-2012
+<span class="lineNum">       6 </span>            :  *                                      All rights reserved
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  *  This file is part of GPAC / Scene Graph sub-project
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  *  GPAC is free software; you can redistribute it and/or modify
+<span class="lineNum">      11 </span>            :  *  it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">      12 </span>            :  *  the Free Software Foundation; either version 2, or (at your option)
+<span class="lineNum">      13 </span>            :  *  any later version.
+<span class="lineNum">      14 </span>            :  *
+<span class="lineNum">      15 </span>            :  *  GPAC is distributed in the hope that it will be useful,
+<span class="lineNum">      16 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      17 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      18 </span>            :  *  GNU Lesser General Public License for more details.
+<span class="lineNum">      19 </span>            :  *
+<span class="lineNum">      20 </span>            :  *  You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      21 </span>            :  *  License along with this library; see the file COPYING.  If not, write to
+<span class="lineNum">      22 </span>            :  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+<span class="lineNum">      23 </span>            :  *
+<span class="lineNum">      24 </span>            :  */
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : #include &lt;gpac/internal/scenegraph_dev.h&gt;
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span>            : /*MPEG4 &amp; X3D tags (for node tables &amp; script handling)*/
+<span class="lineNum">      29 </span>            : #include &lt;gpac/nodes_mpeg4.h&gt;
+<span class="lineNum">      30 </span>            : #include &lt;gpac/nodes_x3d.h&gt;
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span>            : #ifndef GPAC_DISABLE_VRML
+<span class="lineNum">      34 </span>            : #include &lt;gpac/internal/bifs_dev.h&gt;
+<span class="lineNum">      35 </span>            : 
+<a name="36"><span class="lineNum">      36 </span>            : </a>
+<span class="lineNum">      37 </span>            : GF_EXPORT
+<span class="lineNum">      38 </span>            : Bool gf_node_in_table_by_tag(u32 tag, u32 NDTType)
+<span class="lineNum">      39 </span>            : {
+<span class="lineNum">      40 </span><span class="lineCov">      43762 :         if (!tag) return 0;</span>
+<span class="lineNum">      41 </span><span class="lineCov">      21881 :         if (tag==TAG_ProtoNode) return 1;</span>
+<span class="lineNum">      42 </span><span class="lineCov">      21881 :         else if (tag&lt;=GF_NODE_RANGE_LAST_MPEG4) {</span>
+<span class="lineNum">      43 </span>            : #ifndef GPAC_DISABLE_BIFS
+<span class="lineNum">      44 </span>            :                 u32 i;
+<span class="lineNum">      45 </span><span class="lineCov">      46530 :                 for (i=0; i&lt;GF_BIFS_LAST_VERSION; i++) {</span>
+<span class="lineNum">      46 </span><span class="lineCov">      45146 :                         if (gf_bifs_get_node_type(NDTType, tag, i+1)) return 1;</span>
+<span class="lineNum">      47 </span>            :                 }
+<span class="lineNum">      48 </span><span class="lineNoCov">          0 :                 return 0;</span>
+<span class="lineNum">      49 </span>            : #else
+<span class="lineNum">      50 </span>            :                 /*if BIFS is disabled, we don't have the NDTs - we therefore allow any node in any table otherwise we would reject
+<span class="lineNum">      51 </span>            :                 them all*/
+<span class="lineNum">      52 </span>            :                 return 1;
+<span class="lineNum">      53 </span>            : #endif
+<span class="lineNum">      54 </span>            : 
+<span class="lineNum">      55 </span>            :         }
+<span class="lineNum">      56 </span>            : #ifndef GPAC_DISABLE_X3D
+<span class="lineNum">      57 </span><span class="lineNoCov">          0 :         else if (tag&lt;=GF_NODE_RANGE_LAST_X3D) {</span>
+<span class="lineNum">      58 </span><span class="lineNoCov">          0 :                 return gf_x3d_get_node_type(NDTType, tag);</span>
+<span class="lineNum">      59 </span>            :         }
+<span class="lineNum">      60 </span>            : #endif
+<span class="lineNum">      61 </span><span class="lineNoCov">          0 :         return 0;</span>
+<span class="lineNum">      62 </span><span class="lineCov">      21881 : }</span>
+<a name="63"><span class="lineNum">      63 </span>            : </a>
+<span class="lineNum">      64 </span>            : 
+<span class="lineNum">      65 </span>            : static void Node_on_add_children(GF_Node *node, GF_Route *route)
+<span class="lineNum">      66 </span>            : {
+<span class="lineNum">      67 </span>            :         GF_ChildNodeItem *list;
+<span class="lineNum">      68 </span><span class="lineNoCov">          0 :         GF_FieldInfo field;</span>
+<span class="lineNum">      69 </span><span class="lineNoCov">          0 :         GF_VRMLParent *n = (GF_VRMLParent *)node;</span>
+<span class="lineNum">      70 </span>            : 
+<span class="lineNum">      71 </span><span class="lineNoCov">          0 :         if (n-&gt;children) {</span>
+<span class="lineNum">      72 </span>            :                 list = n-&gt;children;
+<span class="lineNum">      73 </span><span class="lineNoCov">          0 :                 while (list-&gt;next) list = list-&gt;next;</span>
+<span class="lineNum">      74 </span><span class="lineNoCov">          0 :                 list-&gt;next = n-&gt;addChildren;</span>
+<span class="lineNum">      75 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">      76 </span><span class="lineNoCov">          0 :                 n-&gt;children = n-&gt;addChildren;</span>
+<span class="lineNum">      77 </span>            :         }
+<span class="lineNum">      78 </span><span class="lineNoCov">          0 :         n-&gt;addChildren = NULL;</span>
+<span class="lineNum">      79 </span>            : 
+<span class="lineNum">      80 </span>            :         /*signal children field is modified*/
+<span class="lineNum">      81 </span><span class="lineNoCov">          0 :         field.name = &quot;children&quot;;</span>
+<span class="lineNum">      82 </span><span class="lineNoCov">          0 :         field.eventType = GF_SG_EVENT_EXPOSED_FIELD;</span>
+<span class="lineNum">      83 </span><span class="lineNoCov">          0 :         field.fieldType = GF_SG_VRML_MFNODE;</span>
+<span class="lineNum">      84 </span><span class="lineNoCov">          0 :         field.NDTtype = -1;</span>
+<span class="lineNum">      85 </span><span class="lineNoCov">          0 :         if ( node-&gt;sgprivate-&gt;tag == TAG_MPEG4_Transform )</span>
+<span class="lineNum">      86 </span><span class="lineNoCov">          0 :                 field.fieldIndex = 3;</span>
+<span class="lineNum">      87 </span>            :         else
+<span class="lineNum">      88 </span><span class="lineNoCov">          0 :                 field.fieldIndex = 2;</span>
+<span class="lineNum">      89 </span><span class="lineNoCov">          0 :         field.far_ptr = &amp; n-&gt;children;</span>
+<span class="lineNum">      90 </span><span class="lineNoCov">          0 :         gf_node_event_out(node, field.fieldIndex);</span>
+<span class="lineNum">      91 </span><span class="lineNoCov">          0 :         gf_node_changed(node, &amp;field);</span>
+<span class="lineNum">      92 </span>            : 
+<span class="lineNum">      93 </span><span class="lineNoCov">          0 :         if (node-&gt;sgprivate-&gt;scenegraph-&gt;on_node_modified) {</span>
+<span class="lineNum">      94 </span><span class="lineNoCov">          0 :                 field.name = &quot;addChildren&quot;;</span>
+<span class="lineNum">      95 </span><span class="lineNoCov">          0 :                 field.eventType = GF_SG_EVENT_IN;</span>
+<span class="lineNum">      96 </span><span class="lineNoCov">          0 :                 field.fieldType = GF_SG_VRML_MFNODE;</span>
+<span class="lineNum">      97 </span><span class="lineNoCov">          0 :                 field.NDTtype = -1;</span>
+<span class="lineNum">      98 </span><span class="lineNoCov">          0 :                 field.fieldIndex = 0;</span>
+<span class="lineNum">      99 </span><span class="lineNoCov">          0 :                 field.far_ptr = &amp; n-&gt;addChildren;</span>
+<span class="lineNum">     100 </span><span class="lineNoCov">          0 :                 node-&gt;sgprivate-&gt;scenegraph-&gt;on_node_modified(node-&gt;sgprivate-&gt;scenegraph, node, &amp;field, NULL);</span>
+<span class="lineNum">     101 </span><span class="lineNoCov">          0 :         }</span>
+<a name="102"><span class="lineNum">     102 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     103 </span>            : 
+<span class="lineNum">     104 </span>            : static void Node_on_remove_children(GF_Node *node, GF_Route *route)
+<span class="lineNum">     105 </span>            : {
+<span class="lineNum">     106 </span>            :         GF_ChildNodeItem *list;
+<span class="lineNum">     107 </span><span class="lineNoCov">          0 :         GF_FieldInfo field;</span>
+<span class="lineNum">     108 </span><span class="lineNoCov">          0 :         GF_VRMLParent *n = (GF_VRMLParent *)node;</span>
+<span class="lineNum">     109 </span>            : 
+<span class="lineNum">     110 </span><span class="lineNoCov">          0 :         if (!n-&gt;removeChildren) return;</span>
+<span class="lineNum">     111 </span>            : 
+<span class="lineNum">     112 </span>            :         list = n-&gt;removeChildren;
+<span class="lineNum">     113 </span><span class="lineNoCov">          0 :         while (list) {</span>
+<span class="lineNum">     114 </span><span class="lineNoCov">          0 :                 if (gf_node_list_del_child(&amp; n-&gt;children, list-&gt;node)) {</span>
+<span class="lineNum">     115 </span><span class="lineNoCov">          0 :                         gf_node_unregister(list-&gt;node, node);</span>
+<span class="lineNum">     116 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     117 </span><span class="lineNoCov">          0 :                 list = list-&gt;next;</span>
+<span class="lineNum">     118 </span>            :         }
+<span class="lineNum">     119 </span><span class="lineNoCov">          0 :         gf_node_unregister_children(node, n-&gt;removeChildren);</span>
+<span class="lineNum">     120 </span><span class="lineNoCov">          0 :         n-&gt;removeChildren = NULL;</span>
+<span class="lineNum">     121 </span>            : 
+<span class="lineNum">     122 </span>            :         /*signal children field is modified*/
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 :         field.name = &quot;children&quot;;</span>
+<span class="lineNum">     124 </span><span class="lineNoCov">          0 :         field.eventType = GF_SG_EVENT_EXPOSED_FIELD;</span>
+<span class="lineNum">     125 </span><span class="lineNoCov">          0 :         field.fieldType = GF_SG_VRML_MFNODE;</span>
+<span class="lineNum">     126 </span><span class="lineNoCov">          0 :         field.NDTtype = -1;</span>
+<span class="lineNum">     127 </span><span class="lineNoCov">          0 :         if ( node-&gt;sgprivate-&gt;tag == TAG_MPEG4_Transform )</span>
+<span class="lineNum">     128 </span><span class="lineNoCov">          0 :                 field.fieldIndex = 3;</span>
+<span class="lineNum">     129 </span>            :         else
+<span class="lineNum">     130 </span><span class="lineNoCov">          0 :                 field.fieldIndex = 2;</span>
+<span class="lineNum">     131 </span><span class="lineNoCov">          0 :         field.far_ptr = &amp; n-&gt;children;</span>
+<span class="lineNum">     132 </span><span class="lineNoCov">          0 :         gf_node_event_out(node, field.fieldIndex);</span>
+<span class="lineNum">     133 </span><span class="lineNoCov">          0 :         gf_node_changed(node, &amp;field);</span>
+<span class="lineNum">     134 </span>            : 
+<span class="lineNum">     135 </span>            : 
+<span class="lineNum">     136 </span><span class="lineNoCov">          0 :         if (node-&gt;sgprivate-&gt;scenegraph-&gt;on_node_modified) {</span>
+<span class="lineNum">     137 </span><span class="lineNoCov">          0 :                 field.name = &quot;removeChildren&quot;;</span>
+<span class="lineNum">     138 </span><span class="lineNoCov">          0 :                 field.eventType = GF_SG_EVENT_IN;</span>
+<span class="lineNum">     139 </span><span class="lineNoCov">          0 :                 field.fieldType = GF_SG_VRML_MFNODE;</span>
+<span class="lineNum">     140 </span><span class="lineNoCov">          0 :                 field.NDTtype = -1;</span>
+<span class="lineNum">     141 </span><span class="lineNoCov">          0 :                 field.fieldIndex = 1;</span>
+<span class="lineNum">     142 </span><span class="lineNoCov">          0 :                 field.far_ptr = &amp; n-&gt;removeChildren;</span>
+<span class="lineNum">     143 </span><span class="lineNoCov">          0 :                 node-&gt;sgprivate-&gt;scenegraph-&gt;on_node_modified(node-&gt;sgprivate-&gt;scenegraph, node, &amp;field, NULL);</span>
+<span class="lineNum">     144 </span><span class="lineNoCov">          0 :         }</span>
+<a name="145"><span class="lineNum">     145 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     146 </span>            : 
+<span class="lineNum">     147 </span>            : void gf_sg_vrml_parent_setup(GF_Node *pNode)
+<span class="lineNum">     148 </span>            : {
+<span class="lineNum">     149 </span><span class="lineCov">      87332 :         GF_VRMLParent *par = (GF_VRMLParent *)pNode;</span>
+<span class="lineNum">     150 </span><span class="lineCov">      43666 :         par-&gt;children = NULL;</span>
+<span class="lineNum">     151 </span><span class="lineCov">      43666 :         par-&gt;addChildren = NULL;</span>
+<span class="lineNum">     152 </span><span class="lineCov">      43666 :         par-&gt;on_addChildren = Node_on_add_children;</span>
+<span class="lineNum">     153 </span><span class="lineCov">      43666 :         par-&gt;removeChildren = NULL;</span>
+<span class="lineNum">     154 </span><span class="lineCov">      43666 :         par-&gt;on_removeChildren = Node_on_remove_children;</span>
+<span class="lineNum">     155 </span><span class="lineCov">      43666 :         pNode-&gt;sgprivate-&gt;flags |= GF_SG_CHILD_DIRTY;</span>
+<a name="156"><span class="lineNum">     156 </span><span class="lineCov">      43666 : }</span></a>
+<span class="lineNum">     157 </span>            : 
+<span class="lineNum">     158 </span>            : void gf_sg_vrml_parent_destroy(GF_Node *pNode)
+<span class="lineNum">     159 </span>            : {
+<span class="lineNum">     160 </span><span class="lineCov">      87332 :         GF_VRMLParent *par = (GF_VRMLParent *)pNode;</span>
+<span class="lineNum">     161 </span><span class="lineCov">      43666 :         gf_node_unregister_children(pNode, par-&gt;children);</span>
+<span class="lineNum">     162 </span><span class="lineCov">      43666 :         gf_node_unregister_children(pNode, par-&gt;addChildren);</span>
+<span class="lineNum">     163 </span><span class="lineCov">      43666 :         gf_node_unregister_children(pNode, par-&gt;removeChildren);</span>
+<a name="164"><span class="lineNum">     164 </span><span class="lineCov">      43666 : }</span></a>
+<span class="lineNum">     165 </span>            : 
+<span class="lineNum">     166 </span>            : GF_Err gf_sg_delete_all_protos(GF_SceneGraph *scene)
+<span class="lineNum">     167 </span>            : {
+<span class="lineNum">     168 </span><span class="lineNoCov">          0 :         if (!scene) return GF_BAD_PARAM;</span>
+<span class="lineNum">     169 </span><span class="lineNoCov">          0 :         while (gf_list_count(scene-&gt;protos)) {</span>
+<span class="lineNum">     170 </span><span class="lineNoCov">          0 :                 GF_Proto *p = (GF_Proto *)gf_list_get(scene-&gt;protos, 0);</span>
+<span class="lineNum">     171 </span><span class="lineNoCov">          0 :                 gf_sg_proto_del(p);</span>
+<span class="lineNum">     172 </span>            :         }
+<span class="lineNum">     173 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">     174 </span><span class="lineNoCov">          0 : }</span>
+<a name="175"><span class="lineNum">     175 </span>            : </a>
+<span class="lineNum">     176 </span>            : GF_EXPORT
+<span class="lineNum">     177 </span>            : void gf_sg_set_proto_loader(GF_SceneGraph *scene, GF_SceneGraph *(*GetExternProtoLib)(void *SceneCallback, MFURL *lib_url))
+<span class="lineNum">     178 </span>            : {
+<span class="lineNum">     179 </span><span class="lineCov">         20 :         if (!scene) return;</span>
+<span class="lineNum">     180 </span><span class="lineCov">         10 :         scene-&gt;GetExternProtoLib = GetExternProtoLib;</span>
+<span class="lineNum">     181 </span><span class="lineCov">         20 : }</span>
+<a name="182"><span class="lineNum">     182 </span>            : </a>
+<span class="lineNum">     183 </span>            : 
+<span class="lineNum">     184 </span>            : u32 gf_sg_get_next_available_route_id(GF_SceneGraph *sg)
+<span class="lineNum">     185 </span>            : {
+<span class="lineNum">     186 </span>            :         u32 i, count;
+<span class="lineNum">     187 </span>            :         u32 ID = 0;
+<span class="lineNum">     188 </span>            : 
+<span class="lineNum">     189 </span><span class="lineCov">         92 :         if (!sg-&gt;max_defined_route_id) {</span>
+<span class="lineNum">     190 </span><span class="lineCov">         42 :                 count = gf_list_count(sg-&gt;Routes);</span>
+<span class="lineNum">     191 </span>            :                 /*routes are not sorted*/
+<span class="lineNum">     192 </span><span class="lineCov">        296 :                 for (i=0; i&lt;count; i++) {</span>
+<span class="lineNum">     193 </span><span class="lineCov">        106 :                         GF_Route *r = (GF_Route *)gf_list_get(sg-&gt;Routes, i);</span>
+<span class="lineNum">     194 </span><span class="lineCov">        212 :                         if (ID&lt;=r-&gt;ID) ID = r-&gt;ID;</span>
+<span class="lineNum">     195 </span>            :                 }
+<span class="lineNum">     196 </span><span class="lineCov">         42 :                 return ID+1;</span>
+<span class="lineNum">     197 </span>            :         } else {
+<span class="lineNum">     198 </span><span class="lineCov">          4 :                 sg-&gt;max_defined_route_id++;</span>
+<span class="lineNum">     199 </span><span class="lineCov">          4 :                 return sg-&gt;max_defined_route_id;</span>
+<span class="lineNum">     200 </span>            :         }
+<a name="201"><span class="lineNum">     201 </span><span class="lineCov">         46 : }</span></a>
+<span class="lineNum">     202 </span>            : 
+<span class="lineNum">     203 </span>            : void gf_sg_set_max_defined_route_id(GF_SceneGraph *sg, u32 ID)
+<span class="lineNum">     204 </span>            : {
+<span class="lineNum">     205 </span><span class="lineCov">        624 :         sg-&gt;max_defined_route_id = MAX(sg-&gt;max_defined_route_id, ID);</span>
+<a name="206"><span class="lineNum">     206 </span><span class="lineCov">        156 : }</span></a>
+<span class="lineNum">     207 </span>            : 
+<span class="lineNum">     208 </span>            : u32 gf_sg_get_next_available_proto_id(GF_SceneGraph *sg)
+<span class="lineNum">     209 </span>            : {
+<span class="lineNum">     210 </span>            :         u32 i, count;
+<span class="lineNum">     211 </span>            :         u32 ID = 0;
+<span class="lineNum">     212 </span><span class="lineCov">        296 :         count = gf_list_count(sg-&gt;protos);</span>
+<span class="lineNum">     213 </span>            :         /*protos are not sorted*/
+<span class="lineNum">     214 </span><span class="lineCov">        296 :         for (i=0; i&lt;count; i++) {</span>
+<span class="lineNum">     215 </span><span class="lineNoCov">          0 :                 GF_Proto *p = (GF_Proto *)gf_list_get(sg-&gt;protos, i);</span>
+<span class="lineNum">     216 </span><span class="lineNoCov">          0 :                 if (ID&lt;=p-&gt;ID) ID = p-&gt;ID;</span>
+<span class="lineNum">     217 </span>            :         }
+<span class="lineNum">     218 </span><span class="lineCov">        148 :         count = gf_list_count(sg-&gt;unregistered_protos);</span>
+<span class="lineNum">     219 </span><span class="lineCov">        344 :         for (i=0; i&lt;count; i++) {</span>
+<span class="lineNum">     220 </span><span class="lineCov">         24 :                 GF_Proto *p = (GF_Proto *)gf_list_get(sg-&gt;unregistered_protos, i);</span>
+<span class="lineNum">     221 </span><span class="lineCov">         48 :                 if (ID&lt;=p-&gt;ID) ID = p-&gt;ID;</span>
+<span class="lineNum">     222 </span>            :         }
+<span class="lineNum">     223 </span><span class="lineCov">        148 :         return ID+1;</span>
+<span class="lineNum">     224 </span>            : }
+<a name="225"><span class="lineNum">     225 </span>            : </a>
+<span class="lineNum">     226 </span>            : //adds a child in the children list
+<span class="lineNum">     227 </span>            : GF_Err gf_node_insert_child(GF_Node *parent, GF_Node *new_child, s32 Position)
+<span class="lineNum">     228 </span>            : {
+<span class="lineNum">     229 </span><span class="lineCov">       3234 :         GF_ParentNode *node = (GF_ParentNode *) parent;</span>
+<span class="lineNum">     230 </span><span class="lineCov">       3234 :         if (Position == -1) {</span>
+<span class="lineNum">     231 </span><span class="lineCov">       3225 :                 gf_node_list_add_child(&amp; node-&gt;children, new_child);</span>
+<span class="lineNum">     232 </span><span class="lineCov">       1608 :         } else {</span>
+<span class="lineNum">     233 </span><span class="lineCov">          9 :                 gf_node_list_insert_child(&amp; node-&gt;children, new_child, Position);</span>
+<span class="lineNum">     234 </span>            :         }
+<span class="lineNum">     235 </span><span class="lineCov">       1617 :         return GF_OK;</span>
+<span class="lineNum">     236 </span>            : }
+<a name="237"><span class="lineNum">     237 </span>            : </a>
+<span class="lineNum">     238 </span>            : /*for V4Studio...*/
+<span class="lineNum">     239 </span>            : GF_Err gf_node_remove_child(GF_Node *parent, GF_Node *toremove_child)
+<span class="lineNum">     240 </span>            : {
+<span class="lineNum">     241 </span><span class="lineNoCov">          0 :         if (!gf_node_list_del_child(&amp; ((GF_ParentNode *) parent)-&gt;children, toremove_child)) return GF_BAD_PARAM;</span>
+<span class="lineNum">     242 </span>            :         /*V4Studio doesn't handle DEF/USE properly yet...*/
+<span class="lineNum">     243 </span>            :         /*gf_node_unregister(toremove_child, parent);*/
+<span class="lineNum">     244 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<a name="245"><span class="lineNum">     245 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     246 </span>            : 
+<span class="lineNum">     247 </span>            : void gf_sg_script_load(GF_Node *n)
+<span class="lineNum">     248 </span>            : {
+<span class="lineNum">     249 </span><span class="lineCov">        409 :         if (n &amp;&amp; n-&gt;sgprivate-&gt;scenegraph-&gt;script_load) n-&gt;sgprivate-&gt;scenegraph-&gt;script_load(n);</span>
+<a name="250"><span class="lineNum">     250 </span><span class="lineCov">        136 : }</span></a>
+<span class="lineNum">     251 </span>            : 
+<span class="lineNum">     252 </span>            : GF_Proto *gf_sg_find_proto(GF_SceneGraph *sg, u32 ProtoID, char *name)
+<span class="lineNum">     253 </span>            : {
+<span class="lineNum">     254 </span>            :         GF_Proto *proto;
+<span class="lineNum">     255 </span><span class="lineCov">       2078 :         u32 i;</span>
+<span class="lineNum">     256 </span>            : 
+<span class="lineNum">     257 </span>            :         assert(sg);
+<span class="lineNum">     258 </span>            : 
+<span class="lineNum">     259 </span>            :         /*browse all top-level */
+<span class="lineNum">     260 </span><span class="lineCov">       1039 :         i=0;</span>
+<span class="lineNum">     261 </span><span class="lineCov">       2124 :         while ((proto = (GF_Proto *)gf_list_enum(sg-&gt;protos, &amp;i))) {</span>
+<span class="lineNum">     262 </span>            :                 /*first check on name if given, since parsers use this with ID=0*/
+<span class="lineNum">     263 </span><span class="lineCov">         79 :                 if (name) {</span>
+<span class="lineNum">     264 </span><span class="lineCov">        173 :                         if (proto-&gt;Name &amp;&amp; !stricmp(name, proto-&gt;Name)) return proto;</span>
+<span class="lineNum">     265 </span><span class="lineCov">         12 :                 } else if (proto-&gt;ID == ProtoID) return proto;</span>
+<span class="lineNum">     266 </span>            :         }
+<span class="lineNum">     267 </span>            :         /*browse all top-level unregistered in reverse order*/
+<span class="lineNum">     268 </span><span class="lineCov">       2518 :         for (i=gf_list_count(sg-&gt;unregistered_protos); i&gt;0; i--) {</span>
+<span class="lineNum">     269 </span><span class="lineCov">       1050 :                 proto = (GF_Proto *)gf_list_get(sg-&gt;unregistered_protos, i-1);</span>
+<span class="lineNum">     270 </span><span class="lineCov">       1050 :                 if (name) {</span>
+<span class="lineNum">     271 </span><span class="lineCov">       1297 :                         if (proto-&gt;Name &amp;&amp; !stricmp(name, proto-&gt;Name)) return proto;</span>
+<span class="lineNum">     272 </span><span class="lineCov">       1021 :                 } else if (proto-&gt;ID == ProtoID) return proto;</span>
+<span class="lineNum">     273 </span>            :         }
+<span class="lineNum">     274 </span><span class="lineCov">        209 :         return NULL;</span>
+<span class="lineNum">     275 </span><span class="lineCov">       1039 : }</span>
+<span class="lineNum">     276 </span>            : 
+<a name="277"><span class="lineNum">     277 </span>            : </a>
+<span class="lineNum">     278 </span>            : 
+<span class="lineNum">     279 </span>            : static SFBool *NewSFBool()
+<span class="lineNum">     280 </span>            : {
+<span class="lineNum">     281 </span><span class="lineCov">       4060 :         SFBool *tmp = (SFBool *)gf_malloc(sizeof(SFBool));</span>
+<span class="lineNum">     282 </span><span class="lineCov">       2030 :         memset(tmp, 0, sizeof(SFBool));</span>
+<a name="283"><span class="lineNum">     283 </span><span class="lineCov">       2030 :         return tmp;</span></a>
+<span class="lineNum">     284 </span>            : }
+<span class="lineNum">     285 </span>            : static SFFloat *NewSFFloat()
+<span class="lineNum">     286 </span>            : {
+<span class="lineNum">     287 </span><span class="lineCov">       4354 :         SFFloat *tmp = (SFFloat *)gf_malloc(sizeof(SFFloat));</span>
+<span class="lineNum">     288 </span><span class="lineCov">       2177 :         memset(tmp, 0, sizeof(SFFloat));</span>
+<a name="289"><span class="lineNum">     289 </span><span class="lineCov">       2177 :         return tmp;</span></a>
+<span class="lineNum">     290 </span>            : }
+<span class="lineNum">     291 </span>            : static SFDouble *NewSFDouble()
+<span class="lineNum">     292 </span>            : {
+<span class="lineNum">     293 </span><span class="lineNoCov">          0 :         SFDouble *tmp = (SFDouble *)gf_malloc(sizeof(SFDouble));</span>
+<span class="lineNum">     294 </span><span class="lineNoCov">          0 :         memset(tmp, 0, sizeof(SFDouble));</span>
+<a name="295"><span class="lineNum">     295 </span><span class="lineNoCov">          0 :         return tmp;</span></a>
+<span class="lineNum">     296 </span>            : }
+<span class="lineNum">     297 </span>            : static SFTime *NewSFTime()
+<span class="lineNum">     298 </span>            : {
+<span class="lineNum">     299 </span><span class="lineCov">       1662 :         SFTime *tmp = (SFTime *)gf_malloc(sizeof(SFTime));</span>
+<span class="lineNum">     300 </span><span class="lineCov">        831 :         memset(tmp, 0, sizeof(SFTime));</span>
+<a name="301"><span class="lineNum">     301 </span><span class="lineCov">        831 :         return tmp;</span></a>
+<span class="lineNum">     302 </span>            : }
+<span class="lineNum">     303 </span>            : static SFInt32 *NewSFInt32()
+<span class="lineNum">     304 </span>            : {
+<span class="lineNum">     305 </span><span class="lineCov">       1748 :         SFInt32 *tmp = (SFInt32 *)gf_malloc(sizeof(SFInt32));</span>
+<span class="lineNum">     306 </span><span class="lineCov">        874 :         memset(tmp, 0, sizeof(SFInt32));</span>
+<a name="307"><span class="lineNum">     307 </span><span class="lineCov">        874 :         return tmp;</span></a>
+<span class="lineNum">     308 </span>            : }
+<span class="lineNum">     309 </span>            : static SFString *NewSFString()
+<span class="lineNum">     310 </span>            : {
+<span class="lineNum">     311 </span><span class="lineCov">        388 :         SFString *tmp = (SFString *)gf_malloc(sizeof(SFString));</span>
+<span class="lineNum">     312 </span><span class="lineCov">        194 :         memset(tmp, 0, sizeof(SFString));</span>
+<a name="313"><span class="lineNum">     313 </span><span class="lineCov">        194 :         return tmp;</span></a>
+<span class="lineNum">     314 </span>            : }
+<span class="lineNum">     315 </span>            : static SFVec3f *NewSFVec3f()
+<span class="lineNum">     316 </span>            : {
+<span class="lineNum">     317 </span><span class="lineCov">        252 :         SFVec3f *tmp = (SFVec3f *)gf_malloc(sizeof(SFVec3f));</span>
+<span class="lineNum">     318 </span><span class="lineCov">        126 :         memset(tmp, 0, sizeof(SFVec3f));</span>
+<a name="319"><span class="lineNum">     319 </span><span class="lineCov">        126 :         return tmp;</span></a>
+<span class="lineNum">     320 </span>            : }
+<span class="lineNum">     321 </span>            : static SFVec3d *NewSFVec3d()
+<span class="lineNum">     322 </span>            : {
+<span class="lineNum">     323 </span><span class="lineNoCov">          0 :         SFVec3d *tmp = (SFVec3d *)gf_malloc(sizeof(SFVec3d));</span>
+<span class="lineNum">     324 </span><span class="lineNoCov">          0 :         memset(tmp, 0, sizeof(SFVec3d));</span>
+<a name="325"><span class="lineNum">     325 </span><span class="lineNoCov">          0 :         return tmp;</span></a>
+<span class="lineNum">     326 </span>            : }
+<span class="lineNum">     327 </span>            : static SFVec2f *NewSFVec2f()
+<span class="lineNum">     328 </span>            : {
+<span class="lineNum">     329 </span><span class="lineCov">      10810 :         SFVec2f *tmp = (SFVec2f *)gf_malloc(sizeof(SFVec2f));</span>
+<span class="lineNum">     330 </span><span class="lineCov">       5405 :         memset(tmp, 0, sizeof(SFVec2f));</span>
+<a name="331"><span class="lineNum">     331 </span><span class="lineCov">       5405 :         return tmp;</span></a>
+<span class="lineNum">     332 </span>            : }
+<span class="lineNum">     333 </span>            : static SFVec2d *NewSFVec2d()
+<span class="lineNum">     334 </span>            : {
+<span class="lineNum">     335 </span><span class="lineNoCov">          0 :         SFVec2d *tmp = (SFVec2d *)gf_malloc(sizeof(SFVec2d));</span>
+<span class="lineNum">     336 </span><span class="lineNoCov">          0 :         memset(tmp, 0, sizeof(SFVec2d));</span>
+<a name="337"><span class="lineNum">     337 </span><span class="lineNoCov">          0 :         return tmp;</span></a>
+<span class="lineNum">     338 </span>            : }
+<span class="lineNum">     339 </span>            : static SFColor *NewSFColor()
+<span class="lineNum">     340 </span>            : {
+<span class="lineNum">     341 </span><span class="lineCov">       3290 :         SFColor *tmp = (SFColor *)gf_malloc(sizeof(SFColor));</span>
+<span class="lineNum">     342 </span><span class="lineCov">       1645 :         memset(tmp, 0, sizeof(SFColor));</span>
+<a name="343"><span class="lineNum">     343 </span><span class="lineCov">       1645 :         return tmp;</span></a>
+<span class="lineNum">     344 </span>            : }
+<span class="lineNum">     345 </span>            : static SFColorRGBA *NewSFColorRGBA()
+<span class="lineNum">     346 </span>            : {
+<span class="lineNum">     347 </span><span class="lineNoCov">          0 :         SFColorRGBA *tmp = (SFColorRGBA *)gf_malloc(sizeof(SFColorRGBA));</span>
+<span class="lineNum">     348 </span><span class="lineNoCov">          0 :         memset(tmp, 0, sizeof(SFColorRGBA));</span>
+<a name="349"><span class="lineNum">     349 </span><span class="lineNoCov">          0 :         return tmp;</span></a>
+<span class="lineNum">     350 </span>            : }
+<span class="lineNum">     351 </span>            : static SFRotation *NewSFRotation()
+<span class="lineNum">     352 </span>            : {
+<span class="lineNum">     353 </span><span class="lineNoCov">          0 :         SFRotation *tmp = (SFRotation *)gf_malloc(sizeof(SFRotation));</span>
+<span class="lineNum">     354 </span><span class="lineNoCov">          0 :         memset(tmp, 0, sizeof(SFRotation));</span>
+<a name="355"><span class="lineNum">     355 </span><span class="lineNoCov">          0 :         return tmp;</span></a>
+<span class="lineNum">     356 </span>            : }
+<span class="lineNum">     357 </span>            : static SFImage *NewSFImage()
+<span class="lineNum">     358 </span>            : {
+<span class="lineNum">     359 </span><span class="lineNoCov">          0 :         SFImage *tmp = (SFImage *)gf_malloc(sizeof(SFImage));</span>
+<span class="lineNum">     360 </span><span class="lineNoCov">          0 :         memset(tmp, 0, sizeof(SFImage));</span>
+<a name="361"><span class="lineNum">     361 </span><span class="lineNoCov">          0 :         return tmp;</span></a>
+<span class="lineNum">     362 </span>            : }
+<span class="lineNum">     363 </span>            : static SFURL *NewSFURL()
+<span class="lineNum">     364 </span>            : {
+<span class="lineNum">     365 </span><span class="lineNoCov">          0 :         SFURL *tmp = (SFURL *)gf_malloc(sizeof(SFURL));</span>
+<span class="lineNum">     366 </span><span class="lineNoCov">          0 :         memset(tmp, 0, sizeof(SFURL));</span>
+<a name="367"><span class="lineNum">     367 </span><span class="lineNoCov">          0 :         return tmp;</span></a>
+<span class="lineNum">     368 </span>            : }
+<span class="lineNum">     369 </span>            : static SFCommandBuffer *NewSFCommandBuffer()
+<span class="lineNum">     370 </span>            : {
+<span class="lineNum">     371 </span><span class="lineNoCov">          0 :         SFCommandBuffer *tmp = (SFCommandBuffer *)gf_malloc(sizeof(SFCommandBuffer));</span>
+<span class="lineNum">     372 </span><span class="lineNoCov">          0 :         memset(tmp, 0, sizeof(SFCommandBuffer));</span>
+<span class="lineNum">     373 </span><span class="lineNoCov">          0 :         tmp-&gt;commandList = gf_list_new();</span>
+<a name="374"><span class="lineNum">     374 </span><span class="lineNoCov">          0 :         return tmp;</span></a>
+<span class="lineNum">     375 </span>            : }
+<span class="lineNum">     376 </span>            : static SFScript *NewSFScript()
+<span class="lineNum">     377 </span>            : {
+<span class="lineNum">     378 </span><span class="lineNoCov">          0 :         SFScript *tmp = (SFScript *)gf_malloc(sizeof(SFScript));</span>
+<span class="lineNum">     379 </span><span class="lineNoCov">          0 :         memset(tmp, 0, sizeof(SFScript));</span>
+<a name="380"><span class="lineNum">     380 </span><span class="lineNoCov">          0 :         return tmp;</span></a>
+<span class="lineNum">     381 </span>            : }
+<span class="lineNum">     382 </span>            : static SFAttrRef *NewSFAttrRef()
+<span class="lineNum">     383 </span>            : {
+<span class="lineNum">     384 </span>            :         SFAttrRef *tmp;
+<span class="lineNum">     385 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(tmp, SFAttrRef);</span>
+<a name="386"><span class="lineNum">     386 </span><span class="lineNoCov">          0 :         return tmp;</span></a>
+<span class="lineNum">     387 </span>            : }
+<span class="lineNum">     388 </span>            : static MFBool *NewMFBool()
+<span class="lineNum">     389 </span>            : {
+<span class="lineNum">     390 </span><span class="lineNoCov">          0 :         MFBool *tmp = (MFBool *)gf_malloc(sizeof(MFBool));</span>
+<span class="lineNum">     391 </span><span class="lineNoCov">          0 :         memset(tmp, 0, sizeof(MFBool));</span>
+<a name="392"><span class="lineNum">     392 </span><span class="lineNoCov">          0 :         return tmp;</span></a>
+<span class="lineNum">     393 </span>            : }
+<span class="lineNum">     394 </span>            : static MFFloat *NewMFFloat()
+<span class="lineNum">     395 </span>            : {
+<span class="lineNum">     396 </span><span class="lineCov">        144 :         MFFloat *tmp = (MFFloat *)gf_malloc(sizeof(MFFloat));</span>
+<span class="lineNum">     397 </span><span class="lineCov">         72 :         memset(tmp, 0, sizeof(MFFloat));</span>
+<a name="398"><span class="lineNum">     398 </span><span class="lineCov">         72 :         return tmp;</span></a>
+<span class="lineNum">     399 </span>            : }
+<span class="lineNum">     400 </span>            : static MFTime *NewMFTime()
+<span class="lineNum">     401 </span>            : {
+<span class="lineNum">     402 </span><span class="lineNoCov">          0 :         MFTime *tmp = (MFTime *)gf_malloc(sizeof(MFTime));</span>
+<span class="lineNum">     403 </span><span class="lineNoCov">          0 :         memset(tmp, 0, sizeof(MFTime));</span>
+<a name="404"><span class="lineNum">     404 </span><span class="lineNoCov">          0 :         return tmp;</span></a>
+<span class="lineNum">     405 </span>            : }
+<span class="lineNum">     406 </span>            : static MFInt32 *NewMFInt32()
+<span class="lineNum">     407 </span>            : {
+<span class="lineNum">     408 </span><span class="lineCov">         36 :         MFInt32 *tmp = (MFInt32 *)gf_malloc(sizeof(MFInt32));</span>
+<span class="lineNum">     409 </span><span class="lineCov">         18 :         memset(tmp, 0, sizeof(MFInt32));</span>
+<a name="410"><span class="lineNum">     410 </span><span class="lineCov">         18 :         return tmp;</span></a>
+<span class="lineNum">     411 </span>            : }
+<span class="lineNum">     412 </span>            : static MFString *NewMFString()
+<span class="lineNum">     413 </span>            : {
+<span class="lineNum">     414 </span><span class="lineCov">       1434 :         MFString *tmp = (MFString *)gf_malloc(sizeof(MFString));</span>
+<span class="lineNum">     415 </span><span class="lineCov">        717 :         memset(tmp, 0, sizeof(MFString));</span>
+<a name="416"><span class="lineNum">     416 </span><span class="lineCov">        717 :         return tmp;</span></a>
+<span class="lineNum">     417 </span>            : }
+<span class="lineNum">     418 </span>            : static MFVec3f *NewMFVec3f()
+<span class="lineNum">     419 </span>            : {
+<span class="lineNum">     420 </span><span class="lineCov">         54 :         MFVec3f *tmp = (MFVec3f *)gf_malloc(sizeof(MFVec3f));</span>
+<span class="lineNum">     421 </span><span class="lineCov">         27 :         memset(tmp, 0, sizeof(MFVec3f));</span>
+<a name="422"><span class="lineNum">     422 </span><span class="lineCov">         27 :         return tmp;</span></a>
+<span class="lineNum">     423 </span>            : }
+<span class="lineNum">     424 </span>            : static MFVec3d *NewMFVec3d()
+<span class="lineNum">     425 </span>            : {
+<span class="lineNum">     426 </span><span class="lineNoCov">          0 :         MFVec3d *tmp = (MFVec3d *)gf_malloc(sizeof(MFVec3d));</span>
+<span class="lineNum">     427 </span><span class="lineNoCov">          0 :         memset(tmp, 0, sizeof(MFVec3d));</span>
+<a name="428"><span class="lineNum">     428 </span><span class="lineNoCov">          0 :         return tmp;</span></a>
+<span class="lineNum">     429 </span>            : }
+<span class="lineNum">     430 </span>            : static MFVec2f *NewMFVec2f()
+<span class="lineNum">     431 </span>            : {
+<span class="lineNum">     432 </span><span class="lineCov">        144 :         MFVec2f *tmp = (MFVec2f *)gf_malloc(sizeof(MFVec2f));</span>
+<span class="lineNum">     433 </span><span class="lineCov">         72 :         memset(tmp, 0, sizeof(MFVec2f));</span>
+<a name="434"><span class="lineNum">     434 </span><span class="lineCov">         72 :         return tmp;</span></a>
+<span class="lineNum">     435 </span>            : }
+<span class="lineNum">     436 </span>            : static MFVec2d *NewMFVec2d()
+<span class="lineNum">     437 </span>            : {
+<span class="lineNum">     438 </span><span class="lineNoCov">          0 :         MFVec2d *tmp = (MFVec2d *)gf_malloc(sizeof(MFVec2d));</span>
+<span class="lineNum">     439 </span><span class="lineNoCov">          0 :         memset(tmp, 0, sizeof(MFVec2d));</span>
+<a name="440"><span class="lineNum">     440 </span><span class="lineNoCov">          0 :         return tmp;</span></a>
+<span class="lineNum">     441 </span>            : }
+<span class="lineNum">     442 </span>            : static MFColor *NewMFColor()
+<span class="lineNum">     443 </span>            : {
+<span class="lineNum">     444 </span><span class="lineCov">         18 :         MFColor *tmp = (MFColor *)gf_malloc(sizeof(MFColor));</span>
+<span class="lineNum">     445 </span><span class="lineCov">          9 :         memset(tmp, 0, sizeof(MFColor));</span>
+<a name="446"><span class="lineNum">     446 </span><span class="lineCov">          9 :         return tmp;</span></a>
+<span class="lineNum">     447 </span>            : }
+<span class="lineNum">     448 </span>            : static MFColorRGBA *NewMFColorRGBA()
+<span class="lineNum">     449 </span>            : {
+<span class="lineNum">     450 </span><span class="lineNoCov">          0 :         MFColorRGBA *tmp = (MFColorRGBA *)gf_malloc(sizeof(MFColorRGBA));</span>
+<span class="lineNum">     451 </span><span class="lineNoCov">          0 :         memset(tmp, 0, sizeof(MFColorRGBA));</span>
+<a name="452"><span class="lineNum">     452 </span><span class="lineNoCov">          0 :         return tmp;</span></a>
+<span class="lineNum">     453 </span>            : }
+<span class="lineNum">     454 </span>            : static MFRotation *NewMFRotation()
+<span class="lineNum">     455 </span>            : {
+<span class="lineNum">     456 </span><span class="lineCov">        108 :         MFRotation *tmp = (MFRotation *)gf_malloc(sizeof(MFRotation));</span>
+<span class="lineNum">     457 </span><span class="lineCov">         54 :         memset(tmp, 0, sizeof(MFRotation));</span>
+<a name="458"><span class="lineNum">     458 </span><span class="lineCov">         54 :         return tmp;</span></a>
+<span class="lineNum">     459 </span>            : }
+<span class="lineNum">     460 </span>            : static MFURL *NewMFURL()
+<span class="lineNum">     461 </span>            : {
+<span class="lineNum">     462 </span><span class="lineCov">        396 :         MFURL *tmp = (MFURL *)gf_malloc(sizeof(MFURL));</span>
+<span class="lineNum">     463 </span><span class="lineCov">        198 :         memset(tmp, 0, sizeof(MFURL));</span>
+<a name="464"><span class="lineNum">     464 </span><span class="lineCov">        198 :         return tmp;</span></a>
+<span class="lineNum">     465 </span>            : }
+<span class="lineNum">     466 </span>            : static MFScript *NewMFScript()
+<span class="lineNum">     467 </span>            : {
+<span class="lineNum">     468 </span><span class="lineNoCov">          0 :         MFScript *tmp = (MFScript *)gf_malloc(sizeof(MFScript));</span>
+<span class="lineNum">     469 </span><span class="lineNoCov">          0 :         memset(tmp, 0, sizeof(MFScript));</span>
+<a name="470"><span class="lineNum">     470 </span><span class="lineNoCov">          0 :         return tmp;</span></a>
+<span class="lineNum">     471 </span>            : }
+<span class="lineNum">     472 </span>            : static MFAttrRef *NewMFAttrRef()
+<span class="lineNum">     473 </span>            : {
+<span class="lineNum">     474 </span>            :         MFAttrRef *tmp;
+<span class="lineNum">     475 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(tmp, MFAttrRef);</span>
+<span class="lineNum">     476 </span><span class="lineNoCov">          0 :         return tmp;</span>
+<a name="477"><span class="lineNum">     477 </span>            : }</a>
+<span class="lineNum">     478 </span>            : 
+<span class="lineNum">     479 </span>            : void *gf_sg_vrml_field_pointer_new(u32 FieldType)
+<span class="lineNum">     480 </span>            : {
+<span class="lineNum">     481 </span><span class="lineCov">      29800 :         switch (FieldType) {</span>
+<span class="lineNum">     482 </span>            :         case GF_SG_VRML_SFBOOL:
+<span class="lineNum">     483 </span><span class="lineCov">       2030 :                 return NewSFBool();</span>
+<span class="lineNum">     484 </span>            :         case GF_SG_VRML_SFFLOAT:
+<span class="lineNum">     485 </span><span class="lineCov">       2177 :                 return NewSFFloat();</span>
+<span class="lineNum">     486 </span>            :         case GF_SG_VRML_SFDOUBLE:
+<span class="lineNum">     487 </span><span class="lineNoCov">          0 :                 return NewSFDouble();</span>
+<span class="lineNum">     488 </span>            :         case GF_SG_VRML_SFTIME:
+<span class="lineNum">     489 </span><span class="lineCov">        831 :                 return NewSFTime();</span>
+<span class="lineNum">     490 </span>            :         case GF_SG_VRML_SFINT32:
+<span class="lineNum">     491 </span><span class="lineCov">        874 :                 return NewSFInt32();</span>
+<span class="lineNum">     492 </span>            :         case GF_SG_VRML_SFSTRING:
+<span class="lineNum">     493 </span><span class="lineCov">        194 :                 return NewSFString();</span>
+<span class="lineNum">     494 </span>            :         case GF_SG_VRML_SFVEC3F:
+<span class="lineNum">     495 </span><span class="lineCov">        126 :                 return NewSFVec3f();</span>
+<span class="lineNum">     496 </span>            :         case GF_SG_VRML_SFVEC2F:
+<span class="lineNum">     497 </span><span class="lineCov">       5405 :                 return NewSFVec2f();</span>
+<span class="lineNum">     498 </span>            :         case GF_SG_VRML_SFVEC3D:
+<span class="lineNum">     499 </span><span class="lineNoCov">          0 :                 return NewSFVec3d();</span>
+<span class="lineNum">     500 </span>            :         case GF_SG_VRML_SFVEC2D:
+<span class="lineNum">     501 </span><span class="lineNoCov">          0 :                 return NewSFVec2d();</span>
+<span class="lineNum">     502 </span>            :         case GF_SG_VRML_SFCOLOR:
+<span class="lineNum">     503 </span><span class="lineCov">       1645 :                 return NewSFColor();</span>
+<span class="lineNum">     504 </span>            :         case GF_SG_VRML_SFCOLORRGBA:
+<span class="lineNum">     505 </span><span class="lineNoCov">          0 :                 return NewSFColorRGBA();</span>
+<span class="lineNum">     506 </span>            :         case GF_SG_VRML_SFROTATION:
+<span class="lineNum">     507 </span><span class="lineNoCov">          0 :                 return NewSFRotation();</span>
+<span class="lineNum">     508 </span>            :         case GF_SG_VRML_SFIMAGE:
+<span class="lineNum">     509 </span><span class="lineNoCov">          0 :                 return NewSFImage();</span>
+<span class="lineNum">     510 </span>            :         case GF_SG_VRML_SFATTRREF:
+<span class="lineNum">     511 </span><span class="lineNoCov">          0 :                 return NewSFAttrRef();</span>
+<span class="lineNum">     512 </span>            :         case GF_SG_VRML_MFBOOL:
+<span class="lineNum">     513 </span><span class="lineNoCov">          0 :                 return NewMFBool();</span>
+<span class="lineNum">     514 </span>            :         case GF_SG_VRML_MFFLOAT:
+<span class="lineNum">     515 </span><span class="lineCov">         72 :                 return NewMFFloat();</span>
+<span class="lineNum">     516 </span>            :         case GF_SG_VRML_MFTIME:
+<span class="lineNum">     517 </span><span class="lineNoCov">          0 :                 return NewMFTime();</span>
+<span class="lineNum">     518 </span>            :         case GF_SG_VRML_MFINT32:
+<span class="lineNum">     519 </span><span class="lineCov">         18 :                 return NewMFInt32();</span>
+<span class="lineNum">     520 </span>            :         case GF_SG_VRML_MFSTRING:
+<span class="lineNum">     521 </span><span class="lineCov">        717 :                 return NewMFString();</span>
+<span class="lineNum">     522 </span>            :         case GF_SG_VRML_MFVEC3F:
+<span class="lineNum">     523 </span><span class="lineCov">         27 :                 return NewMFVec3f();</span>
+<span class="lineNum">     524 </span>            :         case GF_SG_VRML_MFVEC2F:
+<span class="lineNum">     525 </span><span class="lineCov">         72 :                 return NewMFVec2f();</span>
+<span class="lineNum">     526 </span>            :         case GF_SG_VRML_MFVEC3D:
+<span class="lineNum">     527 </span><span class="lineNoCov">          0 :                 return NewMFVec3d();</span>
+<span class="lineNum">     528 </span>            :         case GF_SG_VRML_MFVEC2D:
+<span class="lineNum">     529 </span><span class="lineNoCov">          0 :                 return NewMFVec2d();</span>
+<span class="lineNum">     530 </span>            :         case GF_SG_VRML_MFCOLOR:
+<span class="lineNum">     531 </span><span class="lineCov">          9 :                 return NewMFColor();</span>
+<span class="lineNum">     532 </span>            :         case GF_SG_VRML_MFCOLORRGBA:
+<span class="lineNum">     533 </span><span class="lineNoCov">          0 :                 return NewMFColorRGBA();</span>
+<span class="lineNum">     534 </span>            :         case GF_SG_VRML_MFROTATION:
+<span class="lineNum">     535 </span>            :         case GF_SG_VRML_MFVEC4F:
+<span class="lineNum">     536 </span><span class="lineCov">         54 :                 return NewMFRotation();</span>
+<span class="lineNum">     537 </span>            :         case GF_SG_VRML_MFATTRREF:
+<span class="lineNum">     538 </span><span class="lineNoCov">          0 :                 return NewMFAttrRef();</span>
+<span class="lineNum">     539 </span>            : 
+<span class="lineNum">     540 </span>            :         //used in commands
+<span class="lineNum">     541 </span>            :         case GF_SG_VRML_SFCOMMANDBUFFER:
+<span class="lineNum">     542 </span><span class="lineNoCov">          0 :                 return NewSFCommandBuffer();</span>
+<span class="lineNum">     543 </span>            : 
+<span class="lineNum">     544 </span>            :         case GF_SG_VRML_SFURL:
+<span class="lineNum">     545 </span><span class="lineNoCov">          0 :                 return NewSFURL();</span>
+<span class="lineNum">     546 </span>            :         case GF_SG_VRML_MFURL:
+<span class="lineNum">     547 </span><span class="lineCov">        198 :                 return NewMFURL();</span>
+<span class="lineNum">     548 </span>            : 
+<span class="lineNum">     549 </span>            :         case GF_SG_VRML_SFSCRIPT:
+<span class="lineNum">     550 </span><span class="lineNoCov">          0 :                 return NewSFScript();</span>
+<span class="lineNum">     551 </span>            :         case GF_SG_VRML_MFSCRIPT:
+<span class="lineNum">     552 </span><span class="lineNoCov">          0 :                 return NewMFScript();</span>
+<span class="lineNum">     553 </span>            :         }
+<span class="lineNum">     554 </span><span class="lineCov">        451 :         return NULL;</span>
+<a name="555"><span class="lineNum">     555 </span><span class="lineCov">      14900 : }</span></a>
+<span class="lineNum">     556 </span>            : 
+<span class="lineNum">     557 </span>            : void gf_sg_mfint32_del(MFInt32 par) {
+<a name="558"><span class="lineNum">     558 </span><span class="lineCov">      58172 :         gf_free(par.vals);</span></a>
+<span class="lineNum">     559 </span><span class="lineCov">      29086 : }</span>
+<span class="lineNum">     560 </span>            : void gf_sg_mffloat_del(MFFloat par) {
+<a name="561"><span class="lineNum">     561 </span><span class="lineCov">      70212 :         gf_free(par.vals);</span></a>
+<span class="lineNum">     562 </span><span class="lineCov">      35106 : }</span>
+<span class="lineNum">     563 </span>            : void gf_sg_mfdouble_del(MFDouble par) {
+<a name="564"><span class="lineNum">     564 </span><span class="lineNoCov">          0 :         gf_free(par.vals);</span></a>
+<span class="lineNum">     565 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     566 </span>            : void gf_sg_mfbool_del(MFBool par) {
+<a name="567"><span class="lineNum">     567 </span><span class="lineNoCov">          0 :         gf_free(par.vals);</span></a>
+<span class="lineNum">     568 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     569 </span>            : void gf_sg_mfcolor_del(MFColor par) {
+<a name="570"><span class="lineNum">     570 </span><span class="lineCov">      27402 :         gf_free(par.vals);</span></a>
+<span class="lineNum">     571 </span><span class="lineCov">      13701 : }</span>
+<span class="lineNum">     572 </span>            : void gf_sg_mfcolorrgba_del(MFColorRGBA par) {
+<a name="573"><span class="lineNum">     573 </span><span class="lineNoCov">          0 :         gf_free(par.vals);</span></a>
+<span class="lineNum">     574 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     575 </span>            : void gf_sg_mfrotation_del(MFRotation par) {
+<a name="576"><span class="lineNum">     576 </span><span class="lineCov">      26906 :         gf_free(par.vals);</span></a>
+<span class="lineNum">     577 </span><span class="lineCov">      13453 : }</span>
+<span class="lineNum">     578 </span>            : void gf_sg_mftime_del(MFTime par) {
+<a name="579"><span class="lineNum">     579 </span><span class="lineNoCov">          0 :         gf_free(par.vals);</span></a>
+<span class="lineNum">     580 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     581 </span>            : void gf_sg_mfvec2f_del(MFVec2f par) {
+<a name="582"><span class="lineNum">     582 </span><span class="lineCov">      36176 :         gf_free(par.vals);</span></a>
+<span class="lineNum">     583 </span><span class="lineCov">      18088 : }</span>
+<span class="lineNum">     584 </span>            : void gf_sg_mfvec2d_del(MFVec2d par) {
+<a name="585"><span class="lineNum">     585 </span><span class="lineNoCov">          0 :         gf_free(par.vals);</span></a>
+<span class="lineNum">     586 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     587 </span>            : void gf_sg_mfvec3f_del(MFVec3f par) {
+<a name="588"><span class="lineNum">     588 </span><span class="lineCov">      26840 :         gf_free(par.vals);</span></a>
+<span class="lineNum">     589 </span><span class="lineCov">      13420 : }</span>
+<span class="lineNum">     590 </span>            : void gf_sg_mfvec3d_del(MFVec3d par) {
+<a name="591"><span class="lineNum">     591 </span><span class="lineNoCov">          0 :         gf_free(par.vals);</span></a>
+<span class="lineNum">     592 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     593 </span>            : void gf_sg_mfvec4f_del(MFVec4f par) {
+<a name="594"><span class="lineNum">     594 </span><span class="lineNoCov">          0 :         gf_free(par.vals);</span></a>
+<span class="lineNum">     595 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     596 </span>            : void gf_sg_mfattrref_del(MFAttrRef par) {
+<a name="597"><span class="lineNum">     597 </span><span class="lineCov">         36 :         gf_free(par.vals);</span></a>
+<span class="lineNum">     598 </span><span class="lineCov">         18 : }</span>
+<span class="lineNum">     599 </span>            : void gf_sg_sfimage_del(SFImage im) {
+<a name="600"><span class="lineNum">     600 </span><span class="lineCov">        144 :         gf_free(im.pixels);</span></a>
+<span class="lineNum">     601 </span><span class="lineCov">         72 : }</span>
+<span class="lineNum">     602 </span>            : void gf_sg_sfstring_del(SFString par) {
+<a name="603"><span class="lineNum">     603 </span><span class="lineCov">      81476 :         if (par.buffer) gf_free(par.buffer);</span></a>
+<span class="lineNum">     604 </span><span class="lineCov">      35414 : }</span>
+<span class="lineNum">     605 </span>            : void gf_sg_sfscript_del(SFScript par) {
+<span class="lineNum">     606 </span><span class="lineNoCov">          0 :         if (par.script_text) gf_free(par.script_text);</span>
+<span class="lineNum">     607 </span><span class="lineNoCov">          0 : }</span>
+<a name="608"><span class="lineNum">     608 </span>            : </a>
+<span class="lineNum">     609 </span>            : 
+<span class="lineNum">     610 </span>            : void gf_sg_sfcommand_del(SFCommandBuffer cb)
+<span class="lineNum">     611 </span>            : {
+<span class="lineNum">     612 </span>            :         u32 i;
+<span class="lineNum">     613 </span><span class="lineCov">      36783 :         for (i=gf_list_count(cb.commandList); i&gt;0; i--) {</span>
+<span class="lineNum">     614 </span><span class="lineCov">       5022 :                 GF_Command *com = (GF_Command *)gf_list_get(cb.commandList, i-1);</span>
+<span class="lineNum">     615 </span><span class="lineCov">       5022 :                 gf_sg_command_del(com);</span>
+<span class="lineNum">     616 </span>            :         }
+<span class="lineNum">     617 </span><span class="lineCov">       8913 :         gf_list_del(cb.commandList);</span>
+<span class="lineNum">     618 </span><span class="lineCov">      12078 :         if (cb.buffer) gf_free(cb.buffer);</span>
+<a name="619"><span class="lineNum">     619 </span><span class="lineCov">       8913 : }</span></a>
+<span class="lineNum">     620 </span>            : 
+<span class="lineNum">     621 </span>            : void gf_sg_vrml_field_pointer_del(void *field, u32 FieldType)
+<span class="lineNum">     622 </span>            : {
+<span class="lineNum">     623 </span>            :         GF_Node *node;
+<span class="lineNum">     624 </span>            : 
+<span class="lineNum">     625 </span><span class="lineCov">      30259 :         switch (FieldType) {</span>
+<span class="lineNum">     626 </span>            :         case GF_SG_VRML_SFBOOL:
+<span class="lineNum">     627 </span>            :         case GF_SG_VRML_SFFLOAT:
+<span class="lineNum">     628 </span>            :         case GF_SG_VRML_SFDOUBLE:
+<span class="lineNum">     629 </span>            :         case GF_SG_VRML_SFTIME:
+<span class="lineNum">     630 </span>            :         case GF_SG_VRML_SFINT32:
+<span class="lineNum">     631 </span>            :         case GF_SG_VRML_SFVEC3F:
+<span class="lineNum">     632 </span>            :         case GF_SG_VRML_SFVEC3D:
+<span class="lineNum">     633 </span>            :         case GF_SG_VRML_SFVEC2F:
+<span class="lineNum">     634 </span>            :         case GF_SG_VRML_SFVEC2D:
+<span class="lineNum">     635 </span>            :         case GF_SG_VRML_SFCOLOR:
+<span class="lineNum">     636 </span>            :         case GF_SG_VRML_SFCOLORRGBA:
+<span class="lineNum">     637 </span>            :         case GF_SG_VRML_SFROTATION:
+<span class="lineNum">     638 </span>            :         case GF_SG_VRML_SFATTRREF:
+<span class="lineNum">     639 </span>            :                 break;
+<span class="lineNum">     640 </span>            :         case GF_SG_VRML_SFSTRING:
+<span class="lineNum">     641 </span><span class="lineCov">        370 :                 if ( ((SFString *)field)-&gt;buffer) gf_free(((SFString *)field)-&gt;buffer);</span>
+<span class="lineNum">     642 </span>            :                 break;
+<span class="lineNum">     643 </span>            :         case GF_SG_VRML_SFIMAGE:
+<span class="lineNum">     644 </span><span class="lineNoCov">          0 :                 gf_sg_sfimage_del(* ((SFImage *)field));</span>
+<span class="lineNum">     645 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     646 </span>            : 
+<span class="lineNum">     647 </span>            :         case GF_SG_VRML_SFNODE:
+<span class="lineNum">     648 </span><span class="lineNoCov">          0 :                 node = *(GF_Node **) field;</span>
+<span class="lineNum">     649 </span><span class="lineNoCov">          0 :                 if (node) gf_node_del(node);</span>
+<span class="lineNum">     650 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     651 </span>            :         case GF_SG_VRML_SFCOMMANDBUFFER:
+<span class="lineNum">     652 </span><span class="lineNoCov">          0 :                 gf_sg_sfcommand_del(*(SFCommandBuffer *)field);</span>
+<span class="lineNum">     653 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     654 </span>            : 
+<span class="lineNum">     655 </span>            :         case GF_SG_VRML_MFBOOL:
+<span class="lineNum">     656 </span><span class="lineNoCov">          0 :                 gf_sg_mfbool_del( * ((MFBool *) field));</span>
+<span class="lineNum">     657 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     658 </span>            :         case GF_SG_VRML_MFFLOAT:
+<span class="lineNum">     659 </span><span class="lineCov">         72 :                 gf_sg_mffloat_del( * ((MFFloat *) field));</span>
+<span class="lineNum">     660 </span><span class="lineCov">         72 :                 break;</span>
+<span class="lineNum">     661 </span>            :         case GF_SG_VRML_MFDOUBLE:
+<span class="lineNum">     662 </span><span class="lineNoCov">          0 :                 gf_sg_mfdouble_del( * ((MFDouble *) field));</span>
+<span class="lineNum">     663 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     664 </span>            :         case GF_SG_VRML_MFTIME:
+<span class="lineNum">     665 </span><span class="lineNoCov">          0 :                 gf_sg_mftime_del( * ((MFTime *)field));</span>
+<span class="lineNum">     666 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     667 </span>            :         case GF_SG_VRML_MFINT32:
+<span class="lineNum">     668 </span><span class="lineCov">         18 :                 gf_sg_mfint32_del( * ((MFInt32 *)field));</span>
+<span class="lineNum">     669 </span><span class="lineCov">         18 :                 break;</span>
+<span class="lineNum">     670 </span>            :         case GF_SG_VRML_MFSTRING:
+<span class="lineNum">     671 </span><span class="lineCov">        717 :                 gf_sg_mfstring_del( *((MFString *)field));</span>
+<span class="lineNum">     672 </span><span class="lineCov">        717 :                 break;</span>
+<span class="lineNum">     673 </span>            :         case GF_SG_VRML_MFVEC3F:
+<span class="lineNum">     674 </span><span class="lineCov">         27 :                 gf_sg_mfvec3f_del( * ((MFVec3f *)field));</span>
+<span class="lineNum">     675 </span><span class="lineCov">         27 :                 break;</span>
+<span class="lineNum">     676 </span>            :         case GF_SG_VRML_MFVEC2F:
+<span class="lineNum">     677 </span><span class="lineCov">         72 :                 gf_sg_mfvec2f_del( * ((MFVec2f *)field));</span>
+<span class="lineNum">     678 </span><span class="lineCov">         72 :                 break;</span>
+<span class="lineNum">     679 </span>            :         case GF_SG_VRML_MFVEC3D:
+<span class="lineNum">     680 </span><span class="lineNoCov">          0 :                 gf_sg_mfvec3d_del( * ((MFVec3d *)field));</span>
+<span class="lineNum">     681 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     682 </span>            :         case GF_SG_VRML_MFVEC2D:
+<span class="lineNum">     683 </span><span class="lineNoCov">          0 :                 gf_sg_mfvec2d_del( * ((MFVec2d *)field));</span>
+<span class="lineNum">     684 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     685 </span>            :         case GF_SG_VRML_MFCOLOR:
+<span class="lineNum">     686 </span><span class="lineCov">          9 :                 gf_sg_mfcolor_del( * ((MFColor *)field));</span>
+<span class="lineNum">     687 </span><span class="lineCov">          9 :                 break;</span>
+<span class="lineNum">     688 </span>            :         case GF_SG_VRML_MFCOLORRGBA:
+<span class="lineNum">     689 </span><span class="lineNoCov">          0 :                 gf_sg_mfcolorrgba_del( * ((MFColorRGBA *)field));</span>
+<span class="lineNum">     690 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     691 </span>            :         case GF_SG_VRML_MFROTATION:
+<span class="lineNum">     692 </span>            :         case GF_SG_VRML_MFVEC4F:
+<span class="lineNum">     693 </span><span class="lineCov">         54 :                 gf_sg_mfrotation_del( * ((MFRotation *)field));</span>
+<span class="lineNum">     694 </span><span class="lineCov">         54 :                 break;</span>
+<span class="lineNum">     695 </span>            :         case GF_SG_VRML_SFURL:
+<span class="lineNum">     696 </span><span class="lineNoCov">          0 :                 gf_sg_sfurl_del( * ((SFURL *) field));</span>
+<span class="lineNum">     697 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     698 </span>            :         case GF_SG_VRML_MFURL:
+<span class="lineNum">     699 </span><span class="lineCov">        198 :                 gf_sg_mfurl_del( * ((MFURL *) field));</span>
+<span class="lineNum">     700 </span><span class="lineCov">        198 :                 break;</span>
+<span class="lineNum">     701 </span>            :         case GF_SG_VRML_MFATTRREF:
+<span class="lineNum">     702 </span><span class="lineNoCov">          0 :                 gf_sg_mfattrref_del( * ((MFAttrRef *) field));</span>
+<span class="lineNum">     703 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     704 </span>            :         //used only in proto since this field is created by default for regular nodes
+<span class="lineNum">     705 </span>            :         case GF_SG_VRML_MFNODE:
+<span class="lineNum">     706 </span>            :                 assert(0);
+<span class="lineNum">     707 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     708 </span>            :         case GF_SG_VRML_MFSCRIPT:
+<span class="lineNum">     709 </span><span class="lineNoCov">          0 :                 gf_sg_mfscript_del( * ((MFScript *) field));</span>
+<span class="lineNum">     710 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     711 </span>            : 
+<span class="lineNum">     712 </span>            :         default:
+<span class="lineNum">     713 </span>            :                 assert(0);
+<span class="lineNum">     714 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     715 </span>            :         }
+<span class="lineNum">     716 </span>            :         //free pointer
+<span class="lineNum">     717 </span><span class="lineCov">      14449 :         gf_free(field);</span>
+<span class="lineNum">     718 </span><span class="lineCov">      28898 : }</span>
+<span class="lineNum">     719 </span>            : 
+<span class="lineNum">     720 </span>            : 
+<span class="lineNum">     721 </span>            : /*********************************************************************
+<span class="lineNum">     722 </span>            :                 MF Fields manipulation (alloc, gf_realloc, GetAt)
+<a name="723"><span class="lineNum">     723 </span>            : *********************************************************************/</a>
+<span class="lineNum">     724 </span>            : GF_EXPORT
+<span class="lineNum">     725 </span>            : const char *gf_sg_vrml_get_event_type_name(u32 EventType, Bool forX3D)
+<span class="lineNum">     726 </span>            : {
+<span class="lineNum">     727 </span><span class="lineCov">       3628 :         switch (EventType) {</span>
+<span class="lineNum">     728 </span>            :         case GF_SG_EVENT_IN:
+<span class="lineNum">     729 </span><span class="lineCov">        378 :                 return forX3D ? &quot;inputOnly&quot; : &quot;eventIn&quot;;</span>
+<span class="lineNum">     730 </span>            :         case GF_SG_EVENT_FIELD:
+<span class="lineNum">     731 </span><span class="lineCov">        656 :                 return forX3D ? &quot;initializeOnly&quot; : &quot;field&quot;;</span>
+<span class="lineNum">     732 </span>            :         case GF_SG_EVENT_EXPOSED_FIELD:
+<span class="lineNum">     733 </span><span class="lineCov">        684 :                 return forX3D ? &quot;inputOutput&quot; : &quot;exposedField&quot;;</span>
+<span class="lineNum">     734 </span>            :         case GF_SG_EVENT_OUT:
+<span class="lineNum">     735 </span><span class="lineCov">         96 :                 return forX3D ? &quot;outputOnly&quot; : &quot;eventOut&quot;;</span>
+<span class="lineNum">     736 </span>            :         default:
+<span class="lineNum">     737 </span><span class="lineNoCov">          0 :                 return &quot;unknownEvent&quot;;</span>
+<span class="lineNum">     738 </span>            :         }
+<span class="lineNum">     739 </span><span class="lineCov">       1814 : }</span>
+<a name="740"><span class="lineNum">     740 </span>            : </a>
+<span class="lineNum">     741 </span>            : GF_EXPORT
+<span class="lineNum">     742 </span>            : const char *gf_sg_vrml_get_field_type_by_name(u32 FieldType)
+<span class="lineNum">     743 </span>            : {
+<span class="lineNum">     744 </span>            : 
+<span class="lineNum">     745 </span><span class="lineCov">       1814 :         switch (FieldType) {</span>
+<span class="lineNum">     746 </span>            :         case GF_SG_VRML_SFBOOL:
+<span class="lineNum">     747 </span><span class="lineCov">        192 :                 return &quot;SFBool&quot;;</span>
+<span class="lineNum">     748 </span>            :         case GF_SG_VRML_SFFLOAT:
+<span class="lineNum">     749 </span><span class="lineCov">        129 :                 return &quot;SFFloat&quot;;</span>
+<span class="lineNum">     750 </span>            :         case GF_SG_VRML_SFDOUBLE:
+<span class="lineNum">     751 </span><span class="lineNoCov">          0 :                 return &quot;SFDouble&quot;;</span>
+<span class="lineNum">     752 </span>            :         case GF_SG_VRML_SFTIME:
+<span class="lineNum">     753 </span><span class="lineCov">         76 :                 return &quot;SFTime&quot;;</span>
+<span class="lineNum">     754 </span>            :         case GF_SG_VRML_SFINT32:
+<span class="lineNum">     755 </span><span class="lineCov">         68 :                 return &quot;SFInt32&quot;;</span>
+<span class="lineNum">     756 </span>            :         case GF_SG_VRML_SFSTRING:
+<span class="lineNum">     757 </span><span class="lineNoCov">          0 :                 return &quot;SFString&quot;;</span>
+<span class="lineNum">     758 </span>            :         case GF_SG_VRML_SFVEC3F:
+<span class="lineNum">     759 </span><span class="lineCov">         20 :                 return &quot;SFVec3f&quot;;</span>
+<span class="lineNum">     760 </span>            :         case GF_SG_VRML_SFVEC2F:
+<span class="lineNum">     761 </span><span class="lineCov">         92 :                 return &quot;SFVec2f&quot;;</span>
+<span class="lineNum">     762 </span>            :         case GF_SG_VRML_SFVEC3D:
+<span class="lineNum">     763 </span><span class="lineNoCov">          0 :                 return &quot;SFVec3d&quot;;</span>
+<span class="lineNum">     764 </span>            :         case GF_SG_VRML_SFVEC2D:
+<span class="lineNum">     765 </span><span class="lineNoCov">          0 :                 return &quot;SFVec2d&quot;;</span>
+<span class="lineNum">     766 </span>            :         case GF_SG_VRML_SFCOLOR:
+<span class="lineNum">     767 </span><span class="lineCov">         60 :                 return &quot;SFColor&quot;;</span>
+<span class="lineNum">     768 </span>            :         case GF_SG_VRML_SFCOLORRGBA:
+<span class="lineNum">     769 </span><span class="lineNoCov">          0 :                 return &quot;SFColorRGBA&quot;;</span>
+<span class="lineNum">     770 </span>            :         case GF_SG_VRML_SFROTATION:
+<span class="lineNum">     771 </span><span class="lineNoCov">          0 :                 return &quot;SFRotation&quot;;</span>
+<span class="lineNum">     772 </span>            :         case GF_SG_VRML_SFIMAGE:
+<span class="lineNum">     773 </span><span class="lineNoCov">          0 :                 return &quot;SFImage&quot;;</span>
+<span class="lineNum">     774 </span>            :         case GF_SG_VRML_SFNODE:
+<span class="lineNum">     775 </span><span class="lineCov">        220 :                 return &quot;SFNode&quot;;</span>
+<span class="lineNum">     776 </span>            :         case GF_SG_VRML_SFVEC4F:
+<span class="lineNum">     777 </span><span class="lineNoCov">          0 :                 return &quot;SFVec4f&quot;;</span>
+<span class="lineNum">     778 </span>            :         case GF_SG_VRML_SFATTRREF:
+<span class="lineNum">     779 </span><span class="lineNoCov">          0 :                 return &quot;SFAttrRef&quot;;</span>
+<span class="lineNum">     780 </span>            :         case GF_SG_VRML_MFBOOL:
+<span class="lineNum">     781 </span><span class="lineNoCov">          0 :                 return &quot;MFBool&quot;;</span>
+<span class="lineNum">     782 </span>            :         case GF_SG_VRML_MFFLOAT:
+<span class="lineNum">     783 </span><span class="lineCov">          4 :                 return &quot;MFFloat&quot;;</span>
+<span class="lineNum">     784 </span>            :         case GF_SG_VRML_MFDOUBLE:
+<span class="lineNum">     785 </span><span class="lineNoCov">          0 :                 return &quot;MFDouble&quot;;</span>
+<span class="lineNum">     786 </span>            :         case GF_SG_VRML_MFTIME:
+<span class="lineNum">     787 </span><span class="lineNoCov">          0 :                 return &quot;MFTime&quot;;</span>
+<span class="lineNum">     788 </span>            :         case GF_SG_VRML_MFINT32:
+<span class="lineNum">     789 </span><span class="lineCov">          4 :                 return &quot;MFInt32&quot;;</span>
+<span class="lineNum">     790 </span>            :         case GF_SG_VRML_MFSTRING:
+<span class="lineNum">     791 </span><span class="lineCov">         18 :                 return &quot;MFString&quot;;</span>
+<span class="lineNum">     792 </span>            :         case GF_SG_VRML_MFVEC3F:
+<span class="lineNum">     793 </span><span class="lineCov">          2 :                 return &quot;MFVec3f&quot;;</span>
+<span class="lineNum">     794 </span>            :         case GF_SG_VRML_MFVEC2F:
+<span class="lineNum">     795 </span><span class="lineCov">          4 :                 return &quot;MFVec2f&quot;;</span>
+<span class="lineNum">     796 </span>            :         case GF_SG_VRML_MFVEC3D:
+<span class="lineNum">     797 </span><span class="lineNoCov">          0 :                 return &quot;MFVec3d&quot;;</span>
+<span class="lineNum">     798 </span>            :         case GF_SG_VRML_MFVEC2D:
+<span class="lineNum">     799 </span><span class="lineNoCov">          0 :                 return &quot;MFVec2d&quot;;</span>
+<span class="lineNum">     800 </span>            :         case GF_SG_VRML_MFCOLOR:
+<span class="lineNum">     801 </span><span class="lineCov">          2 :                 return &quot;MFColor&quot;;</span>
+<span class="lineNum">     802 </span>            :         case GF_SG_VRML_MFCOLORRGBA:
+<span class="lineNum">     803 </span><span class="lineNoCov">          0 :                 return &quot;MFColorRGBA&quot;;</span>
+<span class="lineNum">     804 </span>            :         case GF_SG_VRML_MFROTATION:
+<span class="lineNum">     805 </span><span class="lineCov">          4 :                 return &quot;MFRotation&quot;;</span>
+<span class="lineNum">     806 </span>            :         case GF_SG_VRML_MFIMAGE:
+<span class="lineNum">     807 </span><span class="lineNoCov">          0 :                 return &quot;MFImage&quot;;</span>
+<span class="lineNum">     808 </span>            :         case GF_SG_VRML_MFNODE:
+<span class="lineNum">     809 </span><span class="lineCov">         12 :                 return &quot;MFNode&quot;;</span>
+<span class="lineNum">     810 </span>            :         case GF_SG_VRML_MFVEC4F:
+<span class="lineNum">     811 </span><span class="lineNoCov">          0 :                 return &quot;MFVec4f&quot;;</span>
+<span class="lineNum">     812 </span>            :         case GF_SG_VRML_SFURL:
+<span class="lineNum">     813 </span><span class="lineNoCov">          0 :                 return &quot;SFURL&quot;;</span>
+<span class="lineNum">     814 </span>            :         case GF_SG_VRML_MFURL:
+<span class="lineNum">     815 </span><span class="lineNoCov">          0 :                 return &quot;MFURL&quot;;</span>
+<span class="lineNum">     816 </span>            :         case GF_SG_VRML_MFATTRREF:
+<span class="lineNum">     817 </span><span class="lineNoCov">          0 :                 return &quot;MFAttrRef&quot;;</span>
+<span class="lineNum">     818 </span>            :         case GF_SG_VRML_SFCOMMANDBUFFER:
+<span class="lineNum">     819 </span><span class="lineNoCov">          0 :                 return &quot;SFCommandBuffer&quot;;</span>
+<span class="lineNum">     820 </span>            :         case GF_SG_VRML_SFSCRIPT:
+<span class="lineNum">     821 </span><span class="lineNoCov">          0 :                 return &quot;SFScript&quot;;</span>
+<span class="lineNum">     822 </span>            :         case GF_SG_VRML_MFSCRIPT:
+<span class="lineNum">     823 </span><span class="lineNoCov">          0 :                 return &quot;MFScript&quot;;</span>
+<span class="lineNum">     824 </span>            :         default:
+<span class="lineNum">     825 </span><span class="lineNoCov">          0 :                 return &quot;UnknownType&quot;;</span>
+<span class="lineNum">     826 </span>            :         }
+<a name="827"><span class="lineNum">     827 </span><span class="lineCov">        907 : }</span></a>
+<span class="lineNum">     828 </span>            : 
+<span class="lineNum">     829 </span>            : u32 gf_sg_field_type_by_name(char *fieldType)
+<span class="lineNum">     830 </span>            : {
+<span class="lineNum">     831 </span><span class="lineCov">       2099 :         if (!stricmp(fieldType, &quot;SFBool&quot;)) return GF_SG_VRML_SFBOOL;</span>
+<span class="lineNum">     832 </span><span class="lineCov">        896 :         else if (!stricmp(fieldType, &quot;SFFloat&quot;)) return GF_SG_VRML_SFFLOAT;</span>
+<span class="lineNum">     833 </span><span class="lineCov">        618 :         else if (!stricmp(fieldType, &quot;SFDouble&quot;)) return GF_SG_VRML_SFDOUBLE;</span>
+<span class="lineNum">     834 </span><span class="lineCov">        696 :         else if (!stricmp(fieldType, &quot;SFTime&quot;)) return GF_SG_VRML_SFTIME;</span>
+<span class="lineNum">     835 </span><span class="lineCov">        609 :         else if (!stricmp(fieldType, &quot;SFInt32&quot;)) return GF_SG_VRML_SFINT32;</span>
+<span class="lineNum">     836 </span><span class="lineCov">        471 :         else if (!stricmp(fieldType, &quot;SFString&quot;)) return GF_SG_VRML_SFSTRING;</span>
+<span class="lineNum">     837 </span><span class="lineCov">        570 :         else if (!stricmp(fieldType, &quot;SFVec2f&quot;)) return GF_SG_VRML_SFVEC2F;</span>
+<span class="lineNum">     838 </span><span class="lineCov">        392 :         else if (!stricmp(fieldType, &quot;SFVec3f&quot;)) return GF_SG_VRML_SFVEC3F;</span>
+<span class="lineNum">     839 </span><span class="lineCov">        352 :         else if (!stricmp(fieldType, &quot;SFVec2d&quot;)) return GF_SG_VRML_SFVEC2D;</span>
+<span class="lineNum">     840 </span><span class="lineCov">        352 :         else if (!stricmp(fieldType, &quot;SFVec3d&quot;)) return GF_SG_VRML_SFVEC3D;</span>
+<span class="lineNum">     841 </span><span class="lineCov">        417 :         else if (!stricmp(fieldType, &quot;SFColor&quot;)) return GF_SG_VRML_SFCOLOR;</span>
+<span class="lineNum">     842 </span><span class="lineCov">        287 :         else if (!stricmp(fieldType, &quot;SFColorRGBA&quot;)) return GF_SG_VRML_SFCOLORRGBA;</span>
+<span class="lineNum">     843 </span><span class="lineCov">        287 :         else if (!stricmp(fieldType, &quot;SFRotation&quot;)) return GF_SG_VRML_SFROTATION;</span>
+<span class="lineNum">     844 </span><span class="lineCov">        287 :         else if (!stricmp(fieldType, &quot;SFImage&quot;)) return GF_SG_VRML_SFIMAGE;</span>
+<span class="lineNum">     845 </span><span class="lineCov">        287 :         else if (!stricmp(fieldType, &quot;SFAttrRef&quot;)) return GF_SG_VRML_SFATTRREF;</span>
+<span class="lineNum">     846 </span><span class="lineCov">        520 :         else if (!stricmp(fieldType, &quot;SFNode&quot;)) return GF_SG_VRML_SFNODE;</span>
+<span class="lineNum">     847 </span>            : 
+<span class="lineNum">     848 </span><span class="lineCov">         54 :         else if (!stricmp(fieldType, &quot;MFBool&quot;)) return GF_SG_VRML_MFBOOL;</span>
+<span class="lineNum">     849 </span><span class="lineCov">         58 :         else if (!stricmp(fieldType, &quot;MFFloat&quot;)) return GF_SG_VRML_MFFLOAT;</span>
+<span class="lineNum">     850 </span><span class="lineCov">         50 :         else if (!stricmp(fieldType, &quot;MFDouble&quot;)) return GF_SG_VRML_MFDOUBLE;</span>
+<span class="lineNum">     851 </span><span class="lineCov">         50 :         else if (!stricmp(fieldType, &quot;MFTime&quot;)) return GF_SG_VRML_MFTIME;</span>
+<span class="lineNum">     852 </span><span class="lineCov">         54 :         else if (!stricmp(fieldType, &quot;MFInt32&quot;)) return GF_SG_VRML_MFINT32;</span>
+<span class="lineNum">     853 </span><span class="lineCov">         65 :         else if (!stricmp(fieldType, &quot;MFString&quot;)) return GF_SG_VRML_MFSTRING;</span>
+<span class="lineNum">     854 </span><span class="lineCov">         31 :         else if (!stricmp(fieldType, &quot;MFVec2f&quot;)) return GF_SG_VRML_MFVEC2F;</span>
+<span class="lineNum">     855 </span><span class="lineCov">         25 :         else if (!stricmp(fieldType, &quot;MFVec3f&quot;)) return GF_SG_VRML_MFVEC3F;</span>
+<span class="lineNum">     856 </span><span class="lineCov">         21 :         else if (!stricmp(fieldType, &quot;MFVec2d&quot;)) return GF_SG_VRML_MFVEC2D;</span>
+<span class="lineNum">     857 </span><span class="lineCov">         21 :         else if (!stricmp(fieldType, &quot;MFVec3d&quot;)) return GF_SG_VRML_MFVEC3D;</span>
+<span class="lineNum">     858 </span><span class="lineCov">         23 :         else if (!stricmp(fieldType, &quot;MFColor&quot;)) return GF_SG_VRML_MFCOLOR;</span>
+<span class="lineNum">     859 </span><span class="lineCov">         19 :         else if (!stricmp(fieldType, &quot;MFColorRGBA&quot;)) return GF_SG_VRML_MFCOLORRGBA;</span>
+<span class="lineNum">     860 </span><span class="lineCov">         23 :         else if (!stricmp(fieldType, &quot;MFRotation&quot;)) return GF_SG_VRML_MFROTATION;</span>
+<span class="lineNum">     861 </span><span class="lineCov">         15 :         else if (!stricmp(fieldType, &quot;MFImage&quot;)) return GF_SG_VRML_MFIMAGE;</span>
+<span class="lineNum">     862 </span><span class="lineCov">         15 :         else if (!stricmp(fieldType, &quot;MFAttrRef&quot;)) return GF_SG_VRML_MFATTRREF;</span>
+<span class="lineNum">     863 </span><span class="lineCov">         30 :         else if (!stricmp(fieldType, &quot;MFNode&quot;)) return GF_SG_VRML_MFNODE;</span>
+<span class="lineNum">     864 </span>            : 
+<span class="lineNum">     865 </span><span class="lineNoCov">          0 :         return GF_SG_VRML_UNKNOWN;</span>
+<span class="lineNum">     866 </span><span class="lineCov">        952 : }</span>
+<span class="lineNum">     867 </span>            : 
+<a name="868"><span class="lineNum">     868 </span>            : #endif</a>
+<span class="lineNum">     869 </span>            : 
+<span class="lineNum">     870 </span>            : void gf_sg_sfurl_del(SFURL url) {
+<span class="lineNum">     871 </span><span class="lineCov">       4004 :         if (url.url) gf_free(url.url);</span>
+<span class="lineNum">     872 </span><span class="lineCov">       1759 : }</span>
+<a name="873"><span class="lineNum">     873 </span>            : </a>
+<span class="lineNum">     874 </span>            : GF_EXPORT
+<span class="lineNum">     875 </span>            : Bool gf_sg_vrml_is_sf_field(u32 FieldType)
+<span class="lineNum">     876 </span>            : {
+<span class="lineNum">     877 </span><span class="lineCov">     959690 :         return (FieldType&lt;GF_SG_VRML_FIRST_MF);</span>
+<a name="878"><span class="lineNum">     878 </span>            : }</a>
+<span class="lineNum">     879 </span>            : 
+<span class="lineNum">     880 </span>            : void gf_sg_mfstring_del(MFString par)
+<span class="lineNum">     881 </span>            : {
+<span class="lineNum">     882 </span>            :         u32 i;
+<span class="lineNum">     883 </span><span class="lineCov">     270408 :         for (i=0; i&lt;par.count; i++) {</span>
+<span class="lineNum">     884 </span><span class="lineCov">     103841 :                 if (par.vals[i]) gf_free(par.vals[i]);</span>
+<span class="lineNum">     885 </span>            :         }
+<span class="lineNum">     886 </span><span class="lineCov">      55104 :         gf_free(par.vals);</span>
+<span class="lineNum">     887 </span><span class="lineCov">      55104 : }</span>
+<span class="lineNum">     888 </span>            : 
+<a name="889"><span class="lineNum">     889 </span>            : </a>
+<span class="lineNum">     890 </span>            : GF_EXPORT
+<span class="lineNum">     891 </span>            : void gf_sg_mfurl_del(MFURL url)
+<span class="lineNum">     892 </span>            : {
+<span class="lineNum">     893 </span>            :         u32 i;
+<span class="lineNum">     894 </span><span class="lineCov">      30458 :         for (i=0; i&lt;url.count; i++) {</span>
+<span class="lineNum">     895 </span><span class="lineCov">       1759 :                 gf_sg_sfurl_del(url.vals[i]);</span>
+<span class="lineNum">     896 </span>            :         }
+<a name="897"><span class="lineNum">     897 </span><span class="lineCov">       8980 :         gf_free(url.vals);</span></a>
+<span class="lineNum">     898 </span><span class="lineCov">       8980 : }</span>
+<span class="lineNum">     899 </span>            : void gf_sg_mfscript_del(MFScript sc)
+<span class="lineNum">     900 </span>            : {
+<span class="lineNum">     901 </span>            :         u32 i;
+<span class="lineNum">     902 </span><span class="lineCov">       1759 :         for (i=0; i&lt;sc.count; i++) {</span>
+<span class="lineNum">     903 </span><span class="lineCov">        532 :                 if (sc.vals[i].script_text) gf_free(sc.vals[i].script_text);</span>
+<span class="lineNum">     904 </span>            :         }
+<span class="lineNum">     905 </span><span class="lineCov">        409 :         gf_free(sc.vals);</span>
+<span class="lineNum">     906 </span><span class="lineCov">        409 : }</span>
+<a name="907"><span class="lineNum">     907 </span>            : </a>
+<span class="lineNum">     908 </span>            : 
+<span class="lineNum">     909 </span>            : void gf_sg_vrml_copy_mfurl(MFURL *dst, MFURL *src)
+<span class="lineNum">     910 </span>            : {
+<span class="lineNum">     911 </span>            :         u32 i;
+<span class="lineNum">     912 </span><span class="lineCov">         18 :         gf_sg_vrml_mf_reset(dst, GF_SG_VRML_MFURL);</span>
+<span class="lineNum">     913 </span><span class="lineCov">          9 :         dst-&gt;count = src-&gt;count;</span>
+<span class="lineNum">     914 </span><span class="lineCov">          9 :         dst-&gt;vals = gf_malloc(sizeof(SFURL)*src-&gt;count);</span>
+<span class="lineNum">     915 </span><span class="lineCov">         36 :         for (i=0; i&lt;src-&gt;count; i++) {</span>
+<span class="lineNum">     916 </span><span class="lineCov">          9 :                 dst-&gt;vals[i].OD_ID = src-&gt;vals[i].OD_ID;</span>
+<span class="lineNum">     917 </span><span class="lineCov">         27 :                 dst-&gt;vals[i].url = src-&gt;vals[i].url ? gf_strdup(src-&gt;vals[i].url) : NULL;</span>
+<span class="lineNum">     918 </span>            :         }
+<span class="lineNum">     919 </span><span class="lineCov">          9 : }</span>
+<span class="lineNum">     920 </span>            : 
+<span class="lineNum">     921 </span>            : 
+<a name="922"><span class="lineNum">     922 </span>            : </a>
+<span class="lineNum">     923 </span>            : //return the size of fixed fields (eg no buffer in the field)
+<span class="lineNum">     924 </span>            : u32 gf_sg_vrml_get_sf_size(u32 FieldType)
+<span class="lineNum">     925 </span>            : {
+<span class="lineNum">     926 </span><span class="lineCov">     581404 :         switch (FieldType) {</span>
+<span class="lineNum">     927 </span>            :         case GF_SG_VRML_SFBOOL:
+<span class="lineNum">     928 </span>            :         case GF_SG_VRML_MFBOOL:
+<span class="lineNum">     929 </span><span class="lineNoCov">          0 :                 return sizeof(SFBool);</span>
+<span class="lineNum">     930 </span>            :         case GF_SG_VRML_SFFLOAT:
+<span class="lineNum">     931 </span>            :         case GF_SG_VRML_MFFLOAT:
+<span class="lineNum">     932 </span><span class="lineCov">      11814 :                 return sizeof(SFFloat);</span>
+<span class="lineNum">     933 </span>            :         case GF_SG_VRML_SFTIME:
+<span class="lineNum">     934 </span>            :         case GF_SG_VRML_MFTIME:
+<span class="lineNum">     935 </span><span class="lineNoCov">          0 :                 return sizeof(SFTime);</span>
+<span class="lineNum">     936 </span>            :         case GF_SG_VRML_SFDOUBLE:
+<span class="lineNum">     937 </span>            :         case GF_SG_VRML_MFDOUBLE:
+<span class="lineNum">     938 </span><span class="lineNoCov">          0 :                 return sizeof(SFDouble);</span>
+<span class="lineNum">     939 </span>            :         case GF_SG_VRML_SFINT32:
+<span class="lineNum">     940 </span>            :         case GF_SG_VRML_MFINT32:
+<span class="lineNum">     941 </span><span class="lineCov">     121867 :                 return sizeof(SFInt32);</span>
+<span class="lineNum">     942 </span>            :         case GF_SG_VRML_SFVEC3F:
+<span class="lineNum">     943 </span>            :         case GF_SG_VRML_MFVEC3F:
+<span class="lineNum">     944 </span><span class="lineCov">      11137 :                 return 3*sizeof(SFFloat);</span>
+<span class="lineNum">     945 </span>            :         case GF_SG_VRML_SFVEC2F:
+<span class="lineNum">     946 </span>            :         case GF_SG_VRML_MFVEC2F:
+<span class="lineNum">     947 </span><span class="lineCov">      66022 :                 return 2*sizeof(SFFloat);</span>
+<span class="lineNum">     948 </span>            :         case GF_SG_VRML_SFVEC3D:
+<span class="lineNum">     949 </span>            :         case GF_SG_VRML_MFVEC3D:
+<span class="lineNum">     950 </span><span class="lineNoCov">          0 :                 return 3*sizeof(SFDouble);</span>
+<span class="lineNum">     951 </span>            :         case GF_SG_VRML_SFCOLOR:
+<span class="lineNum">     952 </span>            :         case GF_SG_VRML_MFCOLOR:
+<span class="lineNum">     953 </span><span class="lineCov">       1831 :                 return 3*sizeof(SFFloat);</span>
+<span class="lineNum">     954 </span>            :         case GF_SG_VRML_SFCOLORRGBA:
+<span class="lineNum">     955 </span>            :         case GF_SG_VRML_MFCOLORRGBA:
+<span class="lineNum">     956 </span><span class="lineNoCov">          0 :                 return 4*sizeof(SFFloat);</span>
+<span class="lineNum">     957 </span>            :         case GF_SG_VRML_SFROTATION:
+<span class="lineNum">     958 </span>            :         case GF_SG_VRML_MFROTATION:
+<span class="lineNum">     959 </span>            :         case GF_SG_VRML_MFVEC4F:
+<span class="lineNum">     960 </span><span class="lineCov">        894 :                 return 4*sizeof(SFFloat);</span>
+<span class="lineNum">     961 </span>            : 
+<span class="lineNum">     962 </span>            :         case GF_SG_VRML_SFATTRREF:
+<span class="lineNum">     963 </span>            :         case GF_SG_VRML_MFATTRREF:
+<span class="lineNum">     964 </span><span class="lineCov">         26 :                 return sizeof(SFAttrRef);</span>
+<span class="lineNum">     965 </span>            :         //check if that works!!
+<span class="lineNum">     966 </span>            :         case GF_SG_VRML_SFSTRING:
+<span class="lineNum">     967 </span>            :         case GF_SG_VRML_MFSTRING:
+<span class="lineNum">     968 </span>            :                 //ptr to char
+<span class="lineNum">     969 </span><span class="lineCov">      73802 :                 return sizeof(SFString);</span>
+<span class="lineNum">     970 </span>            :         case GF_SG_VRML_SFSCRIPT:
+<span class="lineNum">     971 </span>            :         case GF_SG_VRML_MFSCRIPT:
+<span class="lineNum">     972 </span><span class="lineCov">        444 :                 return sizeof(SFScript);</span>
+<span class="lineNum">     973 </span>            :         case GF_SG_VRML_SFURL:
+<span class="lineNum">     974 </span>            :         case GF_SG_VRML_MFURL:
+<span class="lineNum">     975 </span><span class="lineCov">       2865 :                 return sizeof(SFURL);</span>
+<span class="lineNum">     976 </span>            :         default:
+<span class="lineNum">     977 </span><span class="lineNoCov">          0 :                 return 0;</span>
+<span class="lineNum">     978 </span>            :         }
+<span class="lineNum">     979 </span><span class="lineCov">     290702 : }</span>
+<a name="980"><span class="lineNum">     980 </span>            : </a>
+<span class="lineNum">     981 </span>            : GF_EXPORT
+<span class="lineNum">     982 </span>            : u32 gf_sg_vrml_get_sf_type(u32 FieldType)
+<span class="lineNum">     983 </span>            : {
+<span class="lineNum">     984 </span><span class="lineCov">     186674 :         switch (FieldType) {</span>
+<span class="lineNum">     985 </span>            :         case GF_SG_VRML_SFBOOL:
+<span class="lineNum">     986 </span>            :         case GF_SG_VRML_MFBOOL:
+<span class="lineNum">     987 </span><span class="lineCov">       1860 :                 return GF_SG_VRML_SFBOOL;</span>
+<span class="lineNum">     988 </span>            :         case GF_SG_VRML_SFFLOAT:
+<span class="lineNum">     989 </span>            :         case GF_SG_VRML_MFFLOAT:
+<span class="lineNum">     990 </span><span class="lineCov">      16420 :                 return GF_SG_VRML_SFFLOAT;</span>
+<span class="lineNum">     991 </span>            :         case GF_SG_VRML_SFDOUBLE:
+<span class="lineNum">     992 </span>            :         case GF_SG_VRML_MFDOUBLE:
+<span class="lineNum">     993 </span><span class="lineNoCov">          0 :                 return GF_SG_VRML_SFDOUBLE;</span>
+<span class="lineNum">     994 </span>            :         case GF_SG_VRML_SFTIME:
+<span class="lineNum">     995 </span>            :         case GF_SG_VRML_MFTIME:
+<span class="lineNum">     996 </span><span class="lineCov">        994 :                 return GF_SG_VRML_SFTIME;</span>
+<span class="lineNum">     997 </span>            :         case GF_SG_VRML_SFINT32:
+<span class="lineNum">     998 </span>            :         case GF_SG_VRML_MFINT32:
+<span class="lineNum">     999 </span><span class="lineCov">       6266 :                 return GF_SG_VRML_SFINT32;</span>
+<span class="lineNum">    1000 </span>            :         case GF_SG_VRML_SFVEC3F:
+<span class="lineNum">    1001 </span>            :         case GF_SG_VRML_MFVEC3F:
+<span class="lineNum">    1002 </span><span class="lineCov">        441 :                 return GF_SG_VRML_SFVEC3F;</span>
+<span class="lineNum">    1003 </span>            :         case GF_SG_VRML_SFVEC2F:
+<span class="lineNum">    1004 </span>            :         case GF_SG_VRML_MFVEC2F:
+<span class="lineNum">    1005 </span><span class="lineCov">      10138 :                 return GF_SG_VRML_SFVEC2F;</span>
+<span class="lineNum">    1006 </span>            :         case GF_SG_VRML_SFVEC3D:
+<span class="lineNum">    1007 </span>            :         case GF_SG_VRML_MFVEC3D:
+<span class="lineNum">    1008 </span><span class="lineNoCov">          0 :                 return GF_SG_VRML_SFVEC3D;</span>
+<span class="lineNum">    1009 </span>            :         case GF_SG_VRML_SFVEC2D:
+<span class="lineNum">    1010 </span>            :         case GF_SG_VRML_MFVEC2D:
+<span class="lineNum">    1011 </span><span class="lineNoCov">          0 :                 return GF_SG_VRML_SFVEC2D;</span>
+<span class="lineNum">    1012 </span>            :         case GF_SG_VRML_SFCOLOR:
+<span class="lineNum">    1013 </span>            :         case GF_SG_VRML_MFCOLOR:
+<span class="lineNum">    1014 </span><span class="lineCov">       3158 :                 return GF_SG_VRML_SFCOLOR;</span>
+<span class="lineNum">    1015 </span>            :         case GF_SG_VRML_SFCOLORRGBA:
+<span class="lineNum">    1016 </span>            :         case GF_SG_VRML_MFCOLORRGBA:
+<span class="lineNum">    1017 </span><span class="lineNoCov">          0 :                 return GF_SG_VRML_SFCOLORRGBA;</span>
+<span class="lineNum">    1018 </span>            :         case GF_SG_VRML_SFROTATION:
+<span class="lineNum">    1019 </span>            :         case GF_SG_VRML_MFROTATION:
+<span class="lineNum">    1020 </span><span class="lineCov">        392 :                 return GF_SG_VRML_SFROTATION;</span>
+<span class="lineNum">    1021 </span>            :         case GF_SG_VRML_SFATTRREF:
+<span class="lineNum">    1022 </span>            :         case GF_SG_VRML_MFATTRREF:
+<span class="lineNum">    1023 </span><span class="lineCov">         11 :                 return GF_SG_VRML_SFATTRREF;</span>
+<span class="lineNum">    1024 </span>            : 
+<span class="lineNum">    1025 </span>            :         //check if that works!!
+<span class="lineNum">    1026 </span>            :         case GF_SG_VRML_SFSTRING:
+<span class="lineNum">    1027 </span>            :         case GF_SG_VRML_MFSTRING:
+<span class="lineNum">    1028 </span>            :                 //ptr to char
+<span class="lineNum">    1029 </span><span class="lineCov">      29837 :                 return GF_SG_VRML_SFSTRING;</span>
+<span class="lineNum">    1030 </span>            :         case GF_SG_VRML_SFSCRIPT:
+<span class="lineNum">    1031 </span>            :         case GF_SG_VRML_MFSCRIPT:
+<span class="lineNum">    1032 </span><span class="lineCov">        444 :                 return GF_SG_VRML_SFSCRIPT;</span>
+<span class="lineNum">    1033 </span>            :         case GF_SG_VRML_SFURL:
+<span class="lineNum">    1034 </span>            :         case GF_SG_VRML_MFURL:
+<span class="lineNum">    1035 </span><span class="lineCov">       5517 :                 return GF_SG_VRML_SFURL;</span>
+<span class="lineNum">    1036 </span>            :         case GF_SG_VRML_SFNODE:
+<span class="lineNum">    1037 </span>            :         case GF_SG_VRML_MFNODE:
+<span class="lineNum">    1038 </span><span class="lineCov">      17859 :                 return GF_SG_VRML_SFNODE;</span>
+<span class="lineNum">    1039 </span>            :         default:
+<span class="lineNum">    1040 </span><span class="lineNoCov">          0 :                 return GF_SG_VRML_UNKNOWN;</span>
+<span class="lineNum">    1041 </span>            :         }
+<span class="lineNum">    1042 </span><span class="lineCov">      93337 : }</span>
+<span class="lineNum">    1043 </span>            : 
+<span class="lineNum">    1044 </span>            : //
+<span class="lineNum">    1045 </span>            : //      Insert (+alloc) an MFField with a specified position for insertion and sets the ptr to the
+<span class="lineNum">    1046 </span>            : //      newly created slot
+<a name="1047"><span class="lineNum">    1047 </span>            : //      !! Doesnt work for MFNodes</a>
+<span class="lineNum">    1048 </span>            : //      InsertAt is the 0-based index for the new slot
+<span class="lineNum">    1049 </span>            : GF_Err gf_sg_vrml_mf_insert(void *mf, u32 FieldType, void **new_ptr, u32 InsertAt)
+<span class="lineNum">    1050 </span>            : {
+<span class="lineNum">    1051 </span>            :         char *buffer;
+<span class="lineNum">    1052 </span>            :         u32 FieldSize, i, k;
+<span class="lineNum">    1053 </span><span class="lineCov">     219362 :         GenMFField *mffield = (GenMFField *)mf;</span>
+<span class="lineNum">    1054 </span>            : 
+<span class="lineNum">    1055 </span><span class="lineCov">     109681 :         if (gf_sg_vrml_is_sf_field(FieldType)) return GF_BAD_PARAM;</span>
+<span class="lineNum">    1056 </span><span class="lineCov">     109681 :         if (FieldType == GF_SG_VRML_MFNODE) return GF_BAD_PARAM;</span>
+<span class="lineNum">    1057 </span>            : 
+<span class="lineNum">    1058 </span><span class="lineCov">     109681 :         FieldSize = gf_sg_vrml_get_sf_size(FieldType);</span>
+<span class="lineNum">    1059 </span>            : 
+<span class="lineNum">    1060 </span>            :         //field we can't copy
+<span class="lineNum">    1061 </span><span class="lineCov">     109681 :         if (!FieldSize) return GF_BAD_PARAM;</span>
+<span class="lineNum">    1062 </span>            : 
+<span class="lineNum">    1063 </span>            :         //first item ever
+<span class="lineNum">    1064 </span><span class="lineCov">     198913 :         if (!mffield-&gt;count || !mffield-&gt;array) {</span>
+<span class="lineNum">    1065 </span><span class="lineCov">      20449 :                 if (mffield-&gt;array) gf_free(mffield-&gt;array);</span>
+<span class="lineNum">    1066 </span><span class="lineCov">      20449 :                 mffield-&gt;array = (char*)gf_malloc(sizeof(char)*FieldSize);</span>
+<span class="lineNum">    1067 </span><span class="lineCov">      20449 :                 memset(mffield-&gt;array, 0, sizeof(char)*FieldSize);</span>
+<span class="lineNum">    1068 </span><span class="lineCov">      20449 :                 mffield-&gt;count = 1;</span>
+<span class="lineNum">    1069 </span><span class="lineCov">      40898 :                 if (new_ptr) *new_ptr = mffield-&gt;array;</span>
+<span class="lineNum">    1070 </span><span class="lineCov">      20449 :                 return GF_OK;</span>
+<span class="lineNum">    1071 </span>            :         }
+<span class="lineNum">    1072 </span>            : 
+<span class="lineNum">    1073 </span>            :         //append at the end
+<span class="lineNum">    1074 </span><span class="lineCov">      89232 :         if (InsertAt &gt;= mffield-&gt;count) {</span>
+<span class="lineNum">    1075 </span><span class="lineCov">      89231 :                 mffield-&gt;array = (char*)gf_realloc(mffield-&gt;array, sizeof(char)*(1+mffield-&gt;count)*FieldSize);</span>
+<span class="lineNum">    1076 </span><span class="lineCov">      89231 :                 memset(mffield-&gt;array + mffield-&gt;count * FieldSize, 0, FieldSize);</span>
+<span class="lineNum">    1077 </span><span class="lineCov">     178462 :                 if (new_ptr) *new_ptr = mffield-&gt;array + mffield-&gt;count * FieldSize;</span>
+<span class="lineNum">    1078 </span><span class="lineCov">      89231 :                 mffield-&gt;count += 1;</span>
+<span class="lineNum">    1079 </span><span class="lineCov">      89231 :                 return GF_OK;</span>
+<span class="lineNum">    1080 </span>            :         }
+<span class="lineNum">    1081 </span>            :         //alloc 1+itemCount
+<span class="lineNum">    1082 </span><span class="lineCov">          1 :         buffer = (char*)gf_malloc(sizeof(char)*(1+mffield-&gt;count)*FieldSize);</span>
+<span class="lineNum">    1083 </span>            : 
+<span class="lineNum">    1084 </span>            :         //insert in the array
+<span class="lineNum">    1085 </span>            :         k=0;
+<span class="lineNum">    1086 </span><span class="lineCov">         14 :         for (i=0; i &lt; mffield-&gt;count; i++) {</span>
+<span class="lineNum">    1087 </span><span class="lineCov">          6 :                 if (InsertAt == i) {</span>
+<span class="lineNum">    1088 </span><span class="lineCov">          1 :                         if (new_ptr) {</span>
+<span class="lineNum">    1089 </span><span class="lineCov">          1 :                                 *new_ptr = buffer + i*FieldSize;</span>
+<span class="lineNum">    1090 </span><span class="lineCov">          1 :                                 memset(*new_ptr, 0, sizeof(char)*FieldSize);</span>
+<span class="lineNum">    1091 </span><span class="lineCov">          1 :                         }</span>
+<span class="lineNum">    1092 </span>            :                         k = 1;
+<span class="lineNum">    1093 </span><span class="lineCov">          1 :                 }</span>
+<span class="lineNum">    1094 </span><span class="lineCov">          6 :                 memcpy(buffer + (k+i) * FieldSize , mffield-&gt;array + i*FieldSize, FieldSize);</span>
+<span class="lineNum">    1095 </span>            :         }
+<span class="lineNum">    1096 </span><span class="lineCov">          1 :         gf_free(mffield-&gt;array);</span>
+<span class="lineNum">    1097 </span><span class="lineCov">          1 :         mffield-&gt;array = buffer;</span>
+<span class="lineNum">    1098 </span><span class="lineCov">          1 :         mffield-&gt;count += 1;</span>
+<span class="lineNum">    1099 </span><span class="lineCov">          1 :         return GF_OK;</span>
+<span class="lineNum">    1100 </span><span class="lineCov">     109681 : }</span>
+<span class="lineNum">    1101 </span>            : 
+<a name="1102"><span class="lineNum">    1102 </span>            : </a>
+<span class="lineNum">    1103 </span>            : GF_EXPORT
+<span class="lineNum">    1104 </span>            : GF_Err gf_sg_vrml_mf_reset(void *mf, u32 FieldType)
+<span class="lineNum">    1105 </span>            : {
+<span class="lineNum">    1106 </span><span class="lineCov">      43618 :         GenMFField *mffield = (GenMFField *)mf;</span>
+<span class="lineNum">    1107 </span><span class="lineCov">      39347 :         if (!mffield-&gt;array) return GF_OK;</span>
+<span class="lineNum">    1108 </span>            : 
+<span class="lineNum">    1109 </span>            :         //field we can't copy
+<span class="lineNum">    1110 </span><span class="lineCov">       4271 :         if (gf_sg_vrml_is_sf_field(FieldType)) return GF_BAD_PARAM;</span>
+<span class="lineNum">    1111 </span><span class="lineCov">       4271 :         if (!gf_sg_vrml_get_sf_size(FieldType)) return GF_BAD_PARAM;</span>
+<span class="lineNum">    1112 </span>            : 
+<span class="lineNum">    1113 </span><span class="lineCov">       4271 :         switch (FieldType) {</span>
+<span class="lineNum">    1114 </span>            :         case GF_SG_VRML_MFSTRING:
+<span class="lineNum">    1115 </span><span class="lineCov">       4024 :                 gf_sg_mfstring_del( * ((MFString *) mf));</span>
+<span class="lineNum">    1116 </span><span class="lineCov">       4024 :                 break;</span>
+<span class="lineNum">    1117 </span>            :         case GF_SG_VRML_MFURL:
+<span class="lineNum">    1118 </span><span class="lineCov">         13 :                 gf_sg_mfurl_del( * ((MFURL *) mf));</span>
+<span class="lineNum">    1119 </span><span class="lineCov">         13 :                 break;</span>
+<span class="lineNum">    1120 </span>            :         case GF_SG_VRML_MFSCRIPT:
+<span class="lineNum">    1121 </span><span class="lineNoCov">          0 :                 gf_sg_mfscript_del( * ((MFScript *) mf));</span>
+<span class="lineNum">    1122 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">    1123 </span>            :         default:
+<span class="lineNum">    1124 </span><span class="lineCov">        468 :                 if (mffield-&gt;array) gf_free(mffield-&gt;array);</span>
+<span class="lineNum">    1125 </span>            :                 break;
+<span class="lineNum">    1126 </span>            :         }
+<span class="lineNum">    1127 </span>            : 
+<span class="lineNum">    1128 </span><span class="lineCov">       4271 :         mffield-&gt;array = NULL;</span>
+<span class="lineNum">    1129 </span><span class="lineCov">       4271 :         mffield-&gt;count = 0;</span>
+<span class="lineNum">    1130 </span><span class="lineCov">       4271 :         return GF_OK;</span>
+<span class="lineNum">    1131 </span><span class="lineCov">      21809 : }</span>
+<span class="lineNum">    1132 </span>            : 
+<span class="lineNum">    1133 </span>            : #ifndef GPAC_DISABLE_VRML
+<span class="lineNum">    1134 </span>            : 
+<a name="1135"><span class="lineNum">    1135 </span>            : #define MAX_MFFIELD_ALLOC               5000000</a>
+<span class="lineNum">    1136 </span>            : GF_EXPORT
+<span class="lineNum">    1137 </span>            : GF_Err gf_sg_vrml_mf_alloc(void *mf, u32 FieldType, u32 NbItems)
+<span class="lineNum">    1138 </span>            : {
+<span class="lineNum">    1139 </span>            :         u32 FieldSize;
+<span class="lineNum">    1140 </span><span class="lineCov">       2458 :         GenMFField *mffield = (GenMFField *)mf;</span>
+<span class="lineNum">    1141 </span>            : 
+<span class="lineNum">    1142 </span><span class="lineCov">       1229 :         if (gf_sg_vrml_is_sf_field(FieldType)) return GF_BAD_PARAM;</span>
+<span class="lineNum">    1143 </span><span class="lineCov">       1229 :         if (FieldType == GF_SG_VRML_MFNODE) return GF_BAD_PARAM;</span>
+<span class="lineNum">    1144 </span>            : 
+<span class="lineNum">    1145 </span><span class="lineCov">       1229 :         FieldSize = gf_sg_vrml_get_sf_size(FieldType);</span>
+<span class="lineNum">    1146 </span>            : 
+<span class="lineNum">    1147 </span>            :         //field we can't copy
+<span class="lineNum">    1148 </span><span class="lineCov">       1229 :         if (!FieldSize) return GF_BAD_PARAM;</span>
+<span class="lineNum">    1149 </span><span class="lineCov">       1229 :         if (NbItems&gt;MAX_MFFIELD_ALLOC) return GF_IO_ERR;</span>
+<span class="lineNum">    1150 </span>            : 
+<span class="lineNum">    1151 </span><span class="lineCov">       1405 :         if (mffield-&gt;count==NbItems) return GF_OK;</span>
+<span class="lineNum">    1152 </span><span class="lineCov">       1053 :         gf_sg_vrml_mf_reset(mf, FieldType);</span>
+<span class="lineNum">    1153 </span><span class="lineCov">       1053 :         if (NbItems) {</span>
+<span class="lineNum">    1154 </span><span class="lineCov">       1053 :                 mffield-&gt;array = (char*)gf_malloc(sizeof(char)*FieldSize*NbItems);</span>
+<span class="lineNum">    1155 </span><span class="lineCov">       1053 :                 memset(mffield-&gt;array, 0, sizeof(char)*FieldSize*NbItems);</span>
+<span class="lineNum">    1156 </span><span class="lineCov">       1053 :         }</span>
+<span class="lineNum">    1157 </span><span class="lineCov">       1053 :         mffield-&gt;count = NbItems;</span>
+<span class="lineNum">    1158 </span><span class="lineCov">       1053 :         return GF_OK;</span>
+<span class="lineNum">    1159 </span><span class="lineCov">       1229 : }</span>
+<a name="1160"><span class="lineNum">    1160 </span>            : </a>
+<span class="lineNum">    1161 </span>            : GF_EXPORT
+<span class="lineNum">    1162 </span>            : GF_Err gf_sg_vrml_mf_get_item(void *mf, u32 FieldType, void **new_ptr, u32 ItemPos)
+<span class="lineNum">    1163 </span>            : {
+<span class="lineNum">    1164 </span>            :         u32 FieldSize;
+<span class="lineNum">    1165 </span><span class="lineCov">     350786 :         GenMFField *mffield = (GenMFField *)mf;</span>
+<span class="lineNum">    1166 </span>            : 
+<span class="lineNum">    1167 </span><span class="lineCov">     175393 :         *new_ptr = NULL;</span>
+<span class="lineNum">    1168 </span><span class="lineCov">     175393 :         if (gf_sg_vrml_is_sf_field(FieldType)) return GF_BAD_PARAM;</span>
+<span class="lineNum">    1169 </span><span class="lineCov">     175393 :         if (FieldType == GF_SG_VRML_MFNODE) return GF_BAD_PARAM;</span>
+<span class="lineNum">    1170 </span>            : 
+<span class="lineNum">    1171 </span><span class="lineCov">     175393 :         FieldSize = gf_sg_vrml_get_sf_size(FieldType);</span>
+<span class="lineNum">    1172 </span>            : 
+<span class="lineNum">    1173 </span>            :         //field we can't copy
+<span class="lineNum">    1174 </span><span class="lineCov">     175393 :         if (!FieldSize) return GF_BAD_PARAM;</span>
+<span class="lineNum">    1175 </span><span class="lineCov">     175393 :         if (ItemPos &gt;= mffield-&gt;count) return GF_BAD_PARAM;</span>
+<span class="lineNum">    1176 </span><span class="lineCov">     175393 :         *new_ptr = mffield-&gt;array + ItemPos * FieldSize;</span>
+<span class="lineNum">    1177 </span><span class="lineCov">     175393 :         return GF_OK;</span>
+<span class="lineNum">    1178 </span><span class="lineCov">     175393 : }</span>
+<span class="lineNum">    1179 </span>            : 
+<a name="1180"><span class="lineNum">    1180 </span>            : </a>
+<span class="lineNum">    1181 </span>            : GF_EXPORT
+<span class="lineNum">    1182 </span>            : GF_Err gf_sg_vrml_mf_append(void *mf, u32 FieldType, void **new_ptr)
+<span class="lineNum">    1183 </span>            : {
+<span class="lineNum">    1184 </span><span class="lineCov">     217964 :         GenMFField *mffield = (GenMFField *)mf;</span>
+<span class="lineNum">    1185 </span><span class="lineCov">     108982 :         return gf_sg_vrml_mf_insert(mf, FieldType, new_ptr, mffield-&gt;count+2);</span>
+<span class="lineNum">    1186 </span>            : }
+<span class="lineNum">    1187 </span>            : 
+<a name="1188"><span class="lineNum">    1188 </span>            : </a>
+<span class="lineNum">    1189 </span>            : //remove the specified item (0-based index)
+<span class="lineNum">    1190 </span>            : GF_Err gf_sg_vrml_mf_remove(void *mf, u32 FieldType, u32 RemoveFrom)
+<span class="lineNum">    1191 </span>            : {
+<span class="lineNum">    1192 </span>            :         char *buffer;
+<span class="lineNum">    1193 </span>            :         u32 FieldSize, i, k;
+<span class="lineNum">    1194 </span><span class="lineCov">          4 :         GenMFField *mffield = (GenMFField *)mf;</span>
+<span class="lineNum">    1195 </span>            : 
+<span class="lineNum">    1196 </span><span class="lineCov">          2 :         FieldSize = gf_sg_vrml_get_sf_size(FieldType);</span>
+<span class="lineNum">    1197 </span>            : 
+<span class="lineNum">    1198 </span>            :         //field we can't copy
+<span class="lineNum">    1199 </span><span class="lineCov">          2 :         if (!FieldSize) return GF_BAD_PARAM;</span>
+<span class="lineNum">    1200 </span>            : 
+<span class="lineNum">    1201 </span><span class="lineCov">          4 :         if (!mffield-&gt;count || RemoveFrom &gt;= mffield-&gt;count) return GF_BAD_PARAM;</span>
+<span class="lineNum">    1202 </span>            : 
+<span class="lineNum">    1203 </span><span class="lineCov">          2 :         if (mffield-&gt;count == 1) {</span>
+<span class="lineNum">    1204 </span><span class="lineNoCov">          0 :                 gf_free(mffield-&gt;array);</span>
+<span class="lineNum">    1205 </span><span class="lineNoCov">          0 :                 mffield-&gt;array = NULL;</span>
+<span class="lineNum">    1206 </span><span class="lineNoCov">          0 :                 mffield-&gt;count = 0;</span>
+<span class="lineNum">    1207 </span><span class="lineNoCov">          0 :                 return GF_OK;</span>
+<span class="lineNum">    1208 </span>            :         }
+<span class="lineNum">    1209 </span>            :         k=0;
+<span class="lineNum">    1210 </span><span class="lineCov">          2 :         buffer = (char*)gf_malloc(sizeof(char)*(mffield-&gt;count-1)*FieldSize);</span>
+<span class="lineNum">    1211 </span><span class="lineCov">         22 :         for (i=0; i&lt;mffield-&gt;count; i++) {</span>
+<span class="lineNum">    1212 </span><span class="lineCov">          9 :                 if (RemoveFrom == i) {</span>
+<span class="lineNum">    1213 </span>            :                         k = 1;
+<span class="lineNum">    1214 </span><span class="lineCov">          2 :                 } else {</span>
+<span class="lineNum">    1215 </span><span class="lineCov">          7 :                         memcpy(buffer + (i-k)*FieldSize, mffield-&gt;array + i*FieldSize, FieldSize);</span>
+<span class="lineNum">    1216 </span>            :                 }
+<span class="lineNum">    1217 </span>            :         }
+<span class="lineNum">    1218 </span><span class="lineCov">          2 :         gf_free(mffield-&gt;array);</span>
+<span class="lineNum">    1219 </span><span class="lineCov">          2 :         mffield-&gt;array = buffer;</span>
+<span class="lineNum">    1220 </span><span class="lineCov">          2 :         mffield-&gt;count -= 1;</span>
+<span class="lineNum">    1221 </span><span class="lineCov">          2 :         return GF_OK;</span>
+<span class="lineNum">    1222 </span><span class="lineCov">          2 : }</span>
+<span class="lineNum">    1223 </span>            : 
+<a name="1224"><span class="lineNum">    1224 </span>            : /*special cloning with type-casting from SF/MF strings to URL conversion since proto URL doesn't exist</a>
+<span class="lineNum">    1225 </span>            : as a field type (it's just a stupid encoding trick) */
+<span class="lineNum">    1226 </span>            : void VRML_FieldCopyCast(void *dest, u32 dst_field_type, void *orig, u32 ori_field_type)
+<span class="lineNum">    1227 </span>            : {
+<span class="lineNum">    1228 </span>            :         SFURL *url;
+<span class="lineNum">    1229 </span><span class="lineCov">         34 :         char tmp[50];</span>
+<span class="lineNum">    1230 </span>            :         u32 size, i, sf_type_ori, sf_type_dst;
+<span class="lineNum">    1231 </span><span class="lineCov">         17 :         void *dst_field, *orig_field;</span>
+<span class="lineNum">    1232 </span><span class="lineCov">         34 :         if (!dest || !orig) return;</span>
+<span class="lineNum">    1233 </span>            : 
+<span class="lineNum">    1234 </span><span class="lineNoCov">          0 :         switch (dst_field_type) {</span>
+<span class="lineNum">    1235 </span>            :         case GF_SG_VRML_SFSTRING:
+<span class="lineNum">    1236 </span><span class="lineNoCov">          0 :                 if (ori_field_type == GF_SG_VRML_SFURL) {</span>
+<span class="lineNum">    1237 </span><span class="lineNoCov">          0 :                         url = ((SFURL *)orig);</span>
+<span class="lineNum">    1238 </span><span class="lineNoCov">          0 :                         if (url-&gt;OD_ID&gt;0) {</span>
+<span class="lineNum">    1239 </span><span class="lineNoCov">          0 :                                 sprintf(tmp, &quot;%d&quot;, url-&gt;OD_ID);</span>
+<span class="lineNum">    1240 </span><span class="lineNoCov">          0 :                                 if ( ((SFString*)dest)-&gt;buffer) gf_free(((SFString*)dest)-&gt;buffer);</span>
+<span class="lineNum">    1241 </span><span class="lineNoCov">          0 :                                 ((SFString*)dest)-&gt;buffer = gf_strdup(tmp);</span>
+<span class="lineNum">    1242 </span><span class="lineNoCov">          0 :                         } else {</span>
+<span class="lineNum">    1243 </span><span class="lineNoCov">          0 :                                 if ( ((SFString*)dest)-&gt;buffer) gf_free(((SFString*)dest)-&gt;buffer);</span>
+<span class="lineNum">    1244 </span><span class="lineNoCov">          0 :                                 ((SFString*)dest)-&gt;buffer = url-&gt;url ? gf_strdup(url-&gt;url) : NULL;</span>
+<span class="lineNum">    1245 </span>            :                         }
+<span class="lineNum">    1246 </span>            :                 }
+<span class="lineNum">    1247 </span>            :                 /*for SFString to MFString cast*/
+<span class="lineNum">    1248 </span><span class="lineNoCov">          0 :                 else if (ori_field_type == GF_SG_VRML_SFSTRING) {</span>
+<span class="lineNum">    1249 </span><span class="lineNoCov">          0 :                         if ( ((SFString*)dest)-&gt;buffer) gf_free(((SFString*)dest)-&gt;buffer);</span>
+<span class="lineNum">    1250 </span><span class="lineNoCov">          0 :                         ((SFString*)dest)-&gt;buffer = ((SFString*)orig)-&gt;buffer ? gf_strdup(((SFString*)orig)-&gt;buffer) : NULL;</span>
+<span class="lineNum">    1251 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">    1252 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">    1253 </span>            :         case GF_SG_VRML_SFURL:
+<span class="lineNum">    1254 </span><span class="lineNoCov">          0 :                 if (ori_field_type != GF_SG_VRML_SFSTRING) return;</span>
+<span class="lineNum">    1255 </span><span class="lineNoCov">          0 :                 url = ((SFURL *)dest);</span>
+<span class="lineNum">    1256 </span><span class="lineNoCov">          0 :                 url-&gt;OD_ID = 0;</span>
+<span class="lineNum">    1257 </span><span class="lineNoCov">          0 :                 if (url-&gt;url) gf_free(url-&gt;url);</span>
+<span class="lineNum">    1258 </span><span class="lineNoCov">          0 :                 if ( ((SFString*)orig)-&gt;buffer)</span>
+<span class="lineNum">    1259 </span><span class="lineNoCov">          0 :                         url-&gt;url = gf_strdup(((SFString*)orig)-&gt;buffer);</span>
+<span class="lineNum">    1260 </span>            :                 else
+<span class="lineNum">    1261 </span><span class="lineNoCov">          0 :                         url-&gt;url = NULL;</span>
+<span class="lineNum">    1262 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">    1263 </span>            :         case GF_SG_VRML_MFSTRING:
+<span class="lineNum">    1264 </span>            :         case GF_SG_VRML_MFURL:
+<span class="lineNum">    1265 </span>            :                 break;
+<span class="lineNum">    1266 </span>            :         default:
+<span class="lineNum">    1267 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">    1268 </span>            :         }
+<span class="lineNum">    1269 </span>            : 
+<span class="lineNum">    1270 </span><span class="lineNoCov">          0 :         sf_type_dst = gf_sg_vrml_get_sf_type(dst_field_type);</span>
+<span class="lineNum">    1271 </span>            : 
+<span class="lineNum">    1272 </span><span class="lineNoCov">          0 :         if (gf_sg_vrml_is_sf_field(ori_field_type)) {</span>
+<span class="lineNum">    1273 </span>            :                 size = 1;
+<span class="lineNum">    1274 </span><span class="lineNoCov">          0 :                 gf_sg_vrml_mf_alloc(dest, dst_field_type, size);</span>
+<span class="lineNum">    1275 </span><span class="lineNoCov">          0 :                 gf_sg_vrml_mf_get_item(dest, dst_field_type, &amp;dst_field, 0);</span>
+<span class="lineNum">    1276 </span><span class="lineNoCov">          0 :                 VRML_FieldCopyCast(dst_field, sf_type_dst, orig, ori_field_type);</span>
+<span class="lineNum">    1277 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">    1278 </span>            :         }
+<span class="lineNum">    1279 </span>            : 
+<span class="lineNum">    1280 </span><span class="lineNoCov">          0 :         size = ((GenMFField *)orig)-&gt;count;</span>
+<span class="lineNum">    1281 </span><span class="lineNoCov">          0 :         if (size != ((GenMFField *)dest)-&gt;count) gf_sg_vrml_mf_alloc(dest, dst_field_type, size);</span>
+<span class="lineNum">    1282 </span>            : 
+<span class="lineNum">    1283 </span><span class="lineNoCov">          0 :         sf_type_ori = gf_sg_vrml_get_sf_type(ori_field_type);</span>
+<span class="lineNum">    1284 </span>            :         //duplicate all items
+<span class="lineNum">    1285 </span><span class="lineNoCov">          0 :         for (i=0; i&lt;size; i++) {</span>
+<span class="lineNum">    1286 </span><span class="lineNoCov">          0 :                 gf_sg_vrml_mf_get_item(dest, dst_field_type, &amp;dst_field, i);</span>
+<span class="lineNum">    1287 </span><span class="lineNoCov">          0 :                 gf_sg_vrml_mf_get_item(orig, ori_field_type, &amp;orig_field, i);</span>
+<span class="lineNum">    1288 </span><span class="lineNoCov">          0 :                 VRML_FieldCopyCast(dst_field, sf_type_dst, orig_field, sf_type_ori);</span>
+<span class="lineNum">    1289 </span>            :         }
+<span class="lineNum">    1290 </span><span class="lineNoCov">          0 :         return;</span>
+<span class="lineNum">    1291 </span><span class="lineCov">         17 : }</span>
+<a name="1292"><span class="lineNum">    1292 </span>            : </a>
+<span class="lineNum">    1293 </span>            : GF_EXPORT
+<span class="lineNum">    1294 </span>            : void gf_sg_vrml_field_clone(void *dest, void *orig, u32 field_type, GF_SceneGraph *inScene)
+<span class="lineNum">    1295 </span>            : {
+<span class="lineNum">    1296 </span>            :         u32 size, i, sf_type;
+<span class="lineNum">    1297 </span><span class="lineCov">      15918 :         void *dst_field, *orig_field;</span>
+<span class="lineNum">    1298 </span>            : 
+<span class="lineNum">    1299 </span><span class="lineCov">       8006 :         if (!dest || !orig) return;</span>
+<span class="lineNum">    1300 </span>            : 
+<span class="lineNum">    1301 </span><span class="lineCov">      15824 :         switch (field_type) {</span>
+<span class="lineNum">    1302 </span>            :         case GF_SG_VRML_SFBOOL:
+<span class="lineNum">    1303 </span><span class="lineCov">        690 :                 memcpy(dest, orig, sizeof(SFBool));</span>
+<span class="lineNum">    1304 </span><span class="lineCov">        690 :                 break;</span>
+<span class="lineNum">    1305 </span>            :         case GF_SG_VRML_SFCOLOR:
+<span class="lineNum">    1306 </span><span class="lineCov">        945 :                 memcpy(dest, orig, sizeof(SFColor));</span>
+<span class="lineNum">    1307 </span><span class="lineCov">        945 :                 break;</span>
+<span class="lineNum">    1308 </span>            :         case GF_SG_VRML_SFFLOAT:
+<span class="lineNum">    1309 </span><span class="lineCov">       1314 :                 memcpy(dest, orig, sizeof(SFFloat));</span>
+<span class="lineNum">    1310 </span><span class="lineCov">       1314 :                 break;</span>
+<span class="lineNum">    1311 </span>            :         case GF_SG_VRML_SFINT32:
+<span class="lineNum">    1312 </span><span class="lineCov">        135 :                 memcpy(dest, orig, sizeof(SFInt32));</span>
+<span class="lineNum">    1313 </span><span class="lineCov">        135 :                 break;</span>
+<span class="lineNum">    1314 </span>            :         case GF_SG_VRML_SFROTATION:
+<span class="lineNum">    1315 </span><span class="lineNoCov">          0 :                 memcpy(dest, orig, sizeof(SFRotation));</span>
+<span class="lineNum">    1316 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">    1317 </span>            :         case GF_SG_VRML_SFTIME:
+<span class="lineNum">    1318 </span><span class="lineCov">        325 :                 memcpy(dest, orig, sizeof(SFTime));</span>
+<span class="lineNum">    1319 </span><span class="lineCov">        325 :                 break;</span>
+<span class="lineNum">    1320 </span>            :         case GF_SG_VRML_SFVEC2F:
+<span class="lineNum">    1321 </span><span class="lineCov">       4085 :                 memcpy(dest, orig, sizeof(SFVec2f));</span>
+<span class="lineNum">    1322 </span><span class="lineCov">       4085 :                 break;</span>
+<span class="lineNum">    1323 </span>            :         case GF_SG_VRML_SFVEC3F:
+<span class="lineNum">    1324 </span><span class="lineCov">         36 :                 memcpy(dest, orig, sizeof(SFVec3f));</span>
+<span class="lineNum">    1325 </span><span class="lineCov">         36 :                 break;</span>
+<span class="lineNum">    1326 </span>            :         case GF_SG_VRML_SFATTRREF:
+<span class="lineNum">    1327 </span><span class="lineNoCov">          0 :                 memcpy(dest, orig, sizeof(SFAttrRef));</span>
+<span class="lineNum">    1328 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">    1329 </span>            :         case GF_SG_VRML_SFSTRING:
+<span class="lineNum">    1330 </span><span class="lineCov">         51 :                 if ( ((SFString*)dest)-&gt;buffer) gf_free(((SFString*)dest)-&gt;buffer);</span>
+<span class="lineNum">    1331 </span><span class="lineCov">         43 :                 if ( ((SFString*)orig)-&gt;buffer )</span>
+<span class="lineNum">    1332 </span><span class="lineCov">         35 :                         ((SFString*)dest)-&gt;buffer = gf_strdup(((SFString*)orig)-&gt;buffer);</span>
+<span class="lineNum">    1333 </span>            :                 else
+<span class="lineNum">    1334 </span><span class="lineCov">          8 :                         ((SFString*)dest)-&gt;buffer = NULL;</span>
+<span class="lineNum">    1335 </span>            :                 break;
+<span class="lineNum">    1336 </span>            :         case GF_SG_VRML_SFURL:
+<span class="lineNum">    1337 </span><span class="lineCov">          2 :                 if ( ((SFURL *)dest)-&gt;url ) gf_free( ((SFURL *)dest)-&gt;url );</span>
+<span class="lineNum">    1338 </span><span class="lineCov">          2 :                 ((SFURL *)dest)-&gt;OD_ID = ((SFURL *)orig)-&gt;OD_ID;</span>
+<span class="lineNum">    1339 </span><span class="lineCov">          2 :                 if (((SFURL *)orig)-&gt;url)</span>
+<span class="lineNum">    1340 </span><span class="lineNoCov">          0 :                         ((SFURL *)dest)-&gt;url = gf_strdup(((SFURL *)orig)-&gt;url);</span>
+<span class="lineNum">    1341 </span>            :                 else
+<span class="lineNum">    1342 </span><span class="lineCov">          2 :                         ((SFURL *)dest)-&gt;url = NULL;</span>
+<span class="lineNum">    1343 </span>            :                 break;
+<span class="lineNum">    1344 </span>            :         case GF_SG_VRML_SFIMAGE:
+<span class="lineNum">    1345 </span><span class="lineNoCov">          0 :                 if (((SFImage *)dest)-&gt;pixels) gf_free(((SFImage *)dest)-&gt;pixels);</span>
+<span class="lineNum">    1346 </span><span class="lineNoCov">          0 :                 ((SFImage *)dest)-&gt;width = ((SFImage *)orig)-&gt;width;</span>
+<span class="lineNum">    1347 </span><span class="lineNoCov">          0 :                 ((SFImage *)dest)-&gt;height = ((SFImage *)orig)-&gt;height;</span>
+<span class="lineNum">    1348 </span><span class="lineNoCov">          0 :                 ((SFImage *)dest)-&gt;numComponents  = ((SFImage *)orig)-&gt;numComponents;</span>
+<span class="lineNum">    1349 </span><span class="lineNoCov">          0 :                 size = ((SFImage *)dest)-&gt;width * ((SFImage *)dest)-&gt;height * ((SFImage *)dest)-&gt;numComponents;</span>
+<span class="lineNum">    1350 </span><span class="lineNoCov">          0 :                 ((SFImage *)dest)-&gt;pixels = (u8*)gf_malloc(sizeof(char)*size);</span>
+<span class="lineNum">    1351 </span><span class="lineNoCov">          0 :                 memcpy(((SFImage *)dest)-&gt;pixels, ((SFImage *)orig)-&gt;pixels, sizeof(char)*size);</span>
+<span class="lineNum">    1352 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">    1353 </span>            :         case GF_SG_VRML_SFCOMMANDBUFFER:
+<span class="lineNum">    1354 </span>            :         {
+<span class="lineNum">    1355 </span><span class="lineNoCov">          0 :                 SFCommandBuffer *cb_dst = (SFCommandBuffer *)dest;</span>
+<span class="lineNum">    1356 </span><span class="lineNoCov">          0 :                 SFCommandBuffer *cb_src = (SFCommandBuffer *)orig;</span>
+<span class="lineNum">    1357 </span>            : 
+<span class="lineNum">    1358 </span><span class="lineNoCov">          0 :                 cb_dst-&gt;bufferSize = cb_src-&gt;bufferSize;</span>
+<span class="lineNum">    1359 </span><span class="lineNoCov">          0 :                 if (cb_dst-&gt;bufferSize &amp;&amp; !gf_list_count(cb_src-&gt;commandList) ) {</span>
+<span class="lineNum">    1360 </span><span class="lineNoCov">          0 :                         cb_dst-&gt;buffer = (u8*)gf_realloc(cb_dst-&gt;buffer, sizeof(char)*cb_dst-&gt;bufferSize);</span>
+<span class="lineNum">    1361 </span><span class="lineNoCov">          0 :                         memcpy(cb_dst-&gt;buffer, cb_src-&gt;buffer, sizeof(char)*cb_src-&gt;bufferSize);</span>
+<span class="lineNum">    1362 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">    1363 </span>            :                         u32 j, c2;
+<span class="lineNum">    1364 </span><span class="lineNoCov">          0 :                         if (cb_dst-&gt;buffer) gf_free(cb_dst-&gt;buffer);</span>
+<span class="lineNum">    1365 </span><span class="lineNoCov">          0 :                         cb_dst-&gt;buffer = NULL;</span>
+<span class="lineNum">    1366 </span>            :                         /*clone command list*/
+<span class="lineNum">    1367 </span><span class="lineNoCov">          0 :                         c2 = gf_list_count(cb_src-&gt;commandList);</span>
+<span class="lineNum">    1368 </span><span class="lineNoCov">          0 :                         for (j=0; j&lt;c2; j++) {</span>
+<span class="lineNum">    1369 </span><span class="lineNoCov">          0 :                                 GF_Command *sub_com = (GF_Command *)gf_list_get(cb_src-&gt;commandList, j);</span>
+<span class="lineNum">    1370 </span><span class="lineNoCov">          0 :                                 GF_Command *new_com = gf_sg_vrml_command_clone(sub_com, inScene, 0);</span>
+<span class="lineNum">    1371 </span><span class="lineNoCov">          0 :                                 gf_list_add(cb_dst-&gt;commandList, new_com);</span>
+<span class="lineNum">    1372 </span>            :                         }
+<span class="lineNum">    1373 </span>            :                 }
+<span class="lineNum">    1374 </span>            :         }
+<span class="lineNum">    1375 </span><span class="lineNoCov">          0 :         break;</span>
+<span class="lineNum">    1376 </span>            : 
+<span class="lineNum">    1377 </span>            :         /*simply copy text string*/
+<span class="lineNum">    1378 </span>            :         case GF_SG_VRML_SFSCRIPT:
+<span class="lineNum">    1379 </span><span class="lineNoCov">          0 :                 if (((SFScript*)dest)-&gt;script_text) gf_free(((SFScript*)dest)-&gt;script_text);</span>
+<span class="lineNum">    1380 </span><span class="lineNoCov">          0 :                 ((SFScript*)dest)-&gt;script_text = NULL;</span>
+<span class="lineNum">    1381 </span><span class="lineNoCov">          0 :                 if ( ((SFScript*)orig)-&gt;script_text)</span>
+<span class="lineNum">    1382 </span><span class="lineNoCov">          0 :                         ((SFScript *)dest)-&gt;script_text = (char *)gf_strdup( (char*) ((SFScript*)orig)-&gt;script_text );</span>
+<span class="lineNum">    1383 </span>            :                 break;
+<span class="lineNum">    1384 </span>            : 
+<span class="lineNum">    1385 </span>            : 
+<span class="lineNum">    1386 </span>            :         //simple MFFields, do a memcpy
+<span class="lineNum">    1387 </span>            :         case GF_SG_VRML_MFBOOL:
+<span class="lineNum">    1388 </span>            :         case GF_SG_VRML_MFFLOAT:
+<span class="lineNum">    1389 </span>            :         case GF_SG_VRML_MFTIME:
+<span class="lineNum">    1390 </span>            :         case GF_SG_VRML_MFINT32:
+<span class="lineNum">    1391 </span>            :         case GF_SG_VRML_MFVEC3F:
+<span class="lineNum">    1392 </span>            :         case GF_SG_VRML_MFVEC2F:
+<span class="lineNum">    1393 </span>            :         case GF_SG_VRML_MFCOLOR:
+<span class="lineNum">    1394 </span>            :         case GF_SG_VRML_MFROTATION:
+<span class="lineNum">    1395 </span>            :         case GF_SG_VRML_MFATTRREF:
+<span class="lineNum">    1396 </span><span class="lineCov">        126 :                 size = gf_sg_vrml_get_sf_size(field_type) * ((GenMFField *)orig)-&gt;count;</span>
+<span class="lineNum">    1397 </span><span class="lineCov">        126 :                 if (((GenMFField *)orig)-&gt;count != ((GenMFField *)dest)-&gt;count) {</span>
+<span class="lineNum">    1398 </span><span class="lineNoCov">          0 :                         ((GenMFField *)dest)-&gt;array = gf_realloc(((GenMFField *)dest)-&gt;array, size);</span>
+<span class="lineNum">    1399 </span><span class="lineNoCov">          0 :                         ((GenMFField *)dest)-&gt;count = ((GenMFField *)orig)-&gt;count;</span>
+<span class="lineNum">    1400 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">    1401 </span><span class="lineCov">        126 :                 memcpy(((GenMFField *)dest)-&gt;array, ((GenMFField *)orig)-&gt;array, size);</span>
+<span class="lineNum">    1402 </span><span class="lineCov">        126 :                 break;</span>
+<span class="lineNum">    1403 </span>            :         //complex MFFields
+<span class="lineNum">    1404 </span>            :         case GF_SG_VRML_MFSTRING:
+<span class="lineNum">    1405 </span>            :         case GF_SG_VRML_MFIMAGE:
+<span class="lineNum">    1406 </span>            :         case GF_SG_VRML_MFURL:
+<span class="lineNum">    1407 </span>            :         case GF_SG_VRML_MFSCRIPT:
+<span class="lineNum">    1408 </span><span class="lineCov">        211 :                 size = ((GenMFField *)orig)-&gt;count;</span>
+<span class="lineNum">    1409 </span><span class="lineCov">        211 :                 gf_sg_vrml_mf_reset(dest, field_type);</span>
+<span class="lineNum">    1410 </span><span class="lineCov">        211 :                 gf_sg_vrml_mf_alloc(dest, field_type, size);</span>
+<span class="lineNum">    1411 </span><span class="lineCov">        211 :                 sf_type = gf_sg_vrml_get_sf_type(field_type);</span>
+<span class="lineNum">    1412 </span>            :                 //duplicate all items
+<span class="lineNum">    1413 </span><span class="lineCov">        496 :                 for (i=0; i&lt;size; i++) {</span>
+<span class="lineNum">    1414 </span><span class="lineCov">         37 :                         gf_sg_vrml_mf_get_item(dest, field_type, &amp;dst_field, i);</span>
+<span class="lineNum">    1415 </span><span class="lineCov">         37 :                         gf_sg_vrml_mf_get_item(orig, field_type, &amp;orig_field, i);</span>
+<span class="lineNum">    1416 </span><span class="lineCov">         37 :                         gf_sg_vrml_field_copy(dst_field, orig_field, sf_type);</span>
+<span class="lineNum">    1417 </span>            :                 }
+<span class="lineNum">    1418 </span>            :                 break;
+<span class="lineNum">    1419 </span>            :         }
+<span class="lineNum">    1420 </span><span class="lineCov">      15871 : }</span>
+<a name="1421"><span class="lineNum">    1421 </span>            : </a>
+<span class="lineNum">    1422 </span>            : GF_EXPORT
+<span class="lineNum">    1423 </span>            : void gf_sg_vrml_field_copy(void *dest, void *orig, u32 field_type)
+<span class="lineNum">    1424 </span>            : {
+<span class="lineNum">    1425 </span><span class="lineCov">      15918 :         gf_sg_vrml_field_clone(dest, orig, field_type, NULL);</span>
+<span class="lineNum">    1426 </span><span class="lineCov">       7959 : }</span>
+<a name="1427"><span class="lineNum">    1427 </span>            : </a>
+<span class="lineNum">    1428 </span>            : GF_EXPORT
+<span class="lineNum">    1429 </span>            : Bool gf_sg_vrml_field_equal(void *dest, void *orig, u32 field_type)
+<span class="lineNum">    1430 </span>            : {
+<span class="lineNum">    1431 </span>            :         u32 size, i, sf_type;
+<span class="lineNum">    1432 </span><span class="lineCov">     629174 :         void *dst_field, *orig_field;</span>
+<span class="lineNum">    1433 </span>            :         Bool changed = 0;
+<span class="lineNum">    1434 </span>            : 
+<span class="lineNum">    1435 </span><span class="lineCov">     314770 :         if (!dest || !orig) return 0;</span>
+<span class="lineNum">    1436 </span>            : 
+<span class="lineNum">    1437 </span><span class="lineCov">     628808 :         switch (field_type) {</span>
+<span class="lineNum">    1438 </span>            :         case GF_SG_VRML_SFBOOL:
+<span class="lineNum">    1439 </span><span class="lineCov">      51535 :                 changed = memcmp(dest, orig, sizeof(SFBool));</span>
+<span class="lineNum">    1440 </span><span class="lineCov">      51535 :                 break;</span>
+<span class="lineNum">    1441 </span>            :         case GF_SG_VRML_SFCOLOR:
+<span class="lineNum">    1442 </span><span class="lineCov">      32324 :                 if (((SFColor *)dest)-&gt;red != ((SFColor *)orig)-&gt;red) changed = 1;</span>
+<span class="lineNum">    1443 </span><span class="lineCov">       4033 :                 else if (((SFColor *)dest)-&gt;green != ((SFColor *)orig)-&gt;green) changed = 1;</span>
+<span class="lineNum">    1444 </span><span class="lineCov">       3852 :                 else if (((SFColor *)dest)-&gt;blue != ((SFColor *)orig)-&gt;blue) changed = 1;</span>
+<span class="lineNum">    1445 </span>            :                 break;
+<span class="lineNum">    1446 </span>            :         case GF_SG_VRML_SFFLOAT:
+<span class="lineNum">    1447 </span><span class="lineCov">     122367 :                 if ( (*(SFFloat *)dest) != (*(SFFloat *)orig) ) changed = 1;</span>
+<span class="lineNum">    1448 </span>            :                 break;
+<span class="lineNum">    1449 </span>            :         case GF_SG_VRML_SFINT32:
+<span class="lineNum">    1450 </span><span class="lineCov">       4448 :                 changed = memcmp(dest, orig, sizeof(SFInt32));</span>
+<span class="lineNum">    1451 </span><span class="lineCov">       4448 :                 break;</span>
+<span class="lineNum">    1452 </span>            :         case GF_SG_VRML_SFROTATION:
+<span class="lineNum">    1453 </span><span class="lineCov">       3111 :                 if (((SFRotation *)dest)-&gt;x != ((SFRotation *)orig)-&gt;x) changed = 1;</span>
+<span class="lineNum">    1454 </span><span class="lineCov">       2607 :                 else if (((SFRotation *)dest)-&gt;y != ((SFRotation *)orig)-&gt;y) changed = 1;</span>
+<span class="lineNum">    1455 </span><span class="lineCov">       2571 :                 else if (((SFRotation *)dest)-&gt;z != ((SFRotation *)orig)-&gt;z) changed = 1;</span>
+<span class="lineNum">    1456 </span><span class="lineCov">       2571 :                 else if (((SFRotation *)dest)-&gt;q != ((SFRotation *)orig)-&gt;q) changed = 1;</span>
+<span class="lineNum">    1457 </span>            :                 break;
+<span class="lineNum">    1458 </span>            :         case GF_SG_VRML_SFTIME:
+<span class="lineNum">    1459 </span><span class="lineCov">       5289 :                 if ( (*(SFTime *)dest) != (*(SFTime*)orig) ) changed = 1;</span>
+<span class="lineNum">    1460 </span>            :                 break;
+<span class="lineNum">    1461 </span>            :         case GF_SG_VRML_SFVEC2F:
+<span class="lineNum">    1462 </span><span class="lineCov">      69688 :                 if (((SFVec2f *)dest)-&gt;x != ((SFVec2f *)orig)-&gt;x) changed = 1;</span>
+<span class="lineNum">    1463 </span><span class="lineCov">      43745 :                 else if (((SFVec2f *)dest)-&gt;y != ((SFVec2f *)orig)-&gt;y) changed = 1;</span>
+<span class="lineNum">    1464 </span>            :                 break;
+<span class="lineNum">    1465 </span>            :         case GF_SG_VRML_SFVEC3F:
+<span class="lineNum">    1466 </span><span class="lineCov">       6218 :                 if (((SFVec3f *)dest)-&gt;x != ((SFVec3f *)orig)-&gt;x) changed = 1;</span>
+<span class="lineNum">    1467 </span><span class="lineCov">       4158 :                 else if (((SFVec3f *)dest)-&gt;y != ((SFVec3f *)orig)-&gt;y) changed = 1;</span>
+<span class="lineNum">    1468 </span><span class="lineCov">       3577 :                 else if (((SFVec3f *)dest)-&gt;z != ((SFVec3f *)orig)-&gt;z) changed = 1;</span>
+<span class="lineNum">    1469 </span>            :                 break;
+<span class="lineNum">    1470 </span>            :         case GF_SG_VRML_SFSTRING:
+<span class="lineNum">    1471 </span><span class="lineCov">      29674 :                 if ( ((SFString*)dest)-&gt;buffer &amp;&amp; ((SFString*)orig)-&gt;buffer) {</span>
+<span class="lineNum">    1472 </span><span class="lineCov">      10895 :                         changed = strcmp(((SFString*)dest)-&gt;buffer, ((SFString*)orig)-&gt;buffer);</span>
+<span class="lineNum">    1473 </span><span class="lineCov">      10895 :                 } else {</span>
+<span class="lineNum">    1474 </span><span class="lineCov">      23652 :                         changed = ( !((SFString*)dest)-&gt;buffer &amp;&amp; !((SFString*)orig)-&gt;buffer) ? 0 : 1;</span>
+<span class="lineNum">    1475 </span>            :                 }
+<span class="lineNum">    1476 </span>            :                 break;
+<span class="lineNum">    1477 </span>            :         case GF_SG_VRML_SFURL:
+<span class="lineNum">    1478 </span><span class="lineNoCov">          0 :                 if (((SFURL *)dest)-&gt;OD_ID &gt; 0 || ((SFURL *)orig)-&gt;OD_ID &gt; 0) {</span>
+<span class="lineNum">    1479 </span><span class="lineNoCov">          0 :                         if ( ((SFURL *)orig)-&gt;OD_ID != ((SFURL *)dest)-&gt;OD_ID) changed = 1;</span>
+<span class="lineNum">    1480 </span>            :                 } else {
+<span class="lineNum">    1481 </span><span class="lineNoCov">          0 :                         if ( ((SFURL *)orig)-&gt;url &amp;&amp; ! ((SFURL *)dest)-&gt;url) changed = 1;</span>
+<span class="lineNum">    1482 </span><span class="lineNoCov">          0 :                         else if ( ! ((SFURL *)orig)-&gt;url &amp;&amp; ((SFURL *)dest)-&gt;url) changed = 1;</span>
+<span class="lineNum">    1483 </span><span class="lineNoCov">          0 :                         else if ( strcmp( ((SFURL *)orig)-&gt;url , ((SFURL *)dest)-&gt;url) ) changed = 1;</span>
+<span class="lineNum">    1484 </span>            :                 }
+<span class="lineNum">    1485 </span>            :                 break;
+<span class="lineNum">    1486 </span>            :         case GF_SG_VRML_SFIMAGE:
+<span class="lineNum">    1487 </span>            :         case GF_SG_VRML_SFATTRREF:
+<span class="lineNum">    1488 </span>            :         case GF_SG_VRML_SFSCRIPT:
+<span class="lineNum">    1489 </span>            :         case GF_SG_VRML_SFCOMMANDBUFFER:
+<span class="lineNum">    1490 </span>            :                 changed = 1;
+<span class="lineNum">    1491 </span><span class="lineCov">       2126 :                 break;</span>
+<span class="lineNum">    1492 </span>            : 
+<span class="lineNum">    1493 </span>            :         //MFFields
+<span class="lineNum">    1494 </span>            :         case GF_SG_VRML_MFATTRREF:
+<span class="lineNum">    1495 </span>            :                 changed = 1;
+<span class="lineNum">    1496 </span><span class="lineCov">          5 :                 break;</span>
+<span class="lineNum">    1497 </span>            :         case GF_SG_VRML_MFBOOL:
+<span class="lineNum">    1498 </span>            :         case GF_SG_VRML_MFFLOAT:
+<span class="lineNum">    1499 </span>            :         case GF_SG_VRML_MFTIME:
+<span class="lineNum">    1500 </span>            :         case GF_SG_VRML_MFINT32:
+<span class="lineNum">    1501 </span>            :         case GF_SG_VRML_MFSTRING:
+<span class="lineNum">    1502 </span>            :         case GF_SG_VRML_MFVEC3F:
+<span class="lineNum">    1503 </span>            :         case GF_SG_VRML_MFVEC2F:
+<span class="lineNum">    1504 </span>            :         case GF_SG_VRML_MFCOLOR:
+<span class="lineNum">    1505 </span>            :         case GF_SG_VRML_MFROTATION:
+<span class="lineNum">    1506 </span>            :         case GF_SG_VRML_MFIMAGE:
+<span class="lineNum">    1507 </span>            :         case GF_SG_VRML_MFURL:
+<span class="lineNum">    1508 </span>            :         case GF_SG_VRML_MFSCRIPT:
+<span class="lineNum">    1509 </span><span class="lineCov">      67046 :                 if ( ((GenMFField *)orig)-&gt;count != ((GenMFField *)dest)-&gt;count) changed = 1;</span>
+<span class="lineNum">    1510 </span>            :                 else {
+<span class="lineNum">    1511 </span>            :                         size = ((GenMFField *)orig)-&gt;count;
+<span class="lineNum">    1512 </span><span class="lineCov">      22176 :                         sf_type = gf_sg_vrml_get_sf_type(field_type);</span>
+<span class="lineNum">    1513 </span><span class="lineCov">      54266 :                         for (i=0; i&lt;size; i++) {</span>
+<span class="lineNum">    1514 </span><span class="lineCov">       6955 :                                 gf_sg_vrml_mf_get_item(dest, field_type, &amp;dst_field, i);</span>
+<span class="lineNum">    1515 </span><span class="lineCov">       6955 :                                 gf_sg_vrml_mf_get_item(orig, field_type, &amp;orig_field, i);</span>
+<span class="lineNum">    1516 </span><span class="lineCov">       6955 :                                 if (! gf_sg_vrml_field_equal(dst_field, orig_field, sf_type) ) {</span>
+<span class="lineNum">    1517 </span>            :                                         changed = 1;
+<span class="lineNum">    1518 </span><span class="lineCov">       1998 :                                         break;</span>
+<span class="lineNum">    1519 </span>            :                                 }
+<span class="lineNum">    1520 </span>            :                         }
+<span class="lineNum">    1521 </span>            :                 }
+<span class="lineNum">    1522 </span>            :                 break;
+<span class="lineNum">    1523 </span>            :         }
+<span class="lineNum">    1524 </span><span class="lineCov">     314404 :         return changed ? 0 : 1;</span>
+<span class="lineNum">    1525 </span><span class="lineCov">     314587 : }</span>
+<span class="lineNum">    1526 </span>            : 
+<span class="lineNum">    1527 </span>            : 
+<a name="1528"><span class="lineNum">    1528 </span>            : </a>
+<span class="lineNum">    1529 </span>            : GF_EXPORT
+<span class="lineNum">    1530 </span>            : SFColorRGBA gf_sg_sfcolor_to_rgba(SFColor val)
+<span class="lineNum">    1531 </span>            : {
+<span class="lineNum">    1532 </span>            :         SFColorRGBA res;
+<span class="lineNum">    1533 </span>            :         res.alpha = FIX_ONE;
+<span class="lineNum">    1534 </span><span class="lineNoCov">          0 :         res.red = val.red;</span>
+<span class="lineNum">    1535 </span><span class="lineNoCov">          0 :         res.green = val.green;</span>
+<span class="lineNum">    1536 </span>            :         res.blue = val.blue;
+<span class="lineNum">    1537 </span><span class="lineNoCov">          0 :         return res;</span>
+<span class="lineNum">    1538 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">    1539 </span>            : 
+<a name="1540"><span class="lineNum">    1540 </span>            : </a>
+<span class="lineNum">    1541 </span>            : 
+<span class="lineNum">    1542 </span>            : u32 gf_node_get_num_fields_in_mode(GF_Node *Node, u8 IndexMode)
+<span class="lineNum">    1543 </span>            : {
+<span class="lineNum">    1544 </span>            :         assert(Node);
+<span class="lineNum">    1545 </span><span class="lineCov">     432591 :         if (Node-&gt;sgprivate-&gt;tag == TAG_ProtoNode) return gf_sg_proto_get_num_fields(Node, IndexMode);</span>
+<span class="lineNum">    1546 </span><span class="lineCov">     213351 :         else if (Node-&gt;sgprivate-&gt;tag == TAG_MPEG4_Script)</span>
+<span class="lineNum">    1547 </span><span class="lineCov">       6872 :                 return gf_sg_script_get_num_fields(Node, IndexMode);</span>
+<span class="lineNum">    1548 </span>            : #ifndef GPAC_DISABLE_X3D
+<span class="lineNum">    1549 </span><span class="lineCov">     206479 :         else if (Node-&gt;sgprivate-&gt;tag == TAG_X3D_Script)</span>
+<span class="lineNum">    1550 </span><span class="lineNoCov">          0 :                 return gf_sg_script_get_num_fields(Node, IndexMode);</span>
+<span class="lineNum">    1551 </span>            : #endif
+<span class="lineNum">    1552 </span><span class="lineCov">     412958 :         else if (Node-&gt;sgprivate-&gt;tag &lt;= GF_NODE_RANGE_LAST_MPEG4) return gf_sg_mpeg4_node_get_field_count(Node, IndexMode);</span>
+<span class="lineNum">    1553 </span>            : #ifndef GPAC_DISABLE_X3D
+<span class="lineNum">    1554 </span><span class="lineNoCov">          0 :         else if (Node-&gt;sgprivate-&gt;tag &lt;= GF_NODE_RANGE_LAST_X3D) return gf_sg_x3d_node_get_field_count(Node);</span>
+<span class="lineNum">    1555 </span>            : #endif
+<span class="lineNum">    1556 </span><span class="lineNoCov">          0 :         else return 0;</span>
+<span class="lineNum">    1557 </span><span class="lineCov">     215314 : }</span>
+<span class="lineNum">    1558 </span>            : 
+<span class="lineNum">    1559 </span>            : 
+<span class="lineNum">    1560 </span>            : 
+<span class="lineNum">    1561 </span>            : /*all our internally handled nodes*/
+<span class="lineNum">    1562 </span>            : Bool InitColorInterpolator(M_ColorInterpolator *node);
+<span class="lineNum">    1563 </span>            : Bool InitCoordinateInterpolator2D(M_CoordinateInterpolator2D *node);
+<span class="lineNum">    1564 </span>            : Bool InitCoordinateInterpolator(M_CoordinateInterpolator *n);
+<span class="lineNum">    1565 </span>            : Bool InitNormalInterpolator(M_NormalInterpolator *n);
+<span class="lineNum">    1566 </span>            : Bool InitPositionInterpolator2D(M_PositionInterpolator2D *node);
+<span class="lineNum">    1567 </span>            : Bool InitPositionInterpolator(M_PositionInterpolator *node);
+<span class="lineNum">    1568 </span>            : Bool InitScalarInterpolator(M_ScalarInterpolator *node);
+<span class="lineNum">    1569 </span>            : Bool InitOrientationInterpolator(M_OrientationInterpolator *node);
+<span class="lineNum">    1570 </span>            : Bool InitValuator(M_Valuator *node);
+<span class="lineNum">    1571 </span>            : Bool InitCoordinateInterpolator4D(M_CoordinateInterpolator4D *node);
+<span class="lineNum">    1572 </span>            : Bool InitPositionInterpolator4D(M_PositionInterpolator4D *node);
+<span class="lineNum">    1573 </span>            : 
+<span class="lineNum">    1574 </span>            : void PA_Init(GF_Node *n);
+<span class="lineNum">    1575 </span>            : void PA_Modified(GF_Node *n, GF_FieldInfo *field);
+<span class="lineNum">    1576 </span>            : void PA2D_Init(GF_Node *n);
+<span class="lineNum">    1577 </span>            : void PA2D_Modified(GF_Node *n, GF_FieldInfo *field);
+<span class="lineNum">    1578 </span>            : void SA_Init(GF_Node *n);
+<span class="lineNum">    1579 </span>            : void SA_Modified(GF_Node *n, GF_FieldInfo *field);
+<span class="lineNum">    1580 </span>            : /*X3D tools*/
+<span class="lineNum">    1581 </span>            : void InitBooleanFilter(GF_Node *n);
+<span class="lineNum">    1582 </span>            : void InitBooleanSequencer(GF_Node *n);
+<span class="lineNum">    1583 </span>            : void InitBooleanToggle(GF_Node *n);
+<span class="lineNum">    1584 </span>            : void InitBooleanTrigger(GF_Node *n);
+<span class="lineNum">    1585 </span>            : void InitIntegerSequencer(GF_Node *n);
+<span class="lineNum">    1586 </span>            : void InitIntegerTrigger(GF_Node *n);
+<a name="1587"><span class="lineNum">    1587 </span>            : void InitTimeTrigger(GF_Node *n);</a>
+<span class="lineNum">    1588 </span>            : 
+<span class="lineNum">    1589 </span>            : Bool gf_sg_vrml_node_init(GF_Node *node)
+<span class="lineNum">    1590 </span>            : {
+<span class="lineNum">    1591 </span><span class="lineCov">        808 :         switch (node-&gt;sgprivate-&gt;tag) {</span>
+<span class="lineNum">    1592 </span>            :         case TAG_MPEG4_ColorInterpolator:
+<span class="lineNum">    1593 </span>            : #ifndef GPAC_DISABLE_X3D
+<span class="lineNum">    1594 </span>            :         case TAG_X3D_ColorInterpolator:
+<span class="lineNum">    1595 </span>            : #endif
+<span class="lineNum">    1596 </span><span class="lineNoCov">          0 :                 return InitColorInterpolator((M_ColorInterpolator *)node);</span>
+<span class="lineNum">    1597 </span>            :         case TAG_MPEG4_CoordinateInterpolator:
+<span class="lineNum">    1598 </span>            : #ifndef GPAC_DISABLE_X3D
+<span class="lineNum">    1599 </span>            :         case TAG_X3D_CoordinateInterpolator:
+<span class="lineNum">    1600 </span>            : #endif
+<span class="lineNum">    1601 </span><span class="lineNoCov">          0 :                 return InitCoordinateInterpolator((M_CoordinateInterpolator *)node);</span>
+<span class="lineNum">    1602 </span>            :         case TAG_MPEG4_CoordinateInterpolator2D:
+<span class="lineNum">    1603 </span><span class="lineNoCov">          0 :                 return InitCoordinateInterpolator2D((M_CoordinateInterpolator2D *)node);</span>
+<span class="lineNum">    1604 </span>            :         case TAG_MPEG4_NormalInterpolator:
+<span class="lineNum">    1605 </span>            : #ifndef GPAC_DISABLE_X3D
+<span class="lineNum">    1606 </span>            :         case TAG_X3D_NormalInterpolator:
+<span class="lineNum">    1607 </span>            : #endif
+<span class="lineNum">    1608 </span><span class="lineNoCov">          0 :                 return InitNormalInterpolator((M_NormalInterpolator*)node);</span>
+<span class="lineNum">    1609 </span>            :         case TAG_MPEG4_OrientationInterpolator:
+<span class="lineNum">    1610 </span>            : #ifndef GPAC_DISABLE_X3D
+<span class="lineNum">    1611 </span>            :         case TAG_X3D_OrientationInterpolator:
+<span class="lineNum">    1612 </span>            : #endif
+<span class="lineNum">    1613 </span><span class="lineNoCov">          0 :                 return InitOrientationInterpolator((M_OrientationInterpolator*)node);</span>
+<span class="lineNum">    1614 </span>            :         case TAG_MPEG4_PositionInterpolator:
+<span class="lineNum">    1615 </span>            : #ifndef GPAC_DISABLE_X3D
+<span class="lineNum">    1616 </span>            :         case TAG_X3D_PositionInterpolator:
+<span class="lineNum">    1617 </span>            : #endif
+<span class="lineNum">    1618 </span><span class="lineNoCov">          0 :                 return InitPositionInterpolator((M_PositionInterpolator *)node);</span>
+<span class="lineNum">    1619 </span>            :         case TAG_MPEG4_PositionInterpolator2D:
+<span class="lineNum">    1620 </span>            : #ifndef GPAC_DISABLE_X3D
+<span class="lineNum">    1621 </span>            :         case TAG_X3D_PositionInterpolator2D:
+<span class="lineNum">    1622 </span>            : #endif
+<span class="lineNum">    1623 </span><span class="lineNoCov">          0 :                 return InitPositionInterpolator2D((M_PositionInterpolator2D *)node);</span>
+<span class="lineNum">    1624 </span>            :         case TAG_MPEG4_ScalarInterpolator:
+<span class="lineNum">    1625 </span>            : #ifndef GPAC_DISABLE_X3D
+<span class="lineNum">    1626 </span>            :         case TAG_X3D_ScalarInterpolator:
+<span class="lineNum">    1627 </span>            : #endif
+<span class="lineNum">    1628 </span><span class="lineNoCov">          0 :                 return InitScalarInterpolator((M_ScalarInterpolator *)node);</span>
+<span class="lineNum">    1629 </span>            :         case TAG_MPEG4_Valuator:
+<span class="lineNum">    1630 </span><span class="lineNoCov">          0 :                 return InitValuator((M_Valuator *)node);</span>
+<span class="lineNum">    1631 </span>            :         case TAG_MPEG4_PositionAnimator:
+<span class="lineNum">    1632 </span><span class="lineNoCov">          0 :                 PA_Init(node);</span>
+<span class="lineNum">    1633 </span><span class="lineNoCov">          0 :                 return 1;</span>
+<span class="lineNum">    1634 </span>            :         case TAG_MPEG4_PositionAnimator2D:
+<span class="lineNum">    1635 </span><span class="lineNoCov">          0 :                 PA2D_Init(node);</span>
+<span class="lineNum">    1636 </span><span class="lineNoCov">          0 :                 return 1;</span>
+<span class="lineNum">    1637 </span>            :         case TAG_MPEG4_ScalarAnimator:
+<span class="lineNum">    1638 </span><span class="lineNoCov">          0 :                 SA_Init(node);</span>
+<span class="lineNum">    1639 </span><span class="lineNoCov">          0 :                 return 1;</span>
+<span class="lineNum">    1640 </span>            :         case TAG_MPEG4_PositionInterpolator4D:
+<span class="lineNum">    1641 </span><span class="lineNoCov">          0 :                 return InitPositionInterpolator4D((M_PositionInterpolator4D *)node);</span>
+<span class="lineNum">    1642 </span>            :         case TAG_MPEG4_CoordinateInterpolator4D:
+<span class="lineNum">    1643 </span><span class="lineNoCov">          0 :                 return InitCoordinateInterpolator4D((M_CoordinateInterpolator4D *)node);</span>
+<span class="lineNum">    1644 </span>            :         case TAG_MPEG4_Script:
+<span class="lineNum">    1645 </span>            : #ifndef GPAC_DISABLE_X3D
+<span class="lineNum">    1646 </span>            :         case TAG_X3D_Script:
+<span class="lineNum">    1647 </span>            : #endif
+<span class="lineNum">    1648 </span><span class="lineCov">          1 :                 return 1;</span>
+<span class="lineNum">    1649 </span>            : 
+<span class="lineNum">    1650 </span>            : #ifndef GPAC_DISABLE_X3D
+<span class="lineNum">    1651 </span>            :         case TAG_X3D_BooleanFilter:
+<span class="lineNum">    1652 </span><span class="lineNoCov">          0 :                 InitBooleanFilter(node);</span>
+<span class="lineNum">    1653 </span><span class="lineNoCov">          0 :                 return 1;</span>
+<span class="lineNum">    1654 </span>            :         case TAG_X3D_BooleanSequencer:
+<span class="lineNum">    1655 </span><span class="lineNoCov">          0 :                 InitBooleanSequencer(node);</span>
+<span class="lineNum">    1656 </span><span class="lineNoCov">          0 :                 return 1;</span>
+<span class="lineNum">    1657 </span>            :         case TAG_X3D_BooleanToggle:
+<span class="lineNum">    1658 </span><span class="lineNoCov">          0 :                 InitBooleanToggle(node);</span>
+<span class="lineNum">    1659 </span><span class="lineNoCov">          0 :                 return 1;</span>
+<span class="lineNum">    1660 </span>            :         case TAG_X3D_BooleanTrigger:
+<span class="lineNum">    1661 </span><span class="lineNoCov">          0 :                 InitBooleanTrigger(node);</span>
+<span class="lineNum">    1662 </span><span class="lineNoCov">          0 :                 return 1;</span>
+<span class="lineNum">    1663 </span>            :         case TAG_X3D_IntegerSequencer:
+<span class="lineNum">    1664 </span><span class="lineNoCov">          0 :                 InitIntegerSequencer(node);</span>
+<span class="lineNum">    1665 </span><span class="lineNoCov">          0 :                 return 1;</span>
+<span class="lineNum">    1666 </span>            :         case TAG_X3D_IntegerTrigger:
+<span class="lineNum">    1667 </span><span class="lineNoCov">          0 :                 InitIntegerTrigger(node);</span>
+<span class="lineNum">    1668 </span><span class="lineNoCov">          0 :                 return 1;</span>
+<span class="lineNum">    1669 </span>            :         case TAG_X3D_TimeTrigger:
+<span class="lineNum">    1670 </span><span class="lineNoCov">          0 :                 InitTimeTrigger(node);</span>
+<span class="lineNum">    1671 </span><span class="lineNoCov">          0 :                 return 1;</span>
+<span class="lineNum">    1672 </span>            : #endif
+<span class="lineNum">    1673 </span>            :         }
+<span class="lineNum">    1674 </span><span class="lineCov">        403 :         return 0;</span>
+<a name="1675"><span class="lineNum">    1675 </span><span class="lineCov">        404 : }</span></a>
+<span class="lineNum">    1676 </span>            : 
+<span class="lineNum">    1677 </span>            : Bool gf_sg_vrml_node_changed(GF_Node *node, GF_FieldInfo *field)
+<span class="lineNum">    1678 </span>            : {
+<span class="lineNum">    1679 </span><span class="lineCov">      54272 :         switch (node-&gt;sgprivate-&gt;tag) {</span>
+<span class="lineNum">    1680 </span>            :         case TAG_ProtoNode:
+<span class="lineNum">    1681 </span>            :                 /*hardcoded protos need modification notifs*/
+<span class="lineNum">    1682 </span><span class="lineCov">        182 :                 if (node-&gt;sgprivate-&gt;UserCallback) return 0;</span>
+<span class="lineNum">    1683 </span>            :         case TAG_MPEG4_ColorInterpolator:
+<span class="lineNum">    1684 </span>            :         case TAG_MPEG4_CoordinateInterpolator:
+<span class="lineNum">    1685 </span>            :         case TAG_MPEG4_CoordinateInterpolator2D:
+<span class="lineNum">    1686 </span>            :         case TAG_MPEG4_NormalInterpolator:
+<span class="lineNum">    1687 </span>            :         case TAG_MPEG4_OrientationInterpolator:
+<span class="lineNum">    1688 </span>            :         case TAG_MPEG4_PositionInterpolator:
+<span class="lineNum">    1689 </span>            :         case TAG_MPEG4_PositionInterpolator2D:
+<span class="lineNum">    1690 </span>            :         case TAG_MPEG4_ScalarInterpolator:
+<span class="lineNum">    1691 </span>            :         case TAG_MPEG4_Valuator:
+<span class="lineNum">    1692 </span>            :         case TAG_MPEG4_PositionInterpolator4D:
+<span class="lineNum">    1693 </span>            :         case TAG_MPEG4_CoordinateInterpolator4D:
+<span class="lineNum">    1694 </span>            :         case TAG_MPEG4_Script:
+<span class="lineNum">    1695 </span>            : #ifndef GPAC_DISABLE_X3D
+<span class="lineNum">    1696 </span>            :         case TAG_X3D_ColorInterpolator:
+<span class="lineNum">    1697 </span>            :         case TAG_X3D_CoordinateInterpolator:
+<span class="lineNum">    1698 </span>            :         case TAG_X3D_NormalInterpolator:
+<span class="lineNum">    1699 </span>            :         case TAG_X3D_OrientationInterpolator:
+<span class="lineNum">    1700 </span>            :         case TAG_X3D_PositionInterpolator:
+<span class="lineNum">    1701 </span>            :         case TAG_X3D_ScalarInterpolator:
+<span class="lineNum">    1702 </span>            :         case TAG_X3D_Script:
+<span class="lineNum">    1703 </span>            :         case TAG_X3D_BooleanFilter:
+<span class="lineNum">    1704 </span>            :         case TAG_X3D_BooleanSequencer:
+<span class="lineNum">    1705 </span>            :         case TAG_X3D_BooleanToggle:
+<span class="lineNum">    1706 </span>            :         case TAG_X3D_BooleanTrigger:
+<span class="lineNum">    1707 </span>            :         case TAG_X3D_IntegerSequencer:
+<span class="lineNum">    1708 </span>            :         case TAG_X3D_IntegerTrigger:
+<span class="lineNum">    1709 </span>            :         case TAG_X3D_TimeTrigger:
+<span class="lineNum">    1710 </span>            : #endif
+<span class="lineNum">    1711 </span><span class="lineCov">        379 :                 return 1;</span>
+<span class="lineNum">    1712 </span>            :         case TAG_MPEG4_PositionAnimator:
+<span class="lineNum">    1713 </span><span class="lineNoCov">          0 :                 PA_Modified(node, field);</span>
+<span class="lineNum">    1714 </span><span class="lineNoCov">          0 :                 return 1;</span>
+<span class="lineNum">    1715 </span>            :         case TAG_MPEG4_PositionAnimator2D:
+<span class="lineNum">    1716 </span><span class="lineNoCov">          0 :                 PA2D_Modified(node, field);</span>
+<span class="lineNum">    1717 </span><span class="lineNoCov">          0 :                 return 1;</span>
+<span class="lineNum">    1718 </span>            :         case TAG_MPEG4_ScalarAnimator:
+<span class="lineNum">    1719 </span><span class="lineNoCov">          0 :                 SA_Modified(node, field);</span>
+<span class="lineNum">    1720 </span><span class="lineNoCov">          0 :                 return 1;</span>
+<span class="lineNum">    1721 </span>            :         }
+<span class="lineNum">    1722 </span><span class="lineCov">      26666 :         return 0;</span>
+<span class="lineNum">    1723 </span><span class="lineCov">      27094 : }</span>
+<a name="1724"><span class="lineNum">    1724 </span>            : </a>
+<span class="lineNum">    1725 </span>            : 
+<span class="lineNum">    1726 </span>            : char *gf_node_vrml_dump_attribute(GF_Node *n, GF_FieldInfo *info)
+<span class="lineNum">    1727 </span>            : {
+<span class="lineNum">    1728 </span><span class="lineNoCov">          0 :         char szVal[1024];</span>
+<span class="lineNum">    1729 </span>            : 
+<span class="lineNum">    1730 </span><span class="lineNoCov">          0 :         switch (info-&gt;fieldType) {</span>
+<span class="lineNum">    1731 </span>            :         case GF_SG_VRML_SFBOOL:
+<span class="lineNum">    1732 </span><span class="lineNoCov">          0 :                 strcpy(szVal, *((SFBool*)info-&gt;far_ptr) ? &quot;TRUE&quot; : &quot;FALSE&quot;);</span>
+<span class="lineNum">    1733 </span><span class="lineNoCov">          0 :                 return gf_strdup(szVal);</span>
+<span class="lineNum">    1734 </span>            :         case GF_SG_VRML_SFINT32:
+<span class="lineNum">    1735 </span><span class="lineNoCov">          0 :                 sprintf(szVal, &quot;%d&quot;, *((SFInt32*)info-&gt;far_ptr) );</span>
+<span class="lineNum">    1736 </span><span class="lineNoCov">          0 :                 return gf_strdup(szVal);</span>
+<span class="lineNum">    1737 </span>            :         case GF_SG_VRML_SFFLOAT:
+<span class="lineNum">    1738 </span><span class="lineNoCov">          0 :                 sprintf(szVal, &quot;%g&quot;, FIX2FLT( *((SFFloat*)info-&gt;far_ptr) ) );</span>
+<span class="lineNum">    1739 </span><span class="lineNoCov">          0 :                 return gf_strdup(szVal);</span>
+<span class="lineNum">    1740 </span>            :         case GF_SG_VRML_SFDOUBLE:
+<span class="lineNum">    1741 </span><span class="lineNoCov">          0 :                 sprintf(szVal, &quot;%g&quot;, *((SFDouble *)info-&gt;far_ptr) );</span>
+<span class="lineNum">    1742 </span><span class="lineNoCov">          0 :                 return gf_strdup(szVal);</span>
+<span class="lineNum">    1743 </span>            :         case GF_SG_VRML_SFTIME:
+<span class="lineNum">    1744 </span><span class="lineNoCov">          0 :                 sprintf(szVal, &quot;%g&quot;, *((SFTime *)info-&gt;far_ptr) );</span>
+<span class="lineNum">    1745 </span><span class="lineNoCov">          0 :                 return gf_strdup(szVal);</span>
+<span class="lineNum">    1746 </span>            :         case GF_SG_VRML_SFVEC2F:
+<span class="lineNum">    1747 </span><span class="lineNoCov">          0 :                 sprintf(szVal, &quot;%g %g&quot;, FIX2FLT(((SFVec2f *)info-&gt;far_ptr)-&gt;x), FIX2FLT( ((SFVec2f *)info-&gt;far_ptr)-&gt;y) );</span>
+<span class="lineNum">    1748 </span><span class="lineNoCov">          0 :                 return gf_strdup(szVal);</span>
+<span class="lineNum">    1749 </span>            :         case GF_SG_VRML_SFVEC2D:
+<span class="lineNum">    1750 </span><span class="lineNoCov">          0 :                 sprintf(szVal, &quot;%g %g&quot;, ((SFVec2d *)info-&gt;far_ptr)-&gt;x, ((SFVec2d *)info-&gt;far_ptr)-&gt;y);</span>
+<span class="lineNum">    1751 </span><span class="lineNoCov">          0 :                 return gf_strdup(szVal);</span>
+<span class="lineNum">    1752 </span>            :         case GF_SG_VRML_SFVEC3F:
+<span class="lineNum">    1753 </span><span class="lineNoCov">          0 :                 sprintf(szVal, &quot;%g %g %g&quot;, FIX2FLT(((SFVec3f *)info-&gt;far_ptr)-&gt;x), FIX2FLT( ((SFVec3f *)info-&gt;far_ptr)-&gt;y) , FIX2FLT( ((SFVec3f *)info-&gt;far_ptr)-&gt;z) );</span>
+<span class="lineNum">    1754 </span><span class="lineNoCov">          0 :                 return gf_strdup(szVal);</span>
+<span class="lineNum">    1755 </span>            :         case GF_SG_VRML_SFVEC3D:
+<span class="lineNum">    1756 </span><span class="lineNoCov">          0 :                 sprintf(szVal, &quot;%g %g %g&quot;, ((SFVec3d *)info-&gt;far_ptr)-&gt;x, ((SFVec3d *)info-&gt;far_ptr)-&gt;y, ((SFVec3d *)info-&gt;far_ptr)-&gt;z);</span>
+<span class="lineNum">    1757 </span><span class="lineNoCov">          0 :                 return gf_strdup(szVal);</span>
+<span class="lineNum">    1758 </span>            :         case GF_SG_VRML_SFCOLOR:
+<span class="lineNum">    1759 </span><span class="lineNoCov">          0 :                 sprintf(szVal, &quot;%g %g %g&quot;, FIX2FLT(((SFColor *)info-&gt;far_ptr)-&gt;red), FIX2FLT( ((SFColor *)info-&gt;far_ptr)-&gt;green) , FIX2FLT( ((SFColor *)info-&gt;far_ptr)-&gt;blue) );</span>
+<span class="lineNum">    1760 </span><span class="lineNoCov">          0 :                 return gf_strdup(szVal);</span>
+<span class="lineNum">    1761 </span>            :         case GF_SG_VRML_SFCOLORRGBA:
+<span class="lineNum">    1762 </span><span class="lineNoCov">          0 :                 sprintf(szVal, &quot;%g %g %g %g&quot;, FIX2FLT(((SFColorRGBA *)info-&gt;far_ptr)-&gt;red), FIX2FLT( ((SFColorRGBA*)info-&gt;far_ptr)-&gt;green) , FIX2FLT( ((SFColorRGBA*)info-&gt;far_ptr)-&gt;blue) , FIX2FLT( ((SFColorRGBA*)info-&gt;far_ptr)-&gt;alpha) );</span>
+<span class="lineNum">    1763 </span><span class="lineNoCov">          0 :                 return gf_strdup(szVal);</span>
+<span class="lineNum">    1764 </span>            :         case GF_SG_VRML_SFROTATION:
+<span class="lineNum">    1765 </span><span class="lineNoCov">          0 :                 sprintf(szVal, &quot;%g %g %g %g&quot;, FIX2FLT(((SFRotation *)info-&gt;far_ptr)-&gt;x), FIX2FLT( ((SFRotation *)info-&gt;far_ptr)-&gt;y) , FIX2FLT( ((SFRotation *)info-&gt;far_ptr)-&gt;z), FIX2FLT( ((SFRotation *)info-&gt;far_ptr)-&gt;q) );</span>
+<span class="lineNum">    1766 </span><span class="lineNoCov">          0 :                 return gf_strdup(szVal);</span>
+<span class="lineNum">    1767 </span>            :         case GF_SG_VRML_SFSTRING:
+<span class="lineNum">    1768 </span><span class="lineNoCov">          0 :                 if (!((SFString*)info-&gt;far_ptr)-&gt;buffer ) return gf_strdup(&quot;&quot;);</span>
+<span class="lineNum">    1769 </span><span class="lineNoCov">          0 :                 return gf_strdup( ((SFString*)info-&gt;far_ptr)-&gt;buffer );</span>
+<span class="lineNum">    1770 </span>            : 
+<span class="lineNum">    1771 </span>            :         case GF_SG_VRML_SFURL:
+<span class="lineNum">    1772 </span><span class="lineNoCov">          0 :                 if (((SFURL *)info-&gt;far_ptr)-&gt;url) {</span>
+<span class="lineNum">    1773 </span><span class="lineNoCov">          0 :                         return gf_strdup( ((SFURL *)info-&gt;far_ptr)-&gt;url );</span>
+<span class="lineNum">    1774 </span>            :                 } else {
+<span class="lineNum">    1775 </span><span class="lineNoCov">          0 :                         sprintf(szVal, &quot;od://%d&quot;, ((SFURL *)info-&gt;far_ptr)-&gt;OD_ID);</span>
+<span class="lineNum">    1776 </span><span class="lineNoCov">          0 :                         return gf_strdup(szVal);</span>
+<span class="lineNum">    1777 </span>            :                 }
+<span class="lineNum">    1778 </span>            : 
+<span class="lineNum">    1779 </span>            :         case GF_SG_VRML_SFIMAGE:
+<span class="lineNum">    1780 </span>            :         {
+<span class="lineNum">    1781 </span>            :                 u32 i, count;
+<span class="lineNum">    1782 </span>            :                 char *buf;
+<span class="lineNum">    1783 </span><span class="lineNoCov">          0 :                 SFImage *img = (SFImage *)info-&gt;far_ptr;</span>
+<span class="lineNum">    1784 </span>            : 
+<span class="lineNum">    1785 </span><span class="lineNoCov">          0 :                 count = img-&gt;width * img-&gt;height * img-&gt;numComponents;</span>
+<span class="lineNum">    1786 </span><span class="lineNoCov">          0 :                 i = (3/*' 0x'*/ + 2/*%02X*/*img-&gt;numComponents)*count + 20;</span>
+<span class="lineNum">    1787 </span><span class="lineNoCov">          0 :                 buf = gf_malloc(sizeof(char) * i);</span>
+<span class="lineNum">    1788 </span>            : 
+<span class="lineNum">    1789 </span><span class="lineNoCov">          0 :                 sprintf(buf , &quot;%d %d %d&quot;, img-&gt;width, img-&gt;height, img-&gt;numComponents);</span>
+<span class="lineNum">    1790 </span>            : 
+<span class="lineNum">    1791 </span><span class="lineNoCov">          0 :                 for (i=0; i&lt;count; ) {</span>
+<span class="lineNum">    1792 </span><span class="lineNoCov">          0 :                         switch (img-&gt;numComponents) {</span>
+<span class="lineNum">    1793 </span>            :                         case 1:
+<span class="lineNum">    1794 </span><span class="lineNoCov">          0 :                                 sprintf(szVal, &quot; 0x%02X&quot;, img-&gt;pixels[i]);</span>
+<span class="lineNum">    1795 </span><span class="lineNoCov">          0 :                                 i++;</span>
+<span class="lineNum">    1796 </span><span class="lineNoCov">          0 :                                 break;</span>
+<span class="lineNum">    1797 </span>            :                         case 2:
+<span class="lineNum">    1798 </span><span class="lineNoCov">          0 :                                 sprintf(szVal, &quot; 0x%02X%02X&quot;, img-&gt;pixels[i], img-&gt;pixels[i+1]);</span>
+<span class="lineNum">    1799 </span><span class="lineNoCov">          0 :                                 i+=2;</span>
+<span class="lineNum">    1800 </span><span class="lineNoCov">          0 :                                 break;</span>
+<span class="lineNum">    1801 </span>            :                         case 3:
+<span class="lineNum">    1802 </span><span class="lineNoCov">          0 :                                 sprintf(szVal, &quot; 0x%02X%02X%02X&quot;, img-&gt;pixels[i], img-&gt;pixels[i+1], img-&gt;pixels[i+2]);</span>
+<span class="lineNum">    1803 </span><span class="lineNoCov">          0 :                                 i+=3;</span>
+<span class="lineNum">    1804 </span><span class="lineNoCov">          0 :                                 break;</span>
+<span class="lineNum">    1805 </span>            :                         case 4:
+<span class="lineNum">    1806 </span><span class="lineNoCov">          0 :                                 sprintf(szVal, &quot; 0x%02X%02X%02X%02X&quot;, img-&gt;pixels[i], img-&gt;pixels[i+1], img-&gt;pixels[i+2], img-&gt;pixels[i+3]);</span>
+<span class="lineNum">    1807 </span><span class="lineNoCov">          0 :                                 i+=4;</span>
+<span class="lineNum">    1808 </span><span class="lineNoCov">          0 :                                 break;</span>
+<span class="lineNum">    1809 </span>            :                         }
+<span class="lineNum">    1810 </span><span class="lineNoCov">          0 :                         strcat(buf, szVal);</span>
+<span class="lineNum">    1811 </span>            :                 }
+<span class="lineNum">    1812 </span>            :                 return buf;
+<span class="lineNum">    1813 </span>            :         }
+<span class="lineNum">    1814 </span>            :         default:
+<span class="lineNum">    1815 </span>            :                 break;
+<span class="lineNum">    1816 </span>            :         }
+<span class="lineNum">    1817 </span>            :         /*todo - dump MFFields*/
+<span class="lineNum">    1818 </span><span class="lineNoCov">          0 :         return NULL;</span>
+<span class="lineNum">    1819 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">    1820 </span>            : 
+<a name="1821"><span class="lineNum">    1821 </span>            : #endif /*GPAC_DISABLE_VRML*/</a>
+<span class="lineNum">    1822 </span>            : 
+<span class="lineNum">    1823 </span>            : Bool gf_node_in_table(GF_Node *node, u32 NDTType)
+<span class="lineNum">    1824 </span>            : {
+<span class="lineNum">    1825 </span>            : #ifndef GPAC_DISABLE_VRML
+<span class="lineNum">    1826 </span><span class="lineCov">      87656 :         u32 tag = node ? node-&gt;sgprivate-&gt;tag : 0;</span>
+<span class="lineNum">    1827 </span><span class="lineCov">      21914 :         if (tag==TAG_ProtoNode) {</span>
+<span class="lineNum">    1828 </span><span class="lineCov">        183 :                 tag = gf_sg_proto_get_root_tag(((GF_ProtoInstance *)node)-&gt;proto_interface);</span>
+<span class="lineNum">    1829 </span><span class="lineCov">        216 :                 if (tag==TAG_UndefinedNode) return 1;</span>
+<span class="lineNum">    1830 </span>            :         }
+<span class="lineNum">    1831 </span><span class="lineCov">      21881 :         return gf_node_in_table_by_tag(tag, NDTType);</span>
+<span class="lineNum">    1832 </span>            : #else
+<span class="lineNum">    1833 </span>            :         return 1;
+<span class="lineNum">    1834 </span>            : #endif
+<span class="lineNum">    1835 </span><span class="lineCov">      21914 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

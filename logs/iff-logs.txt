@@ -1,0 +1,34 @@
+*** iff logs (GPAC version 0.6.2-DEV-revUNKNOWN-HEAD ) - test date 14/05/2017 22:24:01 ***
+
+
+*** Subtest "create-iff": executing "MP4Box -noprog -for-test  -mem-track -add-image /Users/travis/build/gpac/gpac/tests/media/auxiliary_files/counter.hvc:id=1 -set-primary 1 -ab heic -new /Users/travis/build/gpac/gpac/tests/results/temp/test.heic" ***
+[32mHEVC import - frame size 3840 x 2160 at 25.000 FPS
+[0m[32mHEVC Import results: 80 samples (329 NALUs) - Slices: 12 I 308 P 0 B - 0 SEI - 4 IDR
+[0m[32mOpenGOP detected - adjusting file brand
+[0mSaving to /Users/travis/build/gpac/gpac/tests/results/temp/test.heic: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "diso-iff": executing "MP4Box -noprog -for-test  -mem-track -diso /Users/travis/build/gpac/gpac/tests/results/temp/test.heic" ***
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "create-iff-tiled": executing "MP4Box -noprog -for-test  -mem-track -add-image /Users/travis/build/gpac/gpac/tests/media/auxiliary_files/counter.hvc:tilemode=base:id=1 -set-primary 1 -ab heic -new /Users/travis/build/gpac/gpac/tests/results/temp/test-tile.heic" ***
+[32mHEVC import - frame size 3840 x 2160 at 25.000 FPS
+[0m[32mHEVC Import results: 80 samples (329 NALUs) - Slices: 12 I 308 P 0 B - 0 SEI - 4 IDR
+[0m[32mOpenGOP detected - adjusting file brand
+[0mSaving to /Users/travis/build/gpac/gpac/tests/results/temp/test-tile.heic: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "diso-iff-tiled": executing "MP4Box -noprog -for-test  -mem-track -diso /Users/travis/build/gpac/gpac/tests/results/temp/test-tile.heic" ***
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m

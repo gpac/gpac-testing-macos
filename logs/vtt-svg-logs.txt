@@ -1,0 +1,32 @@
+*** vtt-svg logs (GPAC version 0.6.2-DEV-revUNKNOWN-HEAD ) - test date 14/05/2017 22:30:00 ***
+
+
+*** Subtest "vtt-to-mp4": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/media/webvtt/svg.vtt -new /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4" ***
+[32mWebVTT import
+[0mSaving /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "vtt-info": executing "MP4Box -noprog -for-test  -mem-track -info 1 /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4" ***
+[33m[iso file] stts entry 1 has negative duration -59960 - forbidden ! Fixing to 1, sync may get lost (consider reimport raw media)
+[0mTrack # 1 Info - TrackID 1 - TimeScale 1000
+Media Duration 00:00:59.961 - Indicated Duration 49 Days, 17:02:47.296
+Media Info: Language "Undetermined (und)" - Type "text:wvtt" - 1500 samples
+Handler name: MediaHandler
+Unknown Text Stream
+ Size 400 x 60 - Translation X=0 Y=0 - Layer 0
+	RFC6381 Codec Parameters: wvtt
+	All samples are sync
+
+Computed info from media:
+	Total size 386047 bytes - Total samples duration 59960 ms
+	Average rate 51 kbps - Max Rate 55 kbps
+	Chunk durations: min 401 ms - max 520 ms - average 479 ms
+	Chunk sizes (bytes): min 2834 - max 3340 - average 3088
+
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m

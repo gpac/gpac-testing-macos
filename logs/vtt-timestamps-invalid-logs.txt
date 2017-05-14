@@ -1,0 +1,31 @@
+*** vtt-timestamps-invalid logs (GPAC version 0.6.2-DEV-revUNKNOWN-HEAD ) - test date 14/05/2017 22:30:01 ***
+
+
+*** Subtest "vtt-to-mp4": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/media/webvtt/timestamps-invalid.vtt -new /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4" ***
+[32mWebVTT import
+[0mSaving /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "vtt-info": executing "MP4Box -noprog -for-test  -mem-track -info 1 /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4" ***
+Track # 1 Info - TrackID 1 - TimeScale 1000
+Media Duration 00:00:03.000 - Indicated Duration 00:00:03.000
+Media Info: Language "Undetermined (und)" - Type "text:wvtt" - 4 samples
+Handler name: MediaHandler
+Unknown Text Stream
+ Size 400 x 60 - Translation X=0 Y=0 - Layer 0
+	RFC6381 Codec Parameters: wvtt
+	All samples are sync
+
+Computed info from media:
+	Total size 103 bytes - Total samples duration 2000 ms
+	Average rate 412 bps - Max Rate 824 bps
+	Chunk durations: min 1000 ms - max 1000 ms - average 1000 ms
+	Chunk sizes (bytes): min 28 - max 45 - average 34
+
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m

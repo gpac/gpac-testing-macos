@@ -1,0 +1,923 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - compositor/mpeg4_layout.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">compositor</a> - mpeg4_layout.c<span style="font-size: 80%;"> (source / <a href="mpeg4_layout.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">453</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-05-14 22:31:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">13</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *                      GPAC - Multimedia Framework C SDK
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *                      Authors: Jean Le Feuvre
+<span class="lineNum">       5 </span>            :  *                      Copyright (c) Telecom ParisTech 2000-2012
+<span class="lineNum">       6 </span>            :  *                                      All rights reserved
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  *  This file is part of GPAC / Scene Compositor sub-project
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  *  GPAC is free software; you can redistribute it and/or modify
+<span class="lineNum">      11 </span>            :  *  it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">      12 </span>            :  *  the Free Software Foundation; either version 2, or (at your option)
+<span class="lineNum">      13 </span>            :  *  any later version.
+<span class="lineNum">      14 </span>            :  *
+<span class="lineNum">      15 </span>            :  *  GPAC is distributed in the hope that it will be useful,
+<span class="lineNum">      16 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      17 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      18 </span>            :  *  GNU Lesser General Public License for more details.
+<span class="lineNum">      19 </span>            :  *
+<span class="lineNum">      20 </span>            :  *  You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      21 </span>            :  *  License along with this library; see the file COPYING.  If not, write to
+<span class="lineNum">      22 </span>            :  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+<span class="lineNum">      23 </span>            :  *
+<span class="lineNum">      24 </span>            :  */
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : #include &quot;nodes_stacks.h&quot;
+<span class="lineNum">      27 </span>            : #include &quot;mpeg4_grouping.h&quot;
+<span class="lineNum">      28 </span>            : #include &quot;visual_manager.h&quot;
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : #ifndef GPAC_DISABLE_VRML
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            : typedef struct
+<span class="lineNum">      33 </span>            : {
+<span class="lineNum">      34 </span>            :         PARENT_MPEG4_STACK_2D
+<span class="lineNum">      35 </span>            : 
+<span class="lineNum">      36 </span>            :         Bool is_scrolling;
+<span class="lineNum">      37 </span>            :         u32 start_scroll_type;
+<span class="lineNum">      38 </span>            :         Double start_time, pause_time;
+<span class="lineNum">      39 </span>            :         GF_List *lines;
+<span class="lineNum">      40 </span>            :         GF_Rect clip;
+<span class="lineNum">      41 </span>            :         Fixed last_scroll, prev_rate, scroll_rate, scale_scroll, scroll_len, scroll_min, scroll_max;
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            :         /*for keyboard navigation*/
+<span class="lineNum">      44 </span>            :         GF_SensorHandler hdl;
+<span class="lineNum">      45 </span>            :         s32 key_scroll;
+<span class="lineNum">      46 </span>            :         Bool keys_active;
+<span class="lineNum">      47 </span>            : } LayoutStack;
+<span class="lineNum">      48 </span>            : 
+<span class="lineNum">      49 </span>            : typedef struct
+<span class="lineNum">      50 </span>            : {
+<span class="lineNum">      51 </span>            :         Fixed width, height, ascent, descent;
+<span class="lineNum">      52 </span>            :         u32 first_child, nb_children;
+<span class="lineNum">      53 </span>            :         Bool line_break;
+<a name="54"><span class="lineNum">      54 </span>            : } LineInfo;</a>
+<span class="lineNum">      55 </span>            : 
+<span class="lineNum">      56 </span>            : static void layout_reset_lines(LayoutStack *st)
+<span class="lineNum">      57 </span>            : {
+<span class="lineNum">      58 </span><span class="lineNoCov">          0 :         while (gf_list_count(st-&gt;lines)) {</span>
+<span class="lineNum">      59 </span><span class="lineNoCov">          0 :                 LineInfo *li = (LineInfo *)gf_list_get(st-&gt;lines, 0);</span>
+<span class="lineNum">      60 </span><span class="lineNoCov">          0 :                 gf_list_rem(st-&gt;lines, 0);</span>
+<span class="lineNum">      61 </span><span class="lineNoCov">          0 :                 gf_free(li);</span>
+<span class="lineNum">      62 </span>            :         }
+<a name="63"><span class="lineNum">      63 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      64 </span>            : 
+<span class="lineNum">      65 </span>            : static LineInfo *new_line_info(LayoutStack *st)
+<span class="lineNum">      66 </span>            : {
+<span class="lineNum">      67 </span>            :         LineInfo *li;
+<span class="lineNum">      68 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(li, LineInfo);</span>
+<span class="lineNum">      69 </span>            : 
+<span class="lineNum">      70 </span><span class="lineNoCov">          0 :         gf_list_add(st-&gt;lines, li);</span>
+<span class="lineNum">      71 </span><span class="lineNoCov">          0 :         return li;</span>
+<span class="lineNum">      72 </span>            : }
+<span class="lineNum">      73 </span>            : 
+<span class="lineNum">      74 </span>            : 
+<span class="lineNum">      75 </span>            : enum
+<span class="lineNum">      76 </span>            : {
+<span class="lineNum">      77 </span>            :         L_FIRST,
+<span class="lineNum">      78 </span>            :         L_BEGIN,
+<span class="lineNum">      79 </span>            :         L_MIDDLE,
+<span class="lineNum">      80 </span>            :         L_END,
+<span class="lineNum">      81 </span>            :         L_JUSTIFY,
+<a name="82"><span class="lineNum">      82 </span>            : };</a>
+<span class="lineNum">      83 </span>            : 
+<span class="lineNum">      84 </span>            : static u32 get_justify(M_Layout *l, u32 i)
+<span class="lineNum">      85 </span>            : {
+<span class="lineNum">      86 </span><span class="lineNoCov">          0 :         if (l-&gt;justify.count &lt;= i) return L_BEGIN;</span>
+<span class="lineNum">      87 </span><span class="lineNoCov">          0 :         if (!strcmp(l-&gt;justify.vals[i], &quot;END&quot;)) return L_END;</span>
+<span class="lineNum">      88 </span><span class="lineNoCov">          0 :         if (!strcmp(l-&gt;justify.vals[i], &quot;MIDDLE&quot;)) return L_MIDDLE;</span>
+<span class="lineNum">      89 </span><span class="lineNoCov">          0 :         if (!strcmp(l-&gt;justify.vals[i], &quot;FIRST&quot;)) return L_FIRST;</span>
+<span class="lineNum">      90 </span><span class="lineNoCov">          0 :         if (!strcmp(l-&gt;justify.vals[i], &quot;SPREAD&quot;)) return L_JUSTIFY;</span>
+<span class="lineNum">      91 </span><span class="lineNoCov">          0 :         if (!strcmp(l-&gt;justify.vals[i], &quot;JUSTIFY&quot;)) return L_JUSTIFY;</span>
+<span class="lineNum">      92 </span><span class="lineNoCov">          0 :         return L_BEGIN;</span>
+<a name="93"><span class="lineNum">      93 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      94 </span>            : 
+<span class="lineNum">      95 </span>            : static void get_lines_info(LayoutStack *st, M_Layout *l)
+<span class="lineNum">      96 </span>            : {
+<span class="lineNum">      97 </span>            :         Fixed prev_discard_width;
+<span class="lineNum">      98 </span>            :         u32 i, count;
+<span class="lineNum">      99 </span>            :         LineInfo *li;
+<span class="lineNum">     100 </span>            :         Fixed max_w, max_h;
+<span class="lineNum">     101 </span>            : 
+<span class="lineNum">     102 </span><span class="lineNoCov">          0 :         max_w = st-&gt;clip.width;</span>
+<span class="lineNum">     103 </span><span class="lineNoCov">          0 :         max_h = st-&gt;clip.height;</span>
+<span class="lineNum">     104 </span><span class="lineNoCov">          0 :         layout_reset_lines(st);</span>
+<span class="lineNum">     105 </span>            : 
+<span class="lineNum">     106 </span><span class="lineNoCov">          0 :         count = gf_list_count(st-&gt;groups);</span>
+<span class="lineNum">     107 </span><span class="lineNoCov">          0 :         if (!count) return;</span>
+<span class="lineNum">     108 </span>            : 
+<span class="lineNum">     109 </span><span class="lineNoCov">          0 :         li = new_line_info(st);</span>
+<span class="lineNum">     110 </span><span class="lineNoCov">          0 :         li-&gt;first_child = 0;</span>
+<span class="lineNum">     111 </span>            :         prev_discard_width = 0;
+<span class="lineNum">     112 </span>            : 
+<span class="lineNum">     113 </span><span class="lineNoCov">          0 :         for (i=0; i&lt;count; i++) {</span>
+<span class="lineNum">     114 </span><span class="lineNoCov">          0 :                 ChildGroup *cg = (ChildGroup *)gf_list_get(st-&gt;groups, i);</span>
+<span class="lineNum">     115 </span><span class="lineNoCov">          0 :                 if (!l-&gt;horizontal) {</span>
+<span class="lineNum">     116 </span>            :                         /*check if exceed column size or not - if so, move to next column or clip given wrap mode*/
+<span class="lineNum">     117 </span><span class="lineNoCov">          0 :                         if (cg-&gt;final.height + li-&gt;height &gt; max_h) {</span>
+<span class="lineNum">     118 </span><span class="lineNoCov">          0 :                                 if (l-&gt;wrap) {</span>
+<span class="lineNum">     119 </span><span class="lineNoCov">          0 :                                         li = new_line_info(st);</span>
+<span class="lineNum">     120 </span><span class="lineNoCov">          0 :                                         li-&gt;first_child = i;</span>
+<span class="lineNum">     121 </span><span class="lineNoCov">          0 :                                 }</span>
+<span class="lineNum">     122 </span>            :                         }
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 :                         if (cg-&gt;final.width &gt; li-&gt;width) li-&gt;width = cg-&gt;final.width;</span>
+<span class="lineNum">     124 </span><span class="lineNoCov">          0 :                         li-&gt;height += cg-&gt;final.height;</span>
+<span class="lineNum">     125 </span><span class="lineNoCov">          0 :                         li-&gt;nb_children ++;</span>
+<span class="lineNum">     126 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     127 </span><span class="lineNoCov">          0 :                         if ((cg-&gt;text_type==2) || (i &amp;&amp; (cg-&gt;final.width + li-&gt;width&gt; max_w))) {</span>
+<span class="lineNum">     128 </span><span class="lineNoCov">          0 :                                 if (cg-&gt;text_type==2) li-&gt;line_break = 1;</span>
+<span class="lineNum">     129 </span><span class="lineNoCov">          0 :                                 if (l-&gt;wrap) {</span>
+<span class="lineNum">     130 </span><span class="lineNoCov">          0 :                                         if (!li-&gt;ascent) {</span>
+<span class="lineNum">     131 </span><span class="lineNoCov">          0 :                                                 li-&gt;ascent = li-&gt;height;</span>
+<span class="lineNum">     132 </span><span class="lineNoCov">          0 :                                                 li-&gt;descent = 0;</span>
+<span class="lineNum">     133 </span><span class="lineNoCov">          0 :                                         }</span>
+<span class="lineNum">     134 </span>            :                                         /*previous word is discardable (' ')*/
+<span class="lineNum">     135 </span><span class="lineNoCov">          0 :                                         if (prev_discard_width) {</span>
+<span class="lineNum">     136 </span><span class="lineNoCov">          0 :                                                 li-&gt;width -= prev_discard_width;</span>
+<span class="lineNum">     137 </span><span class="lineNoCov">          0 :                                                 li-&gt;nb_children--;</span>
+<span class="lineNum">     138 </span><span class="lineNoCov">          0 :                                         }</span>
+<span class="lineNum">     139 </span><span class="lineNoCov">          0 :                                         if ((cg-&gt;text_type==1) &amp;&amp; (i+1==count)) break;</span>
+<span class="lineNum">     140 </span>            : 
+<span class="lineNum">     141 </span><span class="lineNoCov">          0 :                                         li = new_line_info(st);</span>
+<span class="lineNum">     142 </span><span class="lineNoCov">          0 :                                         li-&gt;first_child = i;</span>
+<span class="lineNum">     143 </span><span class="lineNoCov">          0 :                                         if (cg-&gt;text_type) {</span>
+<span class="lineNum">     144 </span><span class="lineNoCov">          0 :                                                 li-&gt;first_child++;</span>
+<span class="lineNum">     145 </span><span class="lineNoCov">          0 :                                                 continue;</span>
+<span class="lineNum">     146 </span>            :                                         }
+<span class="lineNum">     147 </span>            :                                 }
+<span class="lineNum">     148 </span>            :                         }
+<span class="lineNum">     149 </span>            : 
+<span class="lineNum">     150 </span>            :                         /*get ascent/descent for text or height for non-text*/
+<span class="lineNum">     151 </span><span class="lineNoCov">          0 :                         if (cg-&gt;ascent) {</span>
+<span class="lineNum">     152 </span><span class="lineNoCov">          0 :                                 if (li-&gt;ascent &lt; cg-&gt;ascent) li-&gt;ascent = cg-&gt;ascent;</span>
+<span class="lineNum">     153 </span><span class="lineNoCov">          0 :                                 if (li-&gt;descent &lt; cg-&gt;descent) li-&gt;descent = cg-&gt;descent;</span>
+<span class="lineNum">     154 </span><span class="lineNoCov">          0 :                                 if (li-&gt;height &lt; li-&gt;ascent + li-&gt;descent) li-&gt;height = li-&gt;ascent + li-&gt;descent;</span>
+<span class="lineNum">     155 </span><span class="lineNoCov">          0 :                         } else if (cg-&gt;final.height &gt; li-&gt;height) {</span>
+<span class="lineNum">     156 </span><span class="lineNoCov">          0 :                                 li-&gt;height = cg-&gt;final.height;</span>
+<span class="lineNum">     157 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     158 </span><span class="lineNoCov">          0 :                         li-&gt;width += cg-&gt;final.width;</span>
+<span class="lineNum">     159 </span><span class="lineNoCov">          0 :                         li-&gt;nb_children ++;</span>
+<span class="lineNum">     160 </span>            : 
+<span class="lineNum">     161 </span><span class="lineNoCov">          0 :                         prev_discard_width = (cg-&gt;text_type==1) ? cg-&gt;final.width : 0;</span>
+<span class="lineNum">     162 </span>            : 
+<span class="lineNum">     163 </span>            :                 }
+<span class="lineNum">     164 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     165 </span><span class="lineNoCov">          0 : }</span>
+<a name="166"><span class="lineNum">     166 </span>            : </a>
+<span class="lineNum">     167 </span>            : 
+<span class="lineNum">     168 </span>            : static void layout_justify(LayoutStack *st, M_Layout *l)
+<span class="lineNum">     169 </span>            : {
+<span class="lineNum">     170 </span>            :         u32 first, minor, major, i, k, nbLines;
+<span class="lineNum">     171 </span>            :         Fixed current_top, current_left, h;
+<span class="lineNum">     172 </span>            :         LineInfo *li;
+<span class="lineNum">     173 </span>            :         ChildGroup *cg, *prev;
+<span class="lineNum">     174 </span><span class="lineNoCov">          0 :         get_lines_info(st, l);</span>
+<span class="lineNum">     175 </span><span class="lineNoCov">          0 :         major = get_justify(l, 0);</span>
+<span class="lineNum">     176 </span><span class="lineNoCov">          0 :         minor = get_justify(l, 1);</span>
+<span class="lineNum">     177 </span>            : 
+<span class="lineNum">     178 </span><span class="lineNoCov">          0 :         st-&gt;scroll_len = 0;</span>
+<span class="lineNum">     179 </span><span class="lineNoCov">          0 :         nbLines = gf_list_count(st-&gt;lines);</span>
+<span class="lineNum">     180 </span><span class="lineNoCov">          0 :         if (l-&gt;horizontal) {</span>
+<span class="lineNum">     181 </span><span class="lineNoCov">          0 :                 if (l-&gt;wrap &amp;&amp; !l-&gt;topToBottom) {</span>
+<span class="lineNum">     182 </span><span class="lineNoCov">          0 :                         li = (LineInfo*)gf_list_get(st-&gt;lines, 0);</span>
+<span class="lineNum">     183 </span><span class="lineNoCov">          0 :                         current_top = st-&gt;clip.y - st-&gt;clip.height;</span>
+<span class="lineNum">     184 </span><span class="lineNoCov">          0 :                         if (li) current_top += li-&gt;height;</span>
+<span class="lineNum">     185 </span>            :                 } else {
+<span class="lineNum">     186 </span><span class="lineNoCov">          0 :                         current_top = st-&gt;clip.y;</span>
+<span class="lineNum">     187 </span>            :                 }
+<span class="lineNum">     188 </span>            : 
+<span class="lineNum">     189 </span>            :                 /*for each line perform adjustment*/
+<span class="lineNum">     190 </span><span class="lineNoCov">          0 :                 for (k=0; k&lt;nbLines; k++) {</span>
+<span class="lineNum">     191 </span>            :                         Fixed spacing = 0;
+<span class="lineNum">     192 </span><span class="lineNoCov">          0 :                         li = (LineInfo*)gf_list_get(st-&gt;lines, k);</span>
+<span class="lineNum">     193 </span><span class="lineNoCov">          0 :                         first = li-&gt;first_child;</span>
+<span class="lineNum">     194 </span><span class="lineNoCov">          0 :                         if (!l-&gt;leftToRight) first += li-&gt;nb_children - 1;</span>
+<span class="lineNum">     195 </span>            : 
+<span class="lineNum">     196 </span><span class="lineNoCov">          0 :                         if (!l-&gt;topToBottom &amp;&amp; k) current_top += li-&gt;height;</span>
+<span class="lineNum">     197 </span>            : 
+<span class="lineNum">     198 </span>            :                         /*set major alignment (X) */
+<span class="lineNum">     199 </span><span class="lineNoCov">          0 :                         cg = (ChildGroup *)gf_list_get(st-&gt;groups, first);</span>
+<span class="lineNum">     200 </span><span class="lineNoCov">          0 :                         if (!cg) continue;</span>
+<span class="lineNum">     201 </span><span class="lineNoCov">          0 :                         switch (major) {</span>
+<span class="lineNum">     202 </span>            :                         case L_END:
+<span class="lineNum">     203 </span><span class="lineNoCov">          0 :                                 cg-&gt;final.x = st-&gt;clip.x + st-&gt;clip.width - li-&gt;width;</span>
+<span class="lineNum">     204 </span><span class="lineNoCov">          0 :                                 break;</span>
+<span class="lineNum">     205 </span>            :                         case L_MIDDLE:
+<span class="lineNum">     206 </span><span class="lineNoCov">          0 :                                 cg-&gt;final.x = st-&gt;clip.x + (st-&gt;clip.width - li-&gt;width)/2;</span>
+<span class="lineNum">     207 </span><span class="lineNoCov">          0 :                                 break;</span>
+<span class="lineNum">     208 </span>            :                         case L_FIRST:
+<span class="lineNum">     209 </span>            :                         case L_BEGIN:
+<span class="lineNum">     210 </span><span class="lineNoCov">          0 :                                 cg-&gt;final.x = st-&gt;clip.x;</span>
+<span class="lineNum">     211 </span><span class="lineNoCov">          0 :                                 break;</span>
+<span class="lineNum">     212 </span>            :                         case L_JUSTIFY:
+<span class="lineNum">     213 </span><span class="lineNoCov">          0 :                                 cg-&gt;final.x = st-&gt;clip.x;</span>
+<span class="lineNum">     214 </span><span class="lineNoCov">          0 :                                 if (li-&gt;nb_children&gt;1) {</span>
+<span class="lineNum">     215 </span><span class="lineNoCov">          0 :                                         cg = (ChildGroup *)gf_list_get(st-&gt;groups, li-&gt;nb_children-1);</span>
+<span class="lineNum">     216 </span><span class="lineNoCov">          0 :                                         spacing = (st-&gt;clip.width - li-&gt;width) / (li-&gt;nb_children-1) ;</span>
+<span class="lineNum">     217 </span><span class="lineNoCov">          0 :                                         if (spacing&lt;0) spacing = 0;</span>
+<span class="lineNum">     218 </span><span class="lineNoCov">          0 :                                         else if (cg-&gt;ascent) {</span>
+<span class="lineNum">     219 </span>            :                                                 /*disable spacing for last text line and line breaks*/
+<span class="lineNum">     220 </span><span class="lineNoCov">          0 :                                                 if ( (k+1==nbLines) || li-&gt;line_break) {</span>
+<span class="lineNum">     221 </span>            :                                                         spacing = 0;
+<span class="lineNum">     222 </span><span class="lineNoCov">          0 :                                                 }</span>
+<span class="lineNum">     223 </span>            :                                         }
+<span class="lineNum">     224 </span>            :                                 }
+<span class="lineNum">     225 </span>            :                                 break;
+<span class="lineNum">     226 </span>            :                         }
+<span class="lineNum">     227 </span>            : 
+<span class="lineNum">     228 </span>            : 
+<span class="lineNum">     229 </span>            :                         /*for each in the run */
+<span class="lineNum">     230 </span>            :                         i = first;
+<span class="lineNum">     231 </span><span class="lineNoCov">          0 :                         while (1) {</span>
+<span class="lineNum">     232 </span><span class="lineNoCov">          0 :                                 cg = (ChildGroup *)gf_list_get(st-&gt;groups, i);</span>
+<span class="lineNum">     233 </span><span class="lineNoCov">          0 :                                 if (!cg) break;</span>
+<span class="lineNum">     234 </span><span class="lineNoCov">          0 :                                 h = MAX(li-&gt;ascent, li-&gt;height);</span>
+<span class="lineNum">     235 </span><span class="lineNoCov">          0 :                                 switch (minor) {</span>
+<span class="lineNum">     236 </span>            :                                 case L_FIRST:
+<span class="lineNum">     237 </span><span class="lineNoCov">          0 :                                         cg-&gt;final.y = current_top - h;</span>
+<span class="lineNum">     238 </span><span class="lineNoCov">          0 :                                         if (cg-&gt;ascent) {</span>
+<span class="lineNum">     239 </span><span class="lineNoCov">          0 :                                                 cg-&gt;final.y += cg-&gt;ascent;</span>
+<span class="lineNum">     240 </span><span class="lineNoCov">          0 :                                         } else {</span>
+<span class="lineNum">     241 </span><span class="lineNoCov">          0 :                                                 cg-&gt;final.y += cg-&gt;final.height;</span>
+<span class="lineNum">     242 </span>            :                                         }
+<span class="lineNum">     243 </span>            :                                         break;
+<span class="lineNum">     244 </span>            :                                 case L_MIDDLE:
+<span class="lineNum">     245 </span><span class="lineNoCov">          0 :                                         cg-&gt;final.y = current_top - (h - cg-&gt;final.height)/2;</span>
+<span class="lineNum">     246 </span><span class="lineNoCov">          0 :                                         break;</span>
+<span class="lineNum">     247 </span>            :                                 case L_END:
+<span class="lineNum">     248 </span><span class="lineNoCov">          0 :                                         cg-&gt;final.y = current_top;</span>
+<span class="lineNum">     249 </span><span class="lineNoCov">          0 :                                         break;</span>
+<span class="lineNum">     250 </span>            :                                 case L_BEGIN:
+<span class="lineNum">     251 </span>            :                                 default:
+<span class="lineNum">     252 </span><span class="lineNoCov">          0 :                                         cg-&gt;final.y = current_top - h + cg-&gt;final.height;</span>
+<span class="lineNum">     253 </span><span class="lineNoCov">          0 :                                         break;</span>
+<span class="lineNum">     254 </span>            :                                 }
+<span class="lineNum">     255 </span>            :                                 /*update left for non-first children in line*/
+<span class="lineNum">     256 </span><span class="lineNoCov">          0 :                                 if (i != first) {</span>
+<span class="lineNum">     257 </span><span class="lineNoCov">          0 :                                         if (l-&gt;leftToRight) {</span>
+<span class="lineNum">     258 </span><span class="lineNoCov">          0 :                                                 prev = (ChildGroup *)gf_list_get(st-&gt;groups, i-1);</span>
+<span class="lineNum">     259 </span><span class="lineNoCov">          0 :                                         } else {</span>
+<span class="lineNum">     260 </span><span class="lineNoCov">          0 :                                                 prev = (ChildGroup *)gf_list_get(st-&gt;groups, i+1);</span>
+<span class="lineNum">     261 </span>            :                                         }
+<span class="lineNum">     262 </span><span class="lineNoCov">          0 :                                         cg-&gt;final.x = prev-&gt;final.x + prev-&gt;final.width + spacing;</span>
+<span class="lineNum">     263 </span><span class="lineNoCov">          0 :                                 }</span>
+<span class="lineNum">     264 </span><span class="lineNoCov">          0 :                                 i += l-&gt;leftToRight ? +1 : -1;</span>
+<span class="lineNum">     265 </span><span class="lineNoCov">          0 :                                 if (l-&gt;leftToRight &amp;&amp; (i==li-&gt;first_child + li-&gt;nb_children))</span>
+<span class="lineNum">     266 </span>            :                                         break;
+<span class="lineNum">     267 </span><span class="lineNoCov">          0 :                                 else if (!l-&gt;leftToRight &amp;&amp; (i==li-&gt;first_child - 1))</span>
+<span class="lineNum">     268 </span>            :                                         break;
+<span class="lineNum">     269 </span>            :                         }
+<span class="lineNum">     270 </span><span class="lineNoCov">          0 :                         if (l-&gt;topToBottom) {</span>
+<span class="lineNum">     271 </span><span class="lineNoCov">          0 :                                 current_top -= gf_mulfix(l-&gt;spacing, li-&gt;height);</span>
+<span class="lineNum">     272 </span><span class="lineNoCov">          0 :                         } else {</span>
+<span class="lineNum">     273 </span><span class="lineNoCov">          0 :                                 current_top += gf_mulfix(l-&gt;spacing - FIX_ONE, li-&gt;height);</span>
+<span class="lineNum">     274 </span>            :                         }
+<span class="lineNum">     275 </span><span class="lineNoCov">          0 :                         if (l-&gt;scrollVertical) {</span>
+<span class="lineNum">     276 </span><span class="lineNoCov">          0 :                                 st-&gt;scroll_len += li-&gt;height;</span>
+<span class="lineNum">     277 </span><span class="lineNoCov">          0 :                         } else {</span>
+<span class="lineNum">     278 </span><span class="lineNoCov">          0 :                                 if (st-&gt;scroll_len &lt; li-&gt;width) st-&gt;scroll_len = li-&gt;width;</span>
+<span class="lineNum">     279 </span>            :                         }
+<span class="lineNum">     280 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     281 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     282 </span>            :         }
+<span class="lineNum">     283 </span>            : 
+<span class="lineNum">     284 </span>            :         /*Vertical aligment*/
+<span class="lineNum">     285 </span><span class="lineNoCov">          0 :         li = (LineInfo*)gf_list_get(st-&gt;lines, 0);</span>
+<span class="lineNum">     286 </span><span class="lineNoCov">          0 :         if (l-&gt;wrap &amp;&amp; !l-&gt;leftToRight) {</span>
+<span class="lineNum">     287 </span><span class="lineNoCov">          0 :                 current_left = st-&gt;clip.x + st-&gt;clip.width;</span>
+<span class="lineNum">     288 </span><span class="lineNoCov">          0 :                 if (li) current_left -= li-&gt;width;</span>
+<span class="lineNum">     289 </span>            :         } else {
+<span class="lineNum">     290 </span><span class="lineNoCov">          0 :                 current_left = st-&gt;clip.x;</span>
+<span class="lineNum">     291 </span>            :         }
+<span class="lineNum">     292 </span>            : 
+<span class="lineNum">     293 </span>            :         /*for all columns in run*/
+<span class="lineNum">     294 </span><span class="lineNoCov">          0 :         for (k=0; k&lt;nbLines; k++) {</span>
+<span class="lineNum">     295 </span>            :                 Fixed spacing = 0;
+<span class="lineNum">     296 </span><span class="lineNoCov">          0 :                 li = (LineInfo*)gf_list_get(st-&gt;lines, k);</span>
+<span class="lineNum">     297 </span>            : 
+<span class="lineNum">     298 </span><span class="lineNoCov">          0 :                 first = li-&gt;first_child;</span>
+<span class="lineNum">     299 </span><span class="lineNoCov">          0 :                 if (!l-&gt;topToBottom) first += li-&gt;nb_children - 1;</span>
+<span class="lineNum">     300 </span>            : 
+<span class="lineNum">     301 </span>            :                 /*set major alignment (Y) */
+<span class="lineNum">     302 </span><span class="lineNoCov">          0 :                 cg = (ChildGroup *)gf_list_get(st-&gt;groups, first);</span>
+<span class="lineNum">     303 </span><span class="lineNoCov">          0 :                 switch (major) {</span>
+<span class="lineNum">     304 </span>            :                 case L_END:
+<span class="lineNum">     305 </span><span class="lineNoCov">          0 :                         cg-&gt;final.y = st-&gt;clip.y - st-&gt;clip.height + li-&gt;height;</span>
+<span class="lineNum">     306 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     307 </span>            :                 case L_MIDDLE:
+<span class="lineNum">     308 </span><span class="lineNoCov">          0 :                         cg-&gt;final.y = st-&gt;clip.y - st-&gt;clip.height/2 + li-&gt;height/2;</span>
+<span class="lineNum">     309 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     310 </span>            :                 case L_FIRST:
+<span class="lineNum">     311 </span>            :                 case L_BEGIN:
+<span class="lineNum">     312 </span><span class="lineNoCov">          0 :                         cg-&gt;final.y = st-&gt;clip.y;</span>
+<span class="lineNum">     313 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     314 </span>            :                 case L_JUSTIFY:
+<span class="lineNum">     315 </span><span class="lineNoCov">          0 :                         cg-&gt;final.y = st-&gt;clip.y;</span>
+<span class="lineNum">     316 </span><span class="lineNoCov">          0 :                         if (li-&gt;nb_children&gt;1) {</span>
+<span class="lineNum">     317 </span><span class="lineNoCov">          0 :                                 spacing = (st-&gt;clip.height - li-&gt;height) / (li-&gt;nb_children-1) ;</span>
+<span class="lineNum">     318 </span><span class="lineNoCov">          0 :                                 if (spacing&lt;0) spacing = 0;</span>
+<span class="lineNum">     319 </span>            :                         }
+<span class="lineNum">     320 </span>            :                         break;
+<span class="lineNum">     321 </span>            :                 }
+<span class="lineNum">     322 </span>            : 
+<span class="lineNum">     323 </span>            :                 /*for each in the run */
+<span class="lineNum">     324 </span>            :                 i = first;
+<span class="lineNum">     325 </span><span class="lineNoCov">          0 :                 while (1) {</span>
+<span class="lineNum">     326 </span><span class="lineNoCov">          0 :                         cg = (ChildGroup *)gf_list_get(st-&gt;groups, i);</span>
+<span class="lineNum">     327 </span><span class="lineNoCov">          0 :                         switch (minor) {</span>
+<span class="lineNum">     328 </span>            :                         case L_MIDDLE:
+<span class="lineNum">     329 </span><span class="lineNoCov">          0 :                                 cg-&gt;final.x = current_left + li-&gt;width/2 - cg-&gt;final.width/2;</span>
+<span class="lineNum">     330 </span><span class="lineNoCov">          0 :                                 break;</span>
+<span class="lineNum">     331 </span>            :                         case L_END:
+<span class="lineNum">     332 </span><span class="lineNoCov">          0 :                                 cg-&gt;final.x = current_left + li-&gt;width - cg-&gt;final.width;</span>
+<span class="lineNum">     333 </span><span class="lineNoCov">          0 :                                 break;</span>
+<span class="lineNum">     334 </span>            :                         case L_BEGIN:
+<span class="lineNum">     335 </span>            :                         case L_FIRST:
+<span class="lineNum">     336 </span>            :                         default:
+<span class="lineNum">     337 </span><span class="lineNoCov">          0 :                                 cg-&gt;final.x = current_left;</span>
+<span class="lineNum">     338 </span><span class="lineNoCov">          0 :                                 break;</span>
+<span class="lineNum">     339 </span>            :                         }
+<span class="lineNum">     340 </span>            :                         /*update top for non-first children in line*/
+<span class="lineNum">     341 </span><span class="lineNoCov">          0 :                         if (i != first) {</span>
+<span class="lineNum">     342 </span><span class="lineNoCov">          0 :                                 if (l-&gt;topToBottom) {</span>
+<span class="lineNum">     343 </span><span class="lineNoCov">          0 :                                         prev = (ChildGroup *)gf_list_get(st-&gt;groups, i-1);</span>
+<span class="lineNum">     344 </span><span class="lineNoCov">          0 :                                 } else {</span>
+<span class="lineNum">     345 </span><span class="lineNoCov">          0 :                                         prev = (ChildGroup *)gf_list_get(st-&gt;groups, i+1);</span>
+<span class="lineNum">     346 </span>            :                                 }
+<span class="lineNum">     347 </span><span class="lineNoCov">          0 :                                 cg-&gt;final.y = prev-&gt;final.y - prev-&gt;final.height + spacing;</span>
+<span class="lineNum">     348 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     349 </span><span class="lineNoCov">          0 :                         i += l-&gt;topToBottom ? +1 : -1;</span>
+<span class="lineNum">     350 </span><span class="lineNoCov">          0 :                         if (l-&gt;topToBottom &amp;&amp; (i==li-&gt;first_child + li-&gt;nb_children))</span>
+<span class="lineNum">     351 </span>            :                                 break;
+<span class="lineNum">     352 </span><span class="lineNoCov">          0 :                         else if (!l-&gt;topToBottom &amp;&amp; (i==li-&gt;first_child - 1))</span>
+<span class="lineNum">     353 </span>            :                                 break;
+<span class="lineNum">     354 </span>            :                 }
+<span class="lineNum">     355 </span><span class="lineNoCov">          0 :                 if (l-&gt;leftToRight) {</span>
+<span class="lineNum">     356 </span><span class="lineNoCov">          0 :                         current_left += gf_mulfix(l-&gt;spacing, li-&gt;width);</span>
+<span class="lineNum">     357 </span><span class="lineNoCov">          0 :                 } else if (k &lt; nbLines - 1) {</span>
+<span class="lineNum">     358 </span><span class="lineNoCov">          0 :                         li = (LineInfo*)gf_list_get(st-&gt;lines, k+1);</span>
+<span class="lineNum">     359 </span><span class="lineNoCov">          0 :                         current_left -= gf_mulfix(l-&gt;spacing, li-&gt;width);</span>
+<span class="lineNum">     360 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     361 </span><span class="lineNoCov">          0 :                 if (l-&gt;scrollVertical) {</span>
+<span class="lineNum">     362 </span><span class="lineNoCov">          0 :                         if (st-&gt;scroll_len &lt; li-&gt;height) st-&gt;scroll_len = li-&gt;height;</span>
+<span class="lineNum">     363 </span>            :                 } else {
+<span class="lineNum">     364 </span><span class="lineNoCov">          0 :                         st-&gt;scroll_len += li-&gt;width;</span>
+<span class="lineNum">     365 </span>            :                 }
+<span class="lineNum">     366 </span>            :         }
+<a name="367"><span class="lineNum">     367 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     368 </span>            : 
+<span class="lineNum">     369 </span>            : static void layout_setup_scroll_bounds(LayoutStack *st, M_Layout *l)
+<span class="lineNum">     370 </span>            : {
+<span class="lineNum">     371 </span>            :         u32 minor_justify = 0;
+<span class="lineNum">     372 </span>            : 
+<span class="lineNum">     373 </span><span class="lineNoCov">          0 :         st-&gt;scroll_min = st-&gt;scroll_max = 0;</span>
+<span class="lineNum">     374 </span>            : 
+<span class="lineNum">     375 </span><span class="lineNoCov">          0 :         if (l-&gt;horizontal) minor_justify = l-&gt;scrollVertical ? 1 : 0;</span>
+<span class="lineNum">     376 </span><span class="lineNoCov">          0 :         else minor_justify = l-&gt;scrollVertical ? 0 : 1;</span>
+<span class="lineNum">     377 </span>            : 
+<span class="lineNum">     378 </span>            :         /*update scroll-out max limit*/
+<span class="lineNum">     379 </span><span class="lineNoCov">          0 :         if (l-&gt;scrollMode != -1) {</span>
+<span class="lineNum">     380 </span>            :                 /*set max limit*/
+<span class="lineNum">     381 </span><span class="lineNoCov">          0 :                 switch( get_justify(l, minor_justify)) {</span>
+<span class="lineNum">     382 </span>            :                 case L_END:
+<span class="lineNum">     383 </span><span class="lineNoCov">          0 :                         if (l-&gt;scrollVertical) {</span>
+<span class="lineNum">     384 </span><span class="lineNoCov">          0 :                                 if (st-&gt;scale_scroll&lt;0) st-&gt;scroll_max = - st-&gt;scroll_len;</span>
+<span class="lineNum">     385 </span><span class="lineNoCov">          0 :                                 else st-&gt;scroll_max = st-&gt;clip.height;</span>
+<span class="lineNum">     386 </span>            :                         } else {
+<span class="lineNum">     387 </span><span class="lineNoCov">          0 :                                 if (st-&gt;scale_scroll&lt;0) st-&gt;scroll_max = - st-&gt;clip.width;</span>
+<span class="lineNum">     388 </span><span class="lineNoCov">          0 :                                 else st-&gt;scroll_max = st-&gt;scroll_len;</span>
+<span class="lineNum">     389 </span>            :                         }
+<span class="lineNum">     390 </span>            :                         break;
+<span class="lineNum">     391 </span>            :                 case L_MIDDLE:
+<span class="lineNum">     392 </span><span class="lineNoCov">          0 :                         if (l-&gt;scrollVertical) {</span>
+<span class="lineNum">     393 </span><span class="lineNoCov">          0 :                                 if (st-&gt;scale_scroll&lt;0) st-&gt;scroll_max = - (st-&gt;clip.height + st-&gt;scroll_len)/2;</span>
+<span class="lineNum">     394 </span><span class="lineNoCov">          0 :                                 else st-&gt;scroll_max = (st-&gt;clip.height + st-&gt;scroll_len)/2;</span>
+<span class="lineNum">     395 </span>            :                         } else {
+<span class="lineNum">     396 </span><span class="lineNoCov">          0 :                                 if (st-&gt;scale_scroll&lt;0) st-&gt;scroll_max = - (st-&gt;clip.width + st-&gt;scroll_len)/2;</span>
+<span class="lineNum">     397 </span><span class="lineNoCov">          0 :                                 else st-&gt;scroll_max = (st-&gt;clip.width + st-&gt;scroll_len)/2;</span>
+<span class="lineNum">     398 </span>            :                         }
+<span class="lineNum">     399 </span>            :                         break;
+<span class="lineNum">     400 </span>            :                 default:
+<span class="lineNum">     401 </span><span class="lineNoCov">          0 :                         if (l-&gt;scrollVertical) {</span>
+<span class="lineNum">     402 </span><span class="lineNoCov">          0 :                                 if (st-&gt;scale_scroll&lt;0) st-&gt;scroll_max = - st-&gt;clip.height;</span>
+<span class="lineNum">     403 </span><span class="lineNoCov">          0 :                                 else st-&gt;scroll_max = st-&gt;scroll_len;</span>
+<span class="lineNum">     404 </span>            :                         } else {
+<span class="lineNum">     405 </span><span class="lineNoCov">          0 :                                 if (st-&gt;scale_scroll&lt;0) st-&gt;scroll_max = - st-&gt;scroll_len;</span>
+<span class="lineNum">     406 </span><span class="lineNoCov">          0 :                                 else st-&gt;scroll_max = st-&gt;clip.width;</span>
+<span class="lineNum">     407 </span>            :                         }
+<span class="lineNum">     408 </span>            :                         break;
+<span class="lineNum">     409 </span>            :                 }
+<span class="lineNum">     410 </span>            :         }
+<span class="lineNum">     411 </span>            :         /*scroll-in only*/
+<span class="lineNum">     412 </span>            :         else {
+<span class="lineNum">     413 </span><span class="lineNoCov">          0 :                 st-&gt;scroll_max = 0;</span>
+<span class="lineNum">     414 </span>            :         }
+<span class="lineNum">     415 </span>            : 
+<span class="lineNum">     416 </span>            :         /*scroll-out only*/
+<span class="lineNum">     417 </span><span class="lineNoCov">          0 :         if (l-&gt;scrollMode==1) {</span>
+<span class="lineNum">     418 </span><span class="lineNoCov">          0 :                 st-&gt;scroll_min = 0;</span>
+<span class="lineNum">     419 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     420 </span>            :         }
+<span class="lineNum">     421 </span>            : 
+<span class="lineNum">     422 </span>            :         /*when vertically scrolling an horizontal layout, don't use vertical justification, only justify top/bottom lines*/
+<span class="lineNum">     423 </span><span class="lineNoCov">          0 :         if (l-&gt;horizontal &amp;&amp; l-&gt;scrollVertical) {</span>
+<span class="lineNum">     424 </span><span class="lineNoCov">          0 :                 if (st-&gt;scale_scroll&lt;0) {</span>
+<span class="lineNum">     425 </span><span class="lineNoCov">          0 :                         st-&gt;scroll_min = st-&gt;scroll_len;</span>
+<span class="lineNum">     426 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     427 </span><span class="lineNoCov">          0 :                         st-&gt;scroll_min = - st-&gt;clip.height;</span>
+<span class="lineNum">     428 </span>            :                 }
+<span class="lineNum">     429 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     430 </span>            :         }
+<span class="lineNum">     431 </span>            : 
+<span class="lineNum">     432 </span>            :         /*update scroll-in offset*/
+<span class="lineNum">     433 </span><span class="lineNoCov">          0 :         switch( get_justify(l, minor_justify)) {</span>
+<span class="lineNum">     434 </span>            :         case L_END:
+<span class="lineNum">     435 </span><span class="lineNoCov">          0 :                 if (l-&gt;scrollVertical) {</span>
+<span class="lineNum">     436 </span><span class="lineNoCov">          0 :                         if (st-&gt;scale_scroll&lt;0) st-&gt;scroll_min = st-&gt;clip.height;</span>
+<span class="lineNum">     437 </span><span class="lineNoCov">          0 :                         else st-&gt;scroll_min = - st-&gt;scroll_len;</span>
+<span class="lineNum">     438 </span>            :                 } else {
+<span class="lineNum">     439 </span><span class="lineNoCov">          0 :                         if (st-&gt;scale_scroll&lt;0) st-&gt;scroll_min = st-&gt;scroll_len;</span>
+<span class="lineNum">     440 </span><span class="lineNoCov">          0 :                         else st-&gt;scroll_min = -st-&gt;clip.width;</span>
+<span class="lineNum">     441 </span>            :                 }
+<span class="lineNum">     442 </span>            :                 break;
+<span class="lineNum">     443 </span>            :         case L_MIDDLE:
+<span class="lineNum">     444 </span><span class="lineNoCov">          0 :                 if (l-&gt;scrollVertical) {</span>
+<span class="lineNum">     445 </span><span class="lineNoCov">          0 :                         if (st-&gt;scale_scroll&lt;0) st-&gt;scroll_min = (st-&gt;clip.height + st-&gt;scroll_len)/2;</span>
+<span class="lineNum">     446 </span><span class="lineNoCov">          0 :                         else st-&gt;scroll_min = - (st-&gt;clip.height + st-&gt;scroll_len)/2;</span>
+<span class="lineNum">     447 </span>            :                 } else {
+<span class="lineNum">     448 </span><span class="lineNoCov">          0 :                         if (st-&gt;scale_scroll&lt;0) st-&gt;scroll_min = (st-&gt;clip.width + st-&gt;scroll_len)/2;</span>
+<span class="lineNum">     449 </span><span class="lineNoCov">          0 :                         else st-&gt;scroll_min = - (st-&gt;clip.width + st-&gt;scroll_len)/2;</span>
+<span class="lineNum">     450 </span>            :                 }
+<span class="lineNum">     451 </span>            :                 break;
+<span class="lineNum">     452 </span>            :         default:
+<span class="lineNum">     453 </span><span class="lineNoCov">          0 :                 if (l-&gt;scrollVertical) {</span>
+<span class="lineNum">     454 </span><span class="lineNoCov">          0 :                         if (st-&gt;scale_scroll&lt;0) st-&gt;scroll_min = st-&gt;scroll_len;</span>
+<span class="lineNum">     455 </span><span class="lineNoCov">          0 :                         else st-&gt;scroll_min = - st-&gt;clip.height;</span>
+<span class="lineNum">     456 </span>            :                 } else {
+<span class="lineNum">     457 </span><span class="lineNoCov">          0 :                         if (st-&gt;scale_scroll&lt;0) st-&gt;scroll_min = st-&gt;clip.width;</span>
+<span class="lineNum">     458 </span><span class="lineNoCov">          0 :                         else st-&gt;scroll_min = - st-&gt;scroll_len;</span>
+<span class="lineNum">     459 </span>            :                 }
+<span class="lineNum">     460 </span>            :                 break;
+<span class="lineNum">     461 </span>            :         }
+<span class="lineNum">     462 </span><span class="lineNoCov">          0 : }</span>
+<a name="463"><span class="lineNum">     463 </span>            : </a>
+<span class="lineNum">     464 </span>            : 
+<span class="lineNum">     465 </span>            : static void layout_scroll(GF_TraverseState *tr_state, LayoutStack *st, M_Layout *l)
+<span class="lineNum">     466 </span>            : {
+<span class="lineNum">     467 </span><span class="lineNoCov">          0 :         u32 i, nb_lines;</span>
+<span class="lineNum">     468 </span>            :         Fixed scrolled, rate, elapsed, scroll_diff;
+<span class="lineNum">     469 </span>            :         Bool smooth, do_scroll, stop_anim;
+<span class="lineNum">     470 </span>            :         Double time = 0;
+<span class="lineNum">     471 </span>            :         ChildGroup *cg;
+<span class="lineNum">     472 </span>            : 
+<span class="lineNum">     473 </span>            :         /*not scrolling*/
+<span class="lineNum">     474 </span><span class="lineNoCov">          0 :         if (!st-&gt;scale_scroll &amp;&amp; !st-&gt;is_scrolling &amp;&amp; !st-&gt;key_scroll) return;</span>
+<span class="lineNum">     475 </span>            : 
+<span class="lineNum">     476 </span><span class="lineNoCov">          0 :         if (st-&gt;key_scroll) {</span>
+<span class="lineNum">     477 </span><span class="lineNoCov">          0 :                 if (!st-&gt;is_scrolling) {</span>
+<span class="lineNum">     478 </span><span class="lineNoCov">          0 :                         layout_setup_scroll_bounds(st, l);</span>
+<span class="lineNum">     479 </span><span class="lineNoCov">          0 :                         st-&gt;is_scrolling = 1;</span>
+<span class="lineNum">     480 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     481 </span>            : 
+<span class="lineNum">     482 </span><span class="lineNoCov">          0 :                 scrolled = st-&gt;last_scroll + INT2FIX(st-&gt;key_scroll);</span>
+<span class="lineNum">     483 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     484 </span>            : 
+<span class="lineNum">     485 </span><span class="lineNoCov">          0 :                 time = gf_node_get_scene_time((GF_Node *)l);</span>
+<span class="lineNum">     486 </span>            : 
+<span class="lineNum">     487 </span>            :                 //      if (st-&gt;scale_scroll &amp;&amp; (st-&gt;prev_rate!=st-&gt;scale_scroll)) st-&gt;start_scroll_type = 1;
+<span class="lineNum">     488 </span>            : 
+<span class="lineNum">     489 </span>            :                 /*if scroll rate changed to previous non-zero value, this is a
+<span class="lineNum">     490 </span>            :                 scroll restart, don't re-update bounds*/
+<span class="lineNum">     491 </span><span class="lineNoCov">          0 :                 if ((st-&gt;start_scroll_type==2) &amp;&amp; (st-&gt;prev_rate==st-&gt;scale_scroll)) st-&gt;start_scroll_type = 0;</span>
+<span class="lineNum">     492 </span>            : 
+<span class="lineNum">     493 </span><span class="lineNoCov">          0 :                 if (st-&gt;start_scroll_type) {</span>
+<span class="lineNum">     494 </span><span class="lineNoCov">          0 :                         st-&gt;start_time = time;</span>
+<span class="lineNum">     495 </span><span class="lineNoCov">          0 :                         st-&gt;is_scrolling = 1;</span>
+<span class="lineNum">     496 </span><span class="lineNoCov">          0 :                         st-&gt;prev_rate = st-&gt;scale_scroll;</span>
+<span class="lineNum">     497 </span>            : 
+<span class="lineNum">     498 </span>            :                         /*continuous restart: use last scroll to update the start time. We must recompute scroll bounds
+<span class="lineNum">     499 </span>            :                         since switching from scroll_rate &gt;0 to &lt;0 changes the bounds !*/
+<span class="lineNum">     500 </span><span class="lineNoCov">          0 :                         if ((st-&gt;start_scroll_type==2) &amp;&amp; st-&gt;scale_scroll) {</span>
+<span class="lineNum">     501 </span><span class="lineNoCov">          0 :                                 Fixed cur_pos = st-&gt;scroll_min + st-&gt;last_scroll;</span>
+<span class="lineNum">     502 </span><span class="lineNoCov">          0 :                                 layout_setup_scroll_bounds(st, l);</span>
+<span class="lineNum">     503 </span><span class="lineNoCov">          0 :                                 cur_pos -= st-&gt;scroll_min;</span>
+<span class="lineNum">     504 </span><span class="lineNoCov">          0 :                                 st-&gt;start_time = time - FIX2FLT(gf_divfix(cur_pos, st-&gt;scale_scroll));</span>
+<span class="lineNum">     505 </span><span class="lineNoCov">          0 :                         } else {</span>
+<span class="lineNum">     506 </span><span class="lineNoCov">          0 :                                 layout_setup_scroll_bounds(st, l);</span>
+<span class="lineNum">     507 </span>            :                         }
+<span class="lineNum">     508 </span><span class="lineNoCov">          0 :                         st-&gt;last_scroll = 0;</span>
+<span class="lineNum">     509 </span><span class="lineNoCov">          0 :                         st-&gt;start_scroll_type = 0;</span>
+<span class="lineNum">     510 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     511 </span>            : 
+<span class="lineNum">     512 </span>            :                 /*handle pause/resume*/
+<span class="lineNum">     513 </span><span class="lineNoCov">          0 :                 rate = st-&gt;scale_scroll;</span>
+<span class="lineNum">     514 </span><span class="lineNoCov">          0 :                 if (!rate) {</span>
+<span class="lineNum">     515 </span><span class="lineNoCov">          0 :                         if (!st-&gt;pause_time) {</span>
+<span class="lineNum">     516 </span><span class="lineNoCov">          0 :                                 st-&gt;pause_time = time;</span>
+<span class="lineNum">     517 </span><span class="lineNoCov">          0 :                         } else {</span>
+<span class="lineNum">     518 </span>            :                                 time = st-&gt;pause_time;
+<span class="lineNum">     519 </span>            :                         }
+<span class="lineNum">     520 </span><span class="lineNoCov">          0 :                         rate = st-&gt;prev_rate;</span>
+<span class="lineNum">     521 </span><span class="lineNoCov">          0 :                 } else if (st-&gt;pause_time) {</span>
+<span class="lineNum">     522 </span><span class="lineNoCov">          0 :                         st-&gt;start_time += (time - st-&gt;pause_time);</span>
+<span class="lineNum">     523 </span><span class="lineNoCov">          0 :                         st-&gt;pause_time = 0;</span>
+<span class="lineNum">     524 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     525 </span>            : 
+<span class="lineNum">     526 </span>            :                 /*compute advance in pixels for smooth scroll*/
+<span class="lineNum">     527 </span><span class="lineNoCov">          0 :                 elapsed = FLT2FIX((Float) (time - st-&gt;start_time));</span>
+<span class="lineNum">     528 </span><span class="lineNoCov">          0 :                 scrolled = gf_mulfix(elapsed, rate);</span>
+<span class="lineNum">     529 </span>            :         }
+<span class="lineNum">     530 </span>            : 
+<span class="lineNum">     531 </span><span class="lineNoCov">          0 :         smooth = l-&gt;smoothScroll;</span>
+<span class="lineNum">     532 </span>            :         /*if the scroll is in the same direction as the layout, there is no notion of line or column to scroll
+<span class="lineNum">     533 </span>            :         so move to smooth mode*/
+<span class="lineNum">     534 </span><span class="lineNoCov">          0 :         if (!l-&gt;horizontal &amp;&amp; l-&gt;scrollVertical) smooth = 1;</span>
+<span class="lineNum">     535 </span><span class="lineNoCov">          0 :         else if (l-&gt;horizontal &amp;&amp; !l-&gt;scrollVertical) smooth = 1;</span>
+<span class="lineNum">     536 </span>            : 
+<span class="lineNum">     537 </span>            : 
+<span class="lineNum">     538 </span>            :         stop_anim = 0;
+<span class="lineNum">     539 </span>            :         /*compute scroll diff for non-smooth mode*/
+<span class="lineNum">     540 </span><span class="lineNoCov">          0 :         if (smooth) {</span>
+<span class="lineNum">     541 </span>            :                 do_scroll = 1;
+<span class="lineNum">     542 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     543 </span>            :                 Fixed dim;
+<span class="lineNum">     544 </span><span class="lineNoCov">          0 :                 scroll_diff = scrolled - st-&gt;last_scroll;</span>
+<span class="lineNum">     545 </span>            :                 do_scroll = 0;
+<span class="lineNum">     546 </span>            : 
+<span class="lineNum">     547 </span><span class="lineNoCov">          0 :                 nb_lines = gf_list_count(st-&gt;lines);</span>
+<span class="lineNum">     548 </span><span class="lineNoCov">          0 :                 for (i=0; i &lt; nb_lines; i++) {</span>
+<span class="lineNum">     549 </span><span class="lineNoCov">          0 :                         LineInfo *li = (LineInfo*)gf_list_get(st-&gt;lines, i);</span>
+<span class="lineNum">     550 </span><span class="lineNoCov">          0 :                         dim = l-&gt;scrollVertical ? li-&gt;height : li-&gt;width;</span>
+<span class="lineNum">     551 </span><span class="lineNoCov">          0 :                         if (st-&gt;key_scroll) {</span>
+<span class="lineNum">     552 </span><span class="lineNoCov">          0 :                                 if (st-&gt;key_scroll&lt;0) dim = -dim;</span>
+<span class="lineNum">     553 </span><span class="lineNoCov">          0 :                                 scrolled = dim + st-&gt;last_scroll;</span>
+<span class="lineNum">     554 </span>            :                                 /*in key mode we must handle the min ourselves since we can go below the scroll limit*/
+<span class="lineNum">     555 </span><span class="lineNoCov">          0 :                                 if (st-&gt;scroll_min &gt; st-&gt;scroll_len + scrolled) {</span>
+<span class="lineNum">     556 </span><span class="lineNoCov">          0 :                                         scrolled = st-&gt;scroll_min - st-&gt;scroll_len;</span>
+<span class="lineNum">     557 </span><span class="lineNoCov">          0 :                                 } else {</span>
+<span class="lineNum">     558 </span>            :                                         do_scroll = 1;
+<span class="lineNum">     559 </span>            :                                 }
+<span class="lineNum">     560 </span><span class="lineNoCov">          0 :                                 break;</span>
+<span class="lineNum">     561 </span><span class="lineNoCov">          0 :                         } else if (ABS(scroll_diff) &gt;= dim) {</span>
+<span class="lineNum">     562 </span>            : //                              if (scroll_diff&lt;0) scroll_diff = -dim;
+<span class="lineNum">     563 </span>            : //                              else scroll_diff = dim;
+<span class="lineNum">     564 </span>            :                                 do_scroll = 1;
+<span class="lineNum">     565 </span><span class="lineNoCov">          0 :                                 break;</span>
+<span class="lineNum">     566 </span>            :                         }
+<span class="lineNum">     567 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     568 </span>            :         }
+<span class="lineNum">     569 </span>            : 
+<span class="lineNum">     570 </span><span class="lineNoCov">          0 :         scroll_diff = st-&gt;scroll_max - st-&gt;scroll_min;</span>
+<span class="lineNum">     571 </span><span class="lineNoCov">          0 :         if ((scroll_diff&lt;0) &amp;&amp; (scrolled&lt;=scroll_diff)) {</span>
+<span class="lineNum">     572 </span>            :                 stop_anim = 1;
+<span class="lineNum">     573 </span>            :                 scrolled = scroll_diff;
+<span class="lineNum">     574 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     575 </span><span class="lineNoCov">          0 :         else if ((scroll_diff&gt;0) &amp;&amp; (scrolled&gt;=scroll_diff)) {</span>
+<span class="lineNum">     576 </span>            :                 stop_anim = 1;
+<span class="lineNum">     577 </span>            :                 scrolled = scroll_diff;
+<span class="lineNum">     578 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     579 </span>            : 
+<span class="lineNum">     580 </span><span class="lineNoCov">          0 :         if (do_scroll)</span>
+<span class="lineNum">     581 </span><span class="lineNoCov">          0 :                 st-&gt;last_scroll = scrolled;</span>
+<span class="lineNum">     582 </span>            :         else
+<span class="lineNum">     583 </span><span class="lineNoCov">          0 :                 scrolled = st-&gt;last_scroll;</span>
+<span class="lineNum">     584 </span>            : 
+<span class="lineNum">     585 </span><span class="lineNoCov">          0 :         i=0;</span>
+<span class="lineNum">     586 </span><span class="lineNoCov">          0 :         while ((cg = (ChildGroup *)gf_list_enum(st-&gt;groups, &amp;i))) {</span>
+<span class="lineNum">     587 </span><span class="lineNoCov">          0 :                 if (l-&gt;scrollVertical) {</span>
+<span class="lineNum">     588 </span><span class="lineNoCov">          0 :                         cg-&gt;scroll_y = st-&gt;scroll_min + scrolled;</span>
+<span class="lineNum">     589 </span><span class="lineNoCov">          0 :                         cg-&gt;scroll_x = 0;</span>
+<span class="lineNum">     590 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     591 </span><span class="lineNoCov">          0 :                         cg-&gt;scroll_x = st-&gt;scroll_min + scrolled;</span>
+<span class="lineNum">     592 </span><span class="lineNoCov">          0 :                         cg-&gt;scroll_y = 0;</span>
+<span class="lineNum">     593 </span>            :                 }
+<span class="lineNum">     594 </span>            :         }
+<span class="lineNum">     595 </span>            : 
+<span class="lineNum">     596 </span><span class="lineNoCov">          0 :         if (st-&gt;key_scroll) {</span>
+<span class="lineNum">     597 </span><span class="lineNoCov">          0 :                 st-&gt;key_scroll = 0;</span>
+<span class="lineNum">     598 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     599 </span>            :         }
+<span class="lineNum">     600 </span>            :         /*draw next frame*/
+<span class="lineNum">     601 </span><span class="lineNoCov">          0 :         if (!stop_anim) {</span>
+<span class="lineNum">     602 </span><span class="lineNoCov">          0 :                 tr_state-&gt;visual-&gt;compositor-&gt;force_next_frame_redraw = 1;</span>
+<span class="lineNum">     603 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     604 </span>            :         }
+<span class="lineNum">     605 </span>            : 
+<span class="lineNum">     606 </span>            :         /*done*/
+<span class="lineNum">     607 </span><span class="lineNoCov">          0 :         if (!l-&gt;loop) return;</span>
+<span class="lineNum">     608 </span>            : 
+<span class="lineNum">     609 </span>            :         /*restart*/
+<span class="lineNum">     610 </span><span class="lineNoCov">          0 :         st-&gt;start_time = time;</span>
+<span class="lineNum">     611 </span><span class="lineNoCov">          0 :         gf_sc_invalidate(tr_state-&gt;visual-&gt;compositor, NULL);</span>
+<span class="lineNum">     612 </span><span class="lineNoCov">          0 : }</span>
+<a name="613"><span class="lineNum">     613 </span>            : </a>
+<span class="lineNum">     614 </span>            : 
+<span class="lineNum">     615 </span>            : static void TraverseLayout(GF_Node *node, void *rs, Bool is_destroy)
+<span class="lineNum">     616 </span>            : {
+<span class="lineNum">     617 </span>            :         Bool recompute_layout;
+<span class="lineNum">     618 </span><span class="lineNoCov">          0 :         u32 i;</span>
+<span class="lineNum">     619 </span>            :         ChildGroup *cg;
+<span class="lineNum">     620 </span><span class="lineNoCov">          0 :         GF_IRect prev_clip;</span>
+<span class="lineNum">     621 </span><span class="lineNoCov">          0 :         Bool mode_bckup, had_clip=GF_FALSE;</span>
+<span class="lineNum">     622 </span>            :         ParentNode2D *parent_bck;
+<span class="lineNum">     623 </span><span class="lineNoCov">          0 :         GF_Rect prev_clipper;</span>
+<span class="lineNum">     624 </span><span class="lineNoCov">          0 :         M_Layout *l = (M_Layout *)node;</span>
+<span class="lineNum">     625 </span><span class="lineNoCov">          0 :         LayoutStack *st = (LayoutStack *) gf_node_get_private(node);</span>
+<span class="lineNum">     626 </span><span class="lineNoCov">          0 :         GF_TraverseState *tr_state = (GF_TraverseState *)rs;</span>
+<span class="lineNum">     627 </span>            : 
+<span class="lineNum">     628 </span><span class="lineNoCov">          0 :         if (is_destroy) {</span>
+<span class="lineNum">     629 </span><span class="lineNoCov">          0 :                 layout_reset_lines(st);</span>
+<span class="lineNum">     630 </span><span class="lineNoCov">          0 :                 parent_node_predestroy((ParentNode2D *)st);</span>
+<span class="lineNum">     631 </span><span class="lineNoCov">          0 :                 gf_list_del(st-&gt;lines);</span>
+<span class="lineNum">     632 </span><span class="lineNoCov">          0 :                 gf_free(st);</span>
+<span class="lineNum">     633 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     634 </span>            :         }
+<span class="lineNum">     635 </span>            : 
+<span class="lineNum">     636 </span>            :         /*note we don't clear dirty flag, this is done in traversing*/
+<span class="lineNum">     637 </span><span class="lineNoCov">          0 :         if (gf_node_dirty_get(node) &amp; GF_SG_NODE_DIRTY) {</span>
+<span class="lineNum">     638 </span>            : 
+<span class="lineNum">     639 </span>            :                 /*TO CHANGE IN BIFS - scroll_rate is quite unusable*/
+<span class="lineNum">     640 </span><span class="lineNoCov">          0 :                 st-&gt;scale_scroll = st-&gt;scroll_rate = l-&gt;scrollRate;</span>
+<span class="lineNum">     641 </span>            :                 /*move to pixel metrics*/
+<span class="lineNum">     642 </span><span class="lineNoCov">          0 :                 if (visual_get_size_info(tr_state, &amp;st-&gt;clip.width, &amp;st-&gt;clip.height)) {</span>
+<span class="lineNum">     643 </span><span class="lineNoCov">          0 :                         st-&gt;scale_scroll = gf_mulfix(st-&gt;scale_scroll, l-&gt;scrollVertical ? st-&gt;clip.height : st-&gt;clip.width);</span>
+<span class="lineNum">     644 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     645 </span>            :                 /*setup bounds in local coord system*/
+<span class="lineNum">     646 </span><span class="lineNoCov">          0 :                 if (l-&gt;size.x&gt;=0) st-&gt;clip.width = l-&gt;size.x;</span>
+<span class="lineNum">     647 </span><span class="lineNoCov">          0 :                 if (l-&gt;size.y&gt;=0) st-&gt;clip.height = l-&gt;size.y;</span>
+<span class="lineNum">     648 </span><span class="lineNoCov">          0 :                 st-&gt;bounds = st-&gt;clip = gf_rect_center(st-&gt;clip.width, st-&gt;clip.height);</span>
+<span class="lineNum">     649 </span>            : 
+<span class="lineNum">     650 </span><span class="lineNoCov">          0 :                 if (st-&gt;scale_scroll &amp;&amp; !st-&gt;start_scroll_type) st-&gt;start_scroll_type = 1;</span>
+<span class="lineNum">     651 </span>            : 
+<span class="lineNum">     652 </span><span class="lineNoCov">          0 :                 drawable_reset_group_highlight(tr_state, node);</span>
+<span class="lineNum">     653 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     654 </span>            : 
+<span class="lineNum">     655 </span>            :         /*don't waste time traversing is pick ray not in clipper*/
+<span class="lineNum">     656 </span><span class="lineNoCov">          0 :         if ((tr_state-&gt;traversing_mode==TRAVERSE_PICK) &amp;&amp; !gf_sc_pick_in_clipper(tr_state, &amp;st-&gt;clip))</span>
+<span class="lineNum">     657 </span>            :                 goto layout_exit;
+<span class="lineNum">     658 </span>            : 
+<span class="lineNum">     659 </span><span class="lineNoCov">          0 :         if ((tr_state-&gt;traversing_mode==TRAVERSE_GET_BOUNDS) &amp;&amp; !tr_state-&gt;for_node) {</span>
+<span class="lineNum">     660 </span><span class="lineNoCov">          0 :                 tr_state-&gt;bounds = st-&gt;clip;</span>
+<span class="lineNum">     661 </span>            : #ifndef GPAC_DISABLE_3D
+<span class="lineNum">     662 </span><span class="lineNoCov">          0 :                 gf_bbox_from_rect(&amp;tr_state-&gt;bbox, &amp;st-&gt;clip);</span>
+<span class="lineNum">     663 </span>            : #endif
+<span class="lineNum">     664 </span><span class="lineNoCov">          0 :                 goto layout_exit;</span>
+<span class="lineNum">     665 </span>            :         }
+<span class="lineNum">     666 </span>            : 
+<span class="lineNum">     667 </span>            :         recompute_layout = 0;
+<span class="lineNum">     668 </span><span class="lineNoCov">          0 :         if (gf_node_dirty_get(node))</span>
+<span class="lineNum">     669 </span><span class="lineNoCov">          0 :                 recompute_layout = 1;</span>
+<span class="lineNum">     670 </span>            : 
+<span class="lineNum">     671 </span>            :         /*setup clipping*/
+<span class="lineNum">     672 </span><span class="lineNoCov">          0 :         prev_clip = tr_state-&gt;visual-&gt;top_clipper;</span>
+<span class="lineNum">     673 </span><span class="lineNoCov">          0 :         if (tr_state-&gt;traversing_mode==TRAVERSE_SORT) {</span>
+<span class="lineNum">     674 </span><span class="lineNoCov">          0 :                 compositor_2d_update_clipper(tr_state, st-&gt;clip, &amp;had_clip, &amp;prev_clipper, 0);</span>
+<span class="lineNum">     675 </span><span class="lineNoCov">          0 :                 if (tr_state-&gt;has_clip) {</span>
+<span class="lineNum">     676 </span><span class="lineNoCov">          0 :                         tr_state-&gt;visual-&gt;top_clipper = gf_rect_pixelize(&amp;tr_state-&gt;clipper);</span>
+<span class="lineNum">     677 </span><span class="lineNoCov">          0 :                         gf_irect_intersect(&amp;tr_state-&gt;visual-&gt;top_clipper, &amp;prev_clip);</span>
+<span class="lineNum">     678 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     679 </span>            :         }
+<span class="lineNum">     680 </span><span class="lineNoCov">          0 :         if (recompute_layout) {</span>
+<span class="lineNum">     681 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_DEBUG, GF_LOG_COMPOSE, (&quot;[Layout] recomputing positions\n&quot;));</span>
+<span class="lineNum">     682 </span>            : 
+<span class="lineNum">     683 </span><span class="lineNoCov">          0 :                 parent_node_reset((ParentNode2D*)st);</span>
+<span class="lineNum">     684 </span>            : 
+<span class="lineNum">     685 </span>            :                 /*setup traversing state*/
+<span class="lineNum">     686 </span><span class="lineNoCov">          0 :                 parent_bck = tr_state-&gt;parent;</span>
+<span class="lineNum">     687 </span><span class="lineNoCov">          0 :                 mode_bckup = tr_state-&gt;traversing_mode;</span>
+<span class="lineNum">     688 </span><span class="lineNoCov">          0 :                 tr_state-&gt;traversing_mode = TRAVERSE_GET_BOUNDS;</span>
+<span class="lineNum">     689 </span><span class="lineNoCov">          0 :                 tr_state-&gt;parent = (ParentNode2D *) st;</span>
+<span class="lineNum">     690 </span>            : 
+<span class="lineNum">     691 </span><span class="lineNoCov">          0 :                 if (l-&gt;wrap) tr_state-&gt;text_split_mode = 1;</span>
+<span class="lineNum">     692 </span><span class="lineNoCov">          0 :                 parent_node_traverse(node, (ParentNode2D *)st, tr_state);</span>
+<span class="lineNum">     693 </span>            :                 /*restore traversing state*/
+<span class="lineNum">     694 </span><span class="lineNoCov">          0 :                 tr_state-&gt;parent = parent_bck;</span>
+<span class="lineNum">     695 </span><span class="lineNoCov">          0 :                 tr_state-&gt;traversing_mode = mode_bckup;</span>
+<span class="lineNum">     696 </span><span class="lineNoCov">          0 :                 if (l-&gt;wrap) tr_state-&gt;text_split_mode = 0;</span>
+<span class="lineNum">     697 </span>            : 
+<span class="lineNum">     698 </span>            :                 /*center all nodes*/
+<span class="lineNum">     699 </span><span class="lineNoCov">          0 :                 i=0;</span>
+<span class="lineNum">     700 </span><span class="lineNoCov">          0 :                 while ((cg = (ChildGroup *)gf_list_enum(st-&gt;groups, &amp;i))) {</span>
+<span class="lineNum">     701 </span><span class="lineNoCov">          0 :                         cg-&gt;final.x = - cg-&gt;final.width/2;</span>
+<span class="lineNum">     702 </span><span class="lineNoCov">          0 :                         cg-&gt;final.y = cg-&gt;final.height/2;</span>
+<span class="lineNum">     703 </span>            :                 }
+<span class="lineNum">     704 </span>            : 
+<span class="lineNum">     705 </span>            :                 /*apply justification*/
+<span class="lineNum">     706 </span><span class="lineNoCov">          0 :                 layout_justify(st, l);</span>
+<span class="lineNum">     707 </span>            : 
+<span class="lineNum">     708 </span>            :                 /*if scrolling, update bounds*/
+<span class="lineNum">     709 </span><span class="lineNoCov">          0 :                 if (l-&gt;scrollRate &amp;&amp; st-&gt;is_scrolling) {</span>
+<span class="lineNum">     710 </span><span class="lineNoCov">          0 :                         layout_setup_scroll_bounds(st, l);</span>
+<span class="lineNum">     711 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     712 </span>            :         }
+<span class="lineNum">     713 </span>            : 
+<span class="lineNum">     714 </span>            : 
+<span class="lineNum">     715 </span><span class="lineNoCov">          0 :         if (tr_state-&gt;traversing_mode==TRAVERSE_GET_BOUNDS)  {</span>
+<span class="lineNum">     716 </span><span class="lineNoCov">          0 :                 tr_state-&gt;bounds = st-&gt;bounds;</span>
+<span class="lineNum">     717 </span><span class="lineNoCov">          0 :                 if (l-&gt;scrollVertical) {</span>
+<span class="lineNum">     718 </span><span class="lineNoCov">          0 :                         tr_state-&gt;bounds.height = st-&gt;scroll_len;</span>
+<span class="lineNum">     719 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     720 </span><span class="lineNoCov">          0 :                         tr_state-&gt;bounds.width = st-&gt;scroll_len;</span>
+<span class="lineNum">     721 </span>            :                 }
+<span class="lineNum">     722 </span>            : #ifndef GPAC_DISABLE_3D
+<span class="lineNum">     723 </span><span class="lineNoCov">          0 :                 gf_bbox_from_rect(&amp;tr_state-&gt;bbox, &amp;tr_state-&gt;bounds);</span>
+<span class="lineNum">     724 </span>            : #endif
+<span class="lineNum">     725 </span><span class="lineNoCov">          0 :                 goto layout_exit;</span>
+<span class="lineNum">     726 </span>            :         }
+<span class="lineNum">     727 </span>            : 
+<span class="lineNum">     728 </span>            : 
+<span class="lineNum">     729 </span>            :         /*scroll*/
+<span class="lineNum">     730 </span><span class="lineNoCov">          0 :         layout_scroll(tr_state, st, l);</span>
+<span class="lineNum">     731 </span>            : 
+<span class="lineNum">     732 </span><span class="lineNoCov">          0 :         i=0;</span>
+<span class="lineNum">     733 </span><span class="lineNoCov">          0 :         while ((cg = (ChildGroup *)gf_list_enum(st-&gt;groups, &amp;i))) {</span>
+<span class="lineNum">     734 </span><span class="lineNoCov">          0 :                 parent_node_child_traverse(cg, tr_state);</span>
+<span class="lineNum">     735 </span>            :         }
+<span class="lineNum">     736 </span><span class="lineNoCov">          0 :         tr_state-&gt;visual-&gt;top_clipper = prev_clip;</span>
+<span class="lineNum">     737 </span><span class="lineNoCov">          0 :         if (tr_state-&gt;traversing_mode==TRAVERSE_SORT)  {</span>
+<span class="lineNum">     738 </span><span class="lineNoCov">          0 :                 if (had_clip) tr_state-&gt;clipper = prev_clipper;</span>
+<span class="lineNum">     739 </span><span class="lineNoCov">          0 :                 tr_state-&gt;has_clip = had_clip;</span>
+<span class="lineNum">     740 </span>            : 
+<span class="lineNum">     741 </span><span class="lineNoCov">          0 :                 drawable_check_focus_highlight(node, tr_state, &amp;st-&gt;clip);</span>
+<span class="lineNum">     742 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     743 </span>            : 
+<span class="lineNum">     744 </span>            : layout_exit:
+<span class="lineNum">     745 </span><span class="lineNoCov">          0 :         tr_state-&gt;text_split_mode = 0;</span>
+<a name="746"><span class="lineNum">     746 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     747 </span>            : 
+<span class="lineNum">     748 </span>            : static Bool OnLayout(GF_SensorHandler *sh, Bool is_over, Bool is_cancel, GF_Event *ev, GF_Compositor *compositor)
+<span class="lineNum">     749 </span>            : {
+<span class="lineNum">     750 </span><span class="lineNoCov">          0 :         Bool vertical = ((M_Layout *)sh-&gt;sensor)-&gt;scrollVertical;</span>
+<span class="lineNum">     751 </span><span class="lineNoCov">          0 :         LayoutStack *st = (LayoutStack *) gf_node_get_private(sh-&gt;sensor);</span>
+<span class="lineNum">     752 </span>            : 
+<span class="lineNum">     753 </span><span class="lineNoCov">          0 :         if (!is_over) {</span>
+<span class="lineNum">     754 </span><span class="lineNoCov">          0 :                 st-&gt;is_scrolling = 0;</span>
+<span class="lineNum">     755 </span><span class="lineNoCov">          0 :                 st-&gt;key_scroll = 0;</span>
+<span class="lineNum">     756 </span><span class="lineNoCov">          0 :                 return 0;</span>
+<span class="lineNum">     757 </span>            :         }
+<span class="lineNum">     758 </span><span class="lineNoCov">          0 :         if (ev-&gt;type!=GF_EVENT_KEYDOWN) {</span>
+<span class="lineNum">     759 </span><span class="lineNoCov">          0 :                 st-&gt;is_scrolling = 0;</span>
+<span class="lineNum">     760 </span><span class="lineNoCov">          0 :                 st-&gt;key_scroll = 0;</span>
+<span class="lineNum">     761 </span><span class="lineNoCov">          0 :                 return 0;</span>
+<span class="lineNum">     762 </span>            :         }
+<span class="lineNum">     763 </span>            : 
+<span class="lineNum">     764 </span><span class="lineNoCov">          0 :         switch (ev-&gt;key.key_code) {</span>
+<span class="lineNum">     765 </span>            :         case GF_KEY_LEFT:
+<span class="lineNum">     766 </span><span class="lineNoCov">          0 :                 if (!st-&gt;keys_active) return 0;</span>
+<span class="lineNum">     767 </span>            : 
+<span class="lineNum">     768 </span><span class="lineNoCov">          0 :                 if (vertical) return 0;</span>
+<span class="lineNum">     769 </span><span class="lineNoCov">          0 :                 st-&gt;key_scroll = -1;</span>
+<span class="lineNum">     770 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     771 </span>            :         case GF_KEY_RIGHT:
+<span class="lineNum">     772 </span><span class="lineNoCov">          0 :                 if (!st-&gt;keys_active) return 0;</span>
+<span class="lineNum">     773 </span>            : 
+<span class="lineNum">     774 </span><span class="lineNoCov">          0 :                 if (vertical) return 0;</span>
+<span class="lineNum">     775 </span><span class="lineNoCov">          0 :                 st-&gt;key_scroll = +1;</span>
+<span class="lineNum">     776 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     777 </span>            :         case GF_KEY_UP:
+<span class="lineNum">     778 </span><span class="lineNoCov">          0 :                 if (!st-&gt;keys_active) return 0;</span>
+<span class="lineNum">     779 </span>            : 
+<span class="lineNum">     780 </span><span class="lineNoCov">          0 :                 if (!vertical) return 0;</span>
+<span class="lineNum">     781 </span><span class="lineNoCov">          0 :                 st-&gt;key_scroll = +1;</span>
+<span class="lineNum">     782 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     783 </span>            :         case GF_KEY_DOWN:
+<span class="lineNum">     784 </span><span class="lineNoCov">          0 :                 if (!st-&gt;keys_active) return 0;</span>
+<span class="lineNum">     785 </span>            : 
+<span class="lineNum">     786 </span><span class="lineNoCov">          0 :                 if (!vertical) return 0;</span>
+<span class="lineNum">     787 </span><span class="lineNoCov">          0 :                 st-&gt;key_scroll = -1;</span>
+<span class="lineNum">     788 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     789 </span>            :         case GF_KEY_ENTER:
+<span class="lineNum">     790 </span><span class="lineNoCov">          0 :                 st-&gt;keys_active = !st-&gt;keys_active;</span>
+<span class="lineNum">     791 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     792 </span>            :         default:
+<span class="lineNum">     793 </span><span class="lineNoCov">          0 :                 st-&gt;key_scroll = 0;</span>
+<span class="lineNum">     794 </span><span class="lineNoCov">          0 :                 return 0;</span>
+<span class="lineNum">     795 </span>            :         }
+<span class="lineNum">     796 </span><span class="lineNoCov">          0 :         gf_sc_invalidate(compositor, NULL);</span>
+<span class="lineNum">     797 </span><span class="lineNoCov">          0 :         return 1;</span>
+<a name="798"><span class="lineNum">     798 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     799 </span>            : 
+<span class="lineNum">     800 </span>            : static Bool layout_is_enabled(GF_Node *node)
+<span class="lineNum">     801 </span>            : {
+<span class="lineNum">     802 </span><span class="lineNoCov">          0 :         M_Layout *l = (M_Layout *)node;</span>
+<span class="lineNum">     803 </span><span class="lineNoCov">          0 :         if (l-&gt;scrollRate != 0) return 0;</span>
+<span class="lineNum">     804 </span><span class="lineNoCov">          0 :         return 1;</span>
+<a name="805"><span class="lineNum">     805 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     806 </span>            : 
+<span class="lineNum">     807 </span>            : void compositor_init_layout(GF_Compositor *compositor, GF_Node *node)
+<span class="lineNum">     808 </span>            : {
+<span class="lineNum">     809 </span>            :         LayoutStack *stack;
+<span class="lineNum">     810 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(stack, LayoutStack);</span>
+<span class="lineNum">     811 </span><span class="lineNoCov">          0 :         if (!stack) {</span>
+<span class="lineNum">     812 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_COMPOSE, (&quot;[Compositor] Failed to allocate layout stack\n&quot;));</span>
+<span class="lineNum">     813 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     814 </span>            :         }
+<span class="lineNum">     815 </span>            : 
+<span class="lineNum">     816 </span><span class="lineNoCov">          0 :         parent_node_setup((ParentNode2D*)stack);</span>
+<span class="lineNum">     817 </span><span class="lineNoCov">          0 :         stack-&gt;lines = gf_list_new();</span>
+<span class="lineNum">     818 </span><span class="lineNoCov">          0 :         gf_node_set_private(node, stack);</span>
+<span class="lineNum">     819 </span><span class="lineNoCov">          0 :         gf_node_set_callback_function(node, TraverseLayout);</span>
+<span class="lineNum">     820 </span><span class="lineNoCov">          0 :         stack-&gt;hdl.sensor = node;</span>
+<span class="lineNum">     821 </span><span class="lineNoCov">          0 :         stack-&gt;hdl.IsEnabled = layout_is_enabled;</span>
+<span class="lineNum">     822 </span><span class="lineNoCov">          0 :         stack-&gt;hdl.OnUserEvent = OnLayout;</span>
+<a name="823"><span class="lineNum">     823 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     824 </span>            : 
+<span class="lineNum">     825 </span>            : void compositor_layout_modified(GF_Compositor *compositor, GF_Node *node)
+<span class="lineNum">     826 </span>            : {
+<span class="lineNum">     827 </span><span class="lineNoCov">          0 :         LayoutStack *st = (LayoutStack *) gf_node_get_private(node);</span>
+<span class="lineNum">     828 </span>            :         /*if modif other than scrollrate restart scroll*/
+<span class="lineNum">     829 </span><span class="lineNoCov">          0 :         if (st-&gt;scroll_rate == ((M_Layout*)node)-&gt;scrollRate) {</span>
+<span class="lineNum">     830 </span><span class="lineNoCov">          0 :                 st-&gt;start_scroll_type = 1;</span>
+<span class="lineNum">     831 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     832 </span>            :         /*if modif on scroll rate only, indicate continous restart*/
+<span class="lineNum">     833 </span><span class="lineNoCov">          0 :         else if (((M_Layout*)node)-&gt;scrollRate) {</span>
+<span class="lineNum">     834 </span><span class="lineNoCov">          0 :                 st-&gt;start_scroll_type = 2;</span>
+<span class="lineNum">     835 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     836 </span><span class="lineNoCov">          0 :         gf_node_dirty_set(node, GF_SG_NODE_DIRTY, 0);</span>
+<span class="lineNum">     837 </span><span class="lineNoCov">          0 :         gf_sc_invalidate(compositor, NULL);</span>
+<a name="838"><span class="lineNum">     838 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     839 </span>            : 
+<span class="lineNum">     840 </span>            : GF_SensorHandler *compositor_mpeg4_layout_get_sensor_handler(GF_Node *node)
+<span class="lineNum">     841 </span>            : {
+<span class="lineNum">     842 </span><span class="lineNoCov">          0 :         LayoutStack *st = (LayoutStack *) gf_node_get_private(node);</span>
+<span class="lineNum">     843 </span><span class="lineNoCov">          0 :         return &amp;st-&gt;hdl;</span>
+<span class="lineNum">     844 </span>            : }
+<span class="lineNum">     845 </span>            : 
+<span class="lineNum">     846 </span>            : 
+<span class="lineNum">     847 </span>            : #endif /*GPAC_DISABLE_VRML*/
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

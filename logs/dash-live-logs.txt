@@ -1,0 +1,12 @@
+*** dash-live logs (GPAC version 0.6.2-DEV-revUNKNOWN-HEAD ) - test date 14/05/2017 22:23:49 ***
+
+
+*** Subtest "dash-input-preparation": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/external_media/counter/counter-10mn_I25_baseline_1280x720_512kbps.264:dur=5 -add /Users/travis/build/gpac/gpac/tests/external_media/counter/counter-10mn_audio.aac:dur=5 -new /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4" ***
+[33mCannot find file /Users/travis/build/gpac/gpac/tests/external_media/counter/counter-10mn_I25_baseline_1280x720_512kbps.264
+[0mError importing /Users/travis/build/gpac/gpac/tests/external_media/counter/counter-10mn_I25_baseline_1280x720_512kbps.264:dur=5: Requested URL is not valid or cannot be found
+
+
+*** Subtest "dash-live": executing "MP4Box -noprog -for-test  -mem-track -bs-switching single -mpd-refresh 10 -dash-ctx /Users/travis/build/gpac/gpac/tests/results/temp/dash_ctx -dash-run-for 10000 -dynamic -profile live -dash-live 40  /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/file.mpd" ***
+Live DASH-ing - press 'q' to quit, 's' to save context and quit
+DASH Setup Error: Requested URL is not valid or cannot be found
+

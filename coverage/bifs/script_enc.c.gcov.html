@@ -1,0 +1,1909 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - bifs/script_enc.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">bifs</a> - script_enc.c<span style="font-size: 80%;"> (source / <a href="script_enc.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">722</td>
+            <td class="headerCovTableEntry">876</td>
+            <td class="headerCovTableEntryMed">82.4 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-05-14 22:31:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">36</td>
+            <td class="headerCovTableEntry">36</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *                      GPAC - Multimedia Framework C SDK
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *                      Authors: Jean Le Feuvre
+<span class="lineNum">       5 </span>            :  *                      Copyright (c) Telecom ParisTech 2000-2012
+<span class="lineNum">       6 </span>            :  *                                      All rights reserved
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  *  This file is part of GPAC / BIFS codec sub-project
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  *  GPAC is free software; you can redistribute it and/or modify
+<span class="lineNum">      11 </span>            :  *  it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">      12 </span>            :  *  the Free Software Foundation; either version 2, or (at your option)
+<span class="lineNum">      13 </span>            :  *  any later version.
+<span class="lineNum">      14 </span>            :  *
+<span class="lineNum">      15 </span>            :  *  GPAC is distributed in the hope that it will be useful,
+<span class="lineNum">      16 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      17 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      18 </span>            :  *  GNU Lesser General Public License for more details.
+<span class="lineNum">      19 </span>            :  *
+<span class="lineNum">      20 </span>            :  *  You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      21 </span>            :  *  License along with this library; see the file COPYING.  If not, write to
+<span class="lineNum">      22 </span>            :  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+<span class="lineNum">      23 </span>            :  *
+<span class="lineNum">      24 </span>            :  */
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : /*
+<span class="lineNum">      27 </span>            :                 script encoder is IM1 version
+<span class="lineNum">      28 </span>            : */
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : #include &quot;script.h&quot;
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            : #include &lt;gpac/internal/scenegraph_dev.h&gt;
+<span class="lineNum">      33 </span>            : 
+<span class="lineNum">      34 </span>            : #if !defined(GPAC_DISABLE_BIFS) &amp;&amp; !defined(GPAC_DISABLE_BIFS_ENC) &amp;&amp; defined(GPAC_HAS_SPIDERMONKEY)
+<span class="lineNum">      35 </span>            : 
+<span class="lineNum">      36 </span>            : typedef struct
+<span class="lineNum">      37 </span>            : {
+<span class="lineNum">      38 </span>            :         GF_Node *script;
+<span class="lineNum">      39 </span>            :         GF_BifsEncoder *codec;
+<span class="lineNum">      40 </span>            :         GF_BitStream *bs;
+<span class="lineNum">      41 </span>            :         GF_List *identifiers;
+<span class="lineNum">      42 </span>            :         GF_Err err;
+<span class="lineNum">      43 </span>            : 
+<span class="lineNum">      44 </span>            :         char *cur_buf;
+<span class="lineNum">      45 </span>            :         char token[500];
+<span class="lineNum">      46 </span>            :         u32 token_code;
+<span class="lineNum">      47 </span>            : 
+<span class="lineNum">      48 </span>            :         u32 cur_line;
+<span class="lineNum">      49 </span>            : 
+<span class="lineNum">      50 </span>            :         Bool emul;
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span>            :         char expr_toks[500];
+<span class="lineNum">      53 </span>            :         u32 expr_toks_len;
+<span class="lineNum">      54 </span>            :         GF_List *id_buf;
+<span class="lineNum">      55 </span>            : } ScriptEnc;
+<span class="lineNum">      56 </span>            : 
+<span class="lineNum">      57 </span>            : 
+<span class="lineNum">      58 </span>            : #define SFE_WRITE_INT(sc_enc, val, nbBits, str1, str2)  \
+<span class="lineNum">      59 </span>            :                 if (!sc_enc-&gt;emul) GF_BIFS_WRITE_INT(sc_enc-&gt;codec, sc_enc-&gt;bs, val, nbBits, str1, str2);      \
+<a name="60"><span class="lineNum">      60 </span>            :  </a>
+<span class="lineNum">      61 </span>            : 
+<span class="lineNum">      62 </span>            : static GF_Err EncScriptFields(ScriptEnc *sc_enc)
+<span class="lineNum">      63 </span>            : {
+<span class="lineNum">      64 </span>            :         u32 nbFields, nbBits, eType, nbBitsProto, i;
+<span class="lineNum">      65 </span>            :         Bool use_list;
+<span class="lineNum">      66 </span>            :         GF_Err e;
+<span class="lineNum">      67 </span><span class="lineCov">        120 :         GF_FieldInfo info;</span>
+<span class="lineNum">      68 </span>            : 
+<span class="lineNum">      69 </span><span class="lineCov">         60 :         nbFields = gf_node_get_num_fields_in_mode(sc_enc-&gt;script, GF_SG_FIELD_CODING_ALL) - 3;</span>
+<span class="lineNum">      70 </span>            :         use_list = GF_TRUE;
+<span class="lineNum">      71 </span><span class="lineCov">         60 :         nbBits = gf_get_bit_size(nbFields);</span>
+<span class="lineNum">      72 </span><span class="lineCov">         88 :         if (nbFields+1 &gt; 4 + gf_get_bit_size(nbFields)) use_list = GF_FALSE;</span>
+<span class="lineNum">      73 </span><span class="lineCov">        120 :         if (!nbFields) {</span>
+<span class="lineNum">      74 </span><span class="lineNoCov">          0 :                 GF_BIFS_WRITE_INT(sc_enc-&gt;codec, sc_enc-&gt;bs, 1, 1, &quot;Script::isList&quot;, NULL);</span>
+<span class="lineNum">      75 </span><span class="lineNoCov">          0 :                 GF_BIFS_WRITE_INT(sc_enc-&gt;codec, sc_enc-&gt;bs, 1, 1, &quot;end&quot;, NULL);</span>
+<span class="lineNum">      76 </span><span class="lineNoCov">          0 :                 return GF_OK;</span>
+<span class="lineNum">      77 </span>            :         }
+<span class="lineNum">      78 </span><span class="lineCov">        120 :         GF_BIFS_WRITE_INT(sc_enc-&gt;codec, sc_enc-&gt;bs, use_list ? 1 : 0, 1, &quot;Script::isList&quot;, NULL);</span>
+<span class="lineNum">      79 </span><span class="lineCov">         60 :         if (!use_list) {</span>
+<span class="lineNum">      80 </span><span class="lineCov">         28 :                 GF_BIFS_WRITE_INT(sc_enc-&gt;codec, sc_enc-&gt;bs, nbBits, 4, &quot;nbBits&quot;, NULL);</span>
+<span class="lineNum">      81 </span><span class="lineCov">         28 :                 GF_BIFS_WRITE_INT(sc_enc-&gt;codec, sc_enc-&gt;bs, nbFields, nbBits, &quot;count&quot;, NULL);</span>
+<span class="lineNum">      82 </span>            :         }
+<span class="lineNum">      83 </span>            : 
+<span class="lineNum">      84 </span>            :         nbBitsProto = 0;
+<span class="lineNum">      85 </span><span class="lineCov">         64 :         if (sc_enc-&gt;codec-&gt;encoding_proto) nbBitsProto = gf_get_bit_size(gf_sg_proto_get_field_count(sc_enc-&gt;codec-&gt;encoding_proto) - 1);</span>
+<span class="lineNum">      86 </span>            : 
+<span class="lineNum">      87 </span><span class="lineCov">       1208 :         for (i=0; i&lt;nbFields; i++) {</span>
+<span class="lineNum">      88 </span><span class="lineCov">        652 :                 if (use_list) GF_BIFS_WRITE_INT(sc_enc-&gt;codec, sc_enc-&gt;bs, 0, 1, &quot;end&quot;, NULL);</span>
+<span class="lineNum">      89 </span>            : 
+<span class="lineNum">      90 </span><span class="lineCov">        544 :                 gf_node_get_field(sc_enc-&gt;script, i+3, &amp;info);</span>
+<span class="lineNum">      91 </span><span class="lineCov">        544 :                 switch (info.eventType) {</span>
+<span class="lineNum">      92 </span>            :                 case GF_SG_EVENT_IN:
+<span class="lineNum">      93 </span>            :                         eType = GF_SG_SCRIPT_TYPE_EVENT_IN;
+<span class="lineNum">      94 </span><span class="lineCov">        184 :                         break;</span>
+<span class="lineNum">      95 </span>            :                 case GF_SG_EVENT_OUT:
+<span class="lineNum">      96 </span>            :                         eType = GF_SG_SCRIPT_TYPE_EVENT_OUT;
+<span class="lineNum">      97 </span><span class="lineCov">         30 :                         break;</span>
+<span class="lineNum">      98 </span>            :                 default:
+<span class="lineNum">      99 </span>            :                         eType = GF_SG_SCRIPT_TYPE_FIELD;
+<span class="lineNum">     100 </span><span class="lineCov">        330 :                         break;</span>
+<span class="lineNum">     101 </span>            :                 }
+<span class="lineNum">     102 </span><span class="lineCov">        544 :                 GF_BIFS_WRITE_INT(sc_enc-&gt;codec, sc_enc-&gt;bs, eType, 2, &quot;eventType&quot;, NULL);</span>
+<span class="lineNum">     103 </span><span class="lineCov">        544 :                 GF_BIFS_WRITE_INT(sc_enc-&gt;codec, sc_enc-&gt;bs, info.fieldType, 6, &quot;fieldType&quot;, NULL);</span>
+<span class="lineNum">     104 </span><span class="lineCov">        544 :                 gf_bifs_enc_name(sc_enc-&gt;codec, sc_enc-&gt;bs, (char *) info.name);</span>
+<span class="lineNum">     105 </span>            :                 /*this is an identifier for script*/
+<span class="lineNum">     106 </span><span class="lineCov">        544 :                 gf_list_add(sc_enc-&gt;identifiers, gf_strdup(info.name));</span>
+<span class="lineNum">     107 </span>            : 
+<span class="lineNum">     108 </span><span class="lineCov">        544 :                 if (sc_enc-&gt;codec-&gt;encoding_proto) {</span>
+<span class="lineNum">     109 </span><span class="lineCov">         24 :                         GF_Route *isedField = gf_bifs_enc_is_field_ised(sc_enc-&gt;codec, sc_enc-&gt;script, i+3);</span>
+<span class="lineNum">     110 </span><span class="lineCov">         48 :                         if (isedField) {</span>
+<span class="lineNum">     111 </span><span class="lineCov">         24 :                                 GF_BIFS_WRITE_INT(sc_enc-&gt;codec, sc_enc-&gt;bs, 1, 1, &quot;isedField&quot;, NULL);</span>
+<span class="lineNum">     112 </span>            : 
+<span class="lineNum">     113 </span><span class="lineNoCov">          0 :                                 if (isedField-&gt;ToNode == sc_enc-&gt;script) {</span>
+<span class="lineNum">     114 </span><span class="lineNoCov">          0 :                                         GF_BIFS_WRITE_INT(sc_enc-&gt;codec, sc_enc-&gt;bs, isedField-&gt;FromField.fieldIndex, nbBitsProto, &quot;protoField&quot;, NULL);</span>
+<span class="lineNum">     115 </span>            :                                 } else {
+<span class="lineNum">     116 </span><span class="lineNoCov">          0 :                                         GF_BIFS_WRITE_INT(sc_enc-&gt;codec, sc_enc-&gt;bs, isedField-&gt;ToField.fieldIndex, nbBitsProto, &quot;protoField&quot;, NULL);</span>
+<span class="lineNum">     117 </span>            :                                 }
+<span class="lineNum">     118 </span><span class="lineNoCov">          0 :                                 continue;</span>
+<span class="lineNum">     119 </span>            :                         }
+<span class="lineNum">     120 </span><span class="lineCov">         24 :                         GF_BIFS_WRITE_INT(sc_enc-&gt;codec, sc_enc-&gt;bs, 0, 1, &quot;isedField&quot;, NULL);</span>
+<span class="lineNum">     121 </span><span class="lineCov">         24 :                 }</span>
+<span class="lineNum">     122 </span>            :                 /*default value*/
+<span class="lineNum">     123 </span><span class="lineCov">        544 :                 if (eType == GF_SG_SCRIPT_TYPE_FIELD) {</span>
+<span class="lineNum">     124 </span><span class="lineCov">        330 :                         GF_BIFS_WRITE_INT(sc_enc-&gt;codec, sc_enc-&gt;bs, (info.far_ptr) ? 1 : 0, 1, &quot;hasInitialValue&quot;, NULL);</span>
+<span class="lineNum">     125 </span><span class="lineCov">        330 :                         if (info.far_ptr) {</span>
+<span class="lineNum">     126 </span><span class="lineCov">        330 :                                 e = gf_bifs_enc_field(sc_enc-&gt;codec, sc_enc-&gt;bs, sc_enc-&gt;script, &amp;info);</span>
+<span class="lineNum">     127 </span><span class="lineCov">        330 :                                 if (e) return e;</span>
+<span class="lineNum">     128 </span>            :                         }
+<span class="lineNum">     129 </span>            :                 }
+<span class="lineNum">     130 </span>            :         }
+<span class="lineNum">     131 </span><span class="lineCov">         92 :         if (use_list) GF_BIFS_WRITE_INT(sc_enc-&gt;codec, sc_enc-&gt;bs, 1, 1, &quot;end&quot;, NULL);</span>
+<span class="lineNum">     132 </span><span class="lineCov">         60 :         return GF_OK;</span>
+<span class="lineNum">     133 </span><span class="lineCov">         60 : }</span>
+<span class="lineNum">     134 </span>            : 
+<span class="lineNum">     135 </span>            : 
+<span class="lineNum">     136 </span>            : 
+<span class="lineNum">     137 </span>            : enum
+<span class="lineNum">     138 </span>            : {
+<span class="lineNum">     139 </span>            :         TOK_FUNCTION,
+<span class="lineNum">     140 </span>            :         TOK_IF,
+<span class="lineNum">     141 </span>            :         TOK_ELSE,
+<span class="lineNum">     142 </span>            :         TOK_FOR,
+<span class="lineNum">     143 </span>            :         TOK_WHILE,
+<span class="lineNum">     144 </span>            :         TOK_RETURN,
+<span class="lineNum">     145 </span>            :         TOK_BREAK,
+<span class="lineNum">     146 </span>            :         TOK_CONTINUE,
+<span class="lineNum">     147 </span>            :         TOK_NEW,
+<span class="lineNum">     148 </span>            :         TOK_SWITCH,
+<span class="lineNum">     149 </span>            :         TOK_CASE,
+<span class="lineNum">     150 </span>            :         TOK_DEFAULT,
+<span class="lineNum">     151 </span>            :         TOK_VAR,
+<span class="lineNum">     152 </span>            :         NUMBER_OF_KEYWORD,
+<span class="lineNum">     153 </span>            :         TOK_LEFT_BRACE = NUMBER_OF_KEYWORD,
+<span class="lineNum">     154 </span>            :         TOK_RIGHT_BRACE,
+<span class="lineNum">     155 </span>            :         TOK_LEFT_CURVE,
+<span class="lineNum">     156 </span>            :         TOK_RIGHT_CURVE,
+<span class="lineNum">     157 </span>            :         TOK_LEFT_BRACKET,
+<span class="lineNum">     158 </span>            :         TOK_RIGHT_BRACKET,
+<span class="lineNum">     159 </span>            :         TOK_PERIOD,
+<span class="lineNum">     160 </span>            :         TOK_NOT,
+<span class="lineNum">     161 </span>            :         TOK_ONESCOMP,
+<span class="lineNum">     162 </span>            :         TOK_NEGATIVE,
+<span class="lineNum">     163 </span>            :         TOK_INCREMENT,
+<span class="lineNum">     164 </span>            :         TOK_DECREMENT,
+<span class="lineNum">     165 </span>            :         TOK_MULTIPLY,
+<span class="lineNum">     166 </span>            :         TOK_DIVIDE,
+<span class="lineNum">     167 </span>            :         TOK_MOD,
+<span class="lineNum">     168 </span>            :         TOK_PLUS,
+<span class="lineNum">     169 </span>            :         TOK_MINUS,
+<span class="lineNum">     170 </span>            :         TOK_LSHIFT,
+<span class="lineNum">     171 </span>            :         TOK_RSHIFT,
+<span class="lineNum">     172 </span>            :         TOK_RSHIFTFILL,
+<span class="lineNum">     173 </span>            :         TOK_LT,
+<span class="lineNum">     174 </span>            :         TOK_LE,
+<span class="lineNum">     175 </span>            :         TOK_GT,
+<span class="lineNum">     176 </span>            :         TOK_GE,
+<span class="lineNum">     177 </span>            :         TOK_EQ,
+<span class="lineNum">     178 </span>            :         TOK_NE,
+<span class="lineNum">     179 </span>            :         TOK_AND,
+<span class="lineNum">     180 </span>            :         TOK_XOR,
+<span class="lineNum">     181 </span>            :         TOK_OR,
+<span class="lineNum">     182 </span>            :         TOK_LAND,
+<span class="lineNum">     183 </span>            :         TOK_LOR,
+<span class="lineNum">     184 </span>            :         TOK_CONDTEST,
+<span class="lineNum">     185 </span>            :         TOK_ASSIGN,
+<span class="lineNum">     186 </span>            :         TOK_PLUSEQ,
+<span class="lineNum">     187 </span>            :         TOK_MINUSEQ,
+<span class="lineNum">     188 </span>            :         TOK_MULTIPLYEQ,
+<span class="lineNum">     189 </span>            :         TOK_DIVIDEEQ,
+<span class="lineNum">     190 </span>            :         TOK_MODEQ,
+<span class="lineNum">     191 </span>            :         TOK_LSHIFTEQ,
+<span class="lineNum">     192 </span>            :         TOK_RSHIFTEQ,
+<span class="lineNum">     193 </span>            :         TOK_RSHIFTFILLEQ,
+<span class="lineNum">     194 </span>            :         TOK_ANDEQ,
+<span class="lineNum">     195 </span>            :         TOK_XOREQ,
+<span class="lineNum">     196 </span>            :         TOK_OREQ,
+<span class="lineNum">     197 </span>            :         TOK_COMMA,
+<span class="lineNum">     198 </span>            :         TOK_SEMICOLON,
+<span class="lineNum">     199 </span>            :         TOK_CONDSEP,
+<span class="lineNum">     200 </span>            :         TOK_IDENTIFIER,
+<span class="lineNum">     201 </span>            :         TOK_STRING,
+<span class="lineNum">     202 </span>            :         TOK_NUMBER,
+<span class="lineNum">     203 </span>            :         TOK_EOF,
+<span class="lineNum">     204 </span>            :         TOK_BOOLEAN
+<span class="lineNum">     205 </span>            : };
+<span class="lineNum">     206 </span>            : 
+<span class="lineNum">     207 </span>            : const char *tok_names[] =
+<span class="lineNum">     208 </span>            : {
+<span class="lineNum">     209 </span>            :         &quot;function&quot;,
+<span class="lineNum">     210 </span>            :         &quot;if&quot;,
+<span class="lineNum">     211 </span>            :         &quot;else&quot;,
+<span class="lineNum">     212 </span>            :         &quot;for&quot;,
+<span class="lineNum">     213 </span>            :         &quot;while&quot;,
+<span class="lineNum">     214 </span>            :         &quot;return&quot;,
+<span class="lineNum">     215 </span>            :         &quot;break&quot;,
+<span class="lineNum">     216 </span>            :         &quot;continue&quot;,
+<span class="lineNum">     217 </span>            :         &quot;new&quot;,
+<span class="lineNum">     218 </span>            :         &quot;switch&quot;,
+<span class="lineNum">     219 </span>            :         &quot;case&quot;,
+<span class="lineNum">     220 </span>            :         &quot;default&quot;,
+<span class="lineNum">     221 </span>            :         &quot;var&quot;,
+<span class="lineNum">     222 </span>            :         &quot;{&quot;,
+<span class="lineNum">     223 </span>            :         &quot;}&quot;,
+<span class="lineNum">     224 </span>            :         &quot;(&quot;,
+<span class="lineNum">     225 </span>            :         &quot;)&quot;,
+<span class="lineNum">     226 </span>            :         &quot;[&quot;,
+<span class="lineNum">     227 </span>            :         &quot;]&quot;,
+<span class="lineNum">     228 </span>            :         &quot;.&quot;,
+<span class="lineNum">     229 </span>            :         &quot;!&quot;,
+<span class="lineNum">     230 </span>            :         &quot;~&quot;,
+<span class="lineNum">     231 </span>            :         &quot;-&quot;,
+<span class="lineNum">     232 </span>            :         &quot;++&quot;,
+<span class="lineNum">     233 </span>            :         &quot;--&quot;,
+<span class="lineNum">     234 </span>            :         &quot;*&quot;,
+<span class="lineNum">     235 </span>            :         &quot;/&quot;,
+<span class="lineNum">     236 </span>            :         &quot;%&quot;,
+<span class="lineNum">     237 </span>            :         &quot;+&quot;,
+<span class="lineNum">     238 </span>            :         &quot;-&quot;,
+<span class="lineNum">     239 </span>            :         &quot;&lt;&lt;&quot;,
+<span class="lineNum">     240 </span>            :         &quot;&gt;&gt;&quot;,
+<span class="lineNum">     241 </span>            :         &quot;&gt;&gt;&gt;&quot;,
+<span class="lineNum">     242 </span>            :         &quot;&lt;&quot;,
+<span class="lineNum">     243 </span>            :         &quot;&lt;=&quot;,
+<span class="lineNum">     244 </span>            :         &quot;&gt;&quot;,
+<span class="lineNum">     245 </span>            :         &quot;&gt;=&quot;,
+<span class="lineNum">     246 </span>            :         &quot;==&quot;,
+<span class="lineNum">     247 </span>            :         &quot;!=&quot;,
+<span class="lineNum">     248 </span>            :         &quot;&amp;&quot;,
+<span class="lineNum">     249 </span>            :         &quot;^&quot;,
+<span class="lineNum">     250 </span>            :         &quot;|&quot;,
+<span class="lineNum">     251 </span>            :         &quot;&amp;&amp;&quot;,
+<span class="lineNum">     252 </span>            :         &quot;||&quot;,
+<span class="lineNum">     253 </span>            :         &quot;?&quot;,
+<span class="lineNum">     254 </span>            :         &quot;=&quot;,
+<span class="lineNum">     255 </span>            :         &quot;+=&quot;,
+<span class="lineNum">     256 </span>            :         &quot;-=&quot;,
+<span class="lineNum">     257 </span>            :         &quot;*=&quot;,
+<span class="lineNum">     258 </span>            :         &quot;/=&quot;,
+<span class="lineNum">     259 </span>            :         &quot;%=&quot;,
+<span class="lineNum">     260 </span>            :         &quot;&lt;&lt;=&quot;,
+<span class="lineNum">     261 </span>            :         &quot;&gt;&gt;=&quot;,
+<span class="lineNum">     262 </span>            :         &quot;&gt;&gt;&gt;=&quot;,
+<span class="lineNum">     263 </span>            :         &quot;&amp;=&quot;,
+<span class="lineNum">     264 </span>            :         &quot;^=&quot;,
+<span class="lineNum">     265 </span>            :         &quot;|=&quot;,
+<span class="lineNum">     266 </span>            :         &quot;,&quot;,
+<span class="lineNum">     267 </span>            :         &quot;;&quot;,
+<span class="lineNum">     268 </span>            :         &quot;:&quot;,
+<span class="lineNum">     269 </span>            :         &quot;identifier&quot;,
+<span class="lineNum">     270 </span>            :         &quot;string&quot;,
+<span class="lineNum">     271 </span>            :         &quot;number&quot;,
+<span class="lineNum">     272 </span>            :         &quot;boolean&quot;,
+<span class="lineNum">     273 </span>            :         &quot;end of script&quot;
+<span class="lineNum">     274 </span>            : };
+<span class="lineNum">     275 </span>            : 
+<span class="lineNum">     276 </span>            : const char* sc_keywords [] =
+<span class="lineNum">     277 </span>            : {
+<span class="lineNum">     278 </span>            :         &quot;function&quot;,
+<span class="lineNum">     279 </span>            :         &quot;if&quot;,
+<span class="lineNum">     280 </span>            :         &quot;else&quot;,
+<span class="lineNum">     281 </span>            :         &quot;for&quot;,
+<span class="lineNum">     282 </span>            :         &quot;while&quot;,
+<span class="lineNum">     283 </span>            :         &quot;return&quot;,
+<span class="lineNum">     284 </span>            :         &quot;break&quot;,
+<span class="lineNum">     285 </span>            :         &quot;continue&quot;,
+<span class="lineNum">     286 </span>            :         &quot;new&quot;,
+<span class="lineNum">     287 </span>            :         &quot;switch&quot;,
+<span class="lineNum">     288 </span>            :         &quot;case&quot;,
+<span class="lineNum">     289 </span>            :         &quot;default&quot;,
+<span class="lineNum">     290 </span>            :         &quot;var&quot;
+<a name="291"><span class="lineNum">     291 </span>            : };</a>
+<span class="lineNum">     292 </span>            : 
+<span class="lineNum">     293 </span>            : Bool SFE_GetNumber(ScriptEnc *sc_enc)
+<span class="lineNum">     294 </span>            : {
+<span class="lineNum">     295 </span>            :         u32 i = 0;
+<span class="lineNum">     296 </span>            :         Bool exp = GF_FALSE;
+<span class="lineNum">     297 </span><span class="lineCov">      13204 :         while ( isdigit(sc_enc-&gt;cur_buf[i])</span>
+<span class="lineNum">     298 </span><span class="lineCov">       6690 :                 || (toupper(sc_enc-&gt;cur_buf[i])=='X')</span>
+<span class="lineNum">     299 </span><span class="lineCov">       4398 :                 || ((toupper(sc_enc-&gt;cur_buf[i]) &gt;='A') &amp;&amp; (toupper(sc_enc-&gt;cur_buf[i])&lt;='F'))</span>
+<span class="lineNum">     300 </span><span class="lineCov">       2332 :                 || (sc_enc-&gt;cur_buf[i]=='.')</span>
+<span class="lineNum">     301 </span><span class="lineCov">       4044 :                 || (tolower(sc_enc-&gt;cur_buf[i])=='e')</span>
+<span class="lineNum">     302 </span><span class="lineCov">       3956 :                 || (exp &amp;&amp; (sc_enc-&gt;cur_buf[i] == '-'))</span>
+<span class="lineNum">     303 </span>            :               ) {
+<span class="lineNum">     304 </span><span class="lineCov">       2646 :                 sc_enc-&gt;token[i] = sc_enc-&gt;cur_buf[i];</span>
+<span class="lineNum">     305 </span><span class="lineCov">       2646 :                 if (tolower(sc_enc-&gt;cur_buf[i])=='e') exp = GF_TRUE;</span>
+<span class="lineNum">     306 </span><span class="lineCov">       2646 :                 i++;</span>
+<span class="lineNum">     307 </span><span class="lineCov">       2646 :                 if (!sc_enc-&gt;cur_buf[i]) {</span>
+<span class="lineNum">     308 </span><span class="lineNoCov">          0 :                         GF_LOG(GF_LOG_ERROR, GF_LOG_CODING, (&quot;[bifs] Script encoding: Invalid number syntax (%s)\n&quot;, sc_enc-&gt;cur_buf));</span>
+<span class="lineNum">     309 </span><span class="lineNoCov">          0 :                         sc_enc-&gt;err = GF_BAD_PARAM;</span>
+<span class="lineNum">     310 </span><span class="lineNoCov">          0 :                         return GF_FALSE;</span>
+<span class="lineNum">     311 </span>            :                 }
+<span class="lineNum">     312 </span>            :         }
+<span class="lineNum">     313 </span><span class="lineCov">       1978 :         sc_enc-&gt;token[i] = 0;</span>
+<span class="lineNum">     314 </span><span class="lineCov">       1978 :         sc_enc-&gt;cur_buf += i;</span>
+<span class="lineNum">     315 </span><span class="lineCov">       1978 :         sc_enc-&gt;token_code = TOK_NUMBER;</span>
+<span class="lineNum">     316 </span><span class="lineCov">       1978 :         return GF_TRUE;</span>
+<a name="317"><span class="lineNum">     317 </span><span class="lineCov">       1978 : }</span></a>
+<span class="lineNum">     318 </span>            : 
+<span class="lineNum">     319 </span>            : Bool SFE_NextToken(ScriptEnc *sc_enc)
+<span class="lineNum">     320 </span>            : {
+<span class="lineNum">     321 </span>            :         u32 i;
+<span class="lineNum">     322 </span><span class="lineCov">      56108 :         if (sc_enc-&gt;err) return GF_FALSE;</span>
+<span class="lineNum">     323 </span><span class="lineCov">      79958 :         while (strchr(&quot; \t\r\n&quot;, sc_enc-&gt;cur_buf[0])) {</span>
+<span class="lineNum">     324 </span><span class="lineCov">      43954 :                 if (sc_enc-&gt;cur_buf[0]=='\n') sc_enc-&gt;cur_line ++;</span>
+<span class="lineNum">     325 </span><span class="lineCov">       7950 :                 sc_enc-&gt;cur_buf++;</span>
+<span class="lineNum">     326 </span>            :         }
+<span class="lineNum">     327 </span><span class="lineCov">      28162 :         if ((sc_enc-&gt;cur_buf[0] == '/') &amp;&amp; (sc_enc-&gt;cur_buf[1] == '*')) {</span>
+<span class="lineNum">     328 </span><span class="lineNoCov">          0 :                 sc_enc-&gt;cur_buf += 2;</span>
+<span class="lineNum">     329 </span><span class="lineNoCov">          0 :                 while ((sc_enc-&gt;cur_buf[0] != '*') || (sc_enc-&gt;cur_buf[1] != '/')) {</span>
+<span class="lineNum">     330 </span><span class="lineNoCov">          0 :                         sc_enc-&gt;cur_buf++;</span>
+<span class="lineNum">     331 </span><span class="lineNoCov">          0 :                         if (!sc_enc-&gt;cur_buf[0] || !sc_enc-&gt;cur_buf[1]) {</span>
+<span class="lineNum">     332 </span><span class="lineNoCov">          0 :                                 GF_LOG(GF_LOG_ERROR, GF_LOG_CODING, (&quot;[bifs] Script encoding: cannot find closing comment */\n&quot;));</span>
+<span class="lineNum">     333 </span><span class="lineNoCov">          0 :                                 sc_enc-&gt;err = GF_BAD_PARAM;</span>
+<span class="lineNum">     334 </span><span class="lineNoCov">          0 :                                 return GF_FALSE;</span>
+<span class="lineNum">     335 </span>            :                         }
+<span class="lineNum">     336 </span>            :                 }
+<span class="lineNum">     337 </span><span class="lineNoCov">          0 :                 sc_enc-&gt;cur_buf+=2;</span>
+<span class="lineNum">     338 </span><span class="lineNoCov">          0 :                 return SFE_NextToken(sc_enc);</span>
+<span class="lineNum">     339 </span>            :         }
+<span class="lineNum">     340 </span>            :         i = 0;
+<span class="lineNum">     341 </span>            :         /*get a name*/
+<span class="lineNum">     342 </span><span class="lineCov">      45984 :         if (isalpha(sc_enc-&gt;cur_buf[i]) || (sc_enc-&gt;cur_buf[i]=='_')) {</span>
+<span class="lineNum">     343 </span><span class="lineCov">     190300 :                 while (isalnum(sc_enc-&gt;cur_buf[i]) || (sc_enc-&gt;cur_buf[i]=='_')) {</span>
+<span class="lineNum">     344 </span><span class="lineCov">      53114 :                         sc_enc-&gt;token[i] = sc_enc-&gt;cur_buf[i];</span>
+<span class="lineNum">     345 </span><span class="lineCov">      53114 :                         i++;</span>
+<span class="lineNum">     346 </span>            :                 }
+<span class="lineNum">     347 </span><span class="lineCov">      10124 :                 sc_enc-&gt;token[i] = 0;</span>
+<span class="lineNum">     348 </span><span class="lineCov">      10124 :                 sc_enc-&gt;cur_buf += i;</span>
+<span class="lineNum">     349 </span><span class="lineCov">      10124 :                 sc_enc-&gt;token_code = TOK_IDENTIFIER;</span>
+<span class="lineNum">     350 </span>            :                 /*check keyword*/
+<span class="lineNum">     351 </span><span class="lineCov">     363804 :                 for (i=0; i&lt;NUMBER_OF_KEYWORD; i++) {</span>
+<span class="lineNum">     352 </span><span class="lineCov">     234356 :                         if (!strcmp(sc_enc-&gt;token, sc_keywords[i])) {</span>
+<span class="lineNum">     353 </span><span class="lineCov">       1944 :                                 sc_enc-&gt;token_code = i;</span>
+<span class="lineNum">     354 </span><span class="lineCov">       1944 :                                 return GF_TRUE;</span>
+<span class="lineNum">     355 </span>            :                         }
+<span class="lineNum">     356 </span>            :                 }
+<span class="lineNum">     357 </span><span class="lineCov">      16282 :                 if (!stricmp(sc_enc-&gt;token, &quot;TRUE&quot;) || !stricmp(sc_enc-&gt;token, &quot;FALSE&quot;) ) {</span>
+<span class="lineNum">     358 </span><span class="lineCov">        150 :                         sc_enc-&gt;token_code = TOK_BOOLEAN;</span>
+<span class="lineNum">     359 </span><span class="lineCov">        150 :                 }</span>
+<span class="lineNum">     360 </span><span class="lineCov">       8180 :                 return GF_TRUE;</span>
+<span class="lineNum">     361 </span>            :         }
+<span class="lineNum">     362 </span>            :         /*get a number*/
+<span class="lineNum">     363 </span><span class="lineCov">      19908 :         if (isdigit(sc_enc-&gt;cur_buf[i])) return SFE_GetNumber(sc_enc);</span>
+<span class="lineNum">     364 </span>            :         /*get a string*/
+<span class="lineNum">     365 </span><span class="lineCov">      31492 :         if ((sc_enc-&gt;cur_buf[i]=='\'') || (sc_enc-&gt;cur_buf[i]=='\&quot;')</span>
+<span class="lineNum">     366 </span><span class="lineCov">      31080 :                 || ((sc_enc-&gt;cur_buf[i]=='\\') &amp;&amp; (sc_enc-&gt;cur_buf[i+1]=='\&quot;'))</span>
+<span class="lineNum">     367 </span>            :            ) {
+<span class="lineNum">     368 </span>            :                 char end;
+<span class="lineNum">     369 </span>            :                 Bool skip_last = GF_FALSE;
+<span class="lineNum">     370 </span><span class="lineCov">        412 :                 end = sc_enc-&gt;cur_buf[i];</span>
+<span class="lineNum">     371 </span><span class="lineCov">        412 :                 if (sc_enc-&gt;cur_buf[i]=='\\') {</span>
+<span class="lineNum">     372 </span>            :                         skip_last = GF_TRUE;
+<span class="lineNum">     373 </span><span class="lineNoCov">          0 :                         sc_enc-&gt;cur_buf++;</span>
+<span class="lineNum">     374 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     375 </span><span class="lineCov">       4324 :                 while (sc_enc-&gt;cur_buf[i+1] != end) {</span>
+<span class="lineNum">     376 </span><span class="lineCov">       1956 :                         sc_enc-&gt;token[i] = sc_enc-&gt;cur_buf[i+1];</span>
+<span class="lineNum">     377 </span>            :                         i++;
+<span class="lineNum">     378 </span>            :                 }
+<span class="lineNum">     379 </span><span class="lineCov">        412 :                 sc_enc-&gt;token[i] = 0;</span>
+<span class="lineNum">     380 </span><span class="lineCov">        412 :                 sc_enc-&gt;cur_buf += i+2;</span>
+<span class="lineNum">     381 </span><span class="lineCov">        412 :                 if (skip_last) sc_enc-&gt;cur_buf++;</span>
+<span class="lineNum">     382 </span><span class="lineCov">        412 :                 sc_enc-&gt;token_code = TOK_STRING;</span>
+<span class="lineNum">     383 </span>            :                 return GF_TRUE;
+<span class="lineNum">     384 </span>            :         }
+<span class="lineNum">     385 </span>            :         /*all other codes*/
+<span class="lineNum">     386 </span><span class="lineCov">      15540 :         switch (sc_enc-&gt;cur_buf[i]) {</span>
+<span class="lineNum">     387 </span>            :         case '.':
+<span class="lineNum">     388 </span><span class="lineCov">       1134 :                 if (isdigit(sc_enc-&gt;cur_buf[i+1])) {</span>
+<span class="lineNum">     389 </span><span class="lineNoCov">          0 :                         SFE_GetNumber(sc_enc);</span>
+<span class="lineNum">     390 </span><span class="lineNoCov">          0 :                         return GF_TRUE;</span>
+<span class="lineNum">     391 </span>            :                 } else {
+<span class="lineNum">     392 </span><span class="lineCov">       1134 :                         sc_enc-&gt;token_code = TOK_PERIOD;</span>
+<span class="lineNum">     393 </span>            :                 }
+<span class="lineNum">     394 </span><span class="lineCov">       1134 :                 break;</span>
+<span class="lineNum">     395 </span>            :         case '!':
+<span class="lineNum">     396 </span><span class="lineCov">        344 :                 if (sc_enc-&gt;cur_buf[i+1] == '=') {</span>
+<span class="lineNum">     397 </span><span class="lineCov">        224 :                         sc_enc-&gt;token_code = TOK_NE;</span>
+<span class="lineNum">     398 </span><span class="lineCov">         52 :                         sc_enc-&gt;cur_buf ++;</span>
+<span class="lineNum">     399 </span><span class="lineCov">         52 :                 } else {</span>
+<span class="lineNum">     400 </span><span class="lineCov">        120 :                         sc_enc-&gt;token_code = TOK_NOT;</span>
+<span class="lineNum">     401 </span>            :                 }
+<span class="lineNum">     402 </span>            :                 break;
+<span class="lineNum">     403 </span>            :         case '=':
+<span class="lineNum">     404 </span><span class="lineCov">       1912 :                 if (sc_enc-&gt;cur_buf[i+1]=='=') {</span>
+<span class="lineNum">     405 </span><span class="lineCov">        218 :                         if (sc_enc-&gt;cur_buf[i+2]=='=') {</span>
+<span class="lineNum">     406 </span><span class="lineNoCov">          0 :                                 GF_LOG(GF_LOG_ERROR, GF_LOG_CODING, (&quot;[BIFSEnc] JavaScript token '===' not supported by standard\n&quot;));</span>
+<span class="lineNum">     407 </span><span class="lineNoCov">          0 :                                 sc_enc-&gt;err = GF_NOT_SUPPORTED;</span>
+<span class="lineNum">     408 </span><span class="lineNoCov">          0 :                                 return GF_FALSE;</span>
+<span class="lineNum">     409 </span>            :                         }
+<span class="lineNum">     410 </span><span class="lineCov">        218 :                         sc_enc-&gt;token_code = TOK_EQ;</span>
+<span class="lineNum">     411 </span><span class="lineCov">        218 :                         sc_enc-&gt;cur_buf ++;</span>
+<span class="lineNum">     412 </span><span class="lineCov">        218 :                 } else {</span>
+<span class="lineNum">     413 </span><span class="lineCov">       1694 :                         sc_enc-&gt;token_code = TOK_ASSIGN;</span>
+<span class="lineNum">     414 </span>            :                 }
+<span class="lineNum">     415 </span>            :                 break;
+<span class="lineNum">     416 </span>            :         case '+':
+<span class="lineNum">     417 </span><span class="lineCov">        746 :                 if(sc_enc-&gt;cur_buf[i+1]=='=') {</span>
+<span class="lineNum">     418 </span><span class="lineCov">        108 :                         sc_enc-&gt;token_code = TOK_PLUSEQ;</span>
+<span class="lineNum">     419 </span><span class="lineCov">        108 :                         sc_enc-&gt;cur_buf ++;</span>
+<span class="lineNum">     420 </span><span class="lineCov">       1384 :                 } else if(sc_enc-&gt;cur_buf[i+1]=='+') {</span>
+<span class="lineNum">     421 </span><span class="lineCov">        794 :                         sc_enc-&gt;token_code = TOK_INCREMENT;</span>
+<span class="lineNum">     422 </span><span class="lineCov">        156 :                         sc_enc-&gt;cur_buf++;</span>
+<span class="lineNum">     423 </span><span class="lineCov">        156 :                 } else {</span>
+<span class="lineNum">     424 </span><span class="lineCov">        482 :                         sc_enc-&gt;token_code = TOK_PLUS;</span>
+<span class="lineNum">     425 </span>            :                 }
+<span class="lineNum">     426 </span>            :                 break;
+<span class="lineNum">     427 </span>            :         case '-':
+<span class="lineNum">     428 </span><span class="lineCov">        414 :                 if(sc_enc-&gt;cur_buf[i+1]=='=') {</span>
+<span class="lineNum">     429 </span><span class="lineCov">         24 :                         sc_enc-&gt;token_code = TOK_MINUSEQ;</span>
+<span class="lineNum">     430 </span><span class="lineCov">         24 :                         sc_enc-&gt;cur_buf++;</span>
+<span class="lineNum">     431 </span><span class="lineCov">        804 :                 } else if(sc_enc-&gt;cur_buf[i+1] == '-') {</span>
+<span class="lineNum">     432 </span><span class="lineCov">        418 :                         sc_enc-&gt;token_code = TOK_DECREMENT;</span>
+<span class="lineNum">     433 </span><span class="lineCov">         28 :                         sc_enc-&gt;cur_buf++;</span>
+<span class="lineNum">     434 </span><span class="lineCov">         28 :                 } else {</span>
+<span class="lineNum">     435 </span><span class="lineCov">        362 :                         sc_enc-&gt;token_code = TOK_MINUS;</span>
+<span class="lineNum">     436 </span>            :                 }
+<span class="lineNum">     437 </span>            :                 break;
+<span class="lineNum">     438 </span>            :         case '*':
+<span class="lineNum">     439 </span><span class="lineCov">        572 :                 if(sc_enc-&gt;cur_buf[i+1]=='=') {</span>
+<span class="lineNum">     440 </span><span class="lineCov">        296 :                         sc_enc-&gt;token_code = TOK_MULTIPLYEQ;</span>
+<span class="lineNum">     441 </span><span class="lineCov">         10 :                         sc_enc-&gt;cur_buf++;</span>
+<span class="lineNum">     442 </span><span class="lineCov">         10 :                 } else {</span>
+<span class="lineNum">     443 </span><span class="lineCov">        276 :                         sc_enc-&gt;token_code = TOK_MULTIPLY;</span>
+<span class="lineNum">     444 </span>            :                 }
+<span class="lineNum">     445 </span>            :                 break;
+<span class="lineNum">     446 </span>            :         case '/':
+<span class="lineNum">     447 </span><span class="lineCov">        216 :                 if(sc_enc-&gt;cur_buf[i+1]=='=') {</span>
+<span class="lineNum">     448 </span><span class="lineCov">        128 :                         sc_enc-&gt;token_code = TOK_DIVIDEEQ;</span>
+<span class="lineNum">     449 </span><span class="lineCov">         20 :                         sc_enc-&gt;cur_buf++;</span>
+<span class="lineNum">     450 </span><span class="lineCov">         20 :                 } else {</span>
+<span class="lineNum">     451 </span><span class="lineCov">         88 :                         sc_enc-&gt;token_code = TOK_DIVIDE;</span>
+<span class="lineNum">     452 </span>            :                 }
+<span class="lineNum">     453 </span>            :                 break;
+<span class="lineNum">     454 </span>            :         case '%':
+<span class="lineNum">     455 </span><span class="lineCov">          8 :                 if(sc_enc-&gt;cur_buf[i+1]=='=') {</span>
+<span class="lineNum">     456 </span><span class="lineCov">          4 :                         sc_enc-&gt;token_code = TOK_MODEQ;</span>
+<span class="lineNum">     457 </span><span class="lineNoCov">          0 :                         sc_enc-&gt;cur_buf++;</span>
+<span class="lineNum">     458 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     459 </span><span class="lineCov">          4 :                         sc_enc-&gt;token_code = TOK_MOD;</span>
+<span class="lineNum">     460 </span>            :                 }
+<span class="lineNum">     461 </span>            :                 break;
+<span class="lineNum">     462 </span>            :         case '&amp;':
+<span class="lineNum">     463 </span><span class="lineCov">         96 :                 if(sc_enc-&gt;cur_buf[i+1]=='=') {</span>
+<span class="lineNum">     464 </span><span class="lineNoCov">          0 :                         sc_enc-&gt;token_code = TOK_ANDEQ;</span>
+<span class="lineNum">     465 </span><span class="lineNoCov">          0 :                         sc_enc-&gt;cur_buf++;</span>
+<span class="lineNum">     466 </span><span class="lineCov">        192 :                 } else if(sc_enc-&gt;cur_buf[i+1]=='&amp;') {</span>
+<span class="lineNum">     467 </span><span class="lineCov">        192 :                         sc_enc-&gt;token_code = TOK_LAND;</span>
+<span class="lineNum">     468 </span><span class="lineCov">         96 :                         sc_enc-&gt;cur_buf++;</span>
+<span class="lineNum">     469 </span><span class="lineCov">         96 :                 } else {</span>
+<span class="lineNum">     470 </span><span class="lineNoCov">          0 :                         sc_enc-&gt;token_code = TOK_AND;</span>
+<span class="lineNum">     471 </span>            :                 }
+<span class="lineNum">     472 </span>            :                 break;
+<span class="lineNum">     473 </span>            :         case '|':
+<span class="lineNum">     474 </span><span class="lineCov">         34 :                 if(sc_enc-&gt;cur_buf[i+1]=='=') {</span>
+<span class="lineNum">     475 </span><span class="lineNoCov">          0 :                         sc_enc-&gt;token_code = TOK_OREQ;</span>
+<span class="lineNum">     476 </span><span class="lineNoCov">          0 :                         sc_enc-&gt;cur_buf++;</span>
+<span class="lineNum">     477 </span><span class="lineCov">         68 :                 } else if(sc_enc-&gt;cur_buf[i+1]=='|') {</span>
+<span class="lineNum">     478 </span><span class="lineCov">         68 :                         sc_enc-&gt;token_code = TOK_LOR;</span>
+<span class="lineNum">     479 </span><span class="lineCov">         34 :                         sc_enc-&gt;cur_buf++;</span>
+<span class="lineNum">     480 </span><span class="lineCov">         34 :                 } else {</span>
+<span class="lineNum">     481 </span><span class="lineNoCov">          0 :                         sc_enc-&gt;token_code = TOK_OR;</span>
+<span class="lineNum">     482 </span>            :                 }
+<span class="lineNum">     483 </span>            :                 break;
+<span class="lineNum">     484 </span>            :         case '^':
+<span class="lineNum">     485 </span><span class="lineNoCov">          0 :                 if(sc_enc-&gt;cur_buf[i+1]=='=') {</span>
+<span class="lineNum">     486 </span><span class="lineNoCov">          0 :                         sc_enc-&gt;token_code = TOK_XOREQ;</span>
+<span class="lineNum">     487 </span><span class="lineNoCov">          0 :                         sc_enc-&gt;cur_buf++;</span>
+<span class="lineNum">     488 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     489 </span><span class="lineNoCov">          0 :                         sc_enc-&gt;token_code = TOK_XOR;</span>
+<span class="lineNum">     490 </span>            :                 }
+<span class="lineNum">     491 </span>            :                 break;
+<span class="lineNum">     492 </span>            :         case '&lt;':
+<span class="lineNum">     493 </span><span class="lineCov">        252 :                 if (sc_enc-&gt;cur_buf[i+1]=='&lt;') {</span>
+<span class="lineNum">     494 </span><span class="lineNoCov">          0 :                         if(sc_enc-&gt;cur_buf[i+2]=='=') {</span>
+<span class="lineNum">     495 </span><span class="lineNoCov">          0 :                                 sc_enc-&gt;token_code = TOK_LSHIFTEQ;</span>
+<span class="lineNum">     496 </span><span class="lineNoCov">          0 :                                 sc_enc-&gt;cur_buf += 1;</span>
+<span class="lineNum">     497 </span><span class="lineNoCov">          0 :                         } else {</span>
+<span class="lineNum">     498 </span><span class="lineNoCov">          0 :                                 sc_enc-&gt;token_code = TOK_LSHIFT;</span>
+<span class="lineNum">     499 </span>            :                         }
+<span class="lineNum">     500 </span><span class="lineNoCov">          0 :                         sc_enc-&gt;cur_buf += 1;</span>
+<span class="lineNum">     501 </span><span class="lineCov">        504 :                 } else if(sc_enc-&gt;cur_buf[i+1]=='=') {</span>
+<span class="lineNum">     502 </span><span class="lineCov">        292 :                         sc_enc-&gt;token_code = TOK_LE;</span>
+<span class="lineNum">     503 </span><span class="lineCov">         40 :                         sc_enc-&gt;cur_buf ++;</span>
+<span class="lineNum">     504 </span><span class="lineCov">         40 :                 } else {</span>
+<span class="lineNum">     505 </span><span class="lineCov">        212 :                         sc_enc-&gt;token_code = TOK_LT;</span>
+<span class="lineNum">     506 </span>            :                 }
+<span class="lineNum">     507 </span>            :                 break;
+<span class="lineNum">     508 </span>            :         case '&gt;':
+<span class="lineNum">     509 </span><span class="lineCov">        154 :                 if (sc_enc-&gt;cur_buf[i+1]=='&gt;') {</span>
+<span class="lineNum">     510 </span><span class="lineNoCov">          0 :                         if (sc_enc-&gt;cur_buf[i+2]=='=') {</span>
+<span class="lineNum">     511 </span><span class="lineNoCov">          0 :                                 sc_enc-&gt;token_code = TOK_RSHIFTEQ;</span>
+<span class="lineNum">     512 </span><span class="lineNoCov">          0 :                                 sc_enc-&gt;cur_buf ++;</span>
+<span class="lineNum">     513 </span><span class="lineNoCov">          0 :                         } else if(sc_enc-&gt;cur_buf[i+2]=='&gt;') {</span>
+<span class="lineNum">     514 </span><span class="lineNoCov">          0 :                                 if(sc_enc-&gt;cur_buf[i+3]=='=') {</span>
+<span class="lineNum">     515 </span><span class="lineNoCov">          0 :                                         sc_enc-&gt;token_code = TOK_RSHIFTFILLEQ;</span>
+<span class="lineNum">     516 </span><span class="lineNoCov">          0 :                                         sc_enc-&gt;cur_buf ++;</span>
+<span class="lineNum">     517 </span><span class="lineNoCov">          0 :                                 } else {</span>
+<span class="lineNum">     518 </span><span class="lineNoCov">          0 :                                         sc_enc-&gt;token_code = TOK_RSHIFTFILL;</span>
+<span class="lineNum">     519 </span>            :                                 }
+<span class="lineNum">     520 </span><span class="lineNoCov">          0 :                                 sc_enc-&gt;cur_buf ++;</span>
+<span class="lineNum">     521 </span><span class="lineNoCov">          0 :                         } else {</span>
+<span class="lineNum">     522 </span><span class="lineNoCov">          0 :                                 sc_enc-&gt;token_code = TOK_RSHIFT;</span>
+<span class="lineNum">     523 </span>            :                         }
+<span class="lineNum">     524 </span><span class="lineNoCov">          0 :                         sc_enc-&gt;cur_buf ++;</span>
+<span class="lineNum">     525 </span><span class="lineCov">        308 :                 } else if (sc_enc-&gt;cur_buf[i+1]=='=') {</span>
+<span class="lineNum">     526 </span><span class="lineCov">        238 :                         sc_enc-&gt;token_code = TOK_GE;</span>
+<span class="lineNum">     527 </span><span class="lineCov">         84 :                         sc_enc-&gt;cur_buf ++;</span>
+<span class="lineNum">     528 </span><span class="lineCov">         84 :                 } else {</span>
+<span class="lineNum">     529 </span><span class="lineCov">         70 :                         sc_enc-&gt;token_code = TOK_GT;</span>
+<span class="lineNum">     530 </span>            :                 }
+<span class="lineNum">     531 </span>            :                 break;
+<span class="lineNum">     532 </span>            :         case '?':
+<span class="lineNum">     533 </span><span class="lineCov">         14 :                 sc_enc-&gt;token_code = TOK_CONDTEST;</span>
+<span class="lineNum">     534 </span><span class="lineCov">         14 :                 break;</span>
+<span class="lineNum">     535 </span>            :         case ':':
+<span class="lineNum">     536 </span><span class="lineCov">         78 :                 sc_enc-&gt;token_code = TOK_CONDSEP;</span>
+<span class="lineNum">     537 </span><span class="lineCov">         78 :                 break;</span>
+<span class="lineNum">     538 </span>            :         case '~':
+<span class="lineNum">     539 </span><span class="lineNoCov">          0 :                 sc_enc-&gt;token_code = TOK_ONESCOMP;</span>
+<span class="lineNum">     540 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     541 </span>            :         case ',':
+<span class="lineNum">     542 </span><span class="lineCov">        662 :                 sc_enc-&gt;token_code = TOK_COMMA;</span>
+<span class="lineNum">     543 </span><span class="lineCov">        662 :                 break;</span>
+<span class="lineNum">     544 </span>            :         case ';':
+<span class="lineNum">     545 </span><span class="lineCov">       2534 :                 sc_enc-&gt;token_code = TOK_SEMICOLON;</span>
+<span class="lineNum">     546 </span><span class="lineCov">       2534 :                 break;</span>
+<span class="lineNum">     547 </span>            :         case '{':
+<span class="lineNum">     548 </span><span class="lineCov">        862 :                 sc_enc-&gt;token_code = TOK_LEFT_BRACE;</span>
+<span class="lineNum">     549 </span><span class="lineCov">        862 :                 break;</span>
+<span class="lineNum">     550 </span>            :         case '}':
+<span class="lineNum">     551 </span><span class="lineCov">       1054 :                 sc_enc-&gt;token_code = TOK_RIGHT_BRACE;</span>
+<span class="lineNum">     552 </span><span class="lineCov">       1054 :                 break;</span>
+<span class="lineNum">     553 </span>            :         case '(':
+<span class="lineNum">     554 </span><span class="lineCov">       1896 :                 sc_enc-&gt;token_code = TOK_LEFT_CURVE;</span>
+<span class="lineNum">     555 </span><span class="lineCov">       1896 :                 break;</span>
+<span class="lineNum">     556 </span>            :         case ')':
+<span class="lineNum">     557 </span><span class="lineCov">       1896 :                 sc_enc-&gt;token_code = TOK_RIGHT_CURVE;</span>
+<span class="lineNum">     558 </span><span class="lineCov">       1896 :                 break;</span>
+<span class="lineNum">     559 </span>            :         case '[':
+<span class="lineNum">     560 </span><span class="lineCov">        616 :                 sc_enc-&gt;token_code = TOK_LEFT_BRACKET;</span>
+<span class="lineNum">     561 </span><span class="lineCov">        616 :                 break;</span>
+<span class="lineNum">     562 </span>            :         case ']':
+<span class="lineNum">     563 </span><span class="lineCov">        616 :                 sc_enc-&gt;token_code = TOK_RIGHT_BRACKET;</span>
+<span class="lineNum">     564 </span><span class="lineCov">        616 :                 break;</span>
+<span class="lineNum">     565 </span>            :         default:
+<span class="lineNum">     566 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_CODING, (&quot;[bifs] Script encoding: Unrecognized symbol %c\n&quot;, sc_enc-&gt;cur_buf[i]));</span>
+<span class="lineNum">     567 </span><span class="lineNoCov">          0 :                 sc_enc-&gt;err = GF_BAD_PARAM;</span>
+<span class="lineNum">     568 </span><span class="lineNoCov">          0 :                 return GF_FALSE;</span>
+<span class="lineNum">     569 </span>            :         }
+<span class="lineNum">     570 </span><span class="lineCov">      15540 :         sc_enc-&gt;cur_buf ++;</span>
+<span class="lineNum">     571 </span><span class="lineCov">      15540 :         return GF_TRUE;</span>
+<a name="572"><span class="lineNum">     572 </span><span class="lineCov">      28054 : }</span></a>
+<span class="lineNum">     573 </span>            : 
+<span class="lineNum">     574 </span>            : Bool SFE_CheckToken(ScriptEnc *sc_enc, u32 token)
+<span class="lineNum">     575 </span>            : {
+<span class="lineNum">     576 </span><span class="lineCov">       5992 :         if (sc_enc-&gt;token_code != token) {</span>
+<span class="lineNum">     577 </span><span class="lineCov">         20 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_CODING, (&quot;[bifs] Script encoding: Bad token (expecting \&quot;%s\&quot; got \&quot;%s\&quot;)\n&quot;, tok_names[token] , tok_names[sc_enc-&gt;token_code]));</span>
+<span class="lineNum">     578 </span><span class="lineCov">         10 :                 return GF_FALSE;</span>
+<span class="lineNum">     579 </span>            :         }
+<span class="lineNum">     580 </span><span class="lineCov">       2986 :         return GF_TRUE;</span>
+<a name="581"><span class="lineNum">     581 </span><span class="lineCov">       2996 : }</span></a>
+<span class="lineNum">     582 </span>            : 
+<span class="lineNum">     583 </span>            : void SFE_PutIdentifier(ScriptEnc *sc_enc, char *id)
+<span class="lineNum">     584 </span>            : {
+<span class="lineNum">     585 </span><span class="lineCov">      15844 :         u32 i;</span>
+<span class="lineNum">     586 </span>            :         u32 nbBits, length;
+<span class="lineNum">     587 </span>            :         char *str;
+<span class="lineNum">     588 </span>            : 
+<span class="lineNum">     589 </span><span class="lineCov">       8098 :         if (sc_enc-&gt;emul) return;</span>
+<span class="lineNum">     590 </span>            : 
+<span class="lineNum">     591 </span><span class="lineCov">       7746 :         i=0;</span>
+<span class="lineNum">     592 </span><span class="lineCov">     235612 :         while ((str = (char *)gf_list_enum(sc_enc-&gt;identifiers, &amp;i))) {</span>
+<span class="lineNum">     593 </span><span class="lineCov">     226800 :                 if (strcmp(str, id)) continue;</span>
+<span class="lineNum">     594 </span>            : 
+<span class="lineNum">     595 </span>            :                 nbBits = 0;
+<span class="lineNum">     596 </span><span class="lineCov">       6680 :                 length = gf_list_count(sc_enc-&gt;identifiers) - 1;</span>
+<span class="lineNum">     597 </span><span class="lineCov">      91484 :                 while (length &gt; 0) {</span>
+<span class="lineNum">     598 </span><span class="lineCov">      39062 :                         length &gt;&gt;= 1;</span>
+<span class="lineNum">     599 </span><span class="lineCov">      39062 :                         nbBits ++;</span>
+<span class="lineNum">     600 </span>            :                 }
+<span class="lineNum">     601 </span><span class="lineCov">       6680 :                 GF_BIFS_WRITE_INT(sc_enc-&gt;codec, sc_enc-&gt;bs, 1, 1, &quot;received&quot;, str);</span>
+<span class="lineNum">     602 </span><span class="lineCov">       6680 :                 GF_BIFS_WRITE_INT(sc_enc-&gt;codec, sc_enc-&gt;bs, i-1, nbBits, &quot;identifierCode&quot;, str);</span>
+<span class="lineNum">     603 </span><span class="lineCov">       6680 :                 return;</span>
+<span class="lineNum">     604 </span>            :         }
+<span class="lineNum">     605 </span><span class="lineCov">       1066 :         GF_BIFS_WRITE_INT(sc_enc-&gt;codec, sc_enc-&gt;bs, 0, 1, &quot;received&quot;, id);</span>
+<span class="lineNum">     606 </span><span class="lineCov">       1066 :         gf_list_add(sc_enc-&gt;identifiers, gf_strdup(id));</span>
+<span class="lineNum">     607 </span><span class="lineCov">       1066 :         gf_bifs_enc_name(sc_enc-&gt;codec, sc_enc-&gt;bs, id);</span>
+<span class="lineNum">     608 </span><span class="lineCov">       8988 : }</span>
+<a name="609"><span class="lineNum">     609 </span>            : </a>
+<span class="lineNum">     610 </span>            : 
+<span class="lineNum">     611 </span>            : void SFE_Arguments(ScriptEnc *sc_enc)
+<span class="lineNum">     612 </span>            : {
+<span class="lineNum">     613 </span><span class="lineCov">       1286 :         while (1) {</span>
+<span class="lineNum">     614 </span><span class="lineCov">       1196 :                 if (!SFE_NextToken(sc_enc)) return;</span>
+<span class="lineNum">     615 </span><span class="lineCov">       1196 :                 if (sc_enc-&gt;token_code == TOK_RIGHT_CURVE) break;</span>
+<span class="lineNum">     616 </span><span class="lineCov">        848 :                 else if (sc_enc-&gt;token_code == TOK_COMMA) continue;</span>
+<span class="lineNum">     617 </span><span class="lineCov">        590 :                 GF_BIFS_WRITE_INT(sc_enc-&gt;codec, sc_enc-&gt;bs, 1, 1, &quot;hasArgument&quot;, NULL);</span>
+<span class="lineNum">     618 </span><span class="lineCov">        590 :                 SFE_PutIdentifier(sc_enc, sc_enc-&gt;token);</span>
+<span class="lineNum">     619 </span>            :         }
+<span class="lineNum">     620 </span><span class="lineCov">        348 :         GF_BIFS_WRITE_INT(sc_enc-&gt;codec, sc_enc-&gt;bs, 0, 1, &quot;hasArgument&quot;, NULL);</span>
+<span class="lineNum">     621 </span><span class="lineCov">        348 : }</span>
+<span class="lineNum">     622 </span>            : 
+<span class="lineNum">     623 </span>            : void SFE_StatementBlock(ScriptEnc *sc_enc);
+<a name="624"><span class="lineNum">     624 </span>            : void SFE_Statement(ScriptEnc *sc_enc);</a>
+<span class="lineNum">     625 </span>            : 
+<span class="lineNum">     626 </span>            : void SFE_PutInteger(ScriptEnc *sc_enc, char *str)
+<span class="lineNum">     627 </span>            : {
+<span class="lineNum">     628 </span>            :         u32 nbBits, val = 0;
+<span class="lineNum">     629 </span><span class="lineCov">       3724 :         if (sc_enc-&gt;emul) return;</span>
+<span class="lineNum">     630 </span><span class="lineCov">       2996 :         if ((str[0]=='0') &amp;&amp; (str[1]=='x' || str[1]=='X')) {</span>
+<span class="lineNum">     631 </span><span class="lineNoCov">          0 :                 val = (u32) strtoul(sc_enc-&gt;token, (char **) NULL, 16);</span>
+<span class="lineNum">     632 </span><span class="lineCov">       2366 :         } else if (str[0]=='0' &amp;&amp; isdigit(str[1])) {</span>
+<span class="lineNum">     633 </span><span class="lineNoCov">          0 :                 val = (u32) strtoul(str, (char **) NULL, 8);</span>
+<span class="lineNum">     634 </span><span class="lineCov">       1736 :         } else if (isdigit(str[0])) {</span>
+<span class="lineNum">     635 </span><span class="lineCov">       1736 :                 val = (u32) strtoul(str, (char **) NULL, 10);</span>
+<span class="lineNum">     636 </span>            :         } else {
+<span class="lineNum">     637 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_CODING, (&quot;[bifs] Script encoding: %s is not an integer\n&quot;, str));</span>
+<span class="lineNum">     638 </span><span class="lineNoCov">          0 :                 sc_enc-&gt;err = GF_BAD_PARAM;</span>
+<span class="lineNum">     639 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     640 </span>            :         }
+<span class="lineNum">     641 </span><span class="lineCov">       1736 :         nbBits = gf_get_bit_size(val);</span>
+<span class="lineNum">     642 </span><span class="lineCov">       1736 :         GF_BIFS_WRITE_INT(sc_enc-&gt;codec, sc_enc-&gt;bs, nbBits, 5, &quot;nbBitsInteger&quot;, NULL);</span>
+<span class="lineNum">     643 </span><span class="lineCov">       1736 :         GF_BIFS_WRITE_INT(sc_enc-&gt;codec, sc_enc-&gt;bs, val, nbBits, &quot;value&quot;, sc_enc-&gt;token);</span>
+<a name="644"><span class="lineNum">     644 </span><span class="lineCov">       3556 : }</span></a>
+<span class="lineNum">     645 </span>            : 
+<span class="lineNum">     646 </span>            : u32 SFE_LoadExpression(ScriptEnc *sc_enc, u32 *expr_sep)
+<span class="lineNum">     647 </span>            : {
+<span class="lineNum">     648 </span>            :         Bool is_var = GF_FALSE;
+<span class="lineNum">     649 </span>            :         u32 close_code, open_code;
+<span class="lineNum">     650 </span>            :         u32 count = 0;
+<span class="lineNum">     651 </span>            :         u32 nbExpr = 1;
+<span class="lineNum">     652 </span>            :         u32 nbIndir = 0;
+<span class="lineNum">     653 </span><span class="lineCov">       6244 :         expr_sep[0] = 0;</span>
+<span class="lineNum">     654 </span>            : 
+<span class="lineNum">     655 </span><span class="lineCov">       3122 :         sc_enc-&gt;expr_toks_len = 0;</span>
+<span class="lineNum">     656 </span>            : 
+<span class="lineNum">     657 </span><span class="lineCov">      32968 :         while ( (sc_enc-&gt;token_code != TOK_SEMICOLON) &amp;&amp; (sc_enc-&gt;token_code != TOK_RIGHT_CURVE) ) {</span>
+<span class="lineNum">     658 </span><span class="lineCov">      23178 :                 switch (sc_enc-&gt;token_code) {</span>
+<span class="lineNum">     659 </span>            :                 case TOK_CONDTEST:
+<span class="lineNum">     660 </span><span class="lineCov">         10 :                         nbIndir ++;</span>
+<span class="lineNum">     661 </span><span class="lineCov">         10 :                         break;</span>
+<span class="lineNum">     662 </span>            :                 case TOK_CONDSEP:
+<span class="lineNum">     663 </span><span class="lineCov">         20 :                         if (nbIndir &gt; 0) nbIndir--;</span>
+<span class="lineNum">     664 </span>            :                         /*'case'*/
+<span class="lineNum">     665 </span>            :                         else {
+<span class="lineNum">     666 </span>            :                                 goto break_loop;
+<span class="lineNum">     667 </span>            :                         }
+<span class="lineNum">     668 </span><span class="lineCov">         10 :                         break;</span>
+<span class="lineNum">     669 </span>            :                 case TOK_IDENTIFIER:
+<span class="lineNum">     670 </span>            :                 case TOK_NUMBER:
+<span class="lineNum">     671 </span>            :                 case TOK_STRING:
+<span class="lineNum">     672 </span>            :                 case TOK_BOOLEAN:
+<span class="lineNum">     673 </span><span class="lineCov">       7072 :                         gf_list_add(sc_enc-&gt;id_buf, gf_strdup(sc_enc-&gt;token));</span>
+<span class="lineNum">     674 </span><span class="lineCov">       7072 :                         break;</span>
+<span class="lineNum">     675 </span>            :                 case TOK_FUNCTION:
+<span class="lineNum">     676 </span>            :                         goto break_loop;
+<span class="lineNum">     677 </span>            :                 }
+<span class="lineNum">     678 </span>            : 
+<span class="lineNum">     679 </span><span class="lineCov">      12968 :                 if (sc_enc-&gt;token_code==TOK_VAR) is_var = GF_TRUE;</span>
+<span class="lineNum">     680 </span><span class="lineCov">      12988 :                 if (!is_var || (sc_enc-&gt;token_code!=TOK_COMMA)) {</span>
+<span class="lineNum">     681 </span><span class="lineCov">      12956 :                         sc_enc-&gt;expr_toks[sc_enc-&gt;expr_toks_len] = sc_enc-&gt;token_code;</span>
+<span class="lineNum">     682 </span><span class="lineCov">      12956 :                         sc_enc-&gt;expr_toks_len++;</span>
+<span class="lineNum">     683 </span><span class="lineCov">      12956 :                 }</span>
+<span class="lineNum">     684 </span>            : 
+<span class="lineNum">     685 </span><span class="lineCov">      12964 :                 open_code = sc_enc-&gt;token_code;</span>
+<span class="lineNum">     686 </span>            :                 close_code = 0;
+<span class="lineNum">     687 </span><span class="lineCov">      13652 :                 if (sc_enc-&gt;token_code == TOK_LEFT_CURVE) close_code = TOK_RIGHT_CURVE;</span>
+<span class="lineNum">     688 </span><span class="lineCov">      12810 :                 else if (sc_enc-&gt;token_code == TOK_LEFT_BRACKET) close_code = TOK_RIGHT_BRACKET;</span>
+<span class="lineNum">     689 </span><span class="lineCov">      11742 :                 else if (sc_enc-&gt;token_code == TOK_LEFT_BRACE) close_code = TOK_RIGHT_BRACE;</span>
+<span class="lineNum">     690 </span>            : 
+<span class="lineNum">     691 </span>            :                 /*other expr*/
+<span class="lineNum">     692 </span><span class="lineCov">      12972 :                 if ((sc_enc-&gt;token_code == TOK_COMMA) &amp;&amp; (sc_enc-&gt;expr_toks[0] != TOK_VAR) ) {</span>
+<span class="lineNum">     693 </span><span class="lineNoCov">          0 :                         expr_sep[nbExpr++] = sc_enc-&gt;expr_toks_len - 1;</span>
+<span class="lineNum">     694 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     695 </span>            :                 /*sub-expr*/
+<span class="lineNum">     696 </span><span class="lineCov">      12964 :                 else if (close_code) {</span>
+<span class="lineNum">     697 </span><span class="lineCov">       1222 :                         count++;</span>
+<span class="lineNum">     698 </span><span class="lineCov">       1222 :                         do {</span>
+<span class="lineNum">     699 </span><span class="lineCov">       5080 :                                 SFE_NextToken(sc_enc);</span>
+<span class="lineNum">     700 </span><span class="lineCov">      11292 :                                 if ((sc_enc-&gt;token_code == TOK_IDENTIFIER) || (sc_enc-&gt;token_code == TOK_NUMBER)</span>
+<span class="lineNum">     701 </span><span class="lineCov">       9006 :                                         || (sc_enc-&gt;token_code == TOK_STRING) || (sc_enc-&gt;token_code == TOK_BOOLEAN) ) {</span>
+<span class="lineNum">     702 </span><span class="lineCov">       2380 :                                         gf_list_add(sc_enc-&gt;id_buf, gf_strdup(sc_enc-&gt;token));</span>
+<span class="lineNum">     703 </span><span class="lineCov">       2380 :                                 }</span>
+<span class="lineNum">     704 </span><span class="lineCov">       5080 :                                 sc_enc-&gt;expr_toks[sc_enc-&gt;expr_toks_len] = sc_enc-&gt;token_code;</span>
+<span class="lineNum">     705 </span><span class="lineCov">       5080 :                                 sc_enc-&gt;expr_toks_len++;</span>
+<span class="lineNum">     706 </span><span class="lineCov">       5148 :                                 if (sc_enc-&gt;token_code == open_code) count++;</span>
+<span class="lineNum">     707 </span><span class="lineCov">       6302 :                                 else if (sc_enc-&gt;token_code == close_code) count--;</span>
+<span class="lineNum">     708 </span><span class="lineCov">       5080 :                         } while ( (sc_enc-&gt;token_code != close_code) || count);</span>
+<span class="lineNum">     709 </span>            :                 }
+<span class="lineNum">     710 </span><span class="lineCov">      12964 :                 SFE_NextToken(sc_enc);</span>
+<span class="lineNum">     711 </span>            : 
+<span class="lineNum">     712 </span><span class="lineCov">      12964 :                 if (sc_enc-&gt;err) break;</span>
+<span class="lineNum">     713 </span>            :         }
+<span class="lineNum">     714 </span>            : 
+<span class="lineNum">     715 </span>            : break_loop:
+<span class="lineNum">     716 </span><span class="lineCov">       3122 :         if (sc_enc-&gt;err) {</span>
+<span class="lineNum">     717 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_CODING, (&quot;[bifs] Script encoding: end of compoundExpression not found\n&quot;));</span>
+<span class="lineNum">     718 </span><span class="lineNoCov">          0 :                 return 0;</span>
+<span class="lineNum">     719 </span>            :         }
+<span class="lineNum">     720 </span><span class="lineCov">       3122 :         expr_sep[nbExpr] = sc_enc-&gt;expr_toks_len;</span>
+<span class="lineNum">     721 </span><span class="lineCov">       9366 :         if ((sc_enc-&gt;token_code == TOK_IDENTIFIER) || (sc_enc-&gt;token_code == TOK_NUMBER)</span>
+<span class="lineNum">     722 </span><span class="lineCov">       9366 :                 || (sc_enc-&gt;token_code == TOK_STRING) || (sc_enc-&gt;token_code == TOK_BOOLEAN) ) {</span>
+<span class="lineNum">     723 </span><span class="lineNoCov">          0 :                 gf_list_add(sc_enc-&gt;id_buf, gf_strdup(sc_enc-&gt;token));</span>
+<span class="lineNum">     724 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     725 </span>            : 
+<span class="lineNum">     726 </span><span class="lineCov">       9366 :         if ((sc_enc-&gt;token_code != TOK_CONDSEP) &amp;&amp; (sc_enc-&gt;token_code != TOK_RIGHT_BRACE) &amp;&amp; (sc_enc-&gt;expr_toks[0] != TOK_VAR)) {</span>
+<span class="lineNum">     727 </span><span class="lineCov">       3118 :                 sc_enc-&gt;expr_toks[sc_enc-&gt;expr_toks_len] = sc_enc-&gt;token_code;</span>
+<span class="lineNum">     728 </span><span class="lineCov">       3118 :                 sc_enc-&gt;expr_toks_len++;</span>
+<span class="lineNum">     729 </span><span class="lineCov">       3118 :         }</span>
+<span class="lineNum">     730 </span><span class="lineCov">       3122 :         return nbExpr;</span>
+<span class="lineNum">     731 </span><span class="lineCov">       3122 : }</span>
+<span class="lineNum">     732 </span>            : 
+<a name="733"><span class="lineNum">     733 </span>            : u32 MoveToToken(ScriptEnc *sc_enc, u32 endTok, u32 cur, u32 end);</a>
+<span class="lineNum">     734 </span>            : 
+<span class="lineNum">     735 </span>            : u32 SFE_ScanExpression(ScriptEnc *sc_enc, u32 start, u32 end, u32 *expr_sep)
+<span class="lineNum">     736 </span>            : {
+<span class="lineNum">     737 </span>            :         u32 curTok;
+<span class="lineNum">     738 </span>            :         u32 n = start;
+<span class="lineNum">     739 </span>            :         u32 nbExpr = 1;
+<span class="lineNum">     740 </span>            : 
+<span class="lineNum">     741 </span><span class="lineCov">       2544 :         expr_sep[0] = start;</span>
+<span class="lineNum">     742 </span><span class="lineCov">       6256 :         while (n&lt;end) {</span>
+<span class="lineNum">     743 </span><span class="lineCov">       3712 :                 curTok = sc_enc-&gt;expr_toks[n++];</span>
+<span class="lineNum">     744 </span><span class="lineCov">       3712 :                 if (curTok == TOK_LEFT_CURVE) {</span>
+<span class="lineNum">     745 </span><span class="lineCov">         64 :                         n = MoveToToken(sc_enc, TOK_RIGHT_CURVE, n-1, end);</span>
+<span class="lineNum">     746 </span><span class="lineCov">         64 :                         n++;</span>
+<span class="lineNum">     747 </span><span class="lineCov">       3712 :                 } else if (curTok == TOK_LEFT_BRACKET) {</span>
+<span class="lineNum">     748 </span><span class="lineCov">         82 :                         n = MoveToToken(sc_enc, TOK_RIGHT_BRACKET, n-1, end);</span>
+<span class="lineNum">     749 </span><span class="lineCov">         82 :                         n++;</span>
+<span class="lineNum">     750 </span><span class="lineCov">       3648 :                 } else if (curTok == TOK_COMMA) {</span>
+<span class="lineNum">     751 </span><span class="lineCov">        396 :                         expr_sep[nbExpr++] = n-1;</span>
+<span class="lineNum">     752 </span><span class="lineCov">        396 :                 }</span>
+<span class="lineNum">     753 </span>            :         }
+<span class="lineNum">     754 </span><span class="lineCov">       1272 :         expr_sep[nbExpr] = end;</span>
+<span class="lineNum">     755 </span><span class="lineCov">       1272 :         return nbExpr;</span>
+<span class="lineNum">     756 </span>            : }
+<span class="lineNum">     757 </span>            : 
+<a name="758"><span class="lineNum">     758 </span>            : u32 SFE_Expression(ScriptEnc *sc_enc, u32 start, u32 end, Bool memberAccess);</a>
+<span class="lineNum">     759 </span>            : 
+<span class="lineNum">     760 </span>            : void SFE_CompoundExpression(ScriptEnc *sc_enc, u32 start, u32 end, u32 isPar)
+<span class="lineNum">     761 </span>            : {
+<span class="lineNum">     762 </span>            :         u32 nbExp, i;
+<span class="lineNum">     763 </span>            :         /*filled by indexes of ',' expressions in the expr_tok buffer*/
+<span class="lineNum">     764 </span><span class="lineCov">       8788 :         u32 expr_sep[MAX_NUM_EXPR];</span>
+<span class="lineNum">     765 </span>            : 
+<span class="lineNum">     766 </span><span class="lineCov">       4394 :         if (sc_enc-&gt;err) return;</span>
+<span class="lineNum">     767 </span>            : 
+<span class="lineNum">     768 </span><span class="lineCov">       4394 :         if (end==0) {</span>
+<span class="lineNum">     769 </span>            :                 /*load expressions , eg &quot;a ? ((a&gt;b) ? 1 : 0) : 0&quot; */
+<span class="lineNum">     770 </span><span class="lineCov">       3122 :                 nbExp = SFE_LoadExpression(sc_enc, expr_sep);</span>
+<span class="lineNum">     771 </span><span class="lineCov">       3122 :         } else {</span>
+<span class="lineNum">     772 </span>            :                 /*load sub-expression from loaded expression set*/
+<span class="lineNum">     773 </span><span class="lineCov">       1272 :                 nbExp = SFE_ScanExpression(sc_enc, start, end, expr_sep);</span>
+<span class="lineNum">     774 </span>            :         }
+<span class="lineNum">     775 </span>            : 
+<span class="lineNum">     776 </span><span class="lineCov">       4394 :         SFE_Expression(sc_enc, expr_sep[0], expr_sep[1], GF_FALSE);</span>
+<span class="lineNum">     777 </span><span class="lineCov">      14370 :         for (i=1; i&lt;nbExp; i++) {</span>
+<span class="lineNum">     778 </span><span class="lineCov">       5552 :                 SFE_WRITE_INT(sc_enc, 1, 1, isPar ? &quot;hasParam&quot; : &quot;hasExpression&quot;, NULL);</span>
+<span class="lineNum">     779 </span><span class="lineCov">        396 :                 SFE_Expression(sc_enc, expr_sep[i]+1, expr_sep[i+1], GF_FALSE);</span>
+<span class="lineNum">     780 </span>            :         }
+<span class="lineNum">     781 </span><span class="lineCov">       8654 :         SFE_WRITE_INT(sc_enc, 0, 1, isPar ? &quot;hasParam&quot; : &quot;hasExpression&quot;, NULL);</span>
+<a name="782"><span class="lineNum">     782 </span><span class="lineCov">       8788 : }</span></a>
+<span class="lineNum">     783 </span>            : 
+<span class="lineNum">     784 </span>            : void SFE_OptionalExpression(ScriptEnc *sc_enc)
+<span class="lineNum">     785 </span>            : {
+<span class="lineNum">     786 </span><span class="lineCov">        972 :         if (sc_enc-&gt;token_code != TOK_SEMICOLON) {</span>
+<span class="lineNum">     787 </span><span class="lineCov">        964 :                 SFE_WRITE_INT(sc_enc, 1, 1, &quot;hasCompoundExpression&quot;, NULL);</span>
+<span class="lineNum">     788 </span><span class="lineCov">        320 :                 SFE_CompoundExpression(sc_enc, 0, 0, 0);</span>
+<span class="lineNum">     789 </span><span class="lineCov">        320 :         } else {</span>
+<span class="lineNum">     790 </span><span class="lineCov">          8 :                 SFE_WRITE_INT(sc_enc, 0, 1, &quot;hasCompoundExpression&quot;, NULL);</span>
+<span class="lineNum">     791 </span>            :         }
+<a name="792"><span class="lineNum">     792 </span><span class="lineCov">        324 : }</span></a>
+<span class="lineNum">     793 </span>            : 
+<span class="lineNum">     794 </span>            : void SFE_IfStatement(ScriptEnc *sc_enc)
+<span class="lineNum">     795 </span>            : {
+<span class="lineNum">     796 </span>            :         char *buf_bck;
+<span class="lineNum">     797 </span>            :         u32 tok_bck;
+<span class="lineNum">     798 </span><span class="lineCov">       1332 :         SFE_NextToken(sc_enc);</span>
+<span class="lineNum">     799 </span><span class="lineCov">        666 :         SFE_CheckToken(sc_enc, TOK_LEFT_CURVE);</span>
+<span class="lineNum">     800 </span><span class="lineCov">        666 :         SFE_NextToken(sc_enc);</span>
+<span class="lineNum">     801 </span><span class="lineCov">        666 :         SFE_CompoundExpression(sc_enc, 0, 0, 0);</span>
+<span class="lineNum">     802 </span><span class="lineCov">        666 :         SFE_CheckToken(sc_enc, TOK_RIGHT_CURVE);</span>
+<span class="lineNum">     803 </span><span class="lineCov">        666 :         SFE_StatementBlock(sc_enc);</span>
+<span class="lineNum">     804 </span>            : 
+<span class="lineNum">     805 </span><span class="lineCov">        666 :         buf_bck = sc_enc-&gt;cur_buf;</span>
+<span class="lineNum">     806 </span><span class="lineCov">        666 :         tok_bck = sc_enc-&gt;token_code;</span>
+<span class="lineNum">     807 </span><span class="lineCov">        666 :         SFE_NextToken(sc_enc);</span>
+<span class="lineNum">     808 </span><span class="lineCov">       1332 :         if (sc_enc-&gt;token_code == TOK_ELSE) {</span>
+<span class="lineNum">     809 </span><span class="lineCov">        994 :                 SFE_WRITE_INT(sc_enc, 1, 1, &quot;hasELSEStatement&quot;, NULL);</span>
+<span class="lineNum">     810 </span><span class="lineCov">        164 :                 SFE_StatementBlock(sc_enc);</span>
+<span class="lineNum">     811 </span><span class="lineCov">        164 :         } else {</span>
+<span class="lineNum">     812 </span><span class="lineCov">       1004 :                 SFE_WRITE_INT(sc_enc, 0, 1, &quot;hasELSEStatement&quot;, NULL);</span>
+<span class="lineNum">     813 </span><span class="lineCov">        502 :                 sc_enc-&gt;cur_buf = buf_bck;</span>
+<span class="lineNum">     814 </span><span class="lineCov">        502 :                 sc_enc-&gt;token_code = tok_bck;</span>
+<span class="lineNum">     815 </span>            :         }
+<a name="816"><span class="lineNum">     816 </span><span class="lineCov">        666 : }</span></a>
+<span class="lineNum">     817 </span>            : 
+<span class="lineNum">     818 </span>            : void SFE_ForStatement(ScriptEnc *sc_enc)
+<span class="lineNum">     819 </span>            : {
+<span class="lineNum">     820 </span><span class="lineCov">        216 :         SFE_NextToken(sc_enc);</span>
+<span class="lineNum">     821 </span><span class="lineCov">        108 :         SFE_CheckToken(sc_enc, TOK_LEFT_CURVE);</span>
+<span class="lineNum">     822 </span>            : 
+<span class="lineNum">     823 </span><span class="lineCov">        108 :         SFE_NextToken(sc_enc);</span>
+<span class="lineNum">     824 </span><span class="lineCov">        108 :         SFE_OptionalExpression(sc_enc);</span>
+<span class="lineNum">     825 </span><span class="lineCov">        108 :         SFE_CheckToken(sc_enc, TOK_SEMICOLON);</span>
+<span class="lineNum">     826 </span>            : 
+<span class="lineNum">     827 </span><span class="lineCov">        108 :         SFE_NextToken(sc_enc);</span>
+<span class="lineNum">     828 </span><span class="lineCov">        108 :         SFE_OptionalExpression(sc_enc);</span>
+<span class="lineNum">     829 </span><span class="lineCov">        108 :         SFE_CheckToken(sc_enc, TOK_SEMICOLON);</span>
+<span class="lineNum">     830 </span>            : 
+<span class="lineNum">     831 </span><span class="lineCov">        108 :         SFE_NextToken(sc_enc);</span>
+<span class="lineNum">     832 </span><span class="lineCov">        108 :         SFE_OptionalExpression(sc_enc);</span>
+<span class="lineNum">     833 </span><span class="lineCov">        108 :         SFE_CheckToken(sc_enc, TOK_RIGHT_CURVE);</span>
+<span class="lineNum">     834 </span>            : 
+<span class="lineNum">     835 </span><span class="lineCov">        108 :         SFE_StatementBlock(sc_enc);</span>
+<a name="836"><span class="lineNum">     836 </span><span class="lineCov">        108 : }</span></a>
+<span class="lineNum">     837 </span>            : 
+<span class="lineNum">     838 </span>            : void SFE_WhileStatement(ScriptEnc *sc_enc)
+<span class="lineNum">     839 </span>            : {
+<span class="lineNum">     840 </span><span class="lineCov">         28 :         SFE_NextToken(sc_enc);</span>
+<span class="lineNum">     841 </span><span class="lineCov">         14 :         SFE_CheckToken(sc_enc, TOK_LEFT_CURVE);</span>
+<span class="lineNum">     842 </span><span class="lineCov">         14 :         SFE_NextToken(sc_enc);</span>
+<span class="lineNum">     843 </span><span class="lineCov">         14 :         SFE_CompoundExpression(sc_enc, 0, 0, 0);</span>
+<span class="lineNum">     844 </span><span class="lineCov">         14 :         SFE_CheckToken(sc_enc, TOK_RIGHT_CURVE);</span>
+<span class="lineNum">     845 </span>            : 
+<span class="lineNum">     846 </span><span class="lineCov">         14 :         SFE_StatementBlock(sc_enc);</span>
+<a name="847"><span class="lineNum">     847 </span><span class="lineCov">         14 : }</span></a>
+<span class="lineNum">     848 </span>            : 
+<span class="lineNum">     849 </span>            : void SFE_ReturnStatement(ScriptEnc *sc_enc)
+<span class="lineNum">     850 </span>            : {
+<span class="lineNum">     851 </span><span class="lineCov">        368 :         SFE_NextToken(sc_enc);</span>
+<span class="lineNum">     852 </span><span class="lineCov">        368 :         if (sc_enc-&gt;token_code != TOK_SEMICOLON) {</span>
+<span class="lineNum">     853 </span><span class="lineCov">        316 :                 SFE_WRITE_INT(sc_enc, 1, 1, &quot;returnValue&quot;, NULL);</span>
+<span class="lineNum">     854 </span><span class="lineCov">         66 :                 SFE_CompoundExpression(sc_enc, 0, 0, 0);</span>
+<span class="lineNum">     855 </span><span class="lineCov">         66 :         } else {</span>
+<span class="lineNum">     856 </span><span class="lineCov">        236 :                 SFE_WRITE_INT(sc_enc, 0, 1, &quot;returnValue&quot;, NULL);</span>
+<span class="lineNum">     857 </span>            :         }
+<a name="858"><span class="lineNum">     858 </span><span class="lineCov">        184 : }</span></a>
+<span class="lineNum">     859 </span>            : 
+<span class="lineNum">     860 </span>            : void SFE_CaseBlock(ScriptEnc *sc_enc)
+<span class="lineNum">     861 </span>            : {
+<span class="lineNum">     862 </span><span class="lineCov">        160 :         SFE_WRITE_INT(sc_enc, 1, 1, &quot;isCompoundStatement&quot;, NULL);</span>
+<span class="lineNum">     863 </span><span class="lineCov">         64 :         SFE_NextToken(sc_enc);</span>
+<span class="lineNum">     864 </span><span class="lineCov">         64 :         if (sc_enc-&gt;token_code == TOK_LEFT_BRACE) {</span>
+<span class="lineNum">     865 </span><span class="lineNoCov">          0 :                 SFE_NextToken(sc_enc);</span>
+<span class="lineNum">     866 </span><span class="lineNoCov">          0 :                 while (sc_enc-&gt;token_code != TOK_RIGHT_BRACE) {</span>
+<span class="lineNum">     867 </span><span class="lineNoCov">          0 :                         SFE_WRITE_INT(sc_enc, 1, 1, &quot;hasStatement&quot;, NULL);</span>
+<span class="lineNum">     868 </span><span class="lineNoCov">          0 :                         SFE_Statement(sc_enc);</span>
+<span class="lineNum">     869 </span><span class="lineNoCov">          0 :                         SFE_NextToken(sc_enc);</span>
+<span class="lineNum">     870 </span>            :                 }
+<span class="lineNum">     871 </span><span class="lineNoCov">          0 :                 SFE_NextToken(sc_enc);</span>
+<span class="lineNum">     872 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     873 </span><span class="lineCov">       1280 :         while ((sc_enc-&gt;token_code != TOK_CASE) &amp;&amp; (sc_enc-&gt;token_code != TOK_DEFAULT) &amp;&amp; (sc_enc-&gt;token_code != TOK_RIGHT_BRACE)) {</span>
+<span class="lineNum">     874 </span><span class="lineCov">        624 :                 SFE_WRITE_INT(sc_enc, 1, 1, &quot;hasStatement&quot;, NULL);</span>
+<span class="lineNum">     875 </span><span class="lineCov">        224 :                 SFE_Statement(sc_enc);</span>
+<span class="lineNum">     876 </span><span class="lineCov">        224 :                 SFE_NextToken(sc_enc);</span>
+<span class="lineNum">     877 </span>            :         }
+<span class="lineNum">     878 </span><span class="lineCov">         96 :         SFE_WRITE_INT(sc_enc, 0, 1, &quot;hasStatement&quot;, NULL);</span>
+<a name="879"><span class="lineNum">     879 </span><span class="lineCov">         64 : }</span></a>
+<span class="lineNum">     880 </span>            : 
+<span class="lineNum">     881 </span>            : u32 SFE_PutCaseInteger(ScriptEnc *sc_enc, char *str, u32 nbBits)
+<span class="lineNum">     882 </span>            : {
+<span class="lineNum">     883 </span>            :         u32 val = 0;
+<span class="lineNum">     884 </span><span class="lineCov">        152 :         if ((str[0]=='0') &amp;&amp; (str[1]=='x' || str[1]=='X')) {</span>
+<span class="lineNum">     885 </span><span class="lineNoCov">          0 :                 val = (u32) strtoul(sc_enc-&gt;token, (char **) NULL, 16);</span>
+<span class="lineNum">     886 </span><span class="lineCov">         76 :         } else if (str[0]=='0' &amp;&amp; isdigit(str[1])) {</span>
+<span class="lineNum">     887 </span><span class="lineNoCov">          0 :                 val = (u32) strtoul(str, (char **) NULL, 8);</span>
+<span class="lineNum">     888 </span><span class="lineCov">         64 :         } else if (isdigit(str[0])) {</span>
+<span class="lineNum">     889 </span><span class="lineCov">         64 :                 val = (u32) strtoul(str, (char **) NULL, 10);</span>
+<span class="lineNum">     890 </span>            :         } else {
+<span class="lineNum">     891 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_CODING, (&quot;[bifs] Script encoding: %s is not an integer\n&quot;, str));</span>
+<span class="lineNum">     892 </span><span class="lineNoCov">          0 :                 sc_enc-&gt;err = GF_BAD_PARAM;</span>
+<span class="lineNum">     893 </span><span class="lineNoCov">          0 :                 return 0;</span>
+<span class="lineNum">     894 </span>            :         }
+<span class="lineNum">     895 </span><span class="lineCov">         64 :         if (!sc_enc-&gt;emul) {</span>
+<span class="lineNum">     896 </span><span class="lineCov">         32 :                 GF_BIFS_WRITE_INT(sc_enc-&gt;codec, sc_enc-&gt;bs, val, nbBits, &quot;value&quot;, sc_enc-&gt;token);</span>
+<span class="lineNum">     897 </span>            :         } else {
+<span class="lineNum">     898 </span><span class="lineCov">         32 :                 nbBits = gf_get_bit_size(val);</span>
+<span class="lineNum">     899 </span>            :         }
+<span class="lineNum">     900 </span><span class="lineCov">         64 :         return nbBits;</span>
+<a name="901"><span class="lineNum">     901 </span><span class="lineCov">         64 : }</span></a>
+<span class="lineNum">     902 </span>            : 
+<span class="lineNum">     903 </span>            : void SFE_SwitchStatement(ScriptEnc *sc_enc)
+<span class="lineNum">     904 </span>            : {
+<span class="lineNum">     905 </span>            :         u32 nbBits, maxBits = 0;
+<span class="lineNum">     906 </span>            :         Bool prev_emu;
+<span class="lineNum">     907 </span>            :         char *buf_bck;
+<span class="lineNum">     908 </span>            :         u32 tok_bck;
+<span class="lineNum">     909 </span>            : 
+<span class="lineNum">     910 </span><span class="lineCov">         16 :         SFE_NextToken(sc_enc);</span>
+<span class="lineNum">     911 </span><span class="lineCov">          8 :         SFE_CheckToken(sc_enc, TOK_LEFT_CURVE);</span>
+<span class="lineNum">     912 </span>            : 
+<span class="lineNum">     913 </span><span class="lineCov">          8 :         SFE_NextToken(sc_enc);</span>
+<span class="lineNum">     914 </span><span class="lineCov">          8 :         SFE_CompoundExpression(sc_enc, 0, 0, 0);</span>
+<span class="lineNum">     915 </span><span class="lineCov">          8 :         SFE_CheckToken(sc_enc, TOK_RIGHT_CURVE);</span>
+<span class="lineNum">     916 </span>            : 
+<span class="lineNum">     917 </span><span class="lineCov">          8 :         SFE_NextToken(sc_enc);</span>
+<span class="lineNum">     918 </span><span class="lineCov">          8 :         SFE_CheckToken(sc_enc, TOK_LEFT_BRACE);</span>
+<span class="lineNum">     919 </span>            : 
+<span class="lineNum">     920 </span>            :         /*first pass in emul*/
+<span class="lineNum">     921 </span><span class="lineCov">          8 :         buf_bck = sc_enc-&gt;cur_buf;</span>
+<span class="lineNum">     922 </span><span class="lineCov">          8 :         tok_bck = sc_enc-&gt;token_code;</span>
+<span class="lineNum">     923 </span><span class="lineCov">          8 :         prev_emu = sc_enc-&gt;emul;</span>
+<span class="lineNum">     924 </span><span class="lineCov">          8 :         sc_enc-&gt;emul = GF_TRUE;</span>
+<span class="lineNum">     925 </span>            : 
+<span class="lineNum">     926 </span><span class="lineCov">          8 :         SFE_NextToken(sc_enc);</span>
+<span class="lineNum">     927 </span><span class="lineCov">         48 :         while (sc_enc-&gt;token_code == TOK_CASE) {</span>
+<span class="lineNum">     928 </span><span class="lineCov">         32 :                 SFE_NextToken(sc_enc);</span>
+<span class="lineNum">     929 </span><span class="lineCov">         32 :                 SFE_CheckToken(sc_enc, TOK_NUMBER);</span>
+<span class="lineNum">     930 </span><span class="lineCov">         32 :                 nbBits = SFE_PutCaseInteger(sc_enc, sc_enc-&gt;token, 0);</span>
+<span class="lineNum">     931 </span><span class="lineCov">         54 :                 if (maxBits&lt;nbBits) maxBits = nbBits;</span>
+<span class="lineNum">     932 </span>            : 
+<span class="lineNum">     933 </span><span class="lineCov">         32 :                 SFE_NextToken(sc_enc);</span>
+<span class="lineNum">     934 </span><span class="lineCov">         32 :                 SFE_CheckToken(sc_enc, TOK_CONDSEP);</span>
+<span class="lineNum">     935 </span>            : 
+<span class="lineNum">     936 </span><span class="lineCov">         32 :                 SFE_CaseBlock(sc_enc);</span>
+<span class="lineNum">     937 </span><span class="lineCov">         32 :                 SFE_WRITE_INT(sc_enc, (sc_enc-&gt;token_code == TOK_CASE) ? 1 : 0, 1, &quot;hasMoreCases&quot;, NULL);</span>
+<span class="lineNum">     938 </span>            :         }
+<span class="lineNum">     939 </span>            : 
+<span class="lineNum">     940 </span>            :         /*second pass in parent mode*/
+<span class="lineNum">     941 </span><span class="lineCov">          8 :         sc_enc-&gt;cur_buf = buf_bck;</span>
+<span class="lineNum">     942 </span><span class="lineCov">          8 :         sc_enc-&gt;token_code = tok_bck;</span>
+<span class="lineNum">     943 </span><span class="lineCov">          8 :         sc_enc-&gt;emul = prev_emu;</span>
+<span class="lineNum">     944 </span><span class="lineCov">          8 :         maxBits ++;</span>
+<span class="lineNum">     945 </span><span class="lineCov">         16 :         SFE_WRITE_INT(sc_enc, maxBits, 5, &quot;caseNbBits&quot;, NULL);</span>
+<span class="lineNum">     946 </span>            : 
+<span class="lineNum">     947 </span><span class="lineCov">          8 :         SFE_NextToken(sc_enc);</span>
+<span class="lineNum">     948 </span><span class="lineCov">         48 :         while (sc_enc-&gt;token_code == TOK_CASE) {</span>
+<span class="lineNum">     949 </span><span class="lineCov">         32 :                 SFE_NextToken(sc_enc);</span>
+<span class="lineNum">     950 </span><span class="lineCov">         32 :                 SFE_CheckToken(sc_enc, TOK_NUMBER);</span>
+<span class="lineNum">     951 </span><span class="lineCov">         32 :                 SFE_PutCaseInteger(sc_enc, sc_enc-&gt;token, maxBits);</span>
+<span class="lineNum">     952 </span>            : 
+<span class="lineNum">     953 </span><span class="lineCov">         32 :                 SFE_NextToken(sc_enc);</span>
+<span class="lineNum">     954 </span><span class="lineCov">         32 :                 SFE_CheckToken(sc_enc, TOK_CONDSEP);</span>
+<span class="lineNum">     955 </span>            : 
+<span class="lineNum">     956 </span><span class="lineCov">         32 :                 SFE_CaseBlock(sc_enc);</span>
+<span class="lineNum">     957 </span><span class="lineCov">         64 :                 SFE_WRITE_INT(sc_enc, (sc_enc-&gt;token_code == TOK_CASE) ? 1 : 0, 1, &quot;hasMoreCases&quot;, NULL);</span>
+<span class="lineNum">     958 </span>            :         }
+<span class="lineNum">     959 </span>            : 
+<span class="lineNum">     960 </span><span class="lineCov">         16 :         if (sc_enc-&gt;token_code == TOK_DEFAULT) {</span>
+<span class="lineNum">     961 </span><span class="lineCov">          8 :                 SFE_WRITE_INT(sc_enc, 1, 1, &quot;hasDefault&quot;, NULL);</span>
+<span class="lineNum">     962 </span><span class="lineNoCov">          0 :                 SFE_NextToken(sc_enc);</span>
+<span class="lineNum">     963 </span><span class="lineNoCov">          0 :                 SFE_CheckToken(sc_enc, TOK_CONDSEP);</span>
+<span class="lineNum">     964 </span><span class="lineNoCov">          0 :                 SFE_CaseBlock(sc_enc);</span>
+<span class="lineNum">     965 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     966 </span><span class="lineCov">         16 :                 SFE_WRITE_INT(sc_enc, 0, 1, &quot;hasDefault&quot;, NULL);</span>
+<span class="lineNum">     967 </span>            :         }
+<span class="lineNum">     968 </span><span class="lineCov">          8 :         SFE_CheckToken(sc_enc, TOK_RIGHT_BRACE);</span>
+<a name="969"><span class="lineNum">     969 </span><span class="lineCov">          8 : }</span></a>
+<span class="lineNum">     970 </span>            : 
+<span class="lineNum">     971 </span>            : void SFE_Statement(ScriptEnc *sc_enc)
+<span class="lineNum">     972 </span>            : {
+<span class="lineNum">     973 </span><span class="lineCov">       6216 :         switch (sc_enc-&gt;token_code) {</span>
+<span class="lineNum">     974 </span>            :         case TOK_IF:
+<span class="lineNum">     975 </span><span class="lineCov">       1332 :                 SFE_WRITE_INT(sc_enc, ST_IF, NUMBITS_STATEMENT, &quot;statementType&quot;, &quot;if&quot;);</span>
+<span class="lineNum">     976 </span><span class="lineCov">        666 :                 SFE_IfStatement(sc_enc);</span>
+<span class="lineNum">     977 </span><span class="lineCov">        666 :                 break;</span>
+<span class="lineNum">     978 </span>            :         case TOK_FOR:
+<span class="lineNum">     979 </span><span class="lineCov">        216 :                 SFE_WRITE_INT(sc_enc, ST_FOR, NUMBITS_STATEMENT, &quot;statementType&quot;, &quot;for&quot;);</span>
+<span class="lineNum">     980 </span><span class="lineCov">        108 :                 SFE_ForStatement(sc_enc);</span>
+<span class="lineNum">     981 </span><span class="lineCov">        108 :                 break;</span>
+<span class="lineNum">     982 </span>            :         case TOK_WHILE:
+<span class="lineNum">     983 </span><span class="lineCov">         28 :                 SFE_WRITE_INT(sc_enc, ST_WHILE, NUMBITS_STATEMENT, &quot;statementType&quot;, &quot;while&quot;);</span>
+<span class="lineNum">     984 </span><span class="lineCov">         14 :                 SFE_WhileStatement(sc_enc);</span>
+<span class="lineNum">     985 </span><span class="lineCov">         14 :                 break;</span>
+<span class="lineNum">     986 </span>            :         case TOK_RETURN:
+<span class="lineNum">     987 </span><span class="lineCov">        368 :                 SFE_WRITE_INT(sc_enc, ST_RETURN, NUMBITS_STATEMENT, &quot;statementType&quot;, &quot;return&quot;);</span>
+<span class="lineNum">     988 </span><span class="lineCov">        184 :                 SFE_ReturnStatement(sc_enc);</span>
+<span class="lineNum">     989 </span><span class="lineCov">        184 :                 break;</span>
+<span class="lineNum">     990 </span>            :         case TOK_BREAK:
+<span class="lineNum">     991 </span><span class="lineCov">        120 :                 SFE_WRITE_INT(sc_enc, ST_BREAK, NUMBITS_STATEMENT, &quot;statementType&quot;, &quot;break&quot;);</span>
+<span class="lineNum">     992 </span><span class="lineCov">         76 :                 SFE_NextToken(sc_enc);</span>
+<span class="lineNum">     993 </span><span class="lineCov">         76 :                 break;</span>
+<span class="lineNum">     994 </span>            :         case TOK_CONTINUE:
+<span class="lineNum">     995 </span><span class="lineCov">          8 :                 SFE_WRITE_INT(sc_enc, ST_CONTINUE, NUMBITS_STATEMENT, &quot;statementType&quot;, &quot;continue&quot;);</span>
+<span class="lineNum">     996 </span><span class="lineCov">          4 :                 SFE_NextToken(sc_enc);</span>
+<span class="lineNum">     997 </span><span class="lineCov">          4 :                 break;</span>
+<span class="lineNum">     998 </span>            :         case TOK_SWITCH:
+<span class="lineNum">     999 </span><span class="lineCov">         16 :                 SFE_WRITE_INT(sc_enc, ST_SWITCH, NUMBITS_STATEMENT, &quot;statementType&quot;, &quot;while&quot;);</span>
+<span class="lineNum">    1000 </span><span class="lineCov">          8 :                 SFE_SwitchStatement(sc_enc);</span>
+<span class="lineNum">    1001 </span><span class="lineCov">          8 :                 break;</span>
+<span class="lineNum">    1002 </span>            :         default:
+<span class="lineNum">    1003 </span><span class="lineCov">       4016 :                 SFE_WRITE_INT(sc_enc, ST_COMPOUND_EXPR, NUMBITS_STATEMENT, &quot;statementType&quot;, &quot;compoundExpr&quot;);</span>
+<span class="lineNum">    1004 </span><span class="lineCov">       2048 :                 SFE_CompoundExpression(sc_enc, 0, 0, 0);</span>
+<span class="lineNum">    1005 </span><span class="lineCov">       2048 :                 break;</span>
+<span class="lineNum">    1006 </span>            :         }
+<a name="1007"><span class="lineNum">    1007 </span><span class="lineCov">       3108 : }</span></a>
+<span class="lineNum">    1008 </span>            : 
+<span class="lineNum">    1009 </span>            : void SFE_Statements(ScriptEnc *sc_enc)
+<span class="lineNum">    1010 </span>            : {
+<span class="lineNum">    1011 </span><span class="lineCov">       4146 :         while (1) {</span>
+<span class="lineNum">    1012 </span><span class="lineCov">       3292 :                 if (!SFE_NextToken(sc_enc)) return;</span>
+<span class="lineNum">    1013 </span><span class="lineCov">       6584 :                 if (sc_enc-&gt;token_code == TOK_RIGHT_BRACE) break;</span>
+<span class="lineNum">    1014 </span><span class="lineCov">       4876 :                 SFE_WRITE_INT(sc_enc, 1, 1, &quot;hasStatement&quot;, NULL);</span>
+<span class="lineNum">    1015 </span><span class="lineCov">       2438 :                 SFE_Statement(sc_enc);</span>
+<span class="lineNum">    1016 </span>            :         }
+<span class="lineNum">    1017 </span><span class="lineCov">       5000 :         SFE_WRITE_INT(sc_enc, 0, 1, &quot;hasStatement&quot;, NULL);</span>
+<a name="1018"><span class="lineNum">    1018 </span><span class="lineCov">        854 : }</span></a>
+<span class="lineNum">    1019 </span>            : 
+<span class="lineNum">    1020 </span>            : void SFE_StatementBlock(ScriptEnc *sc_enc)
+<span class="lineNum">    1021 </span>            : {
+<span class="lineNum">    1022 </span><span class="lineCov">       2600 :         if (!SFE_NextToken(sc_enc)) return;</span>
+<span class="lineNum">    1023 </span><span class="lineCov">       2600 :         if (sc_enc-&gt;token_code == TOK_LEFT_BRACE) {</span>
+<span class="lineNum">    1024 </span><span class="lineCov">       3008 :                 SFE_WRITE_INT(sc_enc, 1, 1, &quot;isCompoundStatement&quot;, NULL);</span>
+<span class="lineNum">    1025 </span><span class="lineCov">        854 :                 SFE_Statements(sc_enc);</span>
+<span class="lineNum">    1026 </span><span class="lineCov">        854 :         } else {</span>
+<span class="lineNum">    1027 </span><span class="lineCov">        892 :                 SFE_WRITE_INT(sc_enc, 0, 1, &quot;isCompoundStatement&quot;, NULL);</span>
+<span class="lineNum">    1028 </span><span class="lineCov">        446 :                 SFE_Statement(sc_enc);</span>
+<a name="1029"><span class="lineNum">    1029 </span>            :         }</a>
+<span class="lineNum">    1030 </span><span class="lineCov">       1300 : }</span>
+<span class="lineNum">    1031 </span>            : void SFE_Function(ScriptEnc *sc_enc)
+<span class="lineNum">    1032 </span>            : {
+<span class="lineNum">    1033 </span><span class="lineCov">        696 :         char szName[1000];</span>
+<span class="lineNum">    1034 </span>            : 
+<span class="lineNum">    1035 </span><span class="lineCov">        348 :         SFE_NextToken(sc_enc);</span>
+<span class="lineNum">    1036 </span><span class="lineCov">        348 :         SFE_CheckToken(sc_enc, TOK_FUNCTION);</span>
+<span class="lineNum">    1037 </span>            : 
+<span class="lineNum">    1038 </span><span class="lineCov">        348 :         SFE_NextToken(sc_enc);</span>
+<span class="lineNum">    1039 </span><span class="lineCov">        348 :         SFE_CheckToken(sc_enc, TOK_IDENTIFIER);</span>
+<span class="lineNum">    1040 </span><span class="lineCov">        348 :         strcpy(szName, sc_enc-&gt;token);</span>
+<span class="lineNum">    1041 </span><span class="lineCov">        348 :         SFE_PutIdentifier(sc_enc, sc_enc-&gt;token);</span>
+<span class="lineNum">    1042 </span>            : 
+<span class="lineNum">    1043 </span><span class="lineCov">        348 :         SFE_NextToken(sc_enc);</span>
+<span class="lineNum">    1044 </span><span class="lineCov">        348 :         SFE_CheckToken(sc_enc, TOK_LEFT_CURVE);</span>
+<span class="lineNum">    1045 </span>            : 
+<span class="lineNum">    1046 </span><span class="lineCov">        348 :         SFE_Arguments(sc_enc);</span>
+<span class="lineNum">    1047 </span><span class="lineCov">        348 :         SFE_StatementBlock(sc_enc);</span>
+<span class="lineNum">    1048 </span>            : 
+<span class="lineNum">    1049 </span><span class="lineCov">        352 :         if (sc_enc-&gt;err) GF_LOG(GF_LOG_ERROR, GF_LOG_CODING, (&quot;[bifs] Script encoding: Error while parsing function %s\n&quot;, szName));</span>
+<span class="lineNum">    1050 </span><span class="lineCov">        348 : }</span>
+<a name="1051"><span class="lineNum">    1051 </span>            : </a>
+<span class="lineNum">    1052 </span>            : 
+<span class="lineNum">    1053 </span>            : GF_Err SFScript_Encode(GF_BifsEncoder *codec, SFScript *script_field, GF_BitStream *bs, GF_Node *n)
+<span class="lineNum">    1054 </span>            : {
+<span class="lineNum">    1055 </span>            :         char *ptr;
+<span class="lineNum">    1056 </span><span class="lineCov">        120 :         ScriptEnc sc_enc;</span>
+<span class="lineNum">    1057 </span><span class="lineCov">         60 :         if (gf_node_get_tag(n) != TAG_MPEG4_Script) return GF_NON_COMPLIANT_BITSTREAM;</span>
+<span class="lineNum">    1058 </span>            : 
+<span class="lineNum">    1059 </span><span class="lineCov">         60 :         memset(&amp;sc_enc, 0, sizeof(ScriptEnc));</span>
+<span class="lineNum">    1060 </span><span class="lineCov">         60 :         sc_enc.codec = codec;</span>
+<span class="lineNum">    1061 </span><span class="lineCov">         60 :         sc_enc.script = n;</span>
+<span class="lineNum">    1062 </span><span class="lineCov">         60 :         sc_enc.bs = bs;</span>
+<span class="lineNum">    1063 </span><span class="lineCov">         60 :         sc_enc.identifiers = gf_list_new();</span>
+<span class="lineNum">    1064 </span><span class="lineCov">         60 :         sc_enc.id_buf = gf_list_new();</span>
+<span class="lineNum">    1065 </span><span class="lineCov">         60 :         sc_enc.err = GF_OK;</span>
+<span class="lineNum">    1066 </span>            : 
+<span class="lineNum">    1067 </span><span class="lineCov">         60 :         if (codec-&gt;is_encoding_command) {</span>
+<span class="lineNum">    1068 </span><span class="lineNoCov">          0 :                 GF_BIFS_WRITE_INT(codec, bs, 1, 1, &quot;Script::isList&quot;, NULL);</span>
+<span class="lineNum">    1069 </span><span class="lineNoCov">          0 :                 GF_BIFS_WRITE_INT(codec, bs, 1, 1, &quot;end&quot;, NULL);</span>
+<span class="lineNum">    1070 </span>            :         } else {
+<span class="lineNum">    1071 </span><span class="lineCov">         60 :                 EncScriptFields(&amp;sc_enc);</span>
+<span class="lineNum">    1072 </span>            :         }
+<span class="lineNum">    1073 </span>            :         /*reserevd*/
+<span class="lineNum">    1074 </span><span class="lineCov">         60 :         GF_BIFS_WRITE_INT(codec, bs, 1, 1, &quot;reserved&quot;, NULL);</span>
+<span class="lineNum">    1075 </span>            : 
+<span class="lineNum">    1076 </span><span class="lineCov">         60 :         if (script_field) {</span>
+<span class="lineNum">    1077 </span><span class="lineCov">         60 :                 sc_enc.cur_buf = (char *)script_field-&gt;script_text;</span>
+<span class="lineNum">    1078 </span><span class="lineCov">         60 :         } else if (((M_Script*)n)-&gt;url.count) {</span>
+<span class="lineNum">    1079 </span><span class="lineNoCov">          0 :                 sc_enc.cur_buf = (char *)((M_Script*)n)-&gt;url.vals[0].script_text;</span>
+<span class="lineNum">    1080 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">    1081 </span><span class="lineCov">         60 :         if (sc_enc.cur_buf) {</span>
+<span class="lineNum">    1082 </span><span class="lineCov">         60 :                 if (!strnicmp(sc_enc.cur_buf, &quot;javascript:&quot;, 11)</span>
+<span class="lineNum">    1083 </span><span class="lineCov">         62 :                         || !strnicmp(sc_enc.cur_buf, &quot;vrmlscript:&quot;, 11)</span>
+<span class="lineNum">    1084 </span><span class="lineCov">          2 :                         || !strnicmp(sc_enc.cur_buf, &quot;ECMAScript:&quot;, 11)</span>
+<span class="lineNum">    1085 </span>            :                    ) {
+<span class="lineNum">    1086 </span><span class="lineCov">         60 :                         sc_enc.cur_buf += 11;</span>
+<span class="lineNum">    1087 </span><span class="lineCov">         60 :                 } else if (!strnicmp(sc_enc.cur_buf, &quot;mpeg4script:&quot;, 12) ) {</span>
+<span class="lineNum">    1088 </span><span class="lineNoCov">          0 :                         sc_enc.cur_buf += 12;</span>
+<span class="lineNum">    1089 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">    1090 </span>            :         }
+<span class="lineNum">    1091 </span>            : 
+<span class="lineNum">    1092 </span>            :         /*encode functions*/
+<span class="lineNum">    1093 </span><span class="lineCov">       1754 :         while (sc_enc.cur_buf &amp;&amp; sc_enc.cur_buf[0] &amp;&amp; (sc_enc.cur_buf[0]!='}')) {</span>
+<span class="lineNum">    1094 </span><span class="lineCov">        546 :                 if (strchr(&quot;\r\n\t &quot;, sc_enc.cur_buf[0]) ) {</span>
+<span class="lineNum">    1095 </span><span class="lineCov">        198 :                         sc_enc.cur_buf++;</span>
+<span class="lineNum">    1096 </span><span class="lineCov">        198 :                         continue;</span>
+<span class="lineNum">    1097 </span>            :                 }
+<span class="lineNum">    1098 </span><span class="lineCov">        348 :                 GF_BIFS_WRITE_INT(codec, bs, 1, 1, &quot;hasFunction&quot;, NULL);</span>
+<span class="lineNum">    1099 </span><span class="lineCov">        348 :                 SFE_Function(&amp;sc_enc);</span>
+<span class="lineNum">    1100 </span><span class="lineCov">        348 :                 if (sc_enc.err) break;</span>
+<span class="lineNum">    1101 </span>            :         }
+<span class="lineNum">    1102 </span><span class="lineCov">         60 :         GF_BIFS_WRITE_INT(codec, bs, 0, 1, &quot;hasFunction&quot;, NULL);</span>
+<span class="lineNum">    1103 </span>            : 
+<span class="lineNum">    1104 </span>            :         //clean up
+<span class="lineNum">    1105 </span><span class="lineCov">       4950 :         while (gf_list_count(sc_enc.identifiers)) {</span>
+<span class="lineNum">    1106 </span><span class="lineCov">       3280 :                 ptr = (char *)gf_list_get(sc_enc.identifiers, 0);</span>
+<span class="lineNum">    1107 </span><span class="lineCov">       1610 :                 gf_list_rem(sc_enc.identifiers, 0);</span>
+<span class="lineNum">    1108 </span><span class="lineCov">       1610 :                 gf_free(ptr);</span>
+<span class="lineNum">    1109 </span>            :         }
+<span class="lineNum">    1110 </span><span class="lineCov">         60 :         gf_list_del(sc_enc.identifiers);</span>
+<span class="lineNum">    1111 </span>            :         /*in case of error this is needed*/
+<span class="lineNum">    1112 </span><span class="lineCov">        180 :         while (gf_list_count(sc_enc.id_buf)) {</span>
+<span class="lineNum">    1113 </span><span class="lineCov">         60 :                 ptr = (char *)gf_list_get(sc_enc.id_buf, 0);</span>
+<span class="lineNum">    1114 </span><span class="lineNoCov">          0 :                 gf_list_rem(sc_enc.id_buf, 0);</span>
+<span class="lineNum">    1115 </span><span class="lineNoCov">          0 :                 gf_free(ptr);</span>
+<span class="lineNum">    1116 </span>            :         }
+<span class="lineNum">    1117 </span><span class="lineCov">         60 :         gf_list_del(sc_enc.id_buf);</span>
+<span class="lineNum">    1118 </span>            : 
+<span class="lineNum">    1119 </span><span class="lineCov">         60 :         return sc_enc.err;</span>
+<span class="lineNum">    1120 </span><span class="lineCov">         60 : }</span>
+<a name="1121"><span class="lineNum">    1121 </span>            : </a>
+<span class="lineNum">    1122 </span>            : 
+<span class="lineNum">    1123 </span>            : void SFE_PutReal(ScriptEnc *sc_enc, char *str)
+<span class="lineNum">    1124 </span>            : {
+<span class="lineNum">    1125 </span>            :         u32 i;
+<span class="lineNum">    1126 </span><span class="lineCov">        176 :         size_t length = strlen(str);</span>
+<span class="lineNum">    1127 </span><span class="lineCov">        760 :         for (i=0; i&lt;length; i++) {</span>
+<span class="lineNum">    1128 </span><span class="lineCov">        292 :                 s32 c = str[i];</span>
+<span class="lineNum">    1129 </span><span class="lineCov">        292 :                 if (c &gt;= '0' &amp;&amp; c &lt;= '9')</span>
+<span class="lineNum">    1130 </span>            :                 {
+<span class="lineNum">    1131 </span><span class="lineCov">        370 :                         SFE_WRITE_INT(sc_enc, c-'0', 4, &quot;floatChar&quot;, &quot;Digital&quot;);</span>
+<span class="lineNum">    1132 </span>            :                 }
+<span class="lineNum">    1133 </span><span class="lineCov">         88 :                 else if (c == '.')</span>
+<span class="lineNum">    1134 </span>            :                 {
+<span class="lineNum">    1135 </span><span class="lineCov">        160 :                         SFE_WRITE_INT(sc_enc, 10, 4, &quot;floatChar&quot;, &quot;Decimal Point&quot;);</span>
+<span class="lineNum">    1136 </span>            :                 }
+<span class="lineNum">    1137 </span><span class="lineNoCov">          0 :                 else if (c == 'e' || c == 'E')</span>
+<span class="lineNum">    1138 </span>            :                 {
+<span class="lineNum">    1139 </span><span class="lineNoCov">          0 :                         SFE_WRITE_INT(sc_enc, 11, 4, &quot;floatChar&quot;, &quot;Exponential&quot;);</span>
+<span class="lineNum">    1140 </span>            :                 }
+<span class="lineNum">    1141 </span><span class="lineNoCov">          0 :                 else if (c == '-')</span>
+<span class="lineNum">    1142 </span>            :                 {
+<span class="lineNum">    1143 </span><span class="lineNoCov">          0 :                         SFE_WRITE_INT(sc_enc, 12, 4, &quot;floatChar&quot;, &quot;Sign&quot;);</span>
+<span class="lineNum">    1144 </span>            :                 }
+<span class="lineNum">    1145 </span>            :                 else {
+<span class="lineNum">    1146 </span><span class="lineNoCov">          0 :                         GF_LOG(GF_LOG_ERROR, GF_LOG_CODING, (&quot;[bifs] Script encoding: %s is not a real number\n&quot;, str));</span>
+<span class="lineNum">    1147 </span><span class="lineNoCov">          0 :                         sc_enc-&gt;err = GF_BAD_PARAM;</span>
+<span class="lineNum">    1148 </span><span class="lineNoCov">          0 :                         return;</span>
+<span class="lineNum">    1149 </span>            :                 }
+<span class="lineNum">    1150 </span><span class="lineCov">        292 :         }</span>
+<span class="lineNum">    1151 </span><span class="lineCov">        160 :         SFE_WRITE_INT(sc_enc, 15, 4, &quot;floatChar&quot;, &quot;End Symbol&quot;);</span>
+<a name="1152"><span class="lineNum">    1152 </span><span class="lineCov">        176 : }</span></a>
+<span class="lineNum">    1153 </span>            : 
+<span class="lineNum">    1154 </span>            : void SFE_PutNumber(ScriptEnc *sc_enc, char *str)
+<span class="lineNum">    1155 </span>            : {
+<span class="lineNum">    1156 </span><span class="lineCov">       5724 :         if (strpbrk(str,&quot;.eE-&quot;) == 0) {</span>
+<span class="lineNum">    1157 </span><span class="lineCov">       5464 :                 SFE_WRITE_INT(sc_enc, 1, 1, &quot;isInteger&quot;, &quot;integer&quot;);</span>
+<span class="lineNum">    1158 </span><span class="lineCov">       1820 :                 SFE_PutInteger(sc_enc, str);</span>
+<span class="lineNum">    1159 </span><span class="lineCov">       1820 :         } else {</span>
+<span class="lineNum">    1160 </span><span class="lineCov">        160 :                 SFE_WRITE_INT(sc_enc, 0, 1, &quot;isInteger&quot;, &quot;real&quot;);</span>
+<span class="lineNum">    1161 </span><span class="lineCov">         88 :                 SFE_PutReal(sc_enc, str);</span>
+<span class="lineNum">    1162 </span>            :         }
+<a name="1163"><span class="lineNum">    1163 </span><span class="lineCov">       1908 : }</span></a>
+<span class="lineNum">    1164 </span>            : 
+<span class="lineNum">    1165 </span>            : void SFE_PutBoolean(ScriptEnc *sc_enc, char *str)
+<span class="lineNum">    1166 </span>            : {
+<span class="lineNum">    1167 </span>            :         u32 v = 1;
+<span class="lineNum">    1168 </span><span class="lineCov">        450 :         if (!stricmp(str, &quot;false&quot;) || !strcmp(str, &quot;0&quot;)) v = 0;</span>
+<span class="lineNum">    1169 </span><span class="lineCov">        284 :         SFE_WRITE_INT(sc_enc, v, 1, &quot;value&quot;, &quot;bolean&quot;);</span>
+<span class="lineNum">    1170 </span><span class="lineCov">        150 : }</span>
+<span class="lineNum">    1171 </span>            : 
+<span class="lineNum">    1172 </span>            : 
+<span class="lineNum">    1173 </span>            : #define CHECK_TOK(x) \
+<span class="lineNum">    1174 </span>            :         if (curTok != x) { \
+<span class="lineNum">    1175 </span>            :                 GF_LOG(GF_LOG_ERROR, GF_LOG_CODING, (&quot;[bifs] Script encoding: Token %s read, %s expected\n&quot;, tok_names[curTok], tok_names[x])); \
+<span class="lineNum">    1176 </span>            :                 sc_enc-&gt;err = GF_BAD_PARAM;  \
+<span class="lineNum">    1177 </span>            :         }       \
+<a name="1178"><span class="lineNum">    1178 </span>            :  </a>
+<span class="lineNum">    1179 </span>            : 
+<span class="lineNum">    1180 </span>            : u32 TOK_To_ET(u32 tok)
+<span class="lineNum">    1181 </span>            : {
+<span class="lineNum">    1182 </span><span class="lineCov">       7268 :         switch(tok) {</span>
+<span class="lineNum">    1183 </span>            :         case TOK_INCREMENT:
+<span class="lineNum">    1184 </span><span class="lineNoCov">          0 :                 return ET_INCREMENT;</span>
+<span class="lineNum">    1185 </span>            :         case TOK_DECREMENT:
+<span class="lineNum">    1186 </span><span class="lineNoCov">          0 :                 return ET_DECREMENT;</span>
+<span class="lineNum">    1187 </span>            :         case TOK_NOT:
+<span class="lineNum">    1188 </span><span class="lineNoCov">          0 :                 return ET_NOT;</span>
+<span class="lineNum">    1189 </span>            :         case TOK_ONESCOMP:
+<span class="lineNum">    1190 </span><span class="lineNoCov">          0 :                 return ET_ONESCOMP;</span>
+<span class="lineNum">    1191 </span>            :         case TOK_MULTIPLY :
+<span class="lineNum">    1192 </span><span class="lineCov">        612 :                 return ET_MULTIPLY;</span>
+<span class="lineNum">    1193 </span>            :         case TOK_DIVIDE :
+<span class="lineNum">    1194 </span><span class="lineCov">        132 :                 return ET_DIVIDE;</span>
+<span class="lineNum">    1195 </span>            :         case TOK_MOD :
+<span class="lineNum">    1196 </span><span class="lineCov">          8 :                 return ET_MOD;</span>
+<span class="lineNum">    1197 </span>            :         case TOK_PLUS :
+<span class="lineNum">    1198 </span><span class="lineNoCov">          0 :                 return ET_PLUS;</span>
+<span class="lineNum">    1199 </span>            :         case TOK_MINUS :
+<span class="lineNum">    1200 </span><span class="lineNoCov">          0 :                 return ET_MINUS;</span>
+<span class="lineNum">    1201 </span>            :         case TOK_LSHIFT :
+<span class="lineNum">    1202 </span><span class="lineNoCov">          0 :                 return ET_LSHIFT;</span>
+<span class="lineNum">    1203 </span>            :         case TOK_RSHIFT :
+<span class="lineNum">    1204 </span><span class="lineNoCov">          0 :                 return ET_RSHIFT;</span>
+<span class="lineNum">    1205 </span>            :         case TOK_RSHIFTFILL :
+<span class="lineNum">    1206 </span><span class="lineNoCov">          0 :                 return ET_RSHIFTFILL;</span>
+<span class="lineNum">    1207 </span>            :         case TOK_LT :
+<span class="lineNum">    1208 </span><span class="lineCov">        264 :                 return ET_LT;</span>
+<span class="lineNum">    1209 </span>            :         case TOK_LE :
+<span class="lineNum">    1210 </span><span class="lineCov">         40 :                 return ET_LE;</span>
+<span class="lineNum">    1211 </span>            :         case TOK_GT :
+<span class="lineNum">    1212 </span><span class="lineCov">         92 :                 return ET_GT;</span>
+<span class="lineNum">    1213 </span>            :         case TOK_GE :
+<span class="lineNum">    1214 </span><span class="lineCov">        140 :                 return ET_GE;</span>
+<span class="lineNum">    1215 </span>            :         case TOK_EQ :
+<span class="lineNum">    1216 </span><span class="lineCov">        262 :                 return ET_EQ;</span>
+<span class="lineNum">    1217 </span>            :         case TOK_NE :
+<span class="lineNum">    1218 </span><span class="lineCov">         62 :                 return ET_NE;</span>
+<span class="lineNum">    1219 </span>            :         case TOK_AND :
+<span class="lineNum">    1220 </span><span class="lineNoCov">          0 :                 return ET_AND;</span>
+<span class="lineNum">    1221 </span>            :         case TOK_XOR :
+<span class="lineNum">    1222 </span><span class="lineNoCov">          0 :                 return ET_XOR;</span>
+<span class="lineNum">    1223 </span>            :         case TOK_OR :
+<span class="lineNum">    1224 </span><span class="lineNoCov">          0 :                 return ET_OR;</span>
+<span class="lineNum">    1225 </span>            :         case TOK_LAND :
+<span class="lineNum">    1226 </span><span class="lineCov">        114 :                 return ET_LAND;</span>
+<span class="lineNum">    1227 </span>            :         case TOK_LOR :
+<span class="lineNum">    1228 </span><span class="lineCov">         52 :                 return ET_LOR;</span>
+<span class="lineNum">    1229 </span>            :         case TOK_CONDTEST :
+<span class="lineNum">    1230 </span><span class="lineNoCov">          0 :                 return ET_CONDTEST;</span>
+<span class="lineNum">    1231 </span>            :         case TOK_ASSIGN :
+<span class="lineNum">    1232 </span><span class="lineCov">       1690 :                 return ET_ASSIGN;</span>
+<span class="lineNum">    1233 </span>            :         case TOK_PLUSEQ :
+<span class="lineNum">    1234 </span><span class="lineCov">        108 :                 return ET_PLUSEQ;</span>
+<span class="lineNum">    1235 </span>            :         case TOK_MINUSEQ :
+<span class="lineNum">    1236 </span><span class="lineCov">         24 :                 return ET_MINUSEQ;</span>
+<span class="lineNum">    1237 </span>            :         case TOK_MULTIPLYEQ :
+<span class="lineNum">    1238 </span><span class="lineCov">         10 :                 return ET_MULTIPLYEQ;</span>
+<span class="lineNum">    1239 </span>            :         case TOK_DIVIDEEQ :
+<span class="lineNum">    1240 </span><span class="lineCov">         20 :                 return ET_DIVIDEEQ;</span>
+<span class="lineNum">    1241 </span>            :         case TOK_MODEQ :
+<span class="lineNum">    1242 </span><span class="lineNoCov">          0 :                 return ET_MODEQ;</span>
+<span class="lineNum">    1243 </span>            :         case TOK_LSHIFTEQ :
+<span class="lineNum">    1244 </span><span class="lineNoCov">          0 :                 return ET_LSHIFTEQ;</span>
+<span class="lineNum">    1245 </span>            :         case TOK_RSHIFTEQ :
+<span class="lineNum">    1246 </span><span class="lineNoCov">          0 :                 return ET_RSHIFTEQ;</span>
+<span class="lineNum">    1247 </span>            :         case TOK_RSHIFTFILLEQ :
+<span class="lineNum">    1248 </span><span class="lineNoCov">          0 :                 return ET_RSHIFTFILLEQ;</span>
+<span class="lineNum">    1249 </span>            :         case TOK_ANDEQ :
+<span class="lineNum">    1250 </span><span class="lineNoCov">          0 :                 return ET_ANDEQ;</span>
+<span class="lineNum">    1251 </span>            :         case TOK_XOREQ :
+<span class="lineNum">    1252 </span><span class="lineNoCov">          0 :                 return ET_XOREQ;</span>
+<span class="lineNum">    1253 </span>            :         case TOK_OREQ :
+<span class="lineNum">    1254 </span><span class="lineNoCov">          0 :                 return ET_OREQ;</span>
+<span class="lineNum">    1255 </span>            :         case TOK_FUNCTION:
+<span class="lineNum">    1256 </span><span class="lineNoCov">          0 :                 return ET_FUNCTION_CALL;</span>
+<span class="lineNum">    1257 </span>            :         case TOK_VAR:
+<span class="lineNum">    1258 </span><span class="lineCov">          4 :                 return ET_VAR;</span>
+<span class="lineNum">    1259 </span>            :         default:
+<span class="lineNum">    1260 </span>            :                 assert(0);
+<span class="lineNum">    1261 </span><span class="lineNoCov">          0 :                 return (u32) -1;</span>
+<span class="lineNum">    1262 </span>            :         }
+<span class="lineNum">    1263 </span><span class="lineCov">       3634 : }</span>
+<span class="lineNum">    1264 </span>            : 
+<span class="lineNum">    1265 </span>            : static const char *expr_name[] = {
+<span class="lineNum">    1266 </span>            :         &quot;ET_CURVED_EXPR&quot;,
+<span class="lineNum">    1267 </span>            :         &quot;ET_NEGATIVE&quot;,
+<span class="lineNum">    1268 </span>            :         &quot;ET_NOT&quot;,
+<span class="lineNum">    1269 </span>            :         &quot;ET_ONESCOMP&quot;,
+<span class="lineNum">    1270 </span>            :         &quot;ET_INCREMENT&quot;,
+<span class="lineNum">    1271 </span>            :         &quot;ET_DECREMENT&quot;,
+<span class="lineNum">    1272 </span>            :         &quot;ET_POST_INCREMENT&quot;,
+<span class="lineNum">    1273 </span>            :         &quot;ET_POST_DECREMENT&quot;,
+<span class="lineNum">    1274 </span>            :         &quot;ET_CONDTEST&quot;,
+<span class="lineNum">    1275 </span>            :         &quot;ET_STRING&quot;,
+<span class="lineNum">    1276 </span>            :         &quot;ET_NUMBER&quot;,
+<span class="lineNum">    1277 </span>            :         &quot;ET_IDENTIFIER&quot;,
+<span class="lineNum">    1278 </span>            :         &quot;ET_FUNCTION_CALL&quot;,
+<span class="lineNum">    1279 </span>            :         &quot;ET_NEW&quot;,
+<span class="lineNum">    1280 </span>            :         &quot;ET_OBJECT_MEMBER_ACCESS&quot;,
+<span class="lineNum">    1281 </span>            :         &quot;ET_OBJECT_METHOD_CALL&quot;,
+<span class="lineNum">    1282 </span>            :         &quot;ET_ARRAY_DEREFERENCE&quot;,
+<span class="lineNum">    1283 </span>            :         &quot;ET_ASSIGN&quot;,
+<span class="lineNum">    1284 </span>            :         &quot;ET_PLUSEQ&quot;,
+<span class="lineNum">    1285 </span>            :         &quot;ET_MINUSEQ&quot;,
+<span class="lineNum">    1286 </span>            :         &quot;ET_MULTIPLYEQ&quot;,
+<span class="lineNum">    1287 </span>            :         &quot;ET_DIVIDEEQ&quot;,
+<span class="lineNum">    1288 </span>            :         &quot;ET_MODEQ&quot;,
+<span class="lineNum">    1289 </span>            :         &quot;ET_ANDEQ&quot;,
+<span class="lineNum">    1290 </span>            :         &quot;ET_OREQ&quot;,
+<span class="lineNum">    1291 </span>            :         &quot;ET_XOREQ&quot;,
+<span class="lineNum">    1292 </span>            :         &quot;ET_LSHIFTEQ&quot;,
+<span class="lineNum">    1293 </span>            :         &quot;ET_RSHIFTEQ&quot;,
+<span class="lineNum">    1294 </span>            :         &quot;ET_RSHIFTFILLEQ&quot;,
+<span class="lineNum">    1295 </span>            :         &quot;ET_EQ&quot;,
+<span class="lineNum">    1296 </span>            :         &quot;ET_NE&quot;,
+<span class="lineNum">    1297 </span>            :         &quot;ET_LT&quot;,
+<span class="lineNum">    1298 </span>            :         &quot;ET_LE&quot;,
+<span class="lineNum">    1299 </span>            :         &quot;ET_GT&quot;,
+<span class="lineNum">    1300 </span>            :         &quot;ET_GE&quot;,
+<span class="lineNum">    1301 </span>            :         &quot;ET_PLUS&quot;,
+<span class="lineNum">    1302 </span>            :         &quot;ET_MINUS&quot;,
+<span class="lineNum">    1303 </span>            :         &quot;ET_MULTIPLY&quot;,
+<span class="lineNum">    1304 </span>            :         &quot;ET_DIVIDE&quot;,
+<span class="lineNum">    1305 </span>            :         &quot;ET_MOD&quot;,
+<span class="lineNum">    1306 </span>            :         &quot;ET_LAND&quot;,
+<span class="lineNum">    1307 </span>            :         &quot;ET_LOR&quot;,
+<span class="lineNum">    1308 </span>            :         &quot;ET_AND&quot;,
+<span class="lineNum">    1309 </span>            :         &quot;ET_OR&quot;,
+<span class="lineNum">    1310 </span>            :         &quot;ET_XOR&quot;,
+<span class="lineNum">    1311 </span>            :         &quot;ET_LSHIFT&quot;,
+<span class="lineNum">    1312 </span>            :         &quot;ET_RSHIFT&quot;,
+<span class="lineNum">    1313 </span>            :         &quot;ET_RSHIFTFILL&quot;,
+<span class="lineNum">    1314 </span>            :         &quot;ET_BOOLEAN&quot;,
+<span class="lineNum">    1315 </span>            :         &quot;ET_VAR&quot;,
+<span class="lineNum">    1316 </span>            :         &quot;NUMBER_OF_EXPR_TYPE&quot;
+<span class="lineNum">    1317 </span>            : };
+<span class="lineNum">    1318 </span>            : 
+<span class="lineNum">    1319 </span>            : #define NUMBER_OF_RANK  15
+<span class="lineNum">    1320 </span>            : static s32 ET_Rank[NUMBER_OF_EXPR_TYPE] =
+<span class="lineNum">    1321 </span>            : {
+<span class="lineNum">    1322 </span>            :         1,// ET_CURVED_EXPR
+<span class="lineNum">    1323 </span>            :         2,// ET_NEGATIVE
+<span class="lineNum">    1324 </span>            :         2,// ET_NOT
+<span class="lineNum">    1325 </span>            :         2,// ET_ONESCOMP
+<span class="lineNum">    1326 </span>            :         2,// ET_INCREMENT
+<span class="lineNum">    1327 </span>            :         2,// ET_DECREMENT
+<span class="lineNum">    1328 </span>            :         2,// ET_POST_INCREMENT
+<span class="lineNum">    1329 </span>            :         2,// ET_POST_DECREMENT
+<span class="lineNum">    1330 </span>            :         14,// ET_CONDTEST
+<span class="lineNum">    1331 </span>            :         0,// ET_STRING
+<span class="lineNum">    1332 </span>            :         0,// ET_NUMBER
+<span class="lineNum">    1333 </span>            :         0,// ET_IDENTIFIER
+<span class="lineNum">    1334 </span>            :         1,// ET_FUNCTION_CALL
+<span class="lineNum">    1335 </span>            :         2,// ET_NEW
+<span class="lineNum">    1336 </span>            :         1,// ET_OBJECT_MEMBER_ACCESS
+<span class="lineNum">    1337 </span>            :         1,// ET_OBJECT_METHOD_CALL
+<span class="lineNum">    1338 </span>            :         1,// ET_ARRAY_DEREFERENCE
+<span class="lineNum">    1339 </span>            :         14,// ET_ASSIGN
+<span class="lineNum">    1340 </span>            :         14,// ET_PLUSEQ
+<span class="lineNum">    1341 </span>            :         14,// ET_MINUSEQ
+<span class="lineNum">    1342 </span>            :         14,// ET_MULTIPLYEQ
+<span class="lineNum">    1343 </span>            :         14,// ET_DIVIDEEQ
+<span class="lineNum">    1344 </span>            :         14,// ET_MODEQ
+<span class="lineNum">    1345 </span>            :         14,// ET_ANDEQ
+<span class="lineNum">    1346 </span>            :         14,// ET_OREQ
+<span class="lineNum">    1347 </span>            :         14,// ET_XOREQ
+<span class="lineNum">    1348 </span>            :         14,// ET_LSHIFTEQ
+<span class="lineNum">    1349 </span>            :         14,// ET_RSHIFTEQ
+<span class="lineNum">    1350 </span>            :         14,// ET_RSHIFTFILLEQ
+<span class="lineNum">    1351 </span>            :         8,// ET_EQ
+<span class="lineNum">    1352 </span>            :         9,// ET_NE
+<span class="lineNum">    1353 </span>            :         6,// ET_LT
+<span class="lineNum">    1354 </span>            :         6,// ET_LE
+<span class="lineNum">    1355 </span>            :         7,// ET_GT
+<span class="lineNum">    1356 </span>            :         7,// ET_GE
+<span class="lineNum">    1357 </span>            :         5,// ET_PLUS
+<span class="lineNum">    1358 </span>            :         5,// ET_MINUS
+<span class="lineNum">    1359 </span>            :         3,// ET_MULTIPLY
+<span class="lineNum">    1360 </span>            :         3,// ET_DIVIDE
+<span class="lineNum">    1361 </span>            :         3,// ET_MOD
+<span class="lineNum">    1362 </span>            :         13,// ET_LAND
+<span class="lineNum">    1363 </span>            :         14,// ET_LOR
+<span class="lineNum">    1364 </span>            :         10,// ET_AND
+<span class="lineNum">    1365 </span>            :         12,// ET_OR
+<span class="lineNum">    1366 </span>            :         11,// ET_XOR
+<span class="lineNum">    1367 </span>            :         5,// ET_LSHIFT
+<span class="lineNum">    1368 </span>            :         6,// ET_RSHIFT
+<span class="lineNum">    1369 </span>            :         6,// ET_RSHIFTFILL
+<span class="lineNum">    1370 </span>            :         0, // ET_BOOLEAN
+<span class="lineNum">    1371 </span>            :         14 // ET_VAR
+<span class="lineNum">    1372 </span>            : 
+<span class="lineNum">    1373 </span>            :         /*
+<span class="lineNum">    1374 </span>            :                 0, 0, 0,                        // variable, number, string
+<span class="lineNum">    1375 </span>            :                 1, 1, 1, 1, 1,                  // curved expr, call, member, array
+<span class="lineNum">    1376 </span>            :                 2, 2, 2, 2, 2, 2, 2, 2,         // unary operator
+<span class="lineNum">    1377 </span>            :                 3, 3, 3,                        // multiply, divide, mod
+<span class="lineNum">    1378 </span>            :                 4, 4,                           // add, subtract
+<span class="lineNum">    1379 </span>            :                 5, 5, 5,                        // bitwise shift
+<span class="lineNum">    1380 </span>            :                 6, 6, 6, 6,                     // relational
+<span class="lineNum">    1381 </span>            :                 7, 7,                           // equality
+<span class="lineNum">    1382 </span>            :                 8,                              // bitwise and
+<span class="lineNum">    1383 </span>            :                 9,                              // bitwise xor
+<span class="lineNum">    1384 </span>            :                 10,                             // bitwise or
+<span class="lineNum">    1385 </span>            :                 11,                             // logical and
+<span class="lineNum">    1386 </span>            :                 12,                             // logical or
+<span class="lineNum">    1387 </span>            :                 13,                             // conditional
+<span class="lineNum">    1388 </span>            :                 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14  // assignment
+<span class="lineNum">    1389 </span>            :                 */
+<span class="lineNum">    1390 </span>            : };
+<a name="1391"><span class="lineNum">    1391 </span>            : static s32 ET_leftAssoc[NUMBER_OF_RANK] = {1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0};</a>
+<span class="lineNum">    1392 </span>            : 
+<span class="lineNum">    1393 </span>            : u32 MoveToToken(ScriptEnc *sc_enc, u32 endTok, u32 cur, u32 end)
+<span class="lineNum">    1394 </span>            : {
+<span class="lineNum">    1395 </span>            :         u32 cnt = 0;
+<span class="lineNum">    1396 </span>            :         u32 startTok = TOK_EOF, curTok;
+<span class="lineNum">    1397 </span>            : 
+<span class="lineNum">    1398 </span><span class="lineCov">       7752 :         if (endTok == TOK_RIGHT_CURVE) startTok = TOK_LEFT_CURVE;</span>
+<span class="lineNum">    1399 </span><span class="lineCov">       3262 :         else if (endTok == TOK_RIGHT_BRACKET) startTok = TOK_LEFT_BRACKET;</span>
+<span class="lineNum">    1400 </span><span class="lineCov">         14 :         else if (endTok == TOK_RIGHT_BRACE) startTok = TOK_LEFT_BRACE;</span>
+<span class="lineNum">    1401 </span><span class="lineCov">         14 :         else if (endTok == TOK_CONDSEP) startTok = TOK_CONDTEST;</span>
+<span class="lineNum">    1402 </span>            :         else {
+<span class="lineNum">    1403 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_CODING, (&quot;[bifs] Script encoding: illegal MoveToToken %s\n&quot;, tok_names[endTok]));</span>
+<span class="lineNum">    1404 </span><span class="lineNoCov">          0 :                 sc_enc-&gt;err = GF_BAD_PARAM;</span>
+<span class="lineNum">    1405 </span><span class="lineNoCov">          0 :                 return (u32) -1;</span>
+<span class="lineNum">    1406 </span>            :         }
+<span class="lineNum">    1407 </span>            :         do {
+<span class="lineNum">    1408 </span><span class="lineCov">      15668 :                 curTok = sc_enc-&gt;expr_toks[cur++];</span>
+<span class="lineNum">    1409 </span><span class="lineCov">      18940 :                 if (curTok == startTok) cnt++;</span>
+<span class="lineNum">    1410 </span><span class="lineCov">      15668 :                 else if (curTok == endTok) cnt--;</span>
+<span class="lineNum">    1411 </span><span class="lineCov">      28206 :         } while ( (curTok != endTok || cnt) &amp;&amp; cur &lt; end);</span>
+<span class="lineNum">    1412 </span><span class="lineCov">       6260 :         if (curTok==endTok &amp;&amp; cnt==0) return cur-1;</span>
+<span class="lineNum">    1413 </span><span class="lineNoCov">          0 :         return (u32) -1;</span>
+<span class="lineNum">    1414 </span><span class="lineCov">       3130 : }</span>
+<span class="lineNum">    1415 </span>            : 
+<span class="lineNum">    1416 </span>            : 
+<span class="lineNum">    1417 </span>            : void SFE_FunctionCall(ScriptEnc *sc_enc, u32 start, u32 end);
+<span class="lineNum">    1418 </span>            : void SFE_Params(ScriptEnc *sc_enc, u32 start, u32 end);
+<span class="lineNum">    1419 </span>            : void SFE_ConditionTest(ScriptEnc *sc_enc, u32 start, u32 op, u32 end);
+<span class="lineNum">    1420 </span>            : void SFE_ObjectConstruct(ScriptEnc *sc_enc, u32 start, u32 op, u32 end);
+<span class="lineNum">    1421 </span>            : void SFE_ArrayDereference(ScriptEnc *sc_enc, u32 start, u32 op, u32 end);
+<span class="lineNum">    1422 </span>            : void SFE_ObjectMethodCall(ScriptEnc *sc_enc, u32 start, u32 op, u32 end);
+<a name="1423"><span class="lineNum">    1423 </span>            : void SFE_ObjectMemberAccess(ScriptEnc *sc_enc, u32 start, u32 op, u32 end);</a>
+<span class="lineNum">    1424 </span>            : 
+<span class="lineNum">    1425 </span>            : u32 SFE_Expression(ScriptEnc *sc_enc, u32 start, u32 end, Bool memberAccess)
+<span class="lineNum">    1426 </span>            : {
+<span class="lineNum">    1427 </span>            :         char *str;
+<span class="lineNum">    1428 </span>            :         u32 n = start;
+<span class="lineNum">    1429 </span>            :         u32 curPos = 0, finalPos = 0;
+<span class="lineNum">    1430 </span>            :         u32 curTok, prevTok;
+<span class="lineNum">    1431 </span>            :         u32 curExpr = 0, expr = 0;
+<span class="lineNum">    1432 </span>            :         u32 curRank, maxRank=0;
+<span class="lineNum">    1433 </span>            : 
+<span class="lineNum">    1434 </span><span class="lineCov">      28904 :         if (sc_enc-&gt;err) return 0;</span>
+<span class="lineNum">    1435 </span>            : 
+<span class="lineNum">    1436 </span><span class="lineCov">      14452 :         curTok = prevTok = sc_enc-&gt;expr_toks[n];</span>
+<span class="lineNum">    1437 </span><span class="lineCov">      14452 :         do {</span>
+<span class="lineNum">    1438 </span>            :                 curPos = n;
+<span class="lineNum">    1439 </span><span class="lineCov">      59302 :                 switch (curTok) {</span>
+<span class="lineNum">    1440 </span>            :                 case TOK_IDENTIFIER:
+<span class="lineNum">    1441 </span>            :                         curExpr = ET_IDENTIFIER;
+<span class="lineNum">    1442 </span><span class="lineCov">      13282 :                         break;</span>
+<span class="lineNum">    1443 </span>            :                 case TOK_NUMBER:
+<span class="lineNum">    1444 </span>            :                         curExpr = ET_NUMBER;
+<span class="lineNum">    1445 </span><span class="lineCov">       4048 :                         break;</span>
+<span class="lineNum">    1446 </span>            :                 case TOK_BOOLEAN:
+<span class="lineNum">    1447 </span>            :                         curExpr = ET_BOOLEAN;
+<span class="lineNum">    1448 </span><span class="lineCov">        276 :                         break;</span>
+<span class="lineNum">    1449 </span>            :                 case TOK_STRING:
+<span class="lineNum">    1450 </span>            :                         curExpr = ET_STRING;
+<span class="lineNum">    1451 </span><span class="lineCov">        962 :                         break;</span>
+<span class="lineNum">    1452 </span>            :                 case TOK_LEFT_CURVE:
+<span class="lineNum">    1453 </span><span class="lineCov">       1344 :                         if (prevTok == TOK_IDENTIFIER) curExpr = ET_FUNCTION_CALL;</span>
+<span class="lineNum">    1454 </span>            :                         else curExpr = ET_CURVED_EXPR;
+<span class="lineNum">    1455 </span><span class="lineCov">        946 :                         n = MoveToToken(sc_enc, TOK_RIGHT_CURVE, n, end);</span>
+<span class="lineNum">    1456 </span>            :                         curTok = TOK_RIGHT_CURVE;
+<span class="lineNum">    1457 </span><span class="lineCov">        946 :                         break;</span>
+<span class="lineNum">    1458 </span>            :                 case TOK_LEFT_BRACKET:
+<span class="lineNum">    1459 </span>            :                         curExpr = ET_ARRAY_DEREFERENCE;
+<span class="lineNum">    1460 </span><span class="lineCov">       1542 :                         n = MoveToToken(sc_enc, TOK_RIGHT_BRACKET, n, end);</span>
+<span class="lineNum">    1461 </span>            :                         curTok = TOK_RIGHT_BRACKET;
+<span class="lineNum">    1462 </span><span class="lineCov">       1542 :                         break;</span>
+<span class="lineNum">    1463 </span>            :                 case TOK_PERIOD:
+<span class="lineNum">    1464 </span><span class="lineCov">       2790 :                         curTok = sc_enc-&gt;expr_toks[++n];</span>
+<span class="lineNum">    1465 </span><span class="lineCov">       2790 :                         CHECK_TOK(TOK_IDENTIFIER);</span>
+<span class="lineNum">    1466 </span><span class="lineCov">       2790 :                         if (sc_enc-&gt;expr_toks[n+1] == TOK_LEFT_CURVE) {</span>
+<span class="lineNum">    1467 </span>            :                                 curExpr = ET_OBJECT_METHOD_CALL;
+<span class="lineNum">    1468 </span><span class="lineCov">        246 :                                 n = MoveToToken(sc_enc, TOK_RIGHT_CURVE, n+1, end);</span>
+<span class="lineNum">    1469 </span>            :                                 curTok = TOK_RIGHT_CURVE;
+<span class="lineNum">    1470 </span><span class="lineCov">        246 :                         } else {</span>
+<span class="lineNum">    1471 </span>            :                                 curExpr = ET_OBJECT_MEMBER_ACCESS;
+<span class="lineNum">    1472 </span>            :                         }
+<span class="lineNum">    1473 </span>            :                         break;
+<span class="lineNum">    1474 </span>            :                 case TOK_NEW:
+<span class="lineNum">    1475 </span>            :                         curExpr = ET_NEW;
+<span class="lineNum">    1476 </span><span class="lineCov">        236 :                         curTok = sc_enc-&gt;expr_toks[++n];</span>
+<span class="lineNum">    1477 </span><span class="lineCov">        236 :                         CHECK_TOK(TOK_IDENTIFIER);</span>
+<span class="lineNum">    1478 </span><span class="lineCov">        236 :                         curTok = sc_enc-&gt;expr_toks[++n];</span>
+<span class="lineNum">    1479 </span><span class="lineCov">        236 :                         CHECK_TOK(TOK_LEFT_CURVE);</span>
+<span class="lineNum">    1480 </span><span class="lineCov">        236 :                         n = MoveToToken(sc_enc, TOK_RIGHT_CURVE, n, end);</span>
+<span class="lineNum">    1481 </span>            :                         curTok = TOK_RIGHT_CURVE;
+<span class="lineNum">    1482 </span><span class="lineCov">        236 :                         break;</span>
+<span class="lineNum">    1483 </span>            :                 case TOK_FUNCTION:
+<span class="lineNum">    1484 </span>            :                         curExpr = ET_FUNCTION_ASSIGN;
+<span class="lineNum">    1485 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1486 </span>            :                 case TOK_PLUS:
+<span class="lineNum">    1487 </span>            :                         if (
+<span class="lineNum">    1488 </span><span class="lineCov">       5448 :                             prevTok==TOK_RIGHT_CURVE || prevTok==TOK_RIGHT_BRACKET ||</span>
+<span class="lineNum">    1489 </span><span class="lineCov">       1816 :                             prevTok==TOK_IDENTIFIER || prevTok==TOK_NUMBER ||</span>
+<span class="lineNum">    1490 </span><span class="lineCov">       1816 :                             prevTok==TOK_STRING || prevTok==TOK_INCREMENT ||</span>
+<span class="lineNum">    1491 </span><span class="lineCov">        908 :                             prevTok==TOK_DECREMENT</span>
+<span class="lineNum">    1492 </span>            :                         ) {
+<span class="lineNum">    1493 </span>            :                                 curExpr = ET_PLUS;
+<span class="lineNum">    1494 </span>            :                         } else {
+<span class="lineNum">    1495 </span>            :                                 goto skip_token;
+<span class="lineNum">    1496 </span>            :                         }
+<span class="lineNum">    1497 </span><span class="lineCov">        906 :                         break;</span>
+<span class="lineNum">    1498 </span>            :                 case TOK_MINUS:
+<span class="lineNum">    1499 </span>            :                         if (
+<span class="lineNum">    1500 </span><span class="lineCov">       3864 :                             prevTok==TOK_RIGHT_CURVE || prevTok==TOK_RIGHT_BRACKET ||</span>
+<span class="lineNum">    1501 </span><span class="lineCov">       1288 :                             prevTok==TOK_IDENTIFIER || prevTok==TOK_NUMBER ||</span>
+<span class="lineNum">    1502 </span><span class="lineCov">       1288 :                             prevTok==TOK_STRING || prevTok==TOK_INCREMENT ||</span>
+<span class="lineNum">    1503 </span><span class="lineCov">        644 :                             prevTok==TOK_DECREMENT</span>
+<span class="lineNum">    1504 </span>            :                         ) {
+<span class="lineNum">    1505 </span>            :                                 curExpr = ET_MINUS;
+<span class="lineNum">    1506 </span><span class="lineCov">        322 :                         } else {</span>
+<span class="lineNum">    1507 </span>            :                                 curExpr = ET_NEGATIVE;
+<span class="lineNum">    1508 </span>            :                                 curTok = TOK_NEGATIVE;
+<span class="lineNum">    1509 </span>            :                         }
+<span class="lineNum">    1510 </span>            :                         break;
+<span class="lineNum">    1511 </span>            :                 case TOK_INCREMENT:
+<span class="lineNum">    1512 </span>            :                         curExpr = ET_INCREMENT;
+<span class="lineNum">    1513 </span><span class="lineCov">        158 :                         break;</span>
+<span class="lineNum">    1514 </span>            :                 case TOK_DECREMENT:
+<span class="lineNum">    1515 </span>            :                         curExpr = ET_DECREMENT;
+<span class="lineNum">    1516 </span><span class="lineCov">         30 :                         break;</span>
+<span class="lineNum">    1517 </span>            :                 case TOK_NOT:
+<span class="lineNum">    1518 </span>            :                         curExpr = ET_NOT;
+<span class="lineNum">    1519 </span><span class="lineCov">        168 :                         break;</span>
+<span class="lineNum">    1520 </span>            :                 case TOK_ONESCOMP:
+<span class="lineNum">    1521 </span>            :                         curExpr = ET_ONESCOMP;
+<span class="lineNum">    1522 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1523 </span>            :                 case TOK_CONDTEST:
+<span class="lineNum">    1524 </span>            :                         curExpr = ET_CONDTEST;
+<span class="lineNum">    1525 </span><span class="lineCov">         18 :                         break;</span>
+<span class="lineNum">    1526 </span>            :                 case TOK_CONDSEP:
+<span class="lineNum">    1527 </span>            :                         break;
+<span class="lineNum">    1528 </span>            :                 case TOK_LEFT_BRACE:
+<span class="lineNum">    1529 </span>            :                         curExpr = ET_CURVED_EXPR;
+<span class="lineNum">    1530 </span><span class="lineNoCov">          0 :                         n = MoveToToken(sc_enc, TOK_RIGHT_BRACE, n, end);</span>
+<span class="lineNum">    1531 </span>            :                         curTok = TOK_RIGHT_BRACE;
+<span class="lineNum">    1532 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1533 </span>            :                         break;
+<span class="lineNum">    1534 </span>            :                 default:
+<span class="lineNum">    1535 </span>            : 
+<span class="lineNum">    1536 </span><span class="lineCov">       3636 :                         if (curTok &amp;&amp; (curTok != TOK_VAR)</span>
+<span class="lineNum">    1537 </span><span class="lineCov">       3632 :                                 &amp;&amp; (curTok &lt; TOK_MULTIPLY || curTok &gt; TOK_OREQ)) {</span>
+<span class="lineNum">    1538 </span><span class="lineCov">          4 :                                 GF_LOG(GF_LOG_ERROR, GF_LOG_CODING, (&quot;[bifs] Script encoding: illegal token %s read\n&quot;, tok_names[curTok]));</span>
+<span class="lineNum">    1539 </span><span class="lineCov">          2 :                                 sc_enc-&gt;err = GF_BAD_PARAM;</span>
+<span class="lineNum">    1540 </span><span class="lineCov">          2 :                                 return 0;</span>
+<span class="lineNum">    1541 </span>            :                         }
+<span class="lineNum">    1542 </span><span class="lineCov">       3634 :                         curExpr = TOK_To_ET(curTok);</span>
+<span class="lineNum">    1543 </span><span class="lineCov">       3634 :                 }</span>
+<span class="lineNum">    1544 </span>            : 
+<span class="lineNum">    1545 </span><span class="lineCov">      29658 :                 if (curTok == TOK_CONDSEP) {</span>
+<span class="lineNum">    1546 </span>            :                         prevTok = curTok;
+<span class="lineNum">    1547 </span><span class="lineCov">         18 :                         curTok = sc_enc-&gt;expr_toks[++n];</span>
+<span class="lineNum">    1548 </span><span class="lineCov">         18 :                         continue;</span>
+<span class="lineNum">    1549 </span>            :                 }
+<span class="lineNum">    1550 </span><span class="lineCov">      29640 :                 curRank = ET_Rank[curExpr];</span>
+<span class="lineNum">    1551 </span><span class="lineCov">      29640 :                 if (curRank &gt; maxRank) {</span>
+<span class="lineNum">    1552 </span>            :                         maxRank = curRank;
+<span class="lineNum">    1553 </span>            :                         expr = curExpr;
+<span class="lineNum">    1554 </span>            :                         finalPos = curPos;
+<span class="lineNum">    1555 </span><span class="lineCov">      44902 :                 } else if (curRank == maxRank &amp;&amp; ET_leftAssoc[curRank]) {</span>
+<span class="lineNum">    1556 </span>            :                         expr = curExpr;
+<span class="lineNum">    1557 </span>            :                         finalPos = curPos;
+<span class="lineNum">    1558 </span><span class="lineCov">      15238 :                 }</span>
+<span class="lineNum">    1559 </span><span class="lineCov">      29640 :                 prevTok = curTok;</span>
+<span class="lineNum">    1560 </span>            : skip_token:
+<span class="lineNum">    1561 </span><span class="lineCov">      29642 :                 curTok = sc_enc-&gt;expr_toks[++n];</span>
+<span class="lineNum">    1562 </span><span class="lineCov">      59302 :         } while (n&lt;end);</span>
+<span class="lineNum">    1563 </span>            : 
+<span class="lineNum">    1564 </span><span class="lineCov">      14450 :         if (expr == ET_INCREMENT) {</span>
+<span class="lineNum">    1565 </span><span class="lineCov">        156 :                 if (finalPos==start) {}</span>
+<span class="lineNum">    1566 </span><span class="lineCov">        146 :                 else if (finalPos==end-1) expr = ET_POST_INCREMENT;</span>
+<span class="lineNum">    1567 </span>            :                 else {
+<span class="lineNum">    1568 </span><span class="lineNoCov">          0 :                         GF_LOG(GF_LOG_ERROR, GF_LOG_CODING, (&quot;[bifs] Script encoding: illegal Increment expression\n&quot;));</span>
+<span class="lineNum">    1569 </span><span class="lineNoCov">          0 :                         sc_enc-&gt;err = GF_BAD_PARAM;</span>
+<span class="lineNum">    1570 </span><span class="lineNoCov">          0 :                         return expr;</span>
+<span class="lineNum">    1571 </span>            :                 }
+<span class="lineNum">    1572 </span><span class="lineCov">      14294 :         } else if (expr == ET_DECREMENT) {</span>
+<span class="lineNum">    1573 </span><span class="lineCov">         28 :                 if (finalPos==start) {}</span>
+<span class="lineNum">    1574 </span><span class="lineCov">         26 :                 else if (finalPos==end-1) expr = ET_POST_DECREMENT;</span>
+<span class="lineNum">    1575 </span>            :                 else {
+<span class="lineNum">    1576 </span><span class="lineNoCov">          0 :                         GF_LOG(GF_LOG_ERROR, GF_LOG_CODING, (&quot;[bifs] Script encoding: illegal Decrement expression\n&quot;));</span>
+<span class="lineNum">    1577 </span><span class="lineNoCov">          0 :                         sc_enc-&gt;err = GF_BAD_PARAM;</span>
+<span class="lineNum">    1578 </span><span class="lineNoCov">          0 :                         return expr;</span>
+<span class="lineNum">    1579 </span>            :                 }
+<span class="lineNum">    1580 </span>            :         }
+<span class="lineNum">    1581 </span>            : 
+<span class="lineNum">    1582 </span><span class="lineCov">      28454 :         SFE_WRITE_INT(sc_enc, expr, NUMBITS_EXPR_TYPE, &quot;expressionType&quot;, (char *) expr_name[expr]);</span>
+<span class="lineNum">    1583 </span>            : 
+<span class="lineNum">    1584 </span><span class="lineCov">      14462 :         switch (expr) {</span>
+<span class="lineNum">    1585 </span>            :         case ET_MULTIPLY:
+<span class="lineNum">    1586 </span>            :         case ET_DIVIDE:
+<span class="lineNum">    1587 </span>            :         case ET_MOD:
+<span class="lineNum">    1588 </span>            :         case ET_PLUS:
+<span class="lineNum">    1589 </span>            :         case ET_MINUS:
+<span class="lineNum">    1590 </span>            :         case ET_LSHIFT:
+<span class="lineNum">    1591 </span>            :         case ET_RSHIFT:
+<span class="lineNum">    1592 </span>            :         case ET_RSHIFTFILL:
+<span class="lineNum">    1593 </span>            :         case ET_LT:
+<span class="lineNum">    1594 </span>            :         case ET_LE:
+<span class="lineNum">    1595 </span>            :         case ET_GT:
+<span class="lineNum">    1596 </span>            :         case ET_GE:
+<span class="lineNum">    1597 </span>            :         case ET_EQ:
+<span class="lineNum">    1598 </span>            :         case ET_NE:
+<span class="lineNum">    1599 </span>            :         case ET_AND:
+<span class="lineNum">    1600 </span>            :         case ET_XOR:
+<span class="lineNum">    1601 </span>            :         case ET_OR:
+<span class="lineNum">    1602 </span>            :         case ET_LAND:
+<span class="lineNum">    1603 </span>            :         case ET_LOR:
+<span class="lineNum">    1604 </span><span class="lineCov">       1854 :                 SFE_Expression(sc_enc, start, finalPos, GF_FALSE);</span>
+<span class="lineNum">    1605 </span><span class="lineCov">       1854 :                 SFE_Expression(sc_enc, finalPos+1, end, GF_FALSE);</span>
+<span class="lineNum">    1606 </span><span class="lineCov">       1854 :                 break;</span>
+<span class="lineNum">    1607 </span>            :         case ET_ASSIGN:
+<span class="lineNum">    1608 </span>            :         case ET_PLUSEQ:
+<span class="lineNum">    1609 </span>            :         case ET_MINUSEQ:
+<span class="lineNum">    1610 </span>            :         case ET_MULTIPLYEQ:
+<span class="lineNum">    1611 </span>            :         case ET_DIVIDEEQ:
+<span class="lineNum">    1612 </span>            :         case ET_MODEQ:
+<span class="lineNum">    1613 </span>            :         case ET_LSHIFTEQ:
+<span class="lineNum">    1614 </span>            :         case ET_RSHIFTEQ:
+<span class="lineNum">    1615 </span>            :         case ET_RSHIFTFILLEQ:
+<span class="lineNum">    1616 </span>            :         case ET_ANDEQ:
+<span class="lineNum">    1617 </span>            :         case ET_XOREQ:
+<span class="lineNum">    1618 </span>            :         case ET_OREQ:
+<span class="lineNum">    1619 </span>            :         {
+<span class="lineNum">    1620 </span><span class="lineCov">       1850 :                 u32 ret = SFE_Expression(sc_enc, start, finalPos, GF_FALSE);</span>
+<span class="lineNum">    1621 </span><span class="lineCov">       1850 :                 if ( ret != ET_IDENTIFIER &amp;&amp; ret != ET_OBJECT_MEMBER_ACCESS &amp;&amp; ret != ET_ARRAY_DEREFERENCE ) {</span>
+<span class="lineNum">    1622 </span><span class="lineNoCov">          0 :                         GF_LOG(GF_LOG_ERROR, GF_LOG_CODING, (&quot;[bifs] Script encoding: LeftVariable expected, %s returned\n&quot;, expr_name[ret]));</span>
+<span class="lineNum">    1623 </span><span class="lineNoCov">          0 :                         sc_enc-&gt;err = GF_BAD_PARAM;</span>
+<span class="lineNum">    1624 </span><span class="lineNoCov">          0 :                         return expr;</span>
+<span class="lineNum">    1625 </span>            :                 }
+<span class="lineNum">    1626 </span><span class="lineCov">       1850 :                 SFE_Expression(sc_enc, finalPos+1, end, GF_FALSE);</span>
+<span class="lineNum">    1627 </span><span class="lineCov">       1850 :         }</span>
+<span class="lineNum">    1628 </span>            :         break;
+<span class="lineNum">    1629 </span>            : 
+<span class="lineNum">    1630 </span>            :         case ET_IDENTIFIER:
+<span class="lineNum">    1631 </span><span class="lineCov">       5410 :                 str = (char *)gf_list_get(sc_enc-&gt;id_buf, 0);</span>
+<span class="lineNum">    1632 </span><span class="lineCov">       5410 :                 gf_list_rem(sc_enc-&gt;id_buf, 0);</span>
+<span class="lineNum">    1633 </span>            :                 /*TODO: when accessing member, we should try to translate proto fields into _fieldALL when not
+<span class="lineNum">    1634 </span>            :                 using USENAMEs...*/
+<span class="lineNum">    1635 </span>            :                 if (memberAccess) {
+<span class="lineNum">    1636 </span>            :                 }
+<span class="lineNum">    1637 </span><span class="lineCov">       5410 :                 SFE_PutIdentifier(sc_enc, str);</span>
+<span class="lineNum">    1638 </span><span class="lineCov">       5410 :                 gf_free(str);</span>
+<span class="lineNum">    1639 </span><span class="lineCov">       5410 :                 break;</span>
+<span class="lineNum">    1640 </span>            :         case ET_NUMBER:
+<span class="lineNum">    1641 </span><span class="lineCov">       1908 :                 str = (char *)gf_list_get(sc_enc-&gt;id_buf, 0);</span>
+<span class="lineNum">    1642 </span><span class="lineCov">       1908 :                 gf_list_rem(sc_enc-&gt;id_buf, 0);</span>
+<span class="lineNum">    1643 </span><span class="lineCov">       1908 :                 SFE_PutNumber(sc_enc, str);</span>
+<span class="lineNum">    1644 </span><span class="lineCov">       1908 :                 gf_free(str);</span>
+<span class="lineNum">    1645 </span><span class="lineCov">       1908 :                 break;</span>
+<span class="lineNum">    1646 </span>            :         case ET_BOOLEAN:
+<span class="lineNum">    1647 </span><span class="lineCov">        150 :                 str = (char *)gf_list_get(sc_enc-&gt;id_buf, 0);</span>
+<span class="lineNum">    1648 </span><span class="lineCov">        150 :                 gf_list_rem(sc_enc-&gt;id_buf, 0);</span>
+<span class="lineNum">    1649 </span><span class="lineCov">        150 :                 SFE_PutBoolean(sc_enc, str);</span>
+<span class="lineNum">    1650 </span><span class="lineCov">        150 :                 gf_free(str);</span>
+<span class="lineNum">    1651 </span><span class="lineCov">        150 :                 break;</span>
+<span class="lineNum">    1652 </span>            :         case ET_VAR:
+<span class="lineNum">    1653 </span><span class="lineCov">         12 :                 while (1) {</span>
+<span class="lineNum">    1654 </span><span class="lineCov">         16 :                         str = (char *)gf_list_get(sc_enc-&gt;id_buf, 0);</span>
+<span class="lineNum">    1655 </span><span class="lineCov">         16 :                         if (!str) break;</span>
+<span class="lineNum">    1656 </span><span class="lineCov">         12 :                         gf_list_rem(sc_enc-&gt;id_buf, 0);</span>
+<span class="lineNum">    1657 </span><span class="lineCov">         12 :                         GF_BIFS_WRITE_INT(sc_enc-&gt;codec, sc_enc-&gt;bs, 1, 1, &quot;hasArgument&quot;, NULL);</span>
+<span class="lineNum">    1658 </span><span class="lineCov">         12 :                         SFE_PutIdentifier(sc_enc, str);</span>
+<span class="lineNum">    1659 </span><span class="lineCov">         12 :                         gf_free(str);</span>
+<span class="lineNum">    1660 </span>            :                 }
+<span class="lineNum">    1661 </span><span class="lineCov">          4 :                 GF_BIFS_WRITE_INT(sc_enc-&gt;codec, sc_enc-&gt;bs, 0, 1, &quot;hasArgument&quot;, NULL);</span>
+<span class="lineNum">    1662 </span>            :                 break;
+<span class="lineNum">    1663 </span>            :         case ET_STRING:
+<span class="lineNum">    1664 </span><span class="lineCov">        410 :                 str = (char *)gf_list_get(sc_enc-&gt;id_buf, 0);</span>
+<span class="lineNum">    1665 </span><span class="lineCov">        410 :                 gf_list_rem(sc_enc-&gt;id_buf, 0);</span>
+<span class="lineNum">    1666 </span><span class="lineCov">        790 :                 if (!sc_enc-&gt;emul) gf_bifs_enc_name(sc_enc-&gt;codec, sc_enc-&gt;bs, str);</span>
+<span class="lineNum">    1667 </span><span class="lineCov">        410 :                 gf_free(str);</span>
+<span class="lineNum">    1668 </span><span class="lineCov">        410 :                 break;</span>
+<span class="lineNum">    1669 </span>            :         case ET_NEGATIVE:
+<span class="lineNum">    1670 </span>            :         case ET_INCREMENT:
+<span class="lineNum">    1671 </span>            :         case ET_DECREMENT:
+<span class="lineNum">    1672 </span>            :         case ET_NOT:
+<span class="lineNum">    1673 </span>            :         case ET_ONESCOMP:
+<span class="lineNum">    1674 </span><span class="lineCov">        294 :                 SFE_Expression(sc_enc, finalPos+1, end, GF_FALSE);</span>
+<span class="lineNum">    1675 </span><span class="lineCov">        294 :                 break;</span>
+<span class="lineNum">    1676 </span>            :         case ET_CURVED_EXPR:
+<span class="lineNum">    1677 </span><span class="lineCov">        206 :                 SFE_CompoundExpression(sc_enc, finalPos+1, end-1, 0);</span>
+<span class="lineNum">    1678 </span><span class="lineCov">        206 :                 break;</span>
+<span class="lineNum">    1679 </span>            :         case ET_POST_INCREMENT :
+<span class="lineNum">    1680 </span>            :         case ET_POST_DECREMENT :
+<span class="lineNum">    1681 </span><span class="lineCov">        172 :                 SFE_Expression(sc_enc, start, finalPos, GF_FALSE);</span>
+<span class="lineNum">    1682 </span><span class="lineCov">        172 :                 break;</span>
+<span class="lineNum">    1683 </span>            :         case ET_FUNCTION_CALL:
+<span class="lineNum">    1684 </span><span class="lineCov">        314 :                 SFE_FunctionCall(sc_enc, start, end);</span>
+<span class="lineNum">    1685 </span><span class="lineCov">        314 :                 break;</span>
+<span class="lineNum">    1686 </span>            :         case ET_OBJECT_MEMBER_ACCESS :
+<span class="lineNum">    1687 </span><span class="lineCov">       1016 :                 SFE_ObjectMemberAccess(sc_enc, start, finalPos, end);</span>
+<span class="lineNum">    1688 </span><span class="lineCov">       1016 :                 break;</span>
+<span class="lineNum">    1689 </span>            :         case ET_OBJECT_METHOD_CALL:
+<span class="lineNum">    1690 </span><span class="lineCov">        114 :                 SFE_ObjectMethodCall(sc_enc, start, finalPos, end);</span>
+<span class="lineNum">    1691 </span><span class="lineCov">        114 :                 break;</span>
+<span class="lineNum">    1692 </span>            :         case ET_ARRAY_DEREFERENCE:
+<span class="lineNum">    1693 </span><span class="lineCov">        616 :                 SFE_ArrayDereference(sc_enc, start, finalPos, end);</span>
+<span class="lineNum">    1694 </span><span class="lineCov">        616 :                 break;</span>
+<span class="lineNum">    1695 </span>            :         case ET_NEW:
+<span class="lineNum">    1696 </span><span class="lineCov">        118 :                 SFE_ObjectConstruct(sc_enc, start, finalPos, end);</span>
+<span class="lineNum">    1697 </span><span class="lineCov">        118 :                 break;</span>
+<span class="lineNum">    1698 </span>            :         case ET_CONDTEST:
+<span class="lineNum">    1699 </span><span class="lineCov">         14 :                 SFE_ConditionTest(sc_enc, start, finalPos, end);</span>
+<span class="lineNum">    1700 </span><span class="lineCov">         14 :                 break;</span>
+<span class="lineNum">    1701 </span>            :         case ET_FUNCTION_ASSIGN:
+<span class="lineNum">    1702 </span><span class="lineNoCov">          0 :                 SFE_NextToken(sc_enc);</span>
+<span class="lineNum">    1703 </span><span class="lineNoCov">          0 :                 SFE_CheckToken(sc_enc, TOK_LEFT_CURVE);</span>
+<span class="lineNum">    1704 </span>            : 
+<span class="lineNum">    1705 </span><span class="lineNoCov">          0 :                 SFE_Arguments(sc_enc);</span>
+<span class="lineNum">    1706 </span><span class="lineNoCov">          0 :                 SFE_StatementBlock(sc_enc);</span>
+<span class="lineNum">    1707 </span><span class="lineNoCov">          0 :                 SFE_NextToken(sc_enc);</span>
+<span class="lineNum">    1708 </span><span class="lineNoCov">          0 :                 SFE_CheckToken(sc_enc, TOK_SEMICOLON);</span>
+<span class="lineNum">    1709 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">    1710 </span>            :         default:
+<span class="lineNum">    1711 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_CODING, (&quot;[bifs] Script encoding: illegal expression type %s\n&quot;, expr_name[expr]));</span>
+<span class="lineNum">    1712 </span><span class="lineNoCov">          0 :                 sc_enc-&gt;err = GF_BAD_PARAM;</span>
+<span class="lineNum">    1713 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">    1714 </span>            :         }
+<span class="lineNum">    1715 </span><span class="lineCov">      14450 :         return expr;</span>
+<span class="lineNum">    1716 </span><span class="lineCov">      14452 : }</span>
+<a name="1717"><span class="lineNum">    1717 </span>            : </a>
+<span class="lineNum">    1718 </span>            : 
+<span class="lineNum">    1719 </span>            : void SFE_FunctionCall(ScriptEnc *sc_enc, u32 start, u32 end)
+<span class="lineNum">    1720 </span>            : {
+<span class="lineNum">    1721 </span>            :         u32 curTok;
+<span class="lineNum">    1722 </span>            :         char *str;
+<span class="lineNum">    1723 </span><span class="lineCov">        628 :         curTok = sc_enc-&gt;expr_toks[start++];</span>
+<span class="lineNum">    1724 </span><span class="lineCov">        314 :         CHECK_TOK(TOK_IDENTIFIER);</span>
+<span class="lineNum">    1725 </span><span class="lineCov">        314 :         str = (char *)gf_list_get(sc_enc-&gt;id_buf, 0);</span>
+<span class="lineNum">    1726 </span><span class="lineCov">        314 :         gf_list_rem(sc_enc-&gt;id_buf, 0);</span>
+<span class="lineNum">    1727 </span><span class="lineCov">        314 :         SFE_PutIdentifier(sc_enc, str);</span>
+<span class="lineNum">    1728 </span><span class="lineCov">        314 :         gf_free(str);</span>
+<span class="lineNum">    1729 </span><span class="lineCov">        314 :         curTok = sc_enc-&gt;expr_toks[start++];</span>
+<span class="lineNum">    1730 </span><span class="lineCov">        314 :         CHECK_TOK(TOK_LEFT_CURVE);</span>
+<span class="lineNum">    1731 </span><span class="lineCov">        314 :         SFE_Params(sc_enc, start, end-1);</span>
+<span class="lineNum">    1732 </span><span class="lineCov">        314 :         curTok = sc_enc-&gt;expr_toks[end-1];</span>
+<span class="lineNum">    1733 </span><span class="lineCov">        314 :         CHECK_TOK(TOK_RIGHT_CURVE);</span>
+<a name="1734"><span class="lineNum">    1734 </span><span class="lineCov">        314 : }</span></a>
+<span class="lineNum">    1735 </span>            : 
+<span class="lineNum">    1736 </span>            : void SFE_ObjectMemberAccess(ScriptEnc *sc_enc, u32 start, u32 op, u32 end)
+<span class="lineNum">    1737 </span>            : {
+<span class="lineNum">    1738 </span>            :         u32 curTok;
+<span class="lineNum">    1739 </span>            :         char *str;
+<span class="lineNum">    1740 </span>            : 
+<span class="lineNum">    1741 </span><span class="lineCov">       2032 :         SFE_Expression(sc_enc, start, op, GF_TRUE);</span>
+<span class="lineNum">    1742 </span><span class="lineCov">       1016 :         curTok = sc_enc-&gt;expr_toks[op];</span>
+<span class="lineNum">    1743 </span><span class="lineCov">       1016 :         CHECK_TOK(TOK_PERIOD);</span>
+<span class="lineNum">    1744 </span><span class="lineCov">       1016 :         curTok = sc_enc-&gt;expr_toks[end-1];</span>
+<span class="lineNum">    1745 </span><span class="lineCov">       1016 :         CHECK_TOK(TOK_IDENTIFIER);</span>
+<span class="lineNum">    1746 </span><span class="lineCov">       1016 :         str = (char *)gf_list_get(sc_enc-&gt;id_buf, 0);</span>
+<span class="lineNum">    1747 </span><span class="lineCov">       1016 :         gf_list_rem(sc_enc-&gt;id_buf, 0);</span>
+<span class="lineNum">    1748 </span><span class="lineCov">       1016 :         SFE_PutIdentifier(sc_enc, str);</span>
+<span class="lineNum">    1749 </span><span class="lineCov">       1016 :         gf_free(str);</span>
+<a name="1750"><span class="lineNum">    1750 </span><span class="lineCov">       1016 : }</span></a>
+<span class="lineNum">    1751 </span>            : 
+<span class="lineNum">    1752 </span>            : void SFE_ObjectMethodCall(ScriptEnc *sc_enc, u32 start, u32 op, u32 end)
+<span class="lineNum">    1753 </span>            : {
+<span class="lineNum">    1754 </span>            :         u32 curTok;
+<span class="lineNum">    1755 </span>            :         char *str;
+<span class="lineNum">    1756 </span>            : 
+<span class="lineNum">    1757 </span><span class="lineCov">        228 :         SFE_Expression(sc_enc, start, op, GF_FALSE);</span>
+<span class="lineNum">    1758 </span><span class="lineCov">        114 :         curTok = sc_enc-&gt;expr_toks[op];</span>
+<span class="lineNum">    1759 </span><span class="lineCov">        114 :         CHECK_TOK(TOK_PERIOD);</span>
+<span class="lineNum">    1760 </span><span class="lineCov">        114 :         curTok = sc_enc-&gt;expr_toks[op+1];</span>
+<span class="lineNum">    1761 </span><span class="lineCov">        114 :         CHECK_TOK(TOK_IDENTIFIER);</span>
+<span class="lineNum">    1762 </span><span class="lineCov">        114 :         str = (char *)gf_list_get(sc_enc-&gt;id_buf, 0);</span>
+<span class="lineNum">    1763 </span><span class="lineCov">        114 :         gf_list_rem(sc_enc-&gt;id_buf, 0);</span>
+<span class="lineNum">    1764 </span><span class="lineCov">        114 :         SFE_PutIdentifier(sc_enc, str);</span>
+<span class="lineNum">    1765 </span><span class="lineCov">        114 :         gf_free(str);</span>
+<span class="lineNum">    1766 </span><span class="lineCov">        114 :         curTok = sc_enc-&gt;expr_toks[op+2];</span>
+<span class="lineNum">    1767 </span><span class="lineCov">        114 :         CHECK_TOK(TOK_LEFT_CURVE);</span>
+<span class="lineNum">    1768 </span><span class="lineCov">        114 :         SFE_Params(sc_enc, op+3, end-1);</span>
+<span class="lineNum">    1769 </span><span class="lineCov">        114 :         curTok = sc_enc-&gt;expr_toks[end-1];</span>
+<span class="lineNum">    1770 </span><span class="lineCov">        114 :         CHECK_TOK(TOK_RIGHT_CURVE);</span>
+<a name="1771"><span class="lineNum">    1771 </span><span class="lineCov">        114 : }</span></a>
+<span class="lineNum">    1772 </span>            : 
+<span class="lineNum">    1773 </span>            : void SFE_ArrayDereference(ScriptEnc *sc_enc, u32 start, u32 op, u32 end)
+<span class="lineNum">    1774 </span>            : {
+<span class="lineNum">    1775 </span>            :         u32 curTok;
+<span class="lineNum">    1776 </span>            : 
+<span class="lineNum">    1777 </span><span class="lineCov">       1232 :         SFE_Expression(sc_enc, start, op, GF_FALSE);</span>
+<span class="lineNum">    1778 </span><span class="lineCov">        616 :         curTok = sc_enc-&gt;expr_toks[op];</span>
+<span class="lineNum">    1779 </span><span class="lineCov">        616 :         CHECK_TOK(TOK_LEFT_BRACKET);</span>
+<span class="lineNum">    1780 </span><span class="lineCov">        616 :         SFE_CompoundExpression(sc_enc, op+1, end-1, 0);</span>
+<span class="lineNum">    1781 </span><span class="lineCov">        616 :         curTok = sc_enc-&gt;expr_toks[end-1];</span>
+<span class="lineNum">    1782 </span><span class="lineCov">        616 :         CHECK_TOK(TOK_RIGHT_BRACKET);</span>
+<a name="1783"><span class="lineNum">    1783 </span><span class="lineCov">        616 : }</span></a>
+<span class="lineNum">    1784 </span>            : 
+<span class="lineNum">    1785 </span>            : void SFE_ObjectConstruct(ScriptEnc *sc_enc, u32 start, u32 op, u32 end)
+<span class="lineNum">    1786 </span>            : {
+<span class="lineNum">    1787 </span>            :         u32 curTok;
+<span class="lineNum">    1788 </span>            :         char *str;
+<span class="lineNum">    1789 </span>            : 
+<span class="lineNum">    1790 </span><span class="lineCov">        236 :         curTok = sc_enc-&gt;expr_toks[start++];</span>
+<span class="lineNum">    1791 </span><span class="lineCov">        118 :         CHECK_TOK(TOK_NEW);</span>
+<span class="lineNum">    1792 </span><span class="lineCov">        118 :         curTok = sc_enc-&gt;expr_toks[start++];</span>
+<span class="lineNum">    1793 </span><span class="lineCov">        118 :         CHECK_TOK(TOK_IDENTIFIER);</span>
+<span class="lineNum">    1794 </span><span class="lineCov">        118 :         str = (char *)gf_list_get(sc_enc-&gt;id_buf, 0);</span>
+<span class="lineNum">    1795 </span><span class="lineCov">        118 :         gf_list_rem(sc_enc-&gt;id_buf, 0);</span>
+<span class="lineNum">    1796 </span><span class="lineCov">        118 :         SFE_PutIdentifier(sc_enc, str);</span>
+<span class="lineNum">    1797 </span><span class="lineCov">        118 :         gf_free(str);</span>
+<span class="lineNum">    1798 </span><span class="lineCov">        118 :         curTok = sc_enc-&gt;expr_toks[start++];</span>
+<span class="lineNum">    1799 </span><span class="lineCov">        118 :         CHECK_TOK(TOK_LEFT_CURVE);</span>
+<span class="lineNum">    1800 </span><span class="lineCov">        118 :         SFE_Params(sc_enc, start, end-1);</span>
+<span class="lineNum">    1801 </span><span class="lineCov">        118 :         curTok = sc_enc-&gt;expr_toks[end-1];</span>
+<span class="lineNum">    1802 </span><span class="lineCov">        118 :         CHECK_TOK(TOK_RIGHT_CURVE);</span>
+<a name="1803"><span class="lineNum">    1803 </span><span class="lineCov">        118 : }</span></a>
+<span class="lineNum">    1804 </span>            : 
+<span class="lineNum">    1805 </span>            : void SFE_ConditionTest(ScriptEnc *sc_enc, u32 start, u32 op, u32 end)
+<span class="lineNum">    1806 </span>            : {
+<span class="lineNum">    1807 </span>            :         u32 curTok;
+<span class="lineNum">    1808 </span>            : 
+<span class="lineNum">    1809 </span><span class="lineCov">         28 :         SFE_Expression(sc_enc, start, op, GF_FALSE);</span>
+<span class="lineNum">    1810 </span><span class="lineCov">         14 :         curTok = sc_enc-&gt;expr_toks[op];</span>
+<span class="lineNum">    1811 </span><span class="lineCov">         14 :         CHECK_TOK(TOK_CONDTEST);</span>
+<span class="lineNum">    1812 </span><span class="lineCov">         14 :         start = op+1;</span>
+<span class="lineNum">    1813 </span><span class="lineCov">         14 :         op = MoveToToken(sc_enc, TOK_CONDSEP, op, end-1);</span>
+<span class="lineNum">    1814 </span><span class="lineCov">         14 :         SFE_Expression(sc_enc, start, op, GF_FALSE);</span>
+<span class="lineNum">    1815 </span><span class="lineCov">         14 :         curTok = sc_enc-&gt;expr_toks[op];</span>
+<span class="lineNum">    1816 </span><span class="lineCov">         14 :         CHECK_TOK(TOK_CONDSEP);</span>
+<span class="lineNum">    1817 </span><span class="lineCov">         14 :         SFE_Expression(sc_enc, op+1, end, GF_FALSE);</span>
+<a name="1818"><span class="lineNum">    1818 </span><span class="lineCov">         14 : }</span></a>
+<span class="lineNum">    1819 </span>            : 
+<span class="lineNum">    1820 </span>            : void SFE_Params(ScriptEnc *sc_enc, u32 start, u32 end)
+<span class="lineNum">    1821 </span>            : {
+<span class="lineNum">    1822 </span>            :         u32 curTok;
+<span class="lineNum">    1823 </span>            : 
+<span class="lineNum">    1824 </span><span class="lineCov">       1092 :         curTok = sc_enc-&gt;expr_toks[start];</span>
+<span class="lineNum">    1825 </span><span class="lineCov">       1092 :         if (curTok != TOK_RIGHT_CURVE) {</span>
+<span class="lineNum">    1826 </span><span class="lineCov">       1428 :                 SFE_WRITE_INT(sc_enc, 1, 1, &quot;hasParam&quot;, NULL);</span>
+<span class="lineNum">    1827 </span><span class="lineCov">        450 :                 SFE_CompoundExpression(sc_enc, start, end, 1);</span>
+<span class="lineNum">    1828 </span><span class="lineCov">        450 :         } else {</span>
+<span class="lineNum">    1829 </span><span class="lineCov">        192 :                 SFE_WRITE_INT(sc_enc, 0, 1, &quot;hasParam&quot;, NULL);</span>
+<span class="lineNum">    1830 </span>            :         }
+<span class="lineNum">    1831 </span><span class="lineCov">        546 : }</span>
+<span class="lineNum">    1832 </span>            : 
+<span class="lineNum">    1833 </span>            : #endif  /* !defined(GPAC_DISABLE_BIFS) &amp;&amp; !defined(GPAC_DISABLE_BIFS_ENC) &amp;&amp; defined(GPAC_HAS_SPIDERMONKEY) */
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

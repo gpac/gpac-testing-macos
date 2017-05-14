@@ -1,0 +1,30 @@
+*** shvc logs (GPAC version 0.6.2-DEV-revUNKNOWN-HEAD ) - test date 14/05/2017 22:29:26 ***
+
+
+*** Subtest "Split": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/external_media/scalable/shvc.265:svcmode=split -new /Users/travis/build/gpac/gpac/tests/results/temp/shvc-split.mp4" ***
+[32mHEVC import - frame size 1920 x 800 at 25.000 FPS
+[0m[32mLHVC detected - 3840 x 1600 at 25.000 FPS
+[0m[32mHEVC Import results: 502 samples (2013 NALUs) - Slices: 11 I 117 P 876 B - 1004 SEI - 1 IDR
+[0m[32mStream uses forward prediction - stream CTS offset: 3 frames
+[0m[32mOpenGOP detected - adjusting file brand
+[0mSaving /Users/travis/build/gpac/gpac/tests/results/temp/shvc-split.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "Merge": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/results/temp/shvc-split.mp4:svcmode=merge -new /Users/travis/build/gpac/gpac/tests/results/temp/shvc-merge.mp4" ***
+[32mIsoMedia import shvc-split.mp4 - track ID 1 - Video (size 0 x 0)
+[0m[32mIsoMedia import shvc-split.mp4 - track ID 2 - Video (size 0 x 0)
+[0mSaving /Users/travis/build/gpac/gpac/tests/results/temp/shvc-merge.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+Same Hash for /Users/travis/build/gpac/gpac/tests/results/temp/shvc.mp4 and /Users/travis/build/gpac/gpac/tests/results/temp/shvc-merge.mp4
+
+*** Subtest "dash": executing "MP4Box -noprog -for-test  -mem-track -dash 1000 /Users/travis/build/gpac/gpac/tests/results/temp/shvc-split.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/shvc.mpd" ***
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m

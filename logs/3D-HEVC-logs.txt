@@ -1,0 +1,13 @@
+*** 3D-HEVC logs (GPAC version 0.6.2-DEV-revUNKNOWN-HEAD ) - test date 14/05/2017 22:10:02 ***
+
+
+*** Subtest "import": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/external_media/3D-HEVC/stream_bbb.bit:fmt=HEVC -new /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4" ***
+[32mHEVC import - frame size 1920 x 1080 at 25.000 FPS
+[0m[32mLHVC detected - 1920 x 1080 at 25.000 FPS
+[0m[32mHEVC Import results: 762 samples (1528 NALUs) - Slices: 25 I 24 P 1474 B - 0 SEI - 25 IDR
+[0m[32mStream uses forward prediction - stream CTS offset: 10 frames
+[0mSaving /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m

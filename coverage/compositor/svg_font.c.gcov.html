@@ -1,0 +1,639 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - compositor/svg_font.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">compositor</a> - svg_font.c<span style="font-size: 80%;"> (source / <a href="svg_font.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">312</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-05-14 22:31:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">13</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *                      GPAC - Multimedia Framework C SDK
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *                      Authors: Jean Le Feuvre
+<span class="lineNum">       5 </span>            :  *                      Copyright (c) Telecom ParisTech 2007-2012
+<span class="lineNum">       6 </span>            :  *                                      All rights reserved
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  *  This file is part of GPAC / Scene Compositor sub-project
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  *  GPAC is free software; you can redistribute it and/or modify
+<span class="lineNum">      11 </span>            :  *  it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">      12 </span>            :  *  the Free Software Foundation; either version 2, or (at your option)
+<span class="lineNum">      13 </span>            :  *  any later version.
+<span class="lineNum">      14 </span>            :  *
+<span class="lineNum">      15 </span>            :  *  GPAC is distributed in the hope that it will be useful,
+<span class="lineNum">      16 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      17 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      18 </span>            :  *  GNU Lesser General Public License for more details.
+<span class="lineNum">      19 </span>            :  *
+<span class="lineNum">      20 </span>            :  *  You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      21 </span>            :  *  License along with this library; see the file COPYING.  If not, write to
+<span class="lineNum">      22 </span>            :  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+<span class="lineNum">      23 </span>            :  *
+<span class="lineNum">      24 </span>            :  */
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : #include &lt;gpac/utf.h&gt;
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span>            : #ifndef GPAC_DISABLE_SVG
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : #include &quot;visual_manager.h&quot;
+<span class="lineNum">      31 </span>            : #include &quot;nodes_stacks.h&quot;
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span>            : typedef struct
+<span class="lineNum">      34 </span>            : {
+<span class="lineNum">      35 </span>            :         u16 *unicode;
+<span class="lineNum">      36 </span>            :         u16 uni_len;
+<span class="lineNum">      37 </span>            : 
+<span class="lineNum">      38 </span>            :         GF_Glyph glyph;
+<span class="lineNum">      39 </span>            :         GF_Font *font;
+<span class="lineNum">      40 </span>            : } SVG_GlyphStack;
+<span class="lineNum">      41 </span>            : 
+<a name="42"><span class="lineNum">      42 </span>            : </a>
+<span class="lineNum">      43 </span>            : /*translate string to glyph sequence*/
+<span class="lineNum">      44 </span>            : static GF_Err svg_font_get_glyphs(void *udta, const char *utf_string, u32 *glyph_buffer, u32 *io_glyph_buffer_size, const char *lang, Bool *is_rtl)
+<span class="lineNum">      45 </span>            : {
+<span class="lineNum">      46 </span>            :         u32 prev_c;
+<span class="lineNum">      47 </span>            :         size_t len;
+<span class="lineNum">      48 </span>            :         u32 i, gl_idx;
+<span class="lineNum">      49 </span>            :         u16 *utf_res;
+<span class="lineNum">      50 </span><span class="lineNoCov">          0 :         GF_Node *node = (GF_Node *)udta;</span>
+<span class="lineNum">      51 </span>            :         GF_ChildNodeItem *child;
+<span class="lineNum">      52 </span><span class="lineNoCov">          0 :         char *utf8 = (char*) utf_string;</span>
+<span class="lineNum">      53 </span>            : 
+<span class="lineNum">      54 </span>            :         /*FIXME - use glyphs unicode attributes for glyph substitution*/
+<span class="lineNum">      55 </span><span class="lineNoCov">          0 :         len = utf_string ? (u32) strlen(utf_string) : 0;</span>
+<span class="lineNum">      56 </span><span class="lineNoCov">          0 :         if (!len) {</span>
+<span class="lineNum">      57 </span><span class="lineNoCov">          0 :                 *io_glyph_buffer_size = 0;</span>
+<span class="lineNum">      58 </span><span class="lineNoCov">          0 :                 return GF_OK;</span>
+<span class="lineNum">      59 </span>            :         }
+<span class="lineNum">      60 </span>            : 
+<span class="lineNum">      61 </span><span class="lineNoCov">          0 :         if (*io_glyph_buffer_size &lt; len+1) {</span>
+<span class="lineNum">      62 </span><span class="lineNoCov">          0 :                 *io_glyph_buffer_size = (u32) len+1;</span>
+<span class="lineNum">      63 </span><span class="lineNoCov">          0 :                 return GF_BUFFER_TOO_SMALL;</span>
+<span class="lineNum">      64 </span>            :         }
+<span class="lineNum">      65 </span>            : 
+<span class="lineNum">      66 </span><span class="lineNoCov">          0 :         len = gf_utf8_mbstowcs((u16*) glyph_buffer, *io_glyph_buffer_size, (const char**)&amp;utf8);</span>
+<span class="lineNum">      67 </span><span class="lineNoCov">          0 :         if (len == (size_t) -1) return GF_IO_ERR;</span>
+<span class="lineNum">      68 </span>            :         /*should not happen*/
+<span class="lineNum">      69 </span><span class="lineNoCov">          0 :         if (utf8) return GF_IO_ERR;</span>
+<span class="lineNum">      70 </span>            : 
+<span class="lineNum">      71 </span>            :         /*perform bidi relayout*/
+<span class="lineNum">      72 </span>            :         utf_res = (u16 *) glyph_buffer;
+<span class="lineNum">      73 </span><span class="lineNoCov">          0 :         *is_rtl = gf_utf8_reorder_bidi(utf_res, (u32) len);</span>
+<span class="lineNum">      74 </span>            : 
+<span class="lineNum">      75 </span>            :         /*move 16bit buffer to 32bit*/
+<span class="lineNum">      76 </span><span class="lineNoCov">          0 :         for (i=(u32)len; i&gt;0; i--) {</span>
+<span class="lineNum">      77 </span><span class="lineNoCov">          0 :                 glyph_buffer[i-1] = utf_res[i-1];</span>
+<span class="lineNum">      78 </span>            :         }
+<span class="lineNum">      79 </span>            : 
+<span class="lineNum">      80 </span>            :         gl_idx = 0;
+<span class="lineNum">      81 </span>            :         prev_c = 0;
+<span class="lineNum">      82 </span><span class="lineNoCov">          0 :         for (i=0; i&lt;len; i++) {</span>
+<span class="lineNum">      83 </span>            :                 SVG_GlyphStack *missing_glyph = NULL;
+<span class="lineNum">      84 </span>            :                 SVG_GlyphStack *st = NULL;
+<span class="lineNum">      85 </span><span class="lineNoCov">          0 :                 child = ((GF_ParentNode *) node)-&gt;children;</span>
+<span class="lineNum">      86 </span><span class="lineNoCov">          0 :                 while (child) {</span>
+<span class="lineNum">      87 </span><span class="lineNoCov">          0 :                         u32 tag = gf_node_get_tag(child-&gt;node);</span>
+<span class="lineNum">      88 </span><span class="lineNoCov">          0 :                         if (tag==TAG_SVG_missing_glyph) {</span>
+<span class="lineNum">      89 </span><span class="lineNoCov">          0 :                                 missing_glyph = gf_node_get_private(child-&gt;node);</span>
+<span class="lineNum">      90 </span><span class="lineNoCov">          0 :                         } else if (tag ==TAG_SVG_glyph) {</span>
+<span class="lineNum">      91 </span>            :                                 Bool glyph_ok = 0;
+<span class="lineNum">      92 </span><span class="lineNoCov">          0 :                                 SVGAllAttributes atts;</span>
+<span class="lineNum">      93 </span>            : 
+<span class="lineNum">      94 </span><span class="lineNoCov">          0 :                                 st = gf_node_get_private(child-&gt;node);</span>
+<span class="lineNum">      95 </span><span class="lineNoCov">          0 :                                 if (!st) {</span>
+<span class="lineNum">      96 </span><span class="lineNoCov">          0 :                                         child = child-&gt;next;</span>
+<span class="lineNum">      97 </span><span class="lineNoCov">          0 :                                         continue;</span>
+<span class="lineNum">      98 </span>            :                                 }
+<span class="lineNum">      99 </span>            : 
+<span class="lineNum">     100 </span><span class="lineNoCov">          0 :                                 if (st-&gt;glyph.utf_name==glyph_buffer[i]) {</span>
+<span class="lineNum">     101 </span>            :                                         u32 j, count;
+<span class="lineNum">     102 </span><span class="lineNoCov">          0 :                                         gf_svg_flatten_attributes((SVG_Element*)child-&gt;node, &amp;atts);</span>
+<span class="lineNum">     103 </span><span class="lineNoCov">          0 :                                         if (!lang) {</span>
+<span class="lineNum">     104 </span>            :                                                 glyph_ok = 1;
+<span class="lineNum">     105 </span><span class="lineNoCov">          0 :                                         } else {</span>
+<span class="lineNum">     106 </span><span class="lineNoCov">          0 :                                                 if (!atts.lang) {</span>
+<span class="lineNum">     107 </span>            :                                                         glyph_ok = 1;
+<span class="lineNum">     108 </span><span class="lineNoCov">          0 :                                                 } else {</span>
+<span class="lineNum">     109 </span><span class="lineNoCov">          0 :                                                         count = gf_list_count(*atts.lang);</span>
+<span class="lineNum">     110 </span><span class="lineNoCov">          0 :                                                         for (j=0; j&lt;count; j++) {</span>
+<span class="lineNum">     111 </span><span class="lineNoCov">          0 :                                                                 char *name = gf_list_get(*atts.lang, j);</span>
+<span class="lineNum">     112 </span><span class="lineNoCov">          0 :                                                                 if (!stricmp(name, lang) || strstr(lang, name)) {</span>
+<span class="lineNum">     113 </span>            :                                                                         glyph_ok = 1;
+<span class="lineNum">     114 </span><span class="lineNoCov">          0 :                                                                         break;</span>
+<span class="lineNum">     115 </span>            :                                                                 }
+<span class="lineNum">     116 </span><span class="lineNoCov">          0 :                                                         }</span>
+<span class="lineNum">     117 </span>            :                                                 }
+<span class="lineNum">     118 </span>            :                                         }
+<span class="lineNum">     119 </span><span class="lineNoCov">          0 :                                         if (atts.arabic_form) {</span>
+<span class="lineNum">     120 </span><span class="lineNoCov">          0 :                                                 Bool first = (!prev_c || (prev_c==' ')) ? 1 : 0;</span>
+<span class="lineNum">     121 </span><span class="lineNoCov">          0 :                                                 Bool last = ((i+1==len) || (glyph_buffer[i+1]==' ') ) ? 1 : 0;</span>
+<span class="lineNum">     122 </span><span class="lineNoCov">          0 :                                                 if (!strcmp(*atts.arabic_form, &quot;isolated&quot;)) {</span>
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 :                                                         if (!first || !last) glyph_ok = 0;</span>
+<span class="lineNum">     124 </span>            :                                                 }
+<span class="lineNum">     125 </span><span class="lineNoCov">          0 :                                                 if (!strcmp(*atts.arabic_form, &quot;initial&quot;)) {</span>
+<span class="lineNum">     126 </span><span class="lineNoCov">          0 :                                                         if (!first) glyph_ok = 0;</span>
+<span class="lineNum">     127 </span>            :                                                 }
+<span class="lineNum">     128 </span><span class="lineNoCov">          0 :                                                 if (!strcmp(*atts.arabic_form, &quot;medial&quot;)) {</span>
+<span class="lineNum">     129 </span><span class="lineNoCov">          0 :                                                         if (first || last) glyph_ok = 0;</span>
+<span class="lineNum">     130 </span>            :                                                 }
+<span class="lineNum">     131 </span><span class="lineNoCov">          0 :                                                 if (!strcmp(*atts.arabic_form, &quot;terminal&quot;)) {</span>
+<span class="lineNum">     132 </span><span class="lineNoCov">          0 :                                                         if (!last) glyph_ok = 0;</span>
+<span class="lineNum">     133 </span>            :                                                 }
+<span class="lineNum">     134 </span><span class="lineNoCov">          0 :                                         }</span>
+<span class="lineNum">     135 </span><span class="lineNoCov">          0 :                                         if (glyph_ok) break;</span>
+<span class="lineNum">     136 </span><span class="lineNoCov">          0 :                                 }</span>
+<span class="lineNum">     137 </span>            :                                 /*perform glyph substitution*/
+<span class="lineNum">     138 </span><span class="lineNoCov">          0 :                                 else if (st-&gt;uni_len&gt;1) {</span>
+<span class="lineNum">     139 </span>            :                                         u32 j;
+<span class="lineNum">     140 </span><span class="lineNoCov">          0 :                                         for (j=0; j&lt;st-&gt;uni_len; j++) {</span>
+<span class="lineNum">     141 </span><span class="lineNoCov">          0 :                                                 if (i+j&gt;=len) break;</span>
+<span class="lineNum">     142 </span><span class="lineNoCov">          0 :                                                 if (glyph_buffer[i+j] != st-&gt;unicode[j]) break;</span>
+<span class="lineNum">     143 </span>            :                                         }
+<span class="lineNum">     144 </span><span class="lineNoCov">          0 :                                         if (j==st-&gt;uni_len)</span>
+<span class="lineNum">     145 </span><span class="lineNoCov">          0 :                                                 break;</span>
+<span class="lineNum">     146 </span><span class="lineNoCov">          0 :                                 }</span>
+<span class="lineNum">     147 </span>            :                                 st = NULL;
+<span class="lineNum">     148 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     149 </span><span class="lineNoCov">          0 :                         child = child-&gt;next;</span>
+<span class="lineNum">     150 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     151 </span><span class="lineNoCov">          0 :                 prev_c = glyph_buffer[i];</span>
+<span class="lineNum">     152 </span>            : 
+<span class="lineNum">     153 </span><span class="lineNoCov">          0 :                 if (!st)</span>
+<span class="lineNum">     154 </span><span class="lineNoCov">          0 :                         st = missing_glyph;</span>
+<span class="lineNum">     155 </span><span class="lineNoCov">          0 :                 glyph_buffer[gl_idx] = st ? st-&gt;glyph.ID : 0;</span>
+<span class="lineNum">     156 </span><span class="lineNoCov">          0 :                 if (st &amp;&amp; st-&gt;uni_len&gt;1) i++;</span>
+<span class="lineNum">     157 </span>            : 
+<span class="lineNum">     158 </span><span class="lineNoCov">          0 :                 gl_idx++;</span>
+<span class="lineNum">     159 </span>            :         }
+<span class="lineNum">     160 </span><span class="lineNoCov">          0 :         *io_glyph_buffer_size = /* len = */ gl_idx;</span>
+<span class="lineNum">     161 </span>            : 
+<span class="lineNum">     162 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">     163 </span><span class="lineNoCov">          0 : }</span>
+<a name="164"><span class="lineNum">     164 </span>            : </a>
+<span class="lineNum">     165 </span>            : /*loads glyph by name - returns NULL if glyph cannot be found*/
+<span class="lineNum">     166 </span>            : static GF_Glyph *svg_font_load_glyph(void *udta, u32 glyph_name)
+<span class="lineNum">     167 </span>            : {
+<span class="lineNum">     168 </span><span class="lineNoCov">          0 :         GF_ChildNodeItem *child = ((GF_ParentNode *) udta)-&gt;children;</span>
+<span class="lineNum">     169 </span>            : 
+<span class="lineNum">     170 </span><span class="lineNoCov">          0 :         while (child) {</span>
+<span class="lineNum">     171 </span><span class="lineNoCov">          0 :                 if (gf_node_get_tag(child-&gt;node)==TAG_SVG_glyph) {</span>
+<span class="lineNum">     172 </span><span class="lineNoCov">          0 :                         SVG_GlyphStack *st = gf_node_get_private(child-&gt;node);</span>
+<span class="lineNum">     173 </span><span class="lineNoCov">          0 :                         if (st-&gt;glyph.ID==glyph_name) {</span>
+<span class="lineNum">     174 </span><span class="lineNoCov">          0 :                                 return &amp;st-&gt;glyph;</span>
+<span class="lineNum">     175 </span>            :                         }
+<span class="lineNum">     176 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     177 </span><span class="lineNoCov">          0 :                 child = child-&gt;next;</span>
+<span class="lineNum">     178 </span>            :         }
+<span class="lineNum">     179 </span>            : 
+<span class="lineNum">     180 </span><span class="lineNoCov">          0 :         return NULL;</span>
+<a name="181"><span class="lineNum">     181 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     182 </span>            : 
+<span class="lineNum">     183 </span>            : static void svg_traverse_font(GF_Node *node, void *rs, Bool is_destroy)
+<span class="lineNum">     184 </span>            : {
+<span class="lineNum">     185 </span><span class="lineNoCov">          0 :         if (is_destroy) {</span>
+<span class="lineNum">     186 </span><span class="lineNoCov">          0 :                 GF_Font *font = gf_node_get_private(node);</span>
+<span class="lineNum">     187 </span><span class="lineNoCov">          0 :                 if (font) {</span>
+<span class="lineNum">     188 </span><span class="lineNoCov">          0 :                         gf_font_manager_unregister_font(font-&gt;ft_mgr, font);</span>
+<span class="lineNum">     189 </span><span class="lineNoCov">          0 :                         if (font-&gt;name) gf_free(font-&gt;name);</span>
+<span class="lineNum">     190 </span><span class="lineNoCov">          0 :                         gf_free(font);</span>
+<span class="lineNum">     191 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     192 </span><span class="lineNoCov">          0 :         }</span>
+<a name="193"><span class="lineNum">     193 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     194 </span>            : 
+<span class="lineNum">     195 </span>            : static void svg_font_on_load(GF_Node *handler, GF_DOM_Event *event, GF_Node *observer)
+<span class="lineNum">     196 </span>            : {
+<span class="lineNum">     197 </span>            :         GF_Compositor *compositor;
+<span class="lineNum">     198 </span>            :         GF_Font *font;
+<span class="lineNum">     199 </span>            :         assert(event-&gt;currentTarget-&gt;ptr_type==GF_DOM_EVENT_TARGET_NODE);
+<span class="lineNum">     200 </span>            :         assert(gf_node_get_tag((GF_Node*)event-&gt;currentTarget-&gt;ptr)==TAG_SVG_font);
+<span class="lineNum">     201 </span><span class="lineNoCov">          0 :         font = gf_node_get_private((GF_Node*)event-&gt;currentTarget-&gt;ptr);</span>
+<span class="lineNum">     202 </span><span class="lineNoCov">          0 :         font-&gt;not_loaded = 0;</span>
+<span class="lineNum">     203 </span><span class="lineNoCov">          0 :         compositor = (GF_Compositor *)gf_node_get_private((GF_Node *)handler);</span>
+<span class="lineNum">     204 </span>            : 
+<span class="lineNum">     205 </span>            :         /*brute-force signaling that all fonts have changed and texts must be recomputed*/
+<span class="lineNum">     206 </span><span class="lineNoCov">          0 :         compositor-&gt;reset_fonts = 1;</span>
+<span class="lineNum">     207 </span><span class="lineNoCov">          0 :         gf_sc_next_frame_state(compositor, GF_SC_DRAW_FRAME);</span>
+<span class="lineNum">     208 </span><span class="lineNoCov">          0 :         compositor-&gt;fonts_pending--;</span>
+<a name="209"><span class="lineNum">     209 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     210 </span>            : 
+<span class="lineNum">     211 </span>            : void compositor_init_svg_font(GF_Compositor *compositor, GF_Node *node)
+<span class="lineNum">     212 </span>            : {
+<span class="lineNum">     213 </span>            :         SVG_handlerElement *handler;
+<span class="lineNum">     214 </span>            :         GF_Err e;
+<span class="lineNum">     215 </span><span class="lineNoCov">          0 :         SVGAllAttributes atts;</span>
+<span class="lineNum">     216 </span>            :         GF_Font *font;
+<span class="lineNum">     217 </span><span class="lineNoCov">          0 :         GF_Node *node_font = gf_node_get_parent(node, 0);</span>
+<span class="lineNum">     218 </span><span class="lineNoCov">          0 :         if (!node_font) return;</span>
+<span class="lineNum">     219 </span>            : 
+<span class="lineNum">     220 </span><span class="lineNoCov">          0 :         if (gf_node_get_tag(node_font)!=TAG_SVG_font) return;</span>
+<span class="lineNum">     221 </span>            : 
+<span class="lineNum">     222 </span><span class="lineNoCov">          0 :         gf_svg_flatten_attributes((SVG_Element*)node, &amp;atts);</span>
+<span class="lineNum">     223 </span><span class="lineNoCov">          0 :         if (!atts.font_family) return;</span>
+<span class="lineNum">     224 </span>            : 
+<span class="lineNum">     225 </span>            :         /*register font to font manager*/
+<span class="lineNum">     226 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(font, GF_Font);</span>
+<span class="lineNum">     227 </span><span class="lineNoCov">          0 :         if (!font) {</span>
+<span class="lineNum">     228 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_COMPOSE, (&quot;[Compositor] Failed to allocate svg font\n&quot;));</span>
+<span class="lineNum">     229 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     230 </span>            :         }
+<span class="lineNum">     231 </span><span class="lineNoCov">          0 :         e = gf_font_manager_register_font(compositor-&gt;font_manager, font);</span>
+<span class="lineNum">     232 </span><span class="lineNoCov">          0 :         if (e) {</span>
+<span class="lineNum">     233 </span><span class="lineNoCov">          0 :                 gf_free(font);</span>
+<span class="lineNum">     234 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     235 </span>            :         }
+<span class="lineNum">     236 </span><span class="lineNoCov">          0 :         font-&gt;ft_mgr = compositor-&gt;font_manager;</span>
+<span class="lineNum">     237 </span>            : 
+<span class="lineNum">     238 </span><span class="lineNoCov">          0 :         font-&gt;get_glyphs = svg_font_get_glyphs;</span>
+<span class="lineNum">     239 </span><span class="lineNoCov">          0 :         font-&gt;load_glyph = svg_font_load_glyph;</span>
+<span class="lineNum">     240 </span><span class="lineNoCov">          0 :         font-&gt;udta = node_font;</span>
+<span class="lineNum">     241 </span><span class="lineNoCov">          0 :         gf_node_set_private(node_font, font);</span>
+<span class="lineNum">     242 </span><span class="lineNoCov">          0 :         gf_node_set_callback_function(node_font, svg_traverse_font);</span>
+<span class="lineNum">     243 </span><span class="lineNoCov">          0 :         font-&gt;name = gf_strdup(atts.font_family-&gt;value);</span>
+<span class="lineNum">     244 </span>            : 
+<span class="lineNum">     245 </span><span class="lineNoCov">          0 :         font-&gt;em_size = atts.units_per_em ? FIX2INT( gf_ceil(atts.units_per_em-&gt;value) ) : 1000;</span>
+<span class="lineNum">     246 </span>            :         /*Inconsistency between SVG 1.2 and 1.1
+<span class="lineNum">     247 </span>            :                 when not specify, ascent and descent are computed based on font.vert-origin-y, WHICH DOES NOT EXIST
+<span class="lineNum">     248 </span>            :         IN Tiny 1.2 !!! We assume it to be 0.
+<span class="lineNum">     249 </span>            :         */
+<span class="lineNum">     250 </span><span class="lineNoCov">          0 :         font-&gt;ascent = atts.ascent ? FIX2INT( gf_ceil(atts.ascent-&gt;value) ) : 0;</span>
+<span class="lineNum">     251 </span><span class="lineNoCov">          0 :         if (!font-&gt;ascent) font-&gt;ascent = font-&gt;em_size;</span>
+<span class="lineNum">     252 </span><span class="lineNoCov">          0 :         font-&gt;descent = atts.descent ? FIX2INT( gf_ceil(atts.descent-&gt;value) ) : 0;</span>
+<span class="lineNum">     253 </span><span class="lineNoCov">          0 :         font-&gt;baseline = atts.alphabetic ? FIX2INT( gf_ceil(atts.alphabetic-&gt;value) ) : 0;</span>
+<span class="lineNum">     254 </span><span class="lineNoCov">          0 :         font-&gt;line_spacing = font-&gt;em_size;</span>
+<span class="lineNum">     255 </span><span class="lineNoCov">          0 :         font-&gt;styles = 0;</span>
+<span class="lineNum">     256 </span><span class="lineNoCov">          0 :         if (atts.font_style) {</span>
+<span class="lineNum">     257 </span><span class="lineNoCov">          0 :                 switch (*atts.font_style) {</span>
+<span class="lineNum">     258 </span>            :                 case SVG_FONTSTYLE_ITALIC:
+<span class="lineNum">     259 </span><span class="lineNoCov">          0 :                         font-&gt;styles |= GF_FONT_ITALIC;</span>
+<span class="lineNum">     260 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     261 </span>            :                 case SVG_FONTSTYLE_OBLIQUE:
+<span class="lineNum">     262 </span><span class="lineNoCov">          0 :                         font-&gt;styles |= GF_FONT_OBLIQUE;</span>
+<span class="lineNum">     263 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     264 </span>            :                 }
+<span class="lineNum">     265 </span>            :         }
+<span class="lineNum">     266 </span><span class="lineNoCov">          0 :         if (atts.font_variant &amp;&amp; (*atts.font_variant ==SVG_FONTVARIANT_SMALLCAPS))</span>
+<span class="lineNum">     267 </span><span class="lineNoCov">          0 :                 font-&gt;styles |= GF_FONT_SMALLCAPS;</span>
+<span class="lineNum">     268 </span>            : 
+<span class="lineNum">     269 </span><span class="lineNoCov">          0 :         if (atts.font_weight) {</span>
+<span class="lineNum">     270 </span><span class="lineNoCov">          0 :                 switch(*atts.font_weight) {</span>
+<span class="lineNum">     271 </span>            :                 case SVG_FONTWEIGHT_100:
+<span class="lineNum">     272 </span><span class="lineNoCov">          0 :                         font-&gt;styles |= GF_FONT_WEIGHT_100;</span>
+<span class="lineNum">     273 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     274 </span>            :                 case SVG_FONTWEIGHT_LIGHTER:
+<span class="lineNum">     275 </span><span class="lineNoCov">          0 :                         font-&gt;styles |= GF_FONT_WEIGHT_LIGHTER;</span>
+<span class="lineNum">     276 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     277 </span>            :                 case SVG_FONTWEIGHT_200:
+<span class="lineNum">     278 </span><span class="lineNoCov">          0 :                         font-&gt;styles |= GF_FONT_WEIGHT_200;</span>
+<span class="lineNum">     279 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     280 </span>            :                 case SVG_FONTWEIGHT_300:
+<span class="lineNum">     281 </span><span class="lineNoCov">          0 :                         font-&gt;styles |= GF_FONT_WEIGHT_300;</span>
+<span class="lineNum">     282 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     283 </span>            :                 case SVG_FONTWEIGHT_400:
+<span class="lineNum">     284 </span><span class="lineNoCov">          0 :                         font-&gt;styles |= GF_FONT_WEIGHT_400;</span>
+<span class="lineNum">     285 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     286 </span>            :                 case SVG_FONTWEIGHT_NORMAL:
+<span class="lineNum">     287 </span><span class="lineNoCov">          0 :                         font-&gt;styles |= GF_FONT_WEIGHT_NORMAL;</span>
+<span class="lineNum">     288 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     289 </span>            :                 case SVG_FONTWEIGHT_500:
+<span class="lineNum">     290 </span><span class="lineNoCov">          0 :                         font-&gt;styles |= GF_FONT_WEIGHT_500;</span>
+<span class="lineNum">     291 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     292 </span>            :                 case SVG_FONTWEIGHT_600:
+<span class="lineNum">     293 </span><span class="lineNoCov">          0 :                         font-&gt;styles |= GF_FONT_WEIGHT_600;</span>
+<span class="lineNum">     294 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     295 </span>            :                 case SVG_FONTWEIGHT_700:
+<span class="lineNum">     296 </span><span class="lineNoCov">          0 :                         font-&gt;styles |= GF_FONT_WEIGHT_700;</span>
+<span class="lineNum">     297 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     298 </span>            :                 case SVG_FONTWEIGHT_BOLD:
+<span class="lineNum">     299 </span><span class="lineNoCov">          0 :                         font-&gt;styles |= GF_FONT_WEIGHT_BOLD;</span>
+<span class="lineNum">     300 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     301 </span>            :                 case SVG_FONTWEIGHT_800:
+<span class="lineNum">     302 </span><span class="lineNoCov">          0 :                         font-&gt;styles |= GF_FONT_WEIGHT_800;</span>
+<span class="lineNum">     303 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     304 </span>            :                 case SVG_FONTWEIGHT_900:
+<span class="lineNum">     305 </span><span class="lineNoCov">          0 :                         font-&gt;styles |= GF_FONT_WEIGHT_900;</span>
+<span class="lineNum">     306 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     307 </span>            :                 case SVG_FONTWEIGHT_BOLDER:
+<span class="lineNum">     308 </span><span class="lineNoCov">          0 :                         font-&gt;styles |= GF_FONT_WEIGHT_BOLDER;</span>
+<span class="lineNum">     309 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     310 </span>            :                 }
+<span class="lineNum">     311 </span>            :         }
+<span class="lineNum">     312 </span>            : 
+<span class="lineNum">     313 </span><span class="lineNoCov">          0 :         gf_svg_flatten_attributes((SVG_Element*)node_font, &amp;atts);</span>
+<span class="lineNum">     314 </span><span class="lineNoCov">          0 :         font-&gt;max_advance_h = atts.horiz_adv_x ? FIX2INT( gf_ceil(atts.horiz_adv_x-&gt;value) ) : 0;</span>
+<span class="lineNum">     315 </span>            : 
+<span class="lineNum">     316 </span><span class="lineNoCov">          0 :         font-&gt;not_loaded = 1;</span>
+<span class="lineNum">     317 </span>            : 
+<span class="lineNum">     318 </span>            :         /*wait for onLoad event before activating the font, otherwise we may not have all the glyphs*/
+<span class="lineNum">     319 </span><span class="lineNoCov">          0 :         handler = gf_dom_listener_build(node_font, GF_EVENT_LOAD, 0);</span>
+<span class="lineNum">     320 </span><span class="lineNoCov">          0 :         handler-&gt;handle_event = svg_font_on_load;</span>
+<span class="lineNum">     321 </span><span class="lineNoCov">          0 :         gf_node_set_private((GF_Node *)handler, compositor);</span>
+<span class="lineNum">     322 </span><span class="lineNoCov">          0 : }</span>
+<a name="323"><span class="lineNum">     323 </span>            : </a>
+<span class="lineNum">     324 </span>            : 
+<span class="lineNum">     325 </span>            : static void svg_traverse_glyph(GF_Node *node, void *rs, Bool is_destroy)
+<span class="lineNum">     326 </span>            : {
+<span class="lineNum">     327 </span><span class="lineNoCov">          0 :         if (is_destroy) {</span>
+<span class="lineNum">     328 </span>            :                 GF_Font *font;
+<span class="lineNum">     329 </span>            :                 GF_Glyph *prev_glyph, *a_glyph;
+<span class="lineNum">     330 </span><span class="lineNoCov">          0 :                 SVG_GlyphStack *st = gf_node_get_private(node);</span>
+<span class="lineNum">     331 </span><span class="lineNoCov">          0 :                 if (st-&gt;unicode) gf_free(st-&gt;unicode);</span>
+<span class="lineNum">     332 </span>            : 
+<span class="lineNum">     333 </span><span class="lineNoCov">          0 :                 font = st-&gt;font;</span>
+<span class="lineNum">     334 </span>            :                 prev_glyph = NULL;
+<span class="lineNum">     335 </span><span class="lineNoCov">          0 :                 a_glyph = font-&gt;glyph;</span>
+<span class="lineNum">     336 </span><span class="lineNoCov">          0 :                 while (a_glyph) {</span>
+<span class="lineNum">     337 </span><span class="lineNoCov">          0 :                         if (a_glyph == &amp;st-&gt;glyph) break;</span>
+<span class="lineNum">     338 </span>            :                         prev_glyph = a_glyph;
+<span class="lineNum">     339 </span><span class="lineNoCov">          0 :                         a_glyph = a_glyph-&gt;next;</span>
+<span class="lineNum">     340 </span>            :                 }
+<span class="lineNum">     341 </span><span class="lineNoCov">          0 :                 if (prev_glyph) {</span>
+<span class="lineNum">     342 </span><span class="lineNoCov">          0 :                         prev_glyph-&gt;next = st-&gt;glyph.next;</span>
+<span class="lineNum">     343 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     344 </span><span class="lineNoCov">          0 :                         font-&gt;glyph = st-&gt;glyph.next;</span>
+<span class="lineNum">     345 </span>            :                 }
+<span class="lineNum">     346 </span><span class="lineNoCov">          0 :                 gf_free(st);</span>
+<span class="lineNum">     347 </span><span class="lineNoCov">          0 :         }</span>
+<a name="348"><span class="lineNum">     348 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     349 </span>            : 
+<span class="lineNum">     350 </span>            : void compositor_init_svg_glyph(GF_Compositor *compositor, GF_Node *node)
+<span class="lineNum">     351 </span>            : {
+<span class="lineNum">     352 </span><span class="lineNoCov">          0 :         u16 utf_name[20];</span>
+<span class="lineNum">     353 </span><span class="lineNoCov">          0 :         u8 *utf8;</span>
+<span class="lineNum">     354 </span>            :         size_t len;
+<span class="lineNum">     355 </span><span class="lineNoCov">          0 :         GF_Rect rc;</span>
+<span class="lineNum">     356 </span>            :         GF_Glyph *glyph;
+<span class="lineNum">     357 </span>            :         GF_Font *font;
+<span class="lineNum">     358 </span>            :         SVG_GlyphStack *st;
+<span class="lineNum">     359 </span><span class="lineNoCov">          0 :         SVGAllAttributes atts;</span>
+<span class="lineNum">     360 </span><span class="lineNoCov">          0 :         GF_Node *node_font = gf_node_get_parent(node, 0);</span>
+<span class="lineNum">     361 </span>            : 
+<span class="lineNum">     362 </span>            :         /*locate the font node*/
+<span class="lineNum">     363 </span><span class="lineNoCov">          0 :         if (node_font) node_font = gf_node_get_parent(node, 0);</span>
+<span class="lineNum">     364 </span><span class="lineNoCov">          0 :         if (!node_font || (gf_node_get_tag(node_font)!=TAG_SVG_font) ) return;</span>
+<span class="lineNum">     365 </span><span class="lineNoCov">          0 :         font = gf_node_get_private(node_font);</span>
+<span class="lineNum">     366 </span><span class="lineNoCov">          0 :         if (!font) return;</span>
+<span class="lineNum">     367 </span>            : 
+<span class="lineNum">     368 </span><span class="lineNoCov">          0 :         gf_svg_flatten_attributes((SVG_Element*)node, &amp;atts);</span>
+<span class="lineNum">     369 </span>            : 
+<span class="lineNum">     370 </span><span class="lineNoCov">          0 :         if (gf_node_get_tag(node)==TAG_SVG_missing_glyph) {</span>
+<span class="lineNum">     371 </span><span class="lineNoCov">          0 :                 GF_SAFEALLOC(st, SVG_GlyphStack);</span>
+<span class="lineNum">     372 </span><span class="lineNoCov">          0 :                 if (!st) return;</span>
+<span class="lineNum">     373 </span>            :                 goto reg_common;
+<span class="lineNum">     374 </span>            :         }
+<span class="lineNum">     375 </span>            :         /*we must have unicode specified*/
+<span class="lineNum">     376 </span><span class="lineNoCov">          0 :         if (!atts.unicode) return;</span>
+<span class="lineNum">     377 </span>            : 
+<span class="lineNum">     378 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(st, SVG_GlyphStack);</span>
+<span class="lineNum">     379 </span><span class="lineNoCov">          0 :         if (!st) return;</span>
+<span class="lineNum">     380 </span><span class="lineNoCov">          0 :         utf8 = (u8 *) *atts.unicode;</span>
+<span class="lineNum">     381 </span><span class="lineNoCov">          0 :         len = gf_utf8_mbstowcs(utf_name, 200, (const char **) &amp;utf8);</span>
+<span class="lineNum">     382 </span>            :         /*this is a single glyph*/
+<span class="lineNum">     383 </span><span class="lineNoCov">          0 :         if (len==1) {</span>
+<span class="lineNum">     384 </span><span class="lineNoCov">          0 :                 st-&gt;glyph.utf_name = utf_name[0];</span>
+<span class="lineNum">     385 </span><span class="lineNoCov">          0 :                 st-&gt;uni_len = 1;</span>
+<span class="lineNum">     386 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     387 </span><span class="lineNoCov">          0 :                 st-&gt;glyph.utf_name = (u32) (PTR_TO_U_CAST st);</span>
+<span class="lineNum">     388 </span><span class="lineNoCov">          0 :                 st-&gt;unicode = gf_malloc(sizeof(u16)*len);</span>
+<span class="lineNum">     389 </span><span class="lineNoCov">          0 :                 st-&gt;uni_len = (u16) len;</span>
+<span class="lineNum">     390 </span><span class="lineNoCov">          0 :                 memcpy(st-&gt;unicode, utf_name, sizeof(u16)*len);</span>
+<span class="lineNum">     391 </span>            :         }
+<span class="lineNum">     392 </span>            : 
+<span class="lineNum">     393 </span>            : reg_common:
+<span class="lineNum">     394 </span><span class="lineNoCov">          0 :         st-&gt;glyph.ID = (u32)(PTR_TO_U_CAST st);</span>
+<span class="lineNum">     395 </span><span class="lineNoCov">          0 :         st-&gt;font = font;</span>
+<span class="lineNum">     396 </span><span class="lineNoCov">          0 :         st-&gt;glyph.horiz_advance = font-&gt;max_advance_h;</span>
+<span class="lineNum">     397 </span><span class="lineNoCov">          0 :         if (atts.horiz_adv_x) st-&gt;glyph.horiz_advance = FIX2INT( gf_ceil(atts.horiz_adv_x-&gt;value) );</span>
+<span class="lineNum">     398 </span><span class="lineNoCov">          0 :         if (atts.d) {</span>
+<span class="lineNum">     399 </span><span class="lineNoCov">          0 :                 st-&gt;glyph.path = atts.d;</span>
+<span class="lineNum">     400 </span><span class="lineNoCov">          0 :                 gf_path_get_bounds(atts.d, &amp;rc);</span>
+<span class="lineNum">     401 </span><span class="lineNoCov">          0 :                 st-&gt;glyph.width = FIX2INT( gf_ceil(rc.width) );</span>
+<span class="lineNum">     402 </span><span class="lineNoCov">          0 :                 st-&gt;glyph.height = FIX2INT( gf_ceil(rc.height) );</span>
+<span class="lineNum">     403 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     404 </span><span class="lineNoCov">          0 :         st-&gt;glyph.vert_advance = st-&gt;glyph.height;</span>
+<span class="lineNum">     405 </span><span class="lineNoCov">          0 :         if (!st-&gt;glyph.vert_advance)</span>
+<span class="lineNum">     406 </span><span class="lineNoCov">          0 :                 st-&gt;glyph.vert_advance = font-&gt;max_advance_v;</span>
+<span class="lineNum">     407 </span>            : 
+<span class="lineNum">     408 </span>            :         /*register glyph*/
+<span class="lineNum">     409 </span><span class="lineNoCov">          0 :         if (!font-&gt;glyph) {</span>
+<span class="lineNum">     410 </span><span class="lineNoCov">          0 :                 font-&gt;glyph = &amp;st-&gt;glyph;</span>
+<span class="lineNum">     411 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     412 </span>            :                 glyph = font-&gt;glyph;
+<span class="lineNum">     413 </span><span class="lineNoCov">          0 :                 while (glyph-&gt;next) glyph = glyph-&gt;next;</span>
+<span class="lineNum">     414 </span><span class="lineNoCov">          0 :                 glyph-&gt;next = &amp;st-&gt;glyph;</span>
+<span class="lineNum">     415 </span>            :         }
+<span class="lineNum">     416 </span>            : 
+<span class="lineNum">     417 </span><span class="lineNoCov">          0 :         gf_node_set_private(node, st);</span>
+<span class="lineNum">     418 </span><span class="lineNoCov">          0 :         gf_node_set_callback_function(node, svg_traverse_glyph);</span>
+<span class="lineNum">     419 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     420 </span>            : 
+<span class="lineNum">     421 </span>            : 
+<span class="lineNum">     422 </span>            : typedef struct
+<span class="lineNum">     423 </span>            : {
+<span class="lineNum">     424 </span>            :         GF_Font *font;
+<span class="lineNum">     425 </span>            :         GF_Font *alias;
+<span class="lineNum">     426 </span>            :         GF_Compositor *compositor;
+<span class="lineNum">     427 </span>            :         GF_MediaObject *mo;
+<a name="428"><span class="lineNum">     428 </span>            : } FontURIStack;</a>
+<span class="lineNum">     429 </span>            : 
+<span class="lineNum">     430 </span>            : static Bool svg_font_uri_check(GF_Node *node, FontURIStack *st)
+<span class="lineNum">     431 </span>            : {
+<span class="lineNum">     432 </span>            :         GF_Font *font;
+<span class="lineNum">     433 </span>            :         GF_Node *font_elt;
+<span class="lineNum">     434 </span><span class="lineNoCov">          0 :         SVGAllAttributes atts;</span>
+<span class="lineNum">     435 </span><span class="lineNoCov">          0 :         gf_svg_flatten_attributes((SVG_Element*)node, &amp;atts);</span>
+<span class="lineNum">     436 </span><span class="lineNoCov">          0 :         if (!atts.xlink_href) return 0;</span>
+<span class="lineNum">     437 </span>            : 
+<span class="lineNum">     438 </span><span class="lineNoCov">          0 :         if (atts.xlink_href-&gt;type == XMLRI_ELEMENTID) {</span>
+<span class="lineNum">     439 </span><span class="lineNoCov">          0 :                 if (!atts.xlink_href-&gt;target) atts.xlink_href-&gt;target = gf_sg_find_node_by_name(gf_node_get_graph(node), atts.xlink_href-&gt;string+1);</span>
+<span class="lineNum">     440 </span>            :         } else {
+<span class="lineNum">     441 </span>            :                 GF_SceneGraph *ext_sg;
+<span class="lineNum">     442 </span><span class="lineNoCov">          0 :                 char *font_name = strchr(atts.xlink_href-&gt;string, '#');</span>
+<span class="lineNum">     443 </span><span class="lineNoCov">          0 :                 if (!font_name) return 0;</span>
+<span class="lineNum">     444 </span><span class="lineNoCov">          0 :                 if (!st-&gt;mo) {</span>
+<span class="lineNum">     445 </span><span class="lineNoCov">          0 :                         st-&gt;mo = gf_mo_load_xlink_resource(node, 0, 0, -1);</span>
+<span class="lineNum">     446 </span><span class="lineNoCov">          0 :                         if (!st-&gt;mo) return 0;</span>
+<span class="lineNum">     447 </span>            :                 }
+<span class="lineNum">     448 </span><span class="lineNoCov">          0 :                 ext_sg = gf_mo_get_scenegraph(st-&gt;mo);</span>
+<span class="lineNum">     449 </span><span class="lineNoCov">          0 :                 if (!ext_sg) return 0;</span>
+<span class="lineNum">     450 </span><span class="lineNoCov">          0 :                 atts.xlink_href-&gt;target = gf_sg_find_node_by_name(ext_sg, font_name+1);</span>
+<span class="lineNum">     451 </span><span class="lineNoCov">          0 :                 if (!atts.xlink_href-&gt;target) return 0;</span>
+<span class="lineNum">     452 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     453 </span><span class="lineNoCov">          0 :         font_elt = atts.xlink_href-&gt;target;</span>
+<span class="lineNum">     454 </span><span class="lineNoCov">          0 :         if (gf_node_get_tag(font_elt) != TAG_SVG_font) return 0;</span>
+<span class="lineNum">     455 </span><span class="lineNoCov">          0 :         font = gf_node_get_private(font_elt);</span>
+<span class="lineNum">     456 </span><span class="lineNoCov">          0 :         if (!font) return 0;</span>
+<span class="lineNum">     457 </span><span class="lineNoCov">          0 :         st-&gt;alias = font;</span>
+<span class="lineNum">     458 </span>            : 
+<span class="lineNum">     459 </span><span class="lineNoCov">          0 :         gf_mo_is_done(st-&gt;mo);</span>
+<span class="lineNum">     460 </span><span class="lineNoCov">          0 :         font-&gt;not_loaded = 0;</span>
+<span class="lineNum">     461 </span><span class="lineNoCov">          0 :         return 1;</span>
+<a name="462"><span class="lineNum">     462 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     463 </span>            : 
+<span class="lineNum">     464 </span>            : GF_Font *svg_font_uri_get_alias(void *udta)
+<span class="lineNum">     465 </span>            : {
+<span class="lineNum">     466 </span><span class="lineNoCov">          0 :         GF_Node *node = (GF_Node *)udta;</span>
+<span class="lineNum">     467 </span><span class="lineNoCov">          0 :         FontURIStack *st = gf_node_get_private(node);</span>
+<span class="lineNum">     468 </span><span class="lineNoCov">          0 :         if (!st-&gt;alias &amp;&amp; !svg_font_uri_check(node, st)) {</span>
+<span class="lineNum">     469 </span><span class="lineNoCov">          0 :                 return NULL;</span>
+<span class="lineNum">     470 </span>            :         }
+<span class="lineNum">     471 </span><span class="lineNoCov">          0 :         return st-&gt;alias;</span>
+<a name="472"><span class="lineNum">     472 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     473 </span>            : 
+<span class="lineNum">     474 </span>            : static GF_Err svg_font_uri_get_glyphs(void *udta, const char *utf_string, u32 *glyph_buffer, u32 *io_glyph_buffer_size, const char *lang, Bool *is_rtl)
+<span class="lineNum">     475 </span>            : {
+<span class="lineNum">     476 </span><span class="lineNoCov">          0 :         return GF_URL_ERROR;</span>
+<a name="477"><span class="lineNum">     477 </span>            : }</a>
+<span class="lineNum">     478 </span>            : 
+<span class="lineNum">     479 </span>            : static GF_Glyph *svg_font_uri_load_glyph(void *udta, u32 glyph_name)
+<span class="lineNum">     480 </span>            : {
+<span class="lineNum">     481 </span><span class="lineNoCov">          0 :         return NULL;</span>
+<a name="482"><span class="lineNum">     482 </span>            : }</a>
+<span class="lineNum">     483 </span>            : 
+<span class="lineNum">     484 </span>            : static void svg_traverse_font_face_uri(GF_Node *node, void *rs, Bool is_destroy)
+<span class="lineNum">     485 </span>            : {
+<span class="lineNum">     486 </span><span class="lineNoCov">          0 :         if (is_destroy) {</span>
+<span class="lineNum">     487 </span><span class="lineNoCov">          0 :                 FontURIStack *st = gf_node_get_private(node);</span>
+<span class="lineNum">     488 </span><span class="lineNoCov">          0 :                 if (st) {</span>
+<span class="lineNum">     489 </span><span class="lineNoCov">          0 :                         gf_font_manager_unregister_font(st-&gt;font-&gt;ft_mgr, st-&gt;font);</span>
+<span class="lineNum">     490 </span><span class="lineNoCov">          0 :                         if (st-&gt;font-&gt;name) gf_free(st-&gt;font-&gt;name);</span>
+<span class="lineNum">     491 </span><span class="lineNoCov">          0 :                         gf_free(st-&gt;font);</span>
+<span class="lineNum">     492 </span><span class="lineNoCov">          0 :                         if (st-&gt;mo) gf_mo_unload_xlink_resource(node, st-&gt;mo);</span>
+<span class="lineNum">     493 </span><span class="lineNoCov">          0 :                         gf_free(st);</span>
+<span class="lineNum">     494 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     495 </span><span class="lineNoCov">          0 :         }</span>
+<a name="496"><span class="lineNum">     496 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     497 </span>            : 
+<span class="lineNum">     498 </span>            : void compositor_init_svg_font_face_uri(GF_Compositor *compositor, GF_Node *node)
+<span class="lineNum">     499 </span>            : {
+<span class="lineNum">     500 </span>            :         GF_Node *par;
+<span class="lineNum">     501 </span>            :         GF_Font *font;
+<span class="lineNum">     502 </span>            :         FontURIStack *stack;
+<span class="lineNum">     503 </span>            :         GF_Err e;
+<span class="lineNum">     504 </span><span class="lineNoCov">          0 :         SVGAllAttributes atts;</span>
+<span class="lineNum">     505 </span>            : 
+<span class="lineNum">     506 </span>            :         /*check parent is a font-face-src*/
+<span class="lineNum">     507 </span><span class="lineNoCov">          0 :         par = gf_node_get_parent(node, 0);</span>
+<span class="lineNum">     508 </span><span class="lineNoCov">          0 :         if (!par || (gf_node_get_tag(par)!=TAG_SVG_font_face_src)) return;</span>
+<span class="lineNum">     509 </span>            :         /*check parent's parent is a font-face*/
+<span class="lineNum">     510 </span><span class="lineNoCov">          0 :         par = gf_node_get_parent(par, 0);</span>
+<span class="lineNum">     511 </span><span class="lineNoCov">          0 :         if (!par || (gf_node_get_tag(par)!=TAG_SVG_font_face)) return;</span>
+<span class="lineNum">     512 </span>            : 
+<span class="lineNum">     513 </span>            : 
+<span class="lineNum">     514 </span><span class="lineNoCov">          0 :         gf_svg_flatten_attributes((SVG_Element*)node, &amp;atts);</span>
+<span class="lineNum">     515 </span><span class="lineNoCov">          0 :         if (!atts.xlink_href) return;</span>
+<span class="lineNum">     516 </span>            : 
+<span class="lineNum">     517 </span>            :         /*get font familly*/
+<span class="lineNum">     518 </span><span class="lineNoCov">          0 :         gf_svg_flatten_attributes((SVG_Element*)par, &amp;atts);</span>
+<span class="lineNum">     519 </span><span class="lineNoCov">          0 :         if (!atts.font_family) return;</span>
+<span class="lineNum">     520 </span>            : 
+<span class="lineNum">     521 </span>            :         /*if font with the same name exists, don't load*/
+<span class="lineNum">     522 </span><span class="lineNoCov">          0 :         if (gf_compositor_svg_set_font(compositor-&gt;font_manager, atts.font_family-&gt;value, 0, 1) != NULL)</span>
+<span class="lineNum">     523 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     524 </span>            : 
+<span class="lineNum">     525 </span>            :         /*register font to font manager*/
+<span class="lineNum">     526 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(font, GF_Font);</span>
+<span class="lineNum">     527 </span><span class="lineNoCov">          0 :         if (!font) {</span>
+<span class="lineNum">     528 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_COMPOSE, (&quot;[Compositor] Failed to allocate font for svg font face URI\n&quot;));</span>
+<span class="lineNum">     529 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     530 </span>            :         }
+<span class="lineNum">     531 </span>            :         
+<span class="lineNum">     532 </span><span class="lineNoCov">          0 :         e = gf_font_manager_register_font(compositor-&gt;font_manager, font);</span>
+<span class="lineNum">     533 </span><span class="lineNoCov">          0 :         if (e) {</span>
+<span class="lineNum">     534 </span><span class="lineNoCov">          0 :                 gf_free(font);</span>
+<span class="lineNum">     535 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     536 </span>            :         }
+<span class="lineNum">     537 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(stack, FontURIStack);</span>
+<span class="lineNum">     538 </span><span class="lineNoCov">          0 :         if (!stack) {</span>
+<span class="lineNum">     539 </span><span class="lineNoCov">          0 :                 gf_free(font);</span>
+<span class="lineNum">     540 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_COMPOSE, (&quot;[Compositor] Failed to allocate svg font face URI stack\n&quot;));</span>
+<span class="lineNum">     541 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     542 </span>            :         }
+<span class="lineNum">     543 </span><span class="lineNoCov">          0 :         stack-&gt;font = font;</span>
+<span class="lineNum">     544 </span><span class="lineNoCov">          0 :         stack-&gt;compositor = compositor;</span>
+<span class="lineNum">     545 </span>            : 
+<span class="lineNum">     546 </span><span class="lineNoCov">          0 :         font-&gt;ft_mgr = compositor-&gt;font_manager;</span>
+<span class="lineNum">     547 </span>            : 
+<span class="lineNum">     548 </span><span class="lineNoCov">          0 :         font-&gt;get_glyphs = svg_font_uri_get_glyphs;</span>
+<span class="lineNum">     549 </span><span class="lineNoCov">          0 :         font-&gt;load_glyph = svg_font_uri_load_glyph;</span>
+<span class="lineNum">     550 </span><span class="lineNoCov">          0 :         font-&gt;get_alias = svg_font_uri_get_alias;</span>
+<span class="lineNum">     551 </span><span class="lineNoCov">          0 :         font-&gt;udta = node;</span>
+<span class="lineNum">     552 </span><span class="lineNoCov">          0 :         font-&gt;name = gf_strdup(atts.font_family-&gt;value);</span>
+<span class="lineNum">     553 </span><span class="lineNoCov">          0 :         gf_node_set_private(node, stack);</span>
+<span class="lineNum">     554 </span><span class="lineNoCov">          0 :         gf_node_set_callback_function(node, svg_traverse_font_face_uri);</span>
+<span class="lineNum">     555 </span>            : 
+<span class="lineNum">     556 </span><span class="lineNoCov">          0 :         font-&gt;not_loaded = 1;</span>
+<span class="lineNum">     557 </span><span class="lineNoCov">          0 :         compositor-&gt;fonts_pending++;</span>
+<span class="lineNum">     558 </span><span class="lineNoCov">          0 :         svg_font_uri_check(node, stack);</span>
+<span class="lineNum">     559 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     560 </span>            : 
+<span class="lineNum">     561 </span>            : 
+<span class="lineNum">     562 </span>            : #endif /*GPAC_DISABLE_SVG*/
+<span class="lineNum">     563 </span>            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

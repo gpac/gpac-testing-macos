@@ -1,0 +1,184 @@
+*** mp4box-base-dump logs (GPAC version 0.6.2-DEV-revUNKNOWN-HEAD ) - test date 14/05/2017 22:26:36 ***
+
+
+*** Subtest "create-mp4": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/media/auxiliary_files/enst_video.h264 -add /Users/travis/build/gpac/gpac/tests/media/auxiliary_files/enst_audio.aac -add /Users/travis/build/gpac/gpac/tests/media/auxiliary_files/subtitle_fr.srt:lang=fra -new /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4" ***
+[32m[avc-h264] Possible Variable Frame Rate: VUI "fixed_frame_rate_flag" absent.
+[0m[32mAVC-H264 import - frame size 128 x 128 at 25.000 FPS
+[0m[32mAVC Import results: 173 samples (178 NALUs) - Slices: 2 I 96 P 75 B - 0 SEI - 2 IDR
+[0m[32mAAC ADTS import  - sample rate 48000 - MPEG-4 audio - 2 channels
+[0m[32mTimed Text (SRT) import - text track 128 x 128, font Serif (size 18)
+[0mSaving /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "InfoTk2": executing "MP4Box -noprog -for-test  -mem-track -info 2 /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4" ***
+Track # 2 Info - TrackID 2 - TimeScale 48000
+Media Duration 00:00:07.040 - Indicated Duration 00:00:07.040
+Media Info: Language "Undetermined (und)" - Type "soun:mp4a" - 330 samples
+Handler name: MediaHandler
+MPEG-4 Config
+	Audio Stream - ObjectTypeIndication 0x40
+	MPEG-4 Audio AAC LC - 2 Channel(s) - SampleRate 48000
+	Decoding Buffer size 297 - Bitrate: avg 94 - max 97 kbps
+	No stream dependencies for decoding
+	StreamPriority 0
+	RFC6381 Codec Parameters: mp4a.40.2
+	All samples are sync
+
+Computed info from media:
+	Total size 82748 bytes - Total samples duration 7018 ms
+	Average rate 94 kbps - Max Rate 97 kbps
+	Chunk durations: min 149 ms - max 512 ms - average 469 ms
+	Chunk sizes (bytes): min 1744 - max 6050 - average 5516
+
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "InfoTk3": executing "MP4Box -noprog -for-test  -mem-track -info 3 /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4" ***
+Track # 3 Info - TrackID 3 - TimeScale 1000
+Media Duration 00:00:10.487 - Indicated Duration 00:00:10.487
+Media Info: Language "French (fra)" - Type "text:tx3g" - 11 samples
+Handler name: MediaHandler
+Unknown Text Stream
+ Size 128 x 128 - Translation X=0 Y=0 - Layer 0
+	RFC6381 Codec Parameters: tx3g
+	All samples are sync
+
+Computed info from media:
+	Total size 216 bytes - Total samples duration 10487 ms
+	Average rate 164 bps - Max Rate 440 bps
+	Chunk durations: min 0 ms - max 2787 ms - average 1048 ms
+	Chunk sizes (bytes): min 2 - max 53 - average 21
+
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "raw-sample": executing "MP4Box -noprog -for-test  -mem-track -raws 1:1 /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/test.tmp" ***
+[33mDumping MPEG-4 AVC-H264 Visual sample 1
+[0m[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "flat-storage": executing "MP4Box -noprog -for-test  -mem-track -flat /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4" ***
+Saving /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4: Flat storage
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "interleave-250ms": executing "MP4Box -noprog -for-test  -mem-track -brand MP4V:1 -ab iso6 -inter 250 /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4" ***
+Saving /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4: 0.250 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "frag-1s": executing "MP4Box -noprog -for-test  -mem-track -rb iso6 -frag 1000 /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4" ***
+Fragmenting file (1.000 seconds fragments)
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "create-dref-mp4": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4 -dref -new /Users/travis/build/gpac/gpac/tests/results/temp/dref.mp4" ***
+[32mIsoMedia import test.mp4 - track ID 1 - Video (size 128 x 128)
+[0m[32mIsoMedia import test.mp4 - track ID 2 - Audio (SR 48000 - 2 channels)
+[0m[32mIsoMedia import test.mp4 - track ID 3 - media type "text:tx3g"
+[0mSaving /Users/travis/build/gpac/gpac/tests/results/temp/dref.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "raw-264": executing "MP4Box -noprog -for-test  -mem-track  -raw 1 /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/test.tmp" ***
+[33mExtracting MPEG-4 AVC-H264 stream to h264
+[0m[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "raw-aac": executing "MP4Box -noprog -for-test  -mem-track  -raw 2 /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/test.tmp" ***
+[33mExtracting MPEG-4 AAC
+[0m[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Memory Block 0x7f9d4ac1bfe0 (size 80) allocated in:
+[0m[32mfile utils/bitstream.c at line 73
+[0m[32m             string dump: 
+[0m[32m[MemTracker] Memory Block 0x7f9d4b01fe00 (size 4096) allocated in:
+[0m[32mfile utils/bitstream.c at line 100
+[0m[32m             string dump: 
+[0m[31m[MemTracker] Total: 4176 bytes allocated in 2 blocks
+[0m
+
+*** Subtest "raw-text": executing "MP4Box -noprog -for-test  -mem-track  -raw 3 /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/test.tmp" ***
+[33mExtracting '' Track (type 'text') - Compressor Unknown
+[0m[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Memory Block 0x7ff673c1bd90 (size 80) allocated in:
+[0m[32mfile utils/bitstream.c at line 73
+[0m[32m             string dump: 
+[0m[32m[MemTracker] Memory Block 0x7ff67401fe00 (size 4096) allocated in:
+[0m[32mfile utils/bitstream.c at line 100
+[0m[32m             string dump: 
+[0m[31m[MemTracker] Total: 4176 bytes allocated in 2 blocks
+[0m
+
+*** Subtest "srt-text": executing "MP4Box -noprog -for-test  -mem-track  -srt 3 /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/test.tmp" ***
+Conversion done
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "ttxt-text": executing "MP4Box -noprog -for-test  -mem-track  -ttxt 3 /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/test.tmp" ***
+Conversion done
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "raw-samples": executing "MP4Box -noprog -for-test  -mem-track -raws 1 test.mp4" ***
+[33mDumping MPEG-4 AVC-H264 Visual samples
+[0m[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "InfoTk1": executing "MP4Box -noprog -for-test  -mem-track -info 1 /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4" ***
+Track # 1 Info - TrackID 1 - TimeScale 4000000
+Media Duration 00:00:06.920 - Indicated Duration 00:00:06.920
+Track has 1 edit lists: track duration is 00:00:06.960
+Media Info: Language "Undetermined (und)" - Type "vide:avc1" - 173 samples
+Handler name: MediaHandler
+Visual Track layout: x=0 y=0 width=128 height=128
+MPEG-4 Config
+	Visual Stream - ObjectTypeIndication 0x21
+	AVC/H264 Video - Visual Size 128 x 128
+	AVC Info: 1 SPS - 1 PPS - Profile High @ Level 5.1
+	NAL Unit length bits: 32
+	Chroma format YUV 4:2:0 - Luma bit depth 8 - chroma bit depth 8
+	SPS#1 hash: F6932703545AC73EB4B06422517531B1C0D283E2
+	PPS#1 hash: 3A989C24CAD66ADB5B83367A3D196480883A6252
+	Decoding Buffer size 3281 - Bitrate: avg 54 - max 93 kbps
+	No stream dependencies for decoding
+	StreamPriority 0
+	RFC6381 Codec Parameters: avc1.640033
+	Average GOP length: 173 samples
+
+Computed info from media:
+	Total size 47177 bytes - Total samples duration 6880 ms
+	Average rate 54 kbps - Max Rate 93 kbps
+	Chunk durations: min 160 ms - max 520 ms - average 461 ms
+	Chunk sizes (bytes): min 362 - max 11745 - average 3145
+
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m

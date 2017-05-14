@@ -1,0 +1,487 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - scene_manager/loader_isom.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">scene_manager</a> - loader_isom.c<span style="font-size: 80%;"> (source / <a href="loader_isom.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">139</td>
+            <td class="headerCovTableEntry">203</td>
+            <td class="headerCovTableEntryLo">68.5 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-05-14 22:31:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntryLo">66.7 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *                      GPAC - Multimedia Framework C SDK
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *                      Authors: Jean Le Feuvre
+<span class="lineNum">       5 </span>            :  *                      Copyright (c) Telecom ParisTech 2000-2012
+<span class="lineNum">       6 </span>            :  *                                      All rights reserved
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  *  This file is part of GPAC / Scene Management sub-project
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  *  GPAC is free software; you can redistribute it and/or modify
+<span class="lineNum">      11 </span>            :  *  it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">      12 </span>            :  *  the Free Software Foundation; either version 2, or (at your option)
+<span class="lineNum">      13 </span>            :  *  any later version.
+<span class="lineNum">      14 </span>            :  *
+<span class="lineNum">      15 </span>            :  *  GPAC is distributed in the hope that it will be useful,
+<span class="lineNum">      16 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      17 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      18 </span>            :  *  GNU Lesser General Public License for more details.
+<span class="lineNum">      19 </span>            :  *
+<span class="lineNum">      20 </span>            :  *  You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      21 </span>            :  *  License along with this library; see the file COPYING.  If not, write to
+<span class="lineNum">      22 </span>            :  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+<span class="lineNum">      23 </span>            :  *
+<span class="lineNum">      24 </span>            :  */
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : #include &lt;gpac/scene_manager.h&gt;
+<span class="lineNum">      27 </span>            : #include &lt;gpac/constants.h&gt;
+<span class="lineNum">      28 </span>            : #include &lt;gpac/bifs.h&gt;
+<span class="lineNum">      29 </span>            : #ifndef GPAC_DISABLE_LASER
+<span class="lineNum">      30 </span>            : #include &lt;gpac/laser.h&gt;
+<span class="lineNum">      31 </span>            : #endif
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span>            : 
+<span class="lineNum">      34 </span>            : 
+<a name="35"><span class="lineNum">      35 </span>            : #if !defined(GPAC_DISABLE_ISOM) &amp;&amp; !defined(GPAC_DISABLE_LOADER_ISOM)</a>
+<span class="lineNum">      36 </span>            : 
+<span class="lineNum">      37 </span>            : static void UpdateODCommand(GF_ISOFile *mp4, GF_ODCom *com)
+<span class="lineNum">      38 </span>            : {
+<span class="lineNum">      39 </span><span class="lineCov">        906 :         u32 i, j;</span>
+<span class="lineNum">      40 </span>            :         const char *szName;
+<span class="lineNum">      41 </span><span class="lineCov">        453 :         char szPath[2048];</span>
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span><span class="lineCov">        453 :         szName = gf_isom_get_filename(mp4);</span>
+<span class="lineNum">      44 </span><span class="lineCov">        453 :         if (com-&gt;tag == GF_ODF_OD_UPDATE_TAG) {</span>
+<span class="lineNum">      45 </span>            :                 GF_ObjectDescriptor *od;
+<span class="lineNum">      46 </span><span class="lineCov">        443 :                 GF_ODUpdate *odU = (GF_ODUpdate *)com;</span>
+<span class="lineNum">      47 </span><span class="lineCov">        443 :                 i=0;</span>
+<span class="lineNum">      48 </span><span class="lineCov">       1972 :                 while ((od = (GF_ObjectDescriptor *)gf_list_enum(odU-&gt;objectDescriptors, &amp;i))) {</span>
+<span class="lineNum">      49 </span>            :                         GF_ESD *esd;
+<span class="lineNum">      50 </span><span class="lineCov">        543 :                         j=0;</span>
+<span class="lineNum">      51 </span><span class="lineCov">       1594 :                         while ((esd = (GF_ESD *)gf_list_enum(od-&gt;ESDescriptors, &amp;j))) {</span>
+<span class="lineNum">      52 </span>            :                                 Bool import = 1;
+<span class="lineNum">      53 </span><span class="lineCov">        508 :                                 if (esd-&gt;URLString) continue;</span>
+<span class="lineNum">      54 </span><span class="lineCov">        523 :                                 switch (esd-&gt;decoderConfig-&gt;streamType) {</span>
+<span class="lineNum">      55 </span>            :                                 case GF_STREAM_OD:
+<span class="lineNum">      56 </span>            :                                         import = 0;
+<span class="lineNum">      57 </span><span class="lineNoCov">          0 :                                         break;</span>
+<span class="lineNum">      58 </span>            :                                 case GF_STREAM_SCENE:
+<span class="lineNum">      59 </span><span class="lineCov">         20 :                                         if ((esd-&gt;decoderConfig-&gt;objectTypeIndication != GPAC_OTI_SCENE_AFX) &amp;&amp;</span>
+<span class="lineNum">      60 </span><span class="lineCov">         10 :                                                 (esd-&gt;decoderConfig-&gt;objectTypeIndication != GPAC_OTI_SCENE_SYNTHESIZED_TEXTURE)</span>
+<span class="lineNum">      61 </span>            :                                            ) {
+<span class="lineNum">      62 </span>            :                                                 import = 0;
+<span class="lineNum">      63 </span><span class="lineCov">         10 :                                         }</span>
+<span class="lineNum">      64 </span>            :                                         break;
+<span class="lineNum">      65 </span>            :                                 /*dump the OCR track duration in case the OCR is used by media controls &amp; co*/
+<span class="lineNum">      66 </span>            :                                 case GF_STREAM_OCR:
+<span class="lineNum">      67 </span>            :                                 {
+<span class="lineNum">      68 </span>            :                                         u32 track;
+<span class="lineNum">      69 </span>            :                                         Double dur;
+<span class="lineNum">      70 </span><span class="lineCov">          5 :                                         GF_MuxInfo *mi = (GF_MuxInfo *) gf_odf_desc_new(GF_ODF_MUXINFO_TAG);</span>
+<span class="lineNum">      71 </span><span class="lineCov">          5 :                                         gf_list_add(esd-&gt;extensionDescriptors, mi);</span>
+<span class="lineNum">      72 </span><span class="lineCov">          5 :                                         track = gf_isom_get_track_by_id(mp4, esd-&gt;ESID);</span>
+<span class="lineNum">      73 </span><span class="lineCov">          5 :                                         dur = (Double) (s64) gf_isom_get_track_duration(mp4, track);</span>
+<span class="lineNum">      74 </span><span class="lineCov">          5 :                                         dur /= gf_isom_get_timescale(mp4);</span>
+<span class="lineNum">      75 </span><span class="lineCov">          5 :                                         mi-&gt;duration = (u32) (dur * 1000);</span>
+<span class="lineNum">      76 </span>            :                                         import = 0;
+<span class="lineNum">      77 </span>            :                                 }
+<span class="lineNum">      78 </span><span class="lineCov">          5 :                                 break;</span>
+<span class="lineNum">      79 </span>            :                                 default:
+<span class="lineNum">      80 </span>            :                                         break;
+<span class="lineNum">      81 </span>            :                                 }
+<span class="lineNum">      82 </span><span class="lineCov">        508 :                                 if (import) {</span>
+<span class="lineNum">      83 </span><span class="lineCov">        493 :                                         GF_MuxInfo *mi = (GF_MuxInfo *) gf_odf_desc_new(GF_ODF_MUXINFO_TAG);</span>
+<span class="lineNum">      84 </span><span class="lineCov">        493 :                                         gf_list_add(esd-&gt;extensionDescriptors, mi);</span>
+<span class="lineNum">      85 </span><span class="lineCov">        493 :                                         sprintf(szPath, &quot;%s#%d&quot;, szName, esd-&gt;ESID);</span>
+<span class="lineNum">      86 </span><span class="lineCov">        493 :                                         mi-&gt;file_name = gf_strdup(szPath);</span>
+<span class="lineNum">      87 </span><span class="lineCov">        493 :                                         mi-&gt;streamFormat = gf_strdup(&quot;MP4&quot;);</span>
+<span class="lineNum">      88 </span><span class="lineCov">        493 :                                 }</span>
+<span class="lineNum">      89 </span><span class="lineCov">        508 :                         }</span>
+<span class="lineNum">      90 </span>            :                 }
+<span class="lineNum">      91 </span>            :                 return;
+<span class="lineNum">      92 </span>            :         }
+<span class="lineNum">      93 </span><span class="lineCov">         10 :         if (com-&gt;tag == GF_ODF_ESD_UPDATE_TAG) {</span>
+<span class="lineNum">      94 </span>            :                 GF_ESD *esd;
+<span class="lineNum">      95 </span><span class="lineNoCov">          0 :                 GF_ESDUpdate *esdU = (GF_ESDUpdate *)com;</span>
+<span class="lineNum">      96 </span><span class="lineNoCov">          0 :                 i=0;</span>
+<span class="lineNum">      97 </span><span class="lineNoCov">          0 :                 while ((esd = (GF_ESD *)gf_list_enum(esdU-&gt;ESDescriptors, &amp;i))) {</span>
+<span class="lineNum">      98 </span>            :                         Bool import = 1;
+<span class="lineNum">      99 </span><span class="lineNoCov">          0 :                         if (esd-&gt;URLString) continue;</span>
+<span class="lineNum">     100 </span><span class="lineNoCov">          0 :                         switch (esd-&gt;decoderConfig-&gt;streamType) {</span>
+<span class="lineNum">     101 </span>            :                         case GF_STREAM_OD:
+<span class="lineNum">     102 </span>            :                                 import = 0;
+<span class="lineNum">     103 </span><span class="lineNoCov">          0 :                                 break;</span>
+<span class="lineNum">     104 </span>            :                         case GF_STREAM_SCENE:
+<span class="lineNum">     105 </span><span class="lineNoCov">          0 :                                 if ((esd-&gt;decoderConfig-&gt;objectTypeIndication != GPAC_OTI_SCENE_AFX) &amp;&amp;</span>
+<span class="lineNum">     106 </span><span class="lineNoCov">          0 :                                         (esd-&gt;decoderConfig-&gt;objectTypeIndication != GPAC_OTI_SCENE_SYNTHESIZED_TEXTURE)</span>
+<span class="lineNum">     107 </span>            :                                    ) {
+<span class="lineNum">     108 </span>            :                                         import = 0;
+<span class="lineNum">     109 </span><span class="lineNoCov">          0 :                                 }</span>
+<span class="lineNum">     110 </span>            :                                 break;
+<span class="lineNum">     111 </span>            :                         /*dump the OCR track duration in case the OCR is used by media controls &amp; co*/
+<span class="lineNum">     112 </span>            :                         case GF_STREAM_OCR:
+<span class="lineNum">     113 </span>            :                         {
+<span class="lineNum">     114 </span>            :                                 u32 track;
+<span class="lineNum">     115 </span>            :                                 Double dur;
+<span class="lineNum">     116 </span><span class="lineNoCov">          0 :                                 GF_MuxInfo *mi = (GF_MuxInfo *) gf_odf_desc_new(GF_ODF_MUXINFO_TAG);</span>
+<span class="lineNum">     117 </span><span class="lineNoCov">          0 :                                 gf_list_add(esd-&gt;extensionDescriptors, mi);</span>
+<span class="lineNum">     118 </span><span class="lineNoCov">          0 :                                 track = gf_isom_get_track_by_id(mp4, esd-&gt;ESID);</span>
+<span class="lineNum">     119 </span><span class="lineNoCov">          0 :                                 dur = (Double) (s64) gf_isom_get_track_duration(mp4, track);</span>
+<span class="lineNum">     120 </span><span class="lineNoCov">          0 :                                 dur /= gf_isom_get_timescale(mp4);</span>
+<span class="lineNum">     121 </span><span class="lineNoCov">          0 :                                 mi-&gt;duration = (u32) (dur * 1000);</span>
+<span class="lineNum">     122 </span>            :                                 import = 0;
+<span class="lineNum">     123 </span>            :                         }
+<span class="lineNum">     124 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     125 </span>            :                         default:
+<span class="lineNum">     126 </span>            :                                 break;
+<span class="lineNum">     127 </span>            :                         }
+<span class="lineNum">     128 </span><span class="lineNoCov">          0 :                         if (import) {</span>
+<span class="lineNum">     129 </span><span class="lineNoCov">          0 :                                 GF_MuxInfo *mi = (GF_MuxInfo *) gf_odf_desc_new(GF_ODF_MUXINFO_TAG);</span>
+<span class="lineNum">     130 </span><span class="lineNoCov">          0 :                                 gf_list_add(esd-&gt;extensionDescriptors, mi);</span>
+<span class="lineNum">     131 </span><span class="lineNoCov">          0 :                                 sprintf(szPath, &quot;%s#%d&quot;, szName, esd-&gt;ESID);</span>
+<span class="lineNum">     132 </span><span class="lineNoCov">          0 :                                 mi-&gt;file_name = gf_strdup(szPath);</span>
+<span class="lineNum">     133 </span><span class="lineNoCov">          0 :                                 mi-&gt;streamFormat = gf_strdup(&quot;MP4&quot;);</span>
+<span class="lineNum">     134 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     135 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     136 </span>            :                 return;
+<span class="lineNum">     137 </span>            :         }
+<a name="138"><span class="lineNum">     138 </span><span class="lineCov">        463 : }</span></a>
+<span class="lineNum">     139 </span>            : 
+<span class="lineNum">     140 </span>            : static void mp4_report(GF_SceneLoader *load, GF_Err e, char *format, ...)
+<span class="lineNum">     141 </span>            : {
+<span class="lineNum">     142 </span>            : #ifndef GPAC_DISABLE_LOG
+<span class="lineNum">     143 </span><span class="lineNoCov">          0 :         if (gf_log_tool_level_on(GF_LOG_PARSER, e ? GF_LOG_ERROR : GF_LOG_WARNING)) {</span>
+<span class="lineNum">     144 </span><span class="lineNoCov">          0 :                 char szMsg[1024];</span>
+<span class="lineNum">     145 </span><span class="lineNoCov">          0 :                 va_list args;</span>
+<span class="lineNum">     146 </span><span class="lineNoCov">          0 :                 va_start(args, format);</span>
+<span class="lineNum">     147 </span><span class="lineNoCov">          0 :                 vsprintf(szMsg, format, args);</span>
+<span class="lineNum">     148 </span><span class="lineNoCov">          0 :                 va_end(args);</span>
+<span class="lineNum">     149 </span><span class="lineNoCov">          0 :                 GF_LOG((u32) (e ? GF_LOG_ERROR : GF_LOG_WARNING), GF_LOG_PARSER, (&quot;[MP4 Loading] %s\n&quot;, szMsg) );</span>
+<span class="lineNum">     150 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     151 </span>            : #endif
+<a name="152"><span class="lineNum">     152 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     153 </span>            : 
+<span class="lineNum">     154 </span>            : static GF_Err gf_sm_load_run_isom(GF_SceneLoader *load)
+<span class="lineNum">     155 </span>            : {
+<span class="lineNum">     156 </span>            :         GF_Err e;
+<span class="lineNum">     157 </span>            :         FILE *logs;
+<span class="lineNum">     158 </span><span class="lineCov">       3442 :         u32 i, j, di, nbBifs, nbLaser, nb_samp, samp_done, init_offset;</span>
+<span class="lineNum">     159 </span>            :         GF_StreamContext *sc;
+<span class="lineNum">     160 </span>            :         GF_ESD *esd;
+<span class="lineNum">     161 </span>            :         GF_ODCodec *od_dec;
+<span class="lineNum">     162 </span>            : #ifndef GPAC_DISABLE_BIFS
+<span class="lineNum">     163 </span>            :         GF_BifsDecoder *bifs_dec;
+<span class="lineNum">     164 </span>            : #endif
+<span class="lineNum">     165 </span>            : #ifndef GPAC_DISABLE_LASER
+<span class="lineNum">     166 </span>            :         GF_LASeRCodec *lsr_dec;
+<span class="lineNum">     167 </span>            : #endif
+<span class="lineNum">     168 </span>            : 
+<span class="lineNum">     169 </span><span class="lineCov">       3442 :         if (!load || !load-&gt;isom) return GF_BAD_PARAM;</span>
+<span class="lineNum">     170 </span>            : 
+<span class="lineNum">     171 </span>            :         nbBifs = nbLaser = 0;
+<span class="lineNum">     172 </span>            :         e = GF_OK;
+<span class="lineNum">     173 </span>            : #ifndef GPAC_DISABLE_BIFS
+<span class="lineNum">     174 </span><span class="lineCov">       1721 :         bifs_dec = gf_bifs_decoder_new(load-&gt;scene_graph, 1);</span>
+<span class="lineNum">     175 </span><span class="lineCov">       1721 :         gf_bifs_decoder_set_extraction_path(bifs_dec, load-&gt;localPath, load-&gt;fileName);</span>
+<span class="lineNum">     176 </span>            : #endif
+<span class="lineNum">     177 </span><span class="lineCov">       1721 :         od_dec = gf_odf_codec_new();</span>
+<span class="lineNum">     178 </span>            :         logs = NULL;
+<span class="lineNum">     179 </span>            : #ifndef GPAC_DISABLE_LASER
+<span class="lineNum">     180 </span><span class="lineCov">       1721 :         lsr_dec = gf_laser_decoder_new(load-&gt;scene_graph);</span>
+<span class="lineNum">     181 </span>            : #endif
+<span class="lineNum">     182 </span>            :         esd = NULL;
+<span class="lineNum">     183 </span>            :         /*load each stream*/
+<span class="lineNum">     184 </span>            :         nb_samp = 0;
+<span class="lineNum">     185 </span><span class="lineCov">       8858 :         for (i=0; i&lt;gf_isom_get_track_count(load-&gt;isom); i++) {</span>
+<span class="lineNum">     186 </span><span class="lineCov">       4925 :                 u32 type = gf_isom_get_media_type(load-&gt;isom, i+1);</span>
+<span class="lineNum">     187 </span><span class="lineCov">       4925 :                 switch (type) {</span>
+<span class="lineNum">     188 </span>            :                 case GF_ISOM_MEDIA_SCENE:
+<span class="lineNum">     189 </span>            :                 case GF_ISOM_MEDIA_OD:
+<span class="lineNum">     190 </span><span class="lineCov">       2217 :                         nb_samp += gf_isom_get_sample_count(load-&gt;isom, i+1);</span>
+<span class="lineNum">     191 </span><span class="lineCov">       2217 :                         break;</span>
+<span class="lineNum">     192 </span>            :                 default:
+<span class="lineNum">     193 </span>            :                         break;
+<span class="lineNum">     194 </span>            :                 }
+<span class="lineNum">     195 </span>            :         }
+<span class="lineNum">     196 </span>            :         samp_done = 1;
+<span class="lineNum">     197 </span><span class="lineCov">       1721 :         gf_isom_text_set_streaming_mode(load-&gt;isom, 1);</span>
+<span class="lineNum">     198 </span>            : 
+<span class="lineNum">     199 </span><span class="lineCov">       8858 :         for (i=0; i&lt;gf_isom_get_track_count(load-&gt;isom); i++) {</span>
+<span class="lineNum">     200 </span><span class="lineCov">       2708 :                 u32 type = gf_isom_get_media_type(load-&gt;isom, i+1);</span>
+<span class="lineNum">     201 </span><span class="lineCov">       2708 :                 switch (type) {</span>
+<span class="lineNum">     202 </span>            :                 case GF_ISOM_MEDIA_SCENE:
+<span class="lineNum">     203 </span>            :                 case GF_ISOM_MEDIA_OD:
+<span class="lineNum">     204 </span>            :                         break;
+<span class="lineNum">     205 </span>            :                 default:
+<span class="lineNum">     206 </span><span class="lineCov">        491 :                         continue;</span>
+<span class="lineNum">     207 </span>            :                 }
+<span class="lineNum">     208 </span><span class="lineCov">       2217 :                 esd = gf_isom_get_esd(load-&gt;isom, i+1, 1);</span>
+<span class="lineNum">     209 </span><span class="lineCov">       2217 :                 if (!esd) continue;</span>
+<span class="lineNum">     210 </span>            : 
+<span class="lineNum">     211 </span>            : 
+<span class="lineNum">     212 </span><span class="lineCov">       4434 :                 if ((esd-&gt;decoderConfig-&gt;objectTypeIndication == GPAC_OTI_SCENE_AFX) ||</span>
+<span class="lineNum">     213 </span><span class="lineCov">       2217 :                         (esd-&gt;decoderConfig-&gt;objectTypeIndication == GPAC_OTI_SCENE_SYNTHESIZED_TEXTURE)</span>
+<span class="lineNum">     214 </span>            :                    ) {
+<span class="lineNum">     215 </span><span class="lineNoCov">          0 :                         nb_samp += gf_isom_get_sample_count(load-&gt;isom, i+1);</span>
+<span class="lineNum">     216 </span><span class="lineNoCov">          0 :                         continue;</span>
+<span class="lineNum">     217 </span>            :                 }
+<span class="lineNum">     218 </span><span class="lineCov">       2217 :                 sc = gf_sm_stream_new(load-&gt;ctx, esd-&gt;ESID, esd-&gt;decoderConfig-&gt;streamType, esd-&gt;decoderConfig-&gt;objectTypeIndication);</span>
+<span class="lineNum">     219 </span><span class="lineCov">       2217 :                 sc-&gt;streamType = esd-&gt;decoderConfig-&gt;streamType;</span>
+<span class="lineNum">     220 </span><span class="lineCov">       2217 :                 sc-&gt;ESID = esd-&gt;ESID;</span>
+<span class="lineNum">     221 </span><span class="lineCov">       2217 :                 sc-&gt;objectType = esd-&gt;decoderConfig-&gt;objectTypeIndication;</span>
+<span class="lineNum">     222 </span><span class="lineCov">       2217 :                 sc-&gt;timeScale = gf_isom_get_media_timescale(load-&gt;isom, i+1);</span>
+<span class="lineNum">     223 </span>            : 
+<span class="lineNum">     224 </span>            :                 /*we still need to reconfig the BIFS*/
+<span class="lineNum">     225 </span><span class="lineCov">       2217 :                 if (esd-&gt;decoderConfig-&gt;streamType==GF_STREAM_SCENE) {</span>
+<span class="lineNum">     226 </span>            : #ifndef GPAC_DISABLE_BIFS
+<span class="lineNum">     227 </span>            :                         /*BIFS*/
+<span class="lineNum">     228 </span><span class="lineCov">       1736 :                         if (esd-&gt;decoderConfig-&gt;objectTypeIndication&lt;=2) {</span>
+<span class="lineNum">     229 </span><span class="lineCov">       1474 :                                 if (!esd-&gt;dependsOnESID &amp;&amp; nbBifs &amp;&amp; !i)</span>
+<span class="lineNum">     230 </span><span class="lineNoCov">          0 :                                         mp4_report(load, GF_OK, &quot;several scene namespaces used or improper scene dependencies in file - import may be incorrect&quot;);</span>
+<span class="lineNum">     231 </span><span class="lineCov">       2948 :                                 if (!esd-&gt;decoderConfig-&gt;decoderSpecificInfo) {</span>
+<span class="lineNum">     232 </span>            :                                         /* Hack for T-DMB non compliant streams */
+<span class="lineNum">     233 </span><span class="lineNoCov">          0 :                                         e = gf_bifs_decoder_configure_stream(bifs_dec, esd-&gt;ESID, NULL, 0, esd-&gt;decoderConfig-&gt;objectTypeIndication);</span>
+<span class="lineNum">     234 </span><span class="lineNoCov">          0 :                                 } else {</span>
+<span class="lineNum">     235 </span><span class="lineCov">       2948 :                                         e = gf_bifs_decoder_configure_stream(bifs_dec, esd-&gt;ESID, esd-&gt;decoderConfig-&gt;decoderSpecificInfo-&gt;data, esd-&gt;decoderConfig-&gt;decoderSpecificInfo-&gt;dataLength, esd-&gt;decoderConfig-&gt;objectTypeIndication);</span>
+<span class="lineNum">     236 </span>            :                                 }
+<span class="lineNum">     237 </span><span class="lineCov">       1474 :                                 if (e) goto exit;</span>
+<span class="lineNum">     238 </span><span class="lineCov">       1474 :                                 nbBifs++;</span>
+<span class="lineNum">     239 </span><span class="lineCov">       1474 :                         }</span>
+<span class="lineNum">     240 </span>            : #endif
+<span class="lineNum">     241 </span>            : 
+<span class="lineNum">     242 </span>            : #ifndef GPAC_DISABLE_LASER
+<span class="lineNum">     243 </span>            :                         /*LASER*/
+<span class="lineNum">     244 </span><span class="lineCov">       1736 :                         if (esd-&gt;decoderConfig-&gt;objectTypeIndication==0x09) {</span>
+<span class="lineNum">     245 </span><span class="lineCov">        262 :                                 if (!esd-&gt;dependsOnESID &amp;&amp; nbBifs &amp;&amp; !i)</span>
+<span class="lineNum">     246 </span><span class="lineNoCov">          0 :                                         mp4_report(load, GF_OK, &quot;several scene namespaces used or improper scene dependencies in file - import may be incorrect&quot;);</span>
+<span class="lineNum">     247 </span><span class="lineCov">        262 :                                 e = gf_laser_decoder_configure_stream(lsr_dec, esd-&gt;ESID, esd-&gt;decoderConfig-&gt;decoderSpecificInfo-&gt;data, esd-&gt;decoderConfig-&gt;decoderSpecificInfo-&gt;dataLength);</span>
+<span class="lineNum">     248 </span><span class="lineCov">        262 :                                 if (e) goto exit;</span>
+<span class="lineNum">     249 </span><span class="lineCov">        262 :                                 nbLaser++;</span>
+<span class="lineNum">     250 </span><span class="lineCov">        262 :                         }</span>
+<span class="lineNum">     251 </span>            : #endif
+<span class="lineNum">     252 </span>            :                 }
+<span class="lineNum">     253 </span>            : 
+<span class="lineNum">     254 </span>            :                 init_offset = 0;
+<span class="lineNum">     255 </span>            :                 /*dump all AUs*/
+<span class="lineNum">     256 </span><span class="lineCov">       9608 :                 for (j=0; j&lt;gf_isom_get_sample_count(load-&gt;isom, i+1); j++) {</span>
+<span class="lineNum">     257 </span>            :                         GF_AUContext *au;
+<span class="lineNum">     258 </span><span class="lineCov">       2587 :                         GF_ISOSample *samp = gf_isom_get_sample(load-&gt;isom, i+1, j+1, &amp;di);</span>
+<span class="lineNum">     259 </span><span class="lineCov">       2587 :                         if (!samp) {</span>
+<span class="lineNum">     260 </span><span class="lineNoCov">          0 :                                 mp4_report(load, gf_isom_last_error(load-&gt;isom), &quot;Unable to fetch sample %d from track ID %d - aborting track import&quot;, j+1, gf_isom_get_track_id(load-&gt;isom, i+1));</span>
+<span class="lineNum">     261 </span><span class="lineNoCov">          0 :                                 break;</span>
+<span class="lineNum">     262 </span>            :                         }
+<span class="lineNum">     263 </span>            :                         /*check if track has initial offset*/
+<span class="lineNum">     264 </span><span class="lineCov">       4759 :                         if (!j &amp;&amp; gf_isom_get_edit_segment_count(load-&gt;isom, i+1)) {</span>
+<span class="lineNum">     265 </span><span class="lineNoCov">          0 :                                 u64 EditTime, dur, mtime;</span>
+<span class="lineNum">     266 </span><span class="lineNoCov">          0 :                                 u8 mode;</span>
+<span class="lineNum">     267 </span><span class="lineNoCov">          0 :                                 gf_isom_get_edit_segment(load-&gt;isom, i+1, 1, &amp;EditTime, &amp;dur, &amp;mtime, &amp;mode);</span>
+<span class="lineNum">     268 </span><span class="lineNoCov">          0 :                                 if (mode==GF_ISOM_EDIT_EMPTY) {</span>
+<span class="lineNum">     269 </span><span class="lineNoCov">          0 :                                         init_offset = (u32) (dur * sc-&gt;timeScale / gf_isom_get_timescale(load-&gt;isom) );</span>
+<span class="lineNum">     270 </span><span class="lineNoCov">          0 :                                 }</span>
+<span class="lineNum">     271 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     272 </span><span class="lineCov">       2587 :                         samp-&gt;DTS += init_offset;</span>
+<span class="lineNum">     273 </span>            : 
+<span class="lineNum">     274 </span><span class="lineCov">       2587 :                         au = gf_sm_stream_au_new(sc, samp-&gt;DTS, ((Double)(s64) samp-&gt;DTS) / sc-&gt;timeScale, (samp-&gt;IsRAP==RAP) ? 1 : 0);</span>
+<span class="lineNum">     275 </span>            : 
+<span class="lineNum">     276 </span><span class="lineCov">       2587 :                         if (esd-&gt;decoderConfig-&gt;streamType==GF_STREAM_SCENE) {</span>
+<span class="lineNum">     277 </span>            : #ifndef GPAC_DISABLE_BIFS
+<span class="lineNum">     278 </span><span class="lineCov">       2136 :                                 if (esd-&gt;decoderConfig-&gt;objectTypeIndication&lt;=2)</span>
+<span class="lineNum">     279 </span><span class="lineCov">       1874 :                                         e = gf_bifs_decode_command_list(bifs_dec, esd-&gt;ESID, samp-&gt;data, samp-&gt;dataLength, au-&gt;commands);</span>
+<span class="lineNum">     280 </span>            : #endif
+<span class="lineNum">     281 </span>            : #ifndef GPAC_DISABLE_LASER
+<span class="lineNum">     282 </span><span class="lineCov">       2136 :                                 if (esd-&gt;decoderConfig-&gt;objectTypeIndication==0x09)</span>
+<span class="lineNum">     283 </span><span class="lineCov">        262 :                                         e = gf_laser_decode_command_list(lsr_dec, esd-&gt;ESID, samp-&gt;data, samp-&gt;dataLength, au-&gt;commands);</span>
+<span class="lineNum">     284 </span>            : #endif
+<span class="lineNum">     285 </span>            :                         } else {
+<span class="lineNum">     286 </span><span class="lineCov">        451 :                                 e = gf_odf_codec_set_au(od_dec, samp-&gt;data, samp-&gt;dataLength);</span>
+<span class="lineNum">     287 </span><span class="lineCov">        902 :                                 if (!e) e = gf_odf_codec_decode(od_dec);</span>
+<span class="lineNum">     288 </span><span class="lineCov">        451 :                                 if (!e) {</span>
+<span class="lineNum">     289 </span>            :                                         while (1) {
+<span class="lineNum">     290 </span><span class="lineCov">        904 :                                                 GF_ODCom *odc = gf_odf_codec_get_com(od_dec);</span>
+<span class="lineNum">     291 </span><span class="lineCov">       1355 :                                                 if (!odc) break;</span>
+<span class="lineNum">     292 </span>            :                                                 /*update ESDs if any*/
+<span class="lineNum">     293 </span><span class="lineCov">        453 :                                                 UpdateODCommand(load-&gt;isom, odc);</span>
+<span class="lineNum">     294 </span><span class="lineCov">        453 :                                                 gf_list_add(au-&gt;commands, odc);</span>
+<span class="lineNum">     295 </span><span class="lineCov">        453 :                                         }</span>
+<span class="lineNum">     296 </span>            :                                 }
+<span class="lineNum">     297 </span>            :                         }
+<span class="lineNum">     298 </span><span class="lineCov">       2587 :                         gf_isom_sample_del(&amp;samp);</span>
+<span class="lineNum">     299 </span><span class="lineCov">       2587 :                         if (e) {</span>
+<span class="lineNum">     300 </span><span class="lineNoCov">          0 :                                 mp4_report(load, gf_isom_last_error(load-&gt;isom), &quot;decoding sample %d from track ID %d failed&quot;, j+1, gf_isom_get_track_id(load-&gt;isom, i+1));</span>
+<span class="lineNum">     301 </span><span class="lineNoCov">          0 :                                 goto exit;</span>
+<span class="lineNum">     302 </span>            :                         }
+<span class="lineNum">     303 </span>            : 
+<span class="lineNum">     304 </span><span class="lineCov">       2587 :                         samp_done++;</span>
+<span class="lineNum">     305 </span><span class="lineCov">       2587 :                         gf_set_progress(&quot;MP4 Loading&quot;, samp_done, nb_samp);</span>
+<span class="lineNum">     306 </span><span class="lineCov">       9518 :                 }</span>
+<span class="lineNum">     307 </span><span class="lineCov">       2217 :                 gf_odf_desc_del((GF_Descriptor *) esd);</span>
+<span class="lineNum">     308 </span>            :                 esd = NULL;
+<span class="lineNum">     309 </span><span class="lineCov">       2217 :         }</span>
+<span class="lineNum">     310 </span><span class="lineCov">       1721 :         gf_isom_text_set_streaming_mode(load-&gt;isom, 0);</span>
+<span class="lineNum">     311 </span>            : 
+<span class="lineNum">     312 </span>            : exit:
+<span class="lineNum">     313 </span>            : #ifndef GPAC_DISABLE_BIFS
+<span class="lineNum">     314 </span><span class="lineCov">       1721 :         gf_bifs_decoder_del(bifs_dec);</span>
+<span class="lineNum">     315 </span>            : #endif
+<span class="lineNum">     316 </span><span class="lineCov">       1721 :         gf_odf_codec_del(od_dec);</span>
+<span class="lineNum">     317 </span>            : #ifndef GPAC_DISABLE_LASER
+<span class="lineNum">     318 </span><span class="lineCov">       1721 :         gf_laser_decoder_del(lsr_dec);</span>
+<span class="lineNum">     319 </span>            : #endif
+<span class="lineNum">     320 </span><span class="lineCov">       1721 :         if (esd) gf_odf_desc_del((GF_Descriptor *) esd);</span>
+<span class="lineNum">     321 </span><span class="lineCov">       1721 :         if (logs) gf_fclose(logs);</span>
+<span class="lineNum">     322 </span><span class="lineCov">       1721 :         return e;</span>
+<a name="323"><span class="lineNum">     323 </span><span class="lineCov">       1721 : }</span></a>
+<span class="lineNum">     324 </span>            : 
+<span class="lineNum">     325 </span>            : static void gf_sm_load_done_isom(GF_SceneLoader *load)
+<span class="lineNum">     326 </span>            : {
+<span class="lineNum">     327 </span>            :         /*nothing to do the file is not ours*/
+<a name="328"><span class="lineNum">     328 </span><span class="lineCov">       3442 : }</span></a>
+<span class="lineNum">     329 </span>            : 
+<span class="lineNum">     330 </span>            : static GF_Err gf_sm_isom_suspend(GF_SceneLoader *loader, Bool suspend)
+<span class="lineNum">     331 </span>            : {
+<span class="lineNum">     332 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<a name="333"><span class="lineNum">     333 </span>            : }</a>
+<span class="lineNum">     334 </span>            : 
+<span class="lineNum">     335 </span>            : GF_Err gf_sm_load_init_isom(GF_SceneLoader *load)
+<span class="lineNum">     336 </span>            : {
+<span class="lineNum">     337 </span>            :         u32 i;
+<span class="lineNum">     338 </span>            :         GF_BIFSConfig *bc;
+<span class="lineNum">     339 </span>            :         GF_ESD *esd;
+<span class="lineNum">     340 </span>            :         GF_Err e;
+<span class="lineNum">     341 </span>            :         char *scene_msg = &quot;MPEG-4 BIFS Scene Parsing&quot;;
+<span class="lineNum">     342 </span><span class="lineCov">       3442 :         if (!load-&gt;isom) return GF_BAD_PARAM;</span>
+<span class="lineNum">     343 </span>            : 
+<span class="lineNum">     344 </span>            :         /*load IOD*/
+<span class="lineNum">     345 </span><span class="lineCov">       1721 :         load-&gt;ctx-&gt;root_od = (GF_ObjectDescriptor *) gf_isom_get_root_od(load-&gt;isom);</span>
+<span class="lineNum">     346 </span><span class="lineCov">       1721 :         if (!load-&gt;ctx-&gt;root_od) {</span>
+<span class="lineNum">     347 </span><span class="lineNoCov">          0 :                 e = gf_isom_last_error(load-&gt;isom);</span>
+<span class="lineNum">     348 </span><span class="lineNoCov">          0 :                 if (e) return e;</span>
+<span class="lineNum">     349 </span><span class="lineCov">       3311 :         } else if ((load-&gt;ctx-&gt;root_od-&gt;tag != GF_ODF_OD_TAG) &amp;&amp; (load-&gt;ctx-&gt;root_od-&gt;tag != GF_ODF_IOD_TAG)) {</span>
+<span class="lineNum">     350 </span><span class="lineNoCov">          0 :                 gf_odf_desc_del((GF_Descriptor *) load-&gt;ctx-&gt;root_od);</span>
+<span class="lineNum">     351 </span><span class="lineNoCov">          0 :                 load-&gt;ctx-&gt;root_od = NULL;</span>
+<span class="lineNum">     352 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     353 </span>            : 
+<span class="lineNum">     354 </span>            :         esd = NULL;
+<span class="lineNum">     355 </span>            : 
+<span class="lineNum">     356 </span>            :         /*get root scene stream*/
+<span class="lineNum">     357 </span><span class="lineCov">       3442 :         for (i=0; i&lt;gf_isom_get_track_count(load-&gt;isom); i++) {</span>
+<span class="lineNum">     358 </span><span class="lineCov">       1721 :                 u32 type = gf_isom_get_media_type(load-&gt;isom, i+1);</span>
+<span class="lineNum">     359 </span><span class="lineCov">       1721 :                 if (type != GF_ISOM_MEDIA_SCENE) continue;</span>
+<span class="lineNum">     360 </span><span class="lineCov">       1721 :                 if (! gf_isom_is_track_in_root_od(load-&gt;isom, i+1) ) continue;</span>
+<span class="lineNum">     361 </span><span class="lineCov">       1721 :                 esd = gf_isom_get_esd(load-&gt;isom, i+1, 1);</span>
+<span class="lineNum">     362 </span>            : 
+<span class="lineNum">     363 </span><span class="lineCov">       3442 :                 if (esd &amp;&amp; esd-&gt;URLString) {</span>
+<span class="lineNum">     364 </span><span class="lineNoCov">          0 :                         gf_odf_desc_del((GF_Descriptor *)esd);</span>
+<span class="lineNum">     365 </span>            :                         esd = NULL;
+<span class="lineNum">     366 </span><span class="lineNoCov">          0 :                         continue;</span>
+<span class="lineNum">     367 </span>            :                 }
+<span class="lineNum">     368 </span>            : 
+<span class="lineNum">     369 </span>            :                 /*make sure we load the root BIFS stream first*/
+<span class="lineNum">     370 </span><span class="lineCov">       3447 :                 if (esd &amp;&amp; esd-&gt;dependsOnESID &amp;&amp; (esd-&gt;dependsOnESID!=esd-&gt;ESID) ) {</span>
+<span class="lineNum">     371 </span><span class="lineNoCov">          0 :                         u32 track = gf_isom_get_track_by_id(load-&gt;isom, esd-&gt;dependsOnESID);</span>
+<span class="lineNum">     372 </span><span class="lineNoCov">          0 :                         if (gf_isom_get_media_type(load-&gt;isom, track) != GF_ISOM_MEDIA_OD) {</span>
+<span class="lineNum">     373 </span><span class="lineNoCov">          0 :                                 gf_odf_desc_del((GF_Descriptor *)esd);</span>
+<span class="lineNum">     374 </span>            :                                 esd = NULL;
+<span class="lineNum">     375 </span><span class="lineNoCov">          0 :                                 continue;</span>
+<span class="lineNum">     376 </span>            :                         }
+<span class="lineNum">     377 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     378 </span><span class="lineCov">       5425 :                 if (esd &amp;&amp; esd-&gt;decoderConfig &amp;&amp; esd-&gt;decoderConfig-&gt;objectTypeIndication==0x09) scene_msg = &quot;MPEG-4 LASeR Scene Parsing&quot;;</span>
+<span class="lineNum">     379 </span><span class="lineCov">       1721 :                 break;</span>
+<span class="lineNum">     380 </span>            :         }
+<span class="lineNum">     381 </span><span class="lineCov">       1721 :         if (!esd) return GF_OK;</span>
+<span class="lineNum">     382 </span>            : 
+<span class="lineNum">     383 </span><span class="lineCov">       3442 :         GF_LOG(GF_LOG_INFO, GF_LOG_PARSER, (&quot;%s\n&quot;, scene_msg));</span>
+<span class="lineNum">     384 </span>            : 
+<span class="lineNum">     385 </span>            :         /*BIFS: update size &amp; pixel metrics info*/
+<span class="lineNum">     386 </span><span class="lineCov">       3442 :         if (esd &amp;&amp; esd-&gt;decoderConfig) {</span>
+<span class="lineNum">     387 </span><span class="lineCov">       1721 :                 if (esd-&gt;decoderConfig-&gt;objectTypeIndication&lt;=2) {</span>
+<span class="lineNum">     388 </span><span class="lineCov">       1459 :                         bc = gf_odf_get_bifs_config(esd-&gt;decoderConfig-&gt;decoderSpecificInfo, esd-&gt;decoderConfig-&gt;objectTypeIndication);</span>
+<span class="lineNum">     389 </span><span class="lineCov">       4372 :                         if (!bc-&gt;elementaryMasks &amp;&amp; bc-&gt;pixelWidth &amp;&amp; bc-&gt;pixelHeight) {</span>
+<span class="lineNum">     390 </span><span class="lineCov">       1454 :                                 load-&gt;ctx-&gt;scene_width = bc-&gt;pixelWidth;</span>
+<span class="lineNum">     391 </span><span class="lineCov">       1454 :                                 load-&gt;ctx-&gt;scene_height = bc-&gt;pixelHeight;</span>
+<span class="lineNum">     392 </span><span class="lineCov">       1454 :                                 load-&gt;ctx-&gt;is_pixel_metrics = bc-&gt;pixelMetrics;</span>
+<span class="lineNum">     393 </span><span class="lineCov">       1454 :                         }</span>
+<span class="lineNum">     394 </span><span class="lineCov">       1459 :                         gf_odf_desc_del((GF_Descriptor *) bc);</span>
+<span class="lineNum">     395 </span>            :                         /*note we don't load the first BIFS AU to avoid storing the BIFS decoder, needed to properly handle quantization*/
+<span class="lineNum">     396 </span><span class="lineCov">       1459 :                 }</span>
+<span class="lineNum">     397 </span>            :                 /*LASeR*/
+<span class="lineNum">     398 </span><span class="lineCov">        262 :                 else if (esd-&gt;decoderConfig-&gt;objectTypeIndication==0x09) {</span>
+<span class="lineNum">     399 </span><span class="lineCov">        262 :                         load-&gt;ctx-&gt;is_pixel_metrics = 1;</span>
+<span class="lineNum">     400 </span><span class="lineCov">        262 :                 }</span>
+<span class="lineNum">     401 </span>            :         }
+<span class="lineNum">     402 </span><span class="lineCov">       1721 :         gf_odf_desc_del((GF_Descriptor *) esd);</span>
+<span class="lineNum">     403 </span>            :         esd = NULL;
+<span class="lineNum">     404 </span>            : 
+<span class="lineNum">     405 </span><span class="lineCov">       1721 :         load-&gt;process = gf_sm_load_run_isom;</span>
+<span class="lineNum">     406 </span><span class="lineCov">       1721 :         load-&gt;done = gf_sm_load_done_isom;</span>
+<span class="lineNum">     407 </span><span class="lineCov">       1721 :         load-&gt;suspend = gf_sm_isom_suspend;</span>
+<span class="lineNum">     408 </span><span class="lineCov">       1721 :         return GF_OK;</span>
+<span class="lineNum">     409 </span><span class="lineCov">       1721 : }</span>
+<span class="lineNum">     410 </span>            : 
+<span class="lineNum">     411 </span>            : #endif /*GPAC_DISABLE_ISOM &amp;&amp; GPAC_DISABLE_LOADER_ISOM*/
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

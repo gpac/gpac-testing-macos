@@ -1,0 +1,234 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - /Users/travis/build/gpac/gpac/include/gpac/internal/crypt_dev.h</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../../../../index.html">top level</a> - <a href="index.html">Users/travis/build/gpac/gpac/include/gpac/internal</a> - crypt_dev.h<span style="font-size: 80%;"> (source / <a href="crypt_dev.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-05-14 22:31:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *                      GPAC - Multimedia Framework C SDK
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *                      Authors: Jean Le Feuvre
+<span class="lineNum">       5 </span>            :  *                      Copyright (c) Telecom ParisTech 2000-2012
+<span class="lineNum">       6 </span>            :  *                                      All rights reserved
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  *  This file is part of GPAC / Crypto Tools sub-project
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  *  GPAC is free software; you can redistribute it and/or modify
+<span class="lineNum">      11 </span>            :  *  it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">      12 </span>            :  *  the Free Software Foundation; either version 2, or (at your option)
+<span class="lineNum">      13 </span>            :  *  any later version.
+<span class="lineNum">      14 </span>            :  *
+<span class="lineNum">      15 </span>            :  *  GPAC is distributed in the hope that it will be useful,
+<span class="lineNum">      16 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      17 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      18 </span>            :  *  GNU Lesser General Public License for more details.
+<span class="lineNum">      19 </span>            :  *
+<span class="lineNum">      20 </span>            :  *  You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      21 </span>            :  *  License along with this library; see the file COPYING.  If not, write to
+<span class="lineNum">      22 </span>            :  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+<span class="lineNum">      23 </span>            :  *
+<span class="lineNum">      24 </span>            :  */
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : #ifndef _GF_CRYPT_DEV_H_
+<span class="lineNum">      27 </span>            : #define _GF_CRYPT_DEV_H_
+<span class="lineNum">      28 </span>            : 
+<span class="lineNum">      29 </span>            : #ifdef __cplusplus
+<span class="lineNum">      30 </span>            : extern &quot;C&quot; {
+<span class="lineNum">      31 </span>            : #endif
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span>            : #include &lt;gpac/crypt.h&gt;
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span>            : #ifndef GPAC_DISABLE_MCRYPT
+<span class="lineNum">      36 </span>            : 
+<span class="lineNum">      37 </span>            : /*the samllest version of the lib: only AES-128-CTR and AES-CBC supported*/
+<span class="lineNum">      38 </span>            : #define GPAC_CRYPT_ISMA_ONLY
+<span class="lineNum">      39 </span>            : 
+<span class="lineNum">      40 </span>            : 
+<span class="lineNum">      41 </span>            : typedef void (*mcryptfunc)(void*,void*);
+<span class="lineNum">      42 </span>            : typedef GF_Err (*mcrypt_setkeystream)(void *, const void *, int, const void *, int);
+<span class="lineNum">      43 </span>            : typedef GF_Err (*mcrypt_setkeyblock) (void *, const void *, int);
+<span class="lineNum">      44 </span>            : typedef GF_Err (*mcrypt_docrypt) (void *, const void *, int);
+<span class="lineNum">      45 </span>            : 
+<span class="lineNum">      46 </span>            : /*private - do not use*/
+<span class="lineNum">      47 </span>            : typedef struct _tag_crypt_stream
+<span class="lineNum">      48 </span>            : {
+<span class="lineNum">      49 </span>            :         const char *algo_name;
+<span class="lineNum">      50 </span>            :         u32 algo_version;
+<span class="lineNum">      51 </span>            :         const char *mode_name;
+<span class="lineNum">      52 </span>            :         u32 mode_version;
+<span class="lineNum">      53 </span>            : 
+<span class="lineNum">      54 </span>            :         /* Holds the algorithm's internal key */
+<span class="lineNum">      55 </span>            :         char *akey;
+<span class="lineNum">      56 </span>            :         /* holds the mode's internal buffers */
+<span class="lineNum">      57 </span>            :         char *abuf;
+<span class="lineNum">      58 </span>            :         /* holds the key */
+<span class="lineNum">      59 </span>            :         char *keyword_given;
+<span class="lineNum">      60 </span>            : 
+<span class="lineNum">      61 </span>            :         /*all below are static vars for mode and algo - sizes are in bytes*/
+<span class="lineNum">      62 </span>            : 
+<span class="lineNum">      63 </span>            :         /*modes access*/
+<span class="lineNum">      64 </span>            :         GF_Err (*_init_mcrypt) (void *, void *, int, void *, int);
+<span class="lineNum">      65 </span>            :         void (*_end_mcrypt) (void *);
+<span class="lineNum">      66 </span>            :         GF_Err (*_mcrypt) (void *, void *, int, int, void *, mcryptfunc func, mcryptfunc func2);
+<span class="lineNum">      67 </span>            :         GF_Err (*_mdecrypt) (void *, void *, int, int, void *, mcryptfunc func, mcryptfunc func2);
+<span class="lineNum">      68 </span>            :         GF_Err (*_mcrypt_set_state) (void *, void *, int );
+<span class="lineNum">      69 </span>            :         GF_Err (*_mcrypt_get_state) (void *, void *, int *);
+<span class="lineNum">      70 </span>            :         /*algo access*/
+<span class="lineNum">      71 </span>            :         void *a_encrypt;
+<span class="lineNum">      72 </span>            :         void *a_decrypt;
+<span class="lineNum">      73 </span>            :         void *a_set_key;
+<span class="lineNum">      74 </span>            : 
+<span class="lineNum">      75 </span>            :         u32 algo_size;
+<span class="lineNum">      76 </span>            :         u32 algo_block_size;
+<span class="lineNum">      77 </span>            :         u32 key_size;
+<span class="lineNum">      78 </span>            :         u32 num_key_sizes;
+<span class="lineNum">      79 </span>            :         u32 key_sizes[MAX_KEY_SIZES];
+<span class="lineNum">      80 </span>            :         u32 algo_IV_size;
+<span class="lineNum">      81 </span>            : 
+<span class="lineNum">      82 </span>            :         u32 mode_size;
+<span class="lineNum">      83 </span>            :         Bool is_block_algo, is_block_algo_mode, is_block_mode, has_IV;
+<span class="lineNum">      84 </span>            : } GF_CryptStream;
+<span class="lineNum">      85 </span>            : 
+<span class="lineNum">      86 </span>            : /*modes*/
+<span class="lineNum">      87 </span>            : void gf_crypt_register_cbc(GF_Crypt *td);
+<span class="lineNum">      88 </span>            : void gf_crypt_register_cfb(GF_Crypt *td);
+<span class="lineNum">      89 </span>            : void gf_crypt_register_ctr(GF_Crypt *td);
+<span class="lineNum">      90 </span>            : void gf_crypt_register_ecb(GF_Crypt *td);
+<span class="lineNum">      91 </span>            : void gf_crypt_register_ncfb(GF_Crypt *td);
+<span class="lineNum">      92 </span>            : void gf_crypt_register_nofb(GF_Crypt *td);
+<span class="lineNum">      93 </span>            : void gf_crypt_register_ofb(GF_Crypt *td);
+<span class="lineNum">      94 </span>            : void gf_crypt_register_stream(GF_Crypt *td);
+<span class="lineNum">      95 </span>            : /*algos*/
+<span class="lineNum">      96 </span>            : void gf_crypt_register_des(GF_Crypt *td);
+<span class="lineNum">      97 </span>            : void gf_crypt_register_3des(GF_Crypt *td);
+<span class="lineNum">      98 </span>            : void gf_crypt_register_rijndael_128(GF_Crypt *td);
+<span class="lineNum">      99 </span>            : void gf_crypt_register_rijndael_192(GF_Crypt *td);
+<span class="lineNum">     100 </span>            : void gf_crypt_register_rijndael_256(GF_Crypt *td);
+<span class="lineNum">     101 </span>            : 
+<span class="lineNum">     102 </span>            : 
+<span class="lineNum">     103 </span>            : #define rotl32(x,n)   (((x) &lt;&lt; ((u32)(n))) | ((x) &gt;&gt; (32 - (u32)(n))))
+<span class="lineNum">     104 </span>            : #define rotr32(x,n)   (((x) &gt;&gt; ((u32)(n))) | ((x) &lt;&lt; (32 - (u32)(n))))
+<span class="lineNum">     105 </span>            : #define rotl16(x,n)   (((x) &lt;&lt; ((u16)(n))) | ((x) &gt;&gt; (16 - (u16)(n))))
+<span class="lineNum">     106 </span>            : #define rotr16(x,n)   (((x) &gt;&gt; ((u16)(n))) | ((x) &lt;&lt; (16 - (u16)(n))))
+<span class="lineNum">     107 </span>            : 
+<span class="lineNum">     108 </span>            : /* Use hardware rotations.. when available */
+<span class="lineNum">     109 </span>            : #ifdef swap32
+<span class="lineNum">     110 </span>            : # define byteswap32(x) swap32(x)
+<span class="lineNum">     111 </span>            : #else
+<span class="lineNum">     112 </span>            : # ifdef swap_32
+<span class="lineNum">     113 </span>            : #  define byteswap32(x) swap_32(x)
+<span class="lineNum">     114 </span>            : # else
+<span class="lineNum">     115 </span>            : #  ifdef bswap_32
+<span class="lineNum">     116 </span>            : #   define byteswap32(x) bswap_32(x)
+<span class="lineNum">     117 </span>            : #  else
+<span class="lineNum">     118 </span>            : #   define byteswap32(x)        ((rotl32(x, 8) &amp; 0x00ff00ff) | (rotr32(x, 8) &amp; 0xff00ff00))
+<span class="lineNum">     119 </span>            : #  endif
+<span class="lineNum">     120 </span>            : # endif
+<span class="lineNum">     121 </span>            : #endif
+<span class="lineNum">     122 </span>            : 
+<span class="lineNum">     123 </span>            : #ifdef swap16
+<span class="lineNum">     124 </span>            : # define byteswap16(x) swap16(x)
+<span class="lineNum">     125 </span>            : #else
+<span class="lineNum">     126 </span>            : # ifdef swap_16
+<span class="lineNum">     127 </span>            : #  define byteswap16(x) swap_16(x)
+<span class="lineNum">     128 </span>            : # else
+<span class="lineNum">     129 </span>            : #  ifdef bswap_16
+<span class="lineNum">     130 </span>            : #   define byteswap16(x) bswap_16(x)
+<span class="lineNum">     131 </span>            : #  else
+<span class="lineNum">     132 </span>            : #   define byteswap16(x)        ((rotl16(x, 8) &amp; 0x00ff) | (rotr16(x, 8) &amp; 0xff00))
+<span class="lineNum">     133 </span>            : #  endif
+<span class="lineNum">     134 </span>            : # endif
+<span class="lineNum">     135 </span>            : #endif
+<a name="136"><span class="lineNum">     136 </span>            : </a>
+<span class="lineNum">     137 </span>            : GFINLINE static
+<span class="lineNum">     138 </span>            : void memxor(unsigned char *o1, unsigned char *o2, int length)
+<span class="lineNum">     139 </span>            : {
+<span class="lineNum">     140 </span>            :         int i;
+<span class="lineNum">     141 </span>            : 
+<span class="lineNum">     142 </span><span class="lineCov">     204037 :         for (i = 0; i &lt; length; i++) {</span>
+<span class="lineNum">     143 </span><span class="lineCov">      92774 :                 o1[i] ^= o2[i];</span>
+<span class="lineNum">     144 </span>            :         }
+<span class="lineNum">     145 </span>            :         return;
+<span class="lineNum">     146 </span><span class="lineCov">       6163 : }</span>
+<span class="lineNum">     147 </span>            : 
+<span class="lineNum">     148 </span>            : 
+<span class="lineNum">     149 </span>            : #define Bzero(x, y) memset(x, 0, y)
+<span class="lineNum">     150 </span>            : 
+<span class="lineNum">     151 </span>            : #endif /*GPAC_DISABLE_MCRYPT*/
+<span class="lineNum">     152 </span>            : 
+<span class="lineNum">     153 </span>            : #ifdef __cplusplus
+<span class="lineNum">     154 </span>            : }
+<span class="lineNum">     155 </span>            : #endif
+<span class="lineNum">     156 </span>            : 
+<span class="lineNum">     157 </span>            : #endif  /*_GF_CRYPT_DEV_H_*/
+<span class="lineNum">     158 </span>            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

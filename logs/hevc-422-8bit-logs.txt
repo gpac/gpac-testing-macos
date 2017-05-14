@@ -1,0 +1,13 @@
+*** hevc-422-8bit logs (GPAC version 0.6.2-DEV-revUNKNOWN-HEAD ) - test date 14/05/2017 22:29:24 ***
+
+
+*** Subtest "import": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/external_media/rext/counter-bifs-1min-640x360-bipbop_422.hvc -new /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4" ***
+[32mHEVC import - frame size 640 x 360 at 25.000 FPS
+[0m[32mHEVC Import results: 1500 samples (1503 NALUs) - Slices: 47 I 0 P 1453 B - 0 SEI - 1 IDR
+[0m[32mStream uses forward prediction - stream CTS offset: 3 frames
+[0m[32mOpenGOP detected - adjusting file brand
+[0mSaving /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m

@@ -1,0 +1,31 @@
+*** dash-multiperiod logs (GPAC version 0.6.2-DEV-revUNKNOWN-HEAD ) - test date 14/05/2017 22:23:50 ***
+
+
+*** Subtest "multiperiod-input-preparation_180": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/external_media/counter/counter-10mn_I25_baseline_320x180_128kbps.264:dur=5 -new /Users/travis/build/gpac/gpac/tests/results/temp/counter_video_180.mp4" ***
+[33mCannot find file /Users/travis/build/gpac/gpac/tests/external_media/counter/counter-10mn_I25_baseline_320x180_128kbps.264
+[0mError importing /Users/travis/build/gpac/gpac/tests/external_media/counter/counter-10mn_I25_baseline_320x180_128kbps.264:dur=5: Requested URL is not valid or cannot be found
+
+
+*** Subtest "multiperiod-input-preparation2_320": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/external_media/counter/counter-10mn_I25_baseline_640x360_192kbps.264:dur=5 -new /Users/travis/build/gpac/gpac/tests/results/temp/counter_video_360.mp4" ***
+[33mCannot find file /Users/travis/build/gpac/gpac/tests/external_media/counter/counter-10mn_I25_baseline_640x360_192kbps.264
+[0mError importing /Users/travis/build/gpac/gpac/tests/external_media/counter/counter-10mn_I25_baseline_640x360_192kbps.264:dur=5: Requested URL is not valid or cannot be found
+
+
+*** Subtest "multiperiod-input-preparation3_720": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/external_media/counter/counter-10mn_I25_baseline_1280x720_512kbps.264:dur=5 -new /Users/travis/build/gpac/gpac/tests/results/temp/counter_video_720.mp4" ***
+[33mCannot find file /Users/travis/build/gpac/gpac/tests/external_media/counter/counter-10mn_I25_baseline_1280x720_512kbps.264
+[0mError importing /Users/travis/build/gpac/gpac/tests/external_media/counter/counter-10mn_I25_baseline_1280x720_512kbps.264:dur=5: Requested URL is not valid or cannot be found
+
+
+*** Subtest "multiperiod-input-preparation4_1080": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/external_media/counter/counter-10mn_I25_baseline_1920x1080_768kbps.264:dur=5 -new /Users/travis/build/gpac/gpac/tests/results/temp/counter_video_1080.mp4" ***
+[33mCannot find file /Users/travis/build/gpac/gpac/tests/external_media/counter/counter-10mn_I25_baseline_1920x1080_768kbps.264
+[0mError importing /Users/travis/build/gpac/gpac/tests/external_media/counter/counter-10mn_I25_baseline_1920x1080_768kbps.264:dur=5: Requested URL is not valid or cannot be found
+
+
+*** Subtest "multiperiod-input-preparation_audio": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/external_media/counter/counter-10mn_audio.aac:dur=5 -new /Users/travis/build/gpac/gpac/tests/results/temp/counter_audio.mp4" ***
+[33mOpening file /Users/travis/build/gpac/gpac/tests/external_media/counter/counter-10mn_audio.aac failed
+[0mError importing /Users/travis/build/gpac/gpac/tests/external_media/counter/counter-10mn_audio.aac:dur=5: Requested URL is not valid or cannot be found
+
+
+*** Subtest "dash-multiperiod": executing "MP4Box -noprog -for-test  -mem-track -bs-switching no -dash 10000 -frag 1000 -dash-profile live -out /Users/travis/build/gpac/gpac/tests/results/temp/file.mpd -segment-name mp4-live-periods-$RepresentationID$-$Number$ /Users/travis/build/gpac/gpac/tests/results/temp/counter_audio.mp4:id=aaclc:Period=P1 /Users/travis/build/gpac/gpac/tests/results/temp/counter_video_1080.mp4:id=h264bl_full:Period=P1 /Users/travis/build/gpac/gpac/tests/results/temp/counter_video_180.mp4:id=h264bl_low:Period=P1 /Users/travis/build/gpac/gpac/tests/results/temp/counter_audio.mp4:id=aaclc_p2:Period=P2 /Users/travis/build/gpac/gpac/tests/results/temp/counter_video_360.mp4:id=h264bl_mid:Period=P2 /Users/travis/build/gpac/gpac/tests/results/temp/counter_video_720.mp4:id=h264bl_hd:Period=P2" ***
+DASH Setup Error: Requested URL is not valid or cannot be found
+

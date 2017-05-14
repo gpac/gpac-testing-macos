@@ -1,0 +1,32 @@
+*** mp4box-io-logo.png logs (GPAC version 0.6.2-DEV-revUNKNOWN-HEAD ) - test date 14/05/2017 22:27:00 ***
+
+
+*** Subtest "RawMediaInfo": executing "MP4Box -noprog -for-test  -mem-track -info /Users/travis/build/gpac/gpac/tests/media/auxiliary_files/logo.png" ***
+Import probing results for /Users/travis/build/gpac/gpac/tests/media/auxiliary_files/logo.png:
+File has 1 tracks
+	Track 1 type: Video (png )
+
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "MediaImport": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/media/auxiliary_files/logo.png -new /Users/travis/build/gpac/gpac/tests/results/temp/logo.png.mp4" ***
+[32mPNG import /Users/travis/build/gpac/gpac/tests/media/auxiliary_files/logo.png - size 128 x 128
+[0mSaving /Users/travis/build/gpac/gpac/tests/results/temp/logo.png.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "MediaInfo": executing "MP4Box -noprog -for-test  -mem-track -info /Users/travis/build/gpac/gpac/tests/results/temp/logo.png.mp4" ***
+Error opening file /Users/travis/build/gpac/gpac/tests/results/temp/logo.png.mp4: Requested URL is not valid or cannot be found
+
+
+*** Subtest "MediaTime": executing "MP4Box -noprog -for-test  -mem-track -dts /Users/travis/build/gpac/gpac/tests/results/temp/logo.png.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/logo.png.2.tmp" ***
+Error opening file /Users/travis/build/gpac/gpac/tests/results/temp/logo.png.mp4: Requested URL is not valid or cannot be found
+
+
+*** Subtest "XMDDump": executing "MP4Box -noprog -for-test  -mem-track -diso /Users/travis/build/gpac/gpac/tests/results/temp/logo.png.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/logo.png.1.tmp" ***
+Error opening file /Users/travis/build/gpac/gpac/tests/results/temp/logo.png.mp4: Requested URL is not valid or cannot be found
+

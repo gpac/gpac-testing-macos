@@ -1,0 +1,1634 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - scenegraph/smil_anim.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">scenegraph</a> - smil_anim.c<span style="font-size: 80%;"> (source / <a href="smil_anim.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">782</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-05-14 22:31:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">34</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *                      GPAC - Multimedia Framework C SDK
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *                      Authors: Cyril Concolato
+<span class="lineNum">       5 </span>            :  *                      Copyright (c) Telecom ParisTech 2004-2012
+<span class="lineNum">       6 </span>            :  *
+<span class="lineNum">       7 </span>            :  *  This file is part of GPAC / SVG Scene Graph sub-project
+<span class="lineNum">       8 </span>            :  *
+<span class="lineNum">       9 </span>            :  *  GPAC is free software; you can redistribute it and/or modify
+<span class="lineNum">      10 </span>            :  *  it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">      11 </span>            :  *  the Free Software Foundation; either version 2, or (at your option)
+<span class="lineNum">      12 </span>            :  *  any later version.
+<span class="lineNum">      13 </span>            :  *
+<span class="lineNum">      14 </span>            :  *  GPAC is distributed in the hope that it will be useful,
+<span class="lineNum">      15 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      16 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      17 </span>            :  *  GNU Lesser General Public License for more details.
+<span class="lineNum">      18 </span>            :  *
+<span class="lineNum">      19 </span>            :  *  You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      20 </span>            :  *  License along with this library; see the file COPYING.  If not, write to
+<span class="lineNum">      21 </span>            :  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+<span class="lineNum">      22 </span>            :  *
+<span class="lineNum">      23 </span>            :  */
+<span class="lineNum">      24 </span>            : 
+<span class="lineNum">      25 </span>            : #include &lt;gpac/internal/scenegraph_dev.h&gt;
+<span class="lineNum">      26 </span>            : #include &lt;gpac/nodes_svg.h&gt;
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span>            : #ifndef GPAC_DISABLE_LOG
+<span class="lineNum">      29 </span>            : u32 time_spent_in_anim = 0;
+<span class="lineNum">      30 </span>            : #endif
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            : #ifndef GPAC_DISABLE_SVG
+<span class="lineNum">      33 </span>            : 
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span>            : /**************************************************************************************
+<span class="lineNum">      36 </span>            :  * Each GF_Node holds the (SVG/SMIL) animation elements which target itself in a list *
+<span class="lineNum">      37 </span>            :  * The following are the generic functions to manipulate this list:                                       *
+<span class="lineNum">      38 </span>            :  *  - add a new animation to the list,                                                *
+<span class="lineNum">      39 </span>            :  *  - get an animation from the list,                                                 *
+<span class="lineNum">      40 </span>            :  *  - remove an animation from the list,                                              *
+<span class="lineNum">      41 </span>            :  *  - count the animations in the list,                                               *
+<a name="42"><span class="lineNum">      42 </span>            :  *  - delete the list                                                                 *</a>
+<span class="lineNum">      43 </span>            :  **************************************************************************************/
+<span class="lineNum">      44 </span>            : GF_Err gf_node_animation_add(GF_Node *node, void *animation)
+<span class="lineNum">      45 </span>            : {
+<span class="lineNum">      46 </span><span class="lineNoCov">          0 :         if (!node || !animation) return GF_BAD_PARAM;</span>
+<span class="lineNum">      47 </span><span class="lineNoCov">          0 :         if (!node-&gt;sgprivate-&gt;interact) {</span>
+<span class="lineNum">      48 </span><span class="lineNoCov">          0 :                 GF_SAFEALLOC(node-&gt;sgprivate-&gt;interact, struct _node_interactive_ext);</span>
+<span class="lineNum">      49 </span><span class="lineNoCov">          0 :                 if (!node-&gt;sgprivate-&gt;interact) return GF_OUT_OF_MEM;</span>
+<span class="lineNum">      50 </span>            :         }
+<span class="lineNum">      51 </span><span class="lineNoCov">          0 :         if (!node-&gt;sgprivate-&gt;interact-&gt;animations) node-&gt;sgprivate-&gt;interact-&gt;animations = gf_list_new();</span>
+<span class="lineNum">      52 </span><span class="lineNoCov">          0 :         return gf_list_add(node-&gt;sgprivate-&gt;interact-&gt;animations, animation);</span>
+<a name="53"><span class="lineNum">      53 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      54 </span>            : 
+<span class="lineNum">      55 </span>            : GF_Err gf_node_animation_del(GF_Node *node)
+<span class="lineNum">      56 </span>            : {
+<span class="lineNum">      57 </span><span class="lineNoCov">          0 :         if (!node || !node-&gt;sgprivate-&gt;interact || !node-&gt;sgprivate-&gt;interact-&gt;animations) return GF_BAD_PARAM;</span>
+<span class="lineNum">      58 </span><span class="lineNoCov">          0 :         gf_list_del(node-&gt;sgprivate-&gt;interact-&gt;animations);</span>
+<span class="lineNum">      59 </span><span class="lineNoCov">          0 :         node-&gt;sgprivate-&gt;interact-&gt;animations = NULL;</span>
+<span class="lineNum">      60 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<a name="61"><span class="lineNum">      61 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      62 </span>            : 
+<span class="lineNum">      63 </span>            : u32 gf_node_animation_count(GF_Node *node)
+<span class="lineNum">      64 </span>            : {
+<span class="lineNum">      65 </span><span class="lineNoCov">          0 :         if (!node || !node-&gt;sgprivate-&gt;interact|| !node-&gt;sgprivate-&gt;interact-&gt;animations) return 0;</span>
+<span class="lineNum">      66 </span><span class="lineNoCov">          0 :         return gf_list_count(node-&gt;sgprivate-&gt;interact-&gt;animations);</span>
+<a name="67"><span class="lineNum">      67 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      68 </span>            : 
+<span class="lineNum">      69 </span>            : void *gf_node_animation_get(GF_Node *node, u32 i)
+<span class="lineNum">      70 </span>            : {
+<span class="lineNum">      71 </span><span class="lineNoCov">          0 :         if (!node || !node-&gt;sgprivate-&gt;interact || !node-&gt;sgprivate-&gt;interact-&gt;animations) return 0;</span>
+<span class="lineNum">      72 </span><span class="lineNoCov">          0 :         return gf_list_get(node-&gt;sgprivate-&gt;interact-&gt;animations, i);</span>
+<a name="73"><span class="lineNum">      73 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      74 </span>            : 
+<span class="lineNum">      75 </span>            : GF_Err gf_node_animation_rem(GF_Node *node, u32 i)
+<span class="lineNum">      76 </span>            : {
+<span class="lineNum">      77 </span><span class="lineNoCov">          0 :         if (!node || !node-&gt;sgprivate-&gt;interact || !node-&gt;sgprivate-&gt;interact-&gt;animations) return GF_OK;</span>
+<span class="lineNum">      78 </span><span class="lineNoCov">          0 :         return gf_list_rem(node-&gt;sgprivate-&gt;interact-&gt;animations, i);</span>
+<span class="lineNum">      79 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">      80 </span>            : /**************************************************************************************
+<span class="lineNum">      81 </span>            :  * End of Generic GF_Node animations list                                             *
+<span class="lineNum">      82 </span>            :  **************************************************************************************/
+<span class="lineNum">      83 </span>            : 
+<span class="lineNum">      84 </span>            : 
+<span class="lineNum">      85 </span>            : /**************************************************************************************
+<span class="lineNum">      86 </span>            :  * Helping functions for animation                                                    *
+<span class="lineNum">      87 </span>            :  **************************************************************************************/
+<a name="88"><span class="lineNum">      88 </span>            : /* Sets the pointer to the attribute value with the pointer</a>
+<span class="lineNum">      89 </span>            :    to the value which passed (if unspecified) */
+<span class="lineNum">      90 </span>            : void gf_svg_attributes_resolve_unspecified(GF_FieldInfo *in, GF_FieldInfo *p, GF_FieldInfo *t)
+<span class="lineNum">      91 </span>            : {
+<span class="lineNum">      92 </span><span class="lineNoCov">          0 :         if (in-&gt;fieldType == 0) {</span>
+<span class="lineNum">      93 </span><span class="lineNoCov">          0 :                 if (p-&gt;fieldType == SVG_Transform_datatype) {</span>
+<span class="lineNum">      94 </span>            :                         /* if the input value is not specified, and the presentation value is of type Transform,
+<span class="lineNum">      95 </span>            :                            then we should use the default identity transform instead of the presentation value */
+<span class="lineNum">      96 </span><span class="lineNoCov">          0 :                         *in = *t;</span>
+<span class="lineNum">      97 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">      98 </span><span class="lineNoCov">          0 :                         *in = *p;</span>
+<span class="lineNum">      99 </span>            :                 }
+<span class="lineNum">     100 </span>            :         }
+<span class="lineNum">     101 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     102 </span>            : 
+<a name="103"><span class="lineNum">     103 </span>            : /* Replaces the pointer to the attribute value with the pointer</a>
+<span class="lineNum">     104 </span>            :    to the value which is inherited (if inherited) */
+<span class="lineNum">     105 </span>            : void gf_svg_attributes_resolve_inherit(GF_FieldInfo *in, GF_FieldInfo *prop)
+<span class="lineNum">     106 </span>            : {
+<span class="lineNum">     107 </span><span class="lineNoCov">          0 :         if (gf_svg_is_inherit(in)) *in = *prop;</span>
+<span class="lineNum">     108 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     109 </span>            : 
+<a name="110"><span class="lineNum">     110 </span>            : /* Replaces the pointer to the attribute value with the pointer</a>
+<span class="lineNum">     111 </span>            :    to the value of the color attribute (if the current value is set to currentColor) */
+<span class="lineNum">     112 </span>            : void gf_svg_attributes_resolve_currentColor(GF_FieldInfo *in, GF_FieldInfo *current_color)
+<span class="lineNum">     113 </span>            : {
+<span class="lineNum">     114 </span><span class="lineNoCov">          0 :         if ((in-&gt;fieldType == SVG_Paint_datatype) &amp;&amp; gf_svg_is_current_color(in)) {</span>
+<span class="lineNum">     115 </span><span class="lineNoCov">          0 :                 *in = *current_color;</span>
+<span class="lineNum">     116 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     117 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     118 </span>            : 
+<span class="lineNum">     119 </span>            : /**************************************************************************************
+<span class="lineNum">     120 </span>            :  * The main function doing evaluation of the animation is: gf_smil_anim_evaluate      *
+<span class="lineNum">     121 </span>            :  * Depending on the timing status of the animation it calls:                          *
+<span class="lineNum">     122 </span>            :  * - gf_smil_anim_animate                                                             *
+<span class="lineNum">     123 </span>            :  * - gf_smil_anim_animate_with_fraction                                                                                           *
+<span class="lineNum">     124 </span>            :  * - gf_smil_anim_freeze                                                                                                                          *
+<span class="lineNum">     125 </span>            :  * - gf_smil_anim_remove                                                                                                                          *
+<span class="lineNum">     126 </span>            :  *                                                                                                                                                                        *
+<span class="lineNum">     127 </span>            :  * The gf_smil_anim_animate consists in                                                                                           *
+<span class="lineNum">     128 </span>            :  * - interpolating using gf_smil_anim_compute_interpolation_value                                         *
+<span class="lineNum">     129 </span>            :  * - accumulating using gf_smil_anim_apply_accumulate                                             *
+<span class="lineNum">     130 </span>            :  * - applying additive behavior                                                       *
+<span class="lineNum">     131 </span>            :  *                                                                                                                                                                        *
+<span class="lineNum">     132 </span>            :  * Depending on the animation attributes, one of the following functions is called    *
+<span class="lineNum">     133 </span>            :  * by the function gf_smil_anim_compute_interpolation_value                           *
+<span class="lineNum">     134 </span>            :  * - gf_smil_anim_set                                                                 *
+<span class="lineNum">     135 </span>            :  * - gf_smil_anim_animate_using_values                                                *
+<span class="lineNum">     136 </span>            :  * - gf_smil_anim_animate_from_to                                                     *
+<span class="lineNum">     137 </span>            :  * - gf_smil_anim_animate_from_by                                                     *
+<span class="lineNum">     138 </span>            :  * - gf_smil_anim_animate_using_path                                                  *
+<span class="lineNum">     139 </span>            :  *                                                                                    *
+<span class="lineNum">     140 </span>            :  * In most animation methods, the important step in the animation is to resolve       *
+<span class="lineNum">     141 </span>            :  *  the inherit and currentColor values to perform further interpolation, i.e. calls: *
+<span class="lineNum">     142 </span>            :  *      gf_svg_attributes_resolve_currentColor(&amp;info, &amp;rai-&gt;owner-&gt;current_color_value);  *
+<span class="lineNum">     143 </span>            :  *      gf_svg_attributes_resolve_inherit(&amp;info, &amp;rai-&gt;owner-&gt;parent_presentation_value); *
+<a name="144"><span class="lineNum">     144 </span>            :  *                                                                                    *</a>
+<span class="lineNum">     145 </span>            :  **************************************************************************************/
+<span class="lineNum">     146 </span>            : static void gf_smil_anim_set(SMIL_Anim_RTI *rai)
+<span class="lineNum">     147 </span>            : {
+<span class="lineNum">     148 </span><span class="lineNoCov">          0 :         GF_FieldInfo to_info;</span>
+<span class="lineNum">     149 </span><span class="lineNoCov">          0 :         SMILAnimationAttributesPointers *animp = rai-&gt;animp;</span>
+<span class="lineNum">     150 </span>            : 
+<span class="lineNum">     151 </span><span class="lineNoCov">          0 :         if (!animp-&gt;to) {</span>
+<span class="lineNum">     152 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_SMIL,</span>
+<span class="lineNum">     153 </span>            :                        (&quot;[SMIL Animation] Animation     %s - set element without to attribute\n&quot;,
+<span class="lineNum">     154 </span>            :                         gf_node_get_log_name((GF_Node *)rai-&gt;anim_elt)));
+<span class="lineNum">     155 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     156 </span>            :         }
+<span class="lineNum">     157 </span><span class="lineNoCov">          0 :         if (!animp-&gt;to-&gt;type) {</span>
+<span class="lineNum">     158 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_SMIL,</span>
+<span class="lineNum">     159 </span>            :                        (&quot;[SMIL Animation] Animation     %s - set element with an unparsed to attribute\n&quot;,
+<span class="lineNum">     160 </span>            :                         gf_node_get_log_name((GF_Node *)rai-&gt;anim_elt)));
+<span class="lineNum">     161 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     162 </span>            :         }
+<span class="lineNum">     163 </span>            : 
+<span class="lineNum">     164 </span><span class="lineNoCov">          0 :         if (rai-&gt;change_detection_mode) {</span>
+<span class="lineNum">     165 </span>            :                 /* if the set has been applied, unless next animations are additive we don't need
+<span class="lineNum">     166 </span>            :                    to apply it again */
+<span class="lineNum">     167 </span><span class="lineNoCov">          0 :                 if (rai-&gt;previous_coef &gt; 0) rai-&gt;interpolated_value_changed = 0;</span>
+<span class="lineNum">     168 </span><span class="lineNoCov">          0 :                 else rai-&gt;interpolated_value_changed = 1;</span>
+<span class="lineNum">     169 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     170 </span>            :         } else {
+<span class="lineNum">     171 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_DEBUG, GF_LOG_SMIL,</span>
+<span class="lineNum">     172 </span>            :                        (&quot;[SMIL Animation] Time %f - Animation     %s - applying set animation\n&quot;,
+<span class="lineNum">     173 </span>            :                         gf_node_get_scene_time((GF_Node*)rai-&gt;anim_elt),
+<span class="lineNum">     174 </span>            :                         gf_node_get_log_name((GF_Node *)rai-&gt;anim_elt)));
+<span class="lineNum">     175 </span>            : 
+<span class="lineNum">     176 </span><span class="lineNoCov">          0 :                 to_info.fieldType = animp-&gt;to-&gt;type;</span>
+<span class="lineNum">     177 </span><span class="lineNoCov">          0 :                 to_info.far_ptr   = animp-&gt;to-&gt;value;</span>
+<span class="lineNum">     178 </span>            :                 /* we do not need to resolve currentColor values or inherit values here,
+<span class="lineNum">     179 </span>            :                    because no further interpolation is required for the animation and
+<span class="lineNum">     180 </span>            :                    because inheritance is applied after animations in the compositor. */
+<span class="lineNum">     181 </span>            : 
+<span class="lineNum">     182 </span><span class="lineNoCov">          0 :                 gf_svg_attributes_copy(&amp;rai-&gt;interpolated_value, &amp;to_info, 0);</span>
+<span class="lineNum">     183 </span><span class="lineNoCov">          0 :                 rai-&gt;previous_coef = FIX_ONE;</span>
+<span class="lineNum">     184 </span>            :         }
+<a name="185"><span class="lineNum">     185 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     186 </span>            : 
+<span class="lineNum">     187 </span>            : static void gf_smil_anim_use_keypoints_keytimes(SMIL_Anim_RTI *rai, Fixed normalized_simple_time,
+<span class="lineNum">     188 </span>            :         Fixed *interpolation_coefficient, u32 *keyValueIndex)
+<span class="lineNum">     189 </span>            : {
+<span class="lineNum">     190 </span><span class="lineNoCov">          0 :         SMILAnimationAttributesPointers *animp = rai-&gt;animp;</span>
+<span class="lineNum">     191 </span>            :         u32 keyTimeIndex = 0;
+<span class="lineNum">     192 </span>            :         Fixed interval_duration;
+<span class="lineNum">     193 </span>            : 
+<span class="lineNum">     194 </span><span class="lineNoCov">          0 :         *interpolation_coefficient = normalized_simple_time;</span>
+<span class="lineNum">     195 </span>            : 
+<span class="lineNum">     196 </span>            :         /* Computing new interpolation coefficient */
+<span class="lineNum">     197 </span><span class="lineNoCov">          0 :         if (rai-&gt;key_times_count) {</span>
+<span class="lineNum">     198 </span>            :                 Fixed keyTimeBefore = 0, keyTimeAfter=0;
+<span class="lineNum">     199 </span><span class="lineNoCov">          0 :                 for (keyTimeIndex = rai-&gt;previous_keytime_index; keyTimeIndex&lt; rai-&gt;key_times_count; keyTimeIndex++) {</span>
+<span class="lineNum">     200 </span><span class="lineNoCov">          0 :                         Fixed *tm1, *t = (Fixed *)gf_list_get(*animp-&gt;keyTimes, keyTimeIndex);</span>
+<span class="lineNum">     201 </span><span class="lineNoCov">          0 :                         if (normalized_simple_time &lt; *t) {</span>
+<span class="lineNum">     202 </span><span class="lineNoCov">          0 :                                 rai-&gt;previous_keytime_index = keyTimeIndex;</span>
+<span class="lineNum">     203 </span><span class="lineNoCov">          0 :                                 tm1 = (Fixed *) gf_list_get(*animp-&gt;keyTimes, keyTimeIndex-1);</span>
+<span class="lineNum">     204 </span><span class="lineNoCov">          0 :                                 if (tm1) keyTimeBefore = *tm1;</span>
+<span class="lineNum">     205 </span>            :                                 else keyTimeBefore = 0;
+<span class="lineNum">     206 </span><span class="lineNoCov">          0 :                                 keyTimeAfter = *t;</span>
+<span class="lineNum">     207 </span><span class="lineNoCov">          0 :                                 break;</span>
+<span class="lineNum">     208 </span>            :                         }
+<span class="lineNum">     209 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     210 </span><span class="lineNoCov">          0 :                 keyTimeIndex--;</span>
+<span class="lineNum">     211 </span><span class="lineNoCov">          0 :                 interval_duration = keyTimeAfter - keyTimeBefore;</span>
+<span class="lineNum">     212 </span><span class="lineNoCov">          0 :                 if (keyValueIndex) *keyValueIndex = keyTimeIndex;</span>
+<span class="lineNum">     213 </span><span class="lineNoCov">          0 :                 if (interval_duration)</span>
+<span class="lineNum">     214 </span><span class="lineNoCov">          0 :                         *interpolation_coefficient = gf_divfix(normalized_simple_time - keyTimeBefore, interval_duration);</span>
+<span class="lineNum">     215 </span>            :                 else
+<span class="lineNum">     216 </span><span class="lineNoCov">          0 :                         *interpolation_coefficient = FIX_ONE;</span>
+<span class="lineNum">     217 </span><span class="lineNoCov">          0 :                 if (!rai-&gt;change_detection_mode)</span>
+<span class="lineNum">     218 </span><span class="lineNoCov">          0 :                         GF_LOG(GF_LOG_DEBUG, GF_LOG_SMIL,</span>
+<span class="lineNum">     219 </span>            :                                (&quot;[SMIL Animation] Time %f - Animation     %s - Using Key Times: index %d, interval duration %.2f, coeff: %.2f\n&quot;,
+<span class="lineNum">     220 </span>            :                                 gf_node_get_scene_time((GF_Node*)rai-&gt;anim_elt),
+<span class="lineNum">     221 </span>            :                                 gf_node_get_log_name((GF_Node *)rai-&gt;anim_elt),
+<span class="lineNum">     222 </span>            :                                 keyTimeIndex,
+<span class="lineNum">     223 </span>            :                                 interval_duration,
+<span class="lineNum">     224 </span>            :                                 interpolation_coefficient));
+<span class="lineNum">     225 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     226 </span>            : 
+<span class="lineNum">     227 </span><span class="lineNoCov">          0 :         if (rai-&gt;anim_elt-&gt;sgprivate-&gt;tag == TAG_SVG_animateMotion &amp;&amp; rai-&gt;key_points_count) {</span>
+<span class="lineNum">     228 </span>            :                 Fixed *p1, *p2;
+<span class="lineNum">     229 </span><span class="lineNoCov">          0 :                 p1 = (Fixed *)gf_list_get(*animp-&gt;keyPoints, keyTimeIndex);</span>
+<span class="lineNum">     230 </span><span class="lineNoCov">          0 :                 if (animp-&gt;calcMode &amp;&amp; *animp-&gt;calcMode == SMIL_CALCMODE_DISCRETE) {</span>
+<span class="lineNum">     231 </span><span class="lineNoCov">          0 :                         *interpolation_coefficient = *p1;</span>
+<span class="lineNum">     232 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     233 </span><span class="lineNoCov">          0 :                         p2 = (Fixed *)gf_list_get(*animp-&gt;keyPoints, keyTimeIndex+1);</span>
+<span class="lineNum">     234 </span><span class="lineNoCov">          0 :                         *interpolation_coefficient = gf_mulfix(FIX_ONE - *interpolation_coefficient, *p1)</span>
+<span class="lineNum">     235 </span><span class="lineNoCov">          0 :                                                      + gf_mulfix(*interpolation_coefficient, (p2 ? *p2 : *p1));</span>
+<span class="lineNum">     236 </span>            :                 }
+<span class="lineNum">     237 </span><span class="lineNoCov">          0 :                 if (keyValueIndex) *keyValueIndex = 0;</span>
+<span class="lineNum">     238 </span><span class="lineNoCov">          0 :                 if (!rai-&gt;change_detection_mode)</span>
+<span class="lineNum">     239 </span><span class="lineNoCov">          0 :                         GF_LOG(GF_LOG_DEBUG, GF_LOG_SMIL,</span>
+<span class="lineNum">     240 </span>            :                                (&quot;[SMIL Animation] Time %f - Animation     %s - Using Key Points: key Point Index %d, coeff: %.2f\n&quot;,
+<span class="lineNum">     241 </span>            :                                 gf_node_get_scene_time((GF_Node*)rai-&gt;anim_elt), gf_node_get_log_name((GF_Node *)rai-&gt;anim_elt), keyTimeIndex, *interpolation_coefficient));
+<span class="lineNum">     242 </span><span class="lineNoCov">          0 :         }</span>
+<a name="243"><span class="lineNum">     243 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     244 </span>            : 
+<span class="lineNum">     245 </span>            : static void gf_smil_anim_animate_using_values(SMIL_Anim_RTI *rai, Fixed normalized_simple_time)
+<span class="lineNum">     246 </span>            : {
+<span class="lineNum">     247 </span><span class="lineNoCov">          0 :         SMILAnimationAttributesPointers *animp = rai-&gt;animp;</span>
+<span class="lineNum">     248 </span>            :         GF_List *values = NULL;
+<span class="lineNum">     249 </span><span class="lineNoCov">          0 :         GF_FieldInfo value_info, value_info_next;</span>
+<span class="lineNum">     250 </span><span class="lineNoCov">          0 :         u32 keyValueIndex;</span>
+<span class="lineNum">     251 </span><span class="lineNoCov">          0 :         Fixed interpolation_coefficient;</span>
+<span class="lineNum">     252 </span>            :         u32 real_calcMode;
+<span class="lineNum">     253 </span>            : 
+<span class="lineNum">     254 </span><span class="lineNoCov">          0 :         values = animp-&gt;values-&gt;values;</span>
+<span class="lineNum">     255 </span>            : 
+<span class="lineNum">     256 </span><span class="lineNoCov">          0 :         memset(&amp;value_info, 0, sizeof(GF_FieldInfo));</span>
+<span class="lineNum">     257 </span><span class="lineNoCov">          0 :         value_info.fieldType = animp-&gt;values-&gt;type;</span>
+<span class="lineNum">     258 </span><span class="lineNoCov">          0 :         value_info_next = value_info;</span>
+<span class="lineNum">     259 </span>            : 
+<span class="lineNum">     260 </span><span class="lineNoCov">          0 :         real_calcMode = (gf_svg_attribute_is_interpolatable(animp-&gt;values-&gt;type)?</span>
+<span class="lineNum">     261 </span><span class="lineNoCov">          0 :                          (animp-&gt;calcMode ? *animp-&gt;calcMode : SMIL_CALCMODE_LINEAR):</span>
+<span class="lineNum">     262 </span>            :                          SMIL_CALCMODE_DISCRETE
+<span class="lineNum">     263 </span>            :                         );
+<span class="lineNum">     264 </span>            : 
+<span class="lineNum">     265 </span><span class="lineNoCov">          0 :         if (rai-&gt;values_count == 1) {</span>
+<span class="lineNum">     266 </span><span class="lineNoCov">          0 :                 if (rai-&gt;change_detection_mode) {</span>
+<span class="lineNum">     267 </span>            :                         /* Since we have only 1 value, the previous key index should always be 0,
+<span class="lineNum">     268 </span>            :                            unless the animation has not started or is reset (-1) */
+<span class="lineNum">     269 </span><span class="lineNoCov">          0 :                         if (rai-&gt;previous_key_index == 0) rai-&gt;interpolated_value_changed = 0;</span>
+<span class="lineNum">     270 </span><span class="lineNoCov">          0 :                         else rai-&gt;interpolated_value_changed = 1;</span>
+<span class="lineNum">     271 </span><span class="lineNoCov">          0 :                         return;</span>
+<span class="lineNum">     272 </span>            :                 } else {
+<span class="lineNum">     273 </span><span class="lineNoCov">          0 :                         value_info.far_ptr = gf_list_get(values, 0);</span>
+<span class="lineNum">     274 </span>            :                         /* no further interpolation needed
+<span class="lineNum">     275 </span>            :                            therefore no need to resolve inherit and currentColor */
+<span class="lineNum">     276 </span><span class="lineNoCov">          0 :                         gf_svg_attributes_copy(&amp;rai-&gt;interpolated_value, &amp;value_info, 0);</span>
+<span class="lineNum">     277 </span><span class="lineNoCov">          0 :                         rai-&gt;previous_key_index = 0;</span>
+<span class="lineNum">     278 </span><span class="lineNoCov">          0 :                         GF_LOG(GF_LOG_DEBUG, GF_LOG_SMIL,</span>
+<span class="lineNum">     279 </span>            :                                (&quot;[SMIL Animation] Time %f - Animation     %s - Using values[0] as interpolation value\n&quot;,
+<span class="lineNum">     280 </span>            :                                 gf_node_get_scene_time((GF_Node*)rai-&gt;anim_elt), gf_node_get_log_name((GF_Node *)rai-&gt;anim_elt)));
+<span class="lineNum">     281 </span><span class="lineNoCov">          0 :                         return;</span>
+<span class="lineNum">     282 </span>            :                 }
+<span class="lineNum">     283 </span>            :         }
+<span class="lineNum">     284 </span>            : 
+<span class="lineNum">     285 </span>            :         /* Computing new key value index and interpolation coefficient */
+<span class="lineNum">     286 </span><span class="lineNoCov">          0 :         if (!rai-&gt;key_times_count) {</span>
+<span class="lineNum">     287 </span><span class="lineNoCov">          0 :                 if (real_calcMode == SMIL_CALCMODE_DISCRETE) {</span>
+<span class="lineNum">     288 </span><span class="lineNoCov">          0 :                         if (normalized_simple_time == FIX_ONE) {</span>
+<span class="lineNum">     289 </span><span class="lineNoCov">          0 :                                 keyValueIndex = rai-&gt;values_count-1;</span>
+<span class="lineNum">     290 </span><span class="lineNoCov">          0 :                                 interpolation_coefficient = FIX_ONE;</span>
+<span class="lineNum">     291 </span><span class="lineNoCov">          0 :                         } else {</span>
+<span class="lineNum">     292 </span><span class="lineNoCov">          0 :                                 Fixed tmp = normalized_simple_time*rai-&gt;values_count;</span>
+<span class="lineNum">     293 </span><span class="lineNoCov">          0 :                                 Fixed tmp_floor = gf_floor(tmp);</span>
+<span class="lineNum">     294 </span><span class="lineNoCov">          0 :                                 if ((tmp - tmp_floor) == 0 &amp;&amp; tmp) {</span>
+<span class="lineNum">     295 </span><span class="lineNoCov">          0 :                                         keyValueIndex = FIX2INT(tmp_floor) - 1;</span>
+<span class="lineNum">     296 </span><span class="lineNoCov">          0 :                                 } else {</span>
+<span class="lineNum">     297 </span><span class="lineNoCov">          0 :                                         keyValueIndex = FIX2INT(tmp_floor);</span>
+<span class="lineNum">     298 </span>            :                                 }
+<span class="lineNum">     299 </span><span class="lineNoCov">          0 :                                 interpolation_coefficient = tmp - INT2FIX(keyValueIndex);</span>
+<span class="lineNum">     300 </span>            :                         }
+<span class="lineNum">     301 </span>            :                 } else {
+<span class="lineNum">     302 </span><span class="lineNoCov">          0 :                         Fixed tmp = normalized_simple_time*(rai-&gt;values_count-1);</span>
+<span class="lineNum">     303 </span><span class="lineNoCov">          0 :                         if (normalized_simple_time == FIX_ONE) {</span>
+<span class="lineNum">     304 </span><span class="lineNoCov">          0 :                                 keyValueIndex = rai-&gt;values_count-2;</span>
+<span class="lineNum">     305 </span><span class="lineNoCov">          0 :                         } else {</span>
+<span class="lineNum">     306 </span><span class="lineNoCov">          0 :                                 keyValueIndex = FIX2INT(gf_floor(tmp));</span>
+<span class="lineNum">     307 </span>            :                         }
+<span class="lineNum">     308 </span><span class="lineNoCov">          0 :                         interpolation_coefficient = tmp - INT2FIX(keyValueIndex);</span>
+<span class="lineNum">     309 </span>            :                 }
+<span class="lineNum">     310 </span>            :                 //GF_LOG(GF_LOG_DEBUG, GF_LOG_SMIL, (&quot;[SMIL Animation] Time %f - Animation     %s - No KeyTimes: key index %d, coeff: %.2f\n&quot;, gf_node_get_scene_time((GF_Node*)rai-&gt;anim_elt), gf_node_get_log_name((GF_Node *)rai-&gt;anim_elt), keyValueIndex, FIX2FLT(interpolation_coefficient)));
+<span class="lineNum">     311 </span>            :         } else {
+<span class="lineNum">     312 </span><span class="lineNoCov">          0 :                 gf_smil_anim_use_keypoints_keytimes(rai, normalized_simple_time, &amp;interpolation_coefficient, &amp;keyValueIndex);</span>
+<span class="lineNum">     313 </span>            :         }
+<span class="lineNum">     314 </span>            : 
+<span class="lineNum">     315 </span><span class="lineNoCov">          0 :         if (rai-&gt;change_detection_mode) {</span>
+<span class="lineNum">     316 </span><span class="lineNoCov">          0 :                 if (real_calcMode == SMIL_CALCMODE_DISCRETE &amp;&amp; rai-&gt;previous_key_index == (s32)keyValueIndex &amp;&amp; rai-&gt;previous_coef != -FIX_ONE) {</span>
+<span class="lineNum">     317 </span><span class="lineNoCov">          0 :                         rai-&gt;interpolated_value_changed = 0;</span>
+<span class="lineNum">     318 </span><span class="lineNoCov">          0 :                 } else if (rai-&gt;previous_key_index == (s32)keyValueIndex &amp;&amp; rai-&gt;previous_coef == interpolation_coefficient)</span>
+<span class="lineNum">     319 </span><span class="lineNoCov">          0 :                         rai-&gt;interpolated_value_changed = 0;</span>
+<span class="lineNum">     320 </span>            :                 else
+<span class="lineNum">     321 </span><span class="lineNoCov">          0 :                         rai-&gt;interpolated_value_changed = 1;</span>
+<span class="lineNum">     322 </span>            :         } else {
+<span class="lineNum">     323 </span><span class="lineNoCov">          0 :                 rai-&gt;previous_key_index = keyValueIndex;</span>
+<span class="lineNum">     324 </span><span class="lineNoCov">          0 :                 rai-&gt;previous_coef = interpolation_coefficient;</span>
+<span class="lineNum">     325 </span>            : 
+<span class="lineNum">     326 </span><span class="lineNoCov">          0 :                 switch (real_calcMode) {</span>
+<span class="lineNum">     327 </span>            :                 case SMIL_CALCMODE_DISCRETE:
+<span class="lineNum">     328 </span><span class="lineNoCov">          0 :                         GF_LOG(GF_LOG_DEBUG, GF_LOG_SMIL,</span>
+<span class="lineNum">     329 </span>            :                                (&quot;[SMIL Animation] Time %f - Animation     %s - applying discrete animation using values (key value index: %d)\n&quot;,
+<span class="lineNum">     330 </span>            :                                 gf_node_get_scene_time((GF_Node*)rai-&gt;anim_elt), gf_node_get_log_name((GF_Node *)rai-&gt;anim_elt), keyValueIndex));
+<span class="lineNum">     331 </span><span class="lineNoCov">          0 :                         value_info.far_ptr = gf_list_get(values, keyValueIndex);</span>
+<span class="lineNum">     332 </span>            :                         /* no further interpolation needed
+<span class="lineNum">     333 </span>            :                            therefore no need to resolve inherit and currentColor */
+<span class="lineNum">     334 </span><span class="lineNoCov">          0 :                         gf_svg_attributes_copy(&amp;rai-&gt;interpolated_value, &amp;value_info, 0);</span>
+<span class="lineNum">     335 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     336 </span>            :                 case SMIL_CALCMODE_PACED:
+<span class="lineNum">     337 </span>            :                 /* TODO: at the moment assume it is linear */
+<span class="lineNum">     338 </span>            :                 case SMIL_CALCMODE_SPLINE:
+<span class="lineNum">     339 </span>            :                 /* TODO: at the moment assume it is linear */
+<span class="lineNum">     340 </span>            :                 case SMIL_CALCMODE_LINEAR:
+<span class="lineNum">     341 </span><span class="lineNoCov">          0 :                         if (keyValueIndex == rai-&gt;values_count - 1) {</span>
+<span class="lineNum">     342 </span><span class="lineNoCov">          0 :                                 GF_LOG(GF_LOG_DEBUG, GF_LOG_SMIL,</span>
+<span class="lineNum">     343 </span>            :                                        (&quot;[SMIL Animation] Time %f - Animation     %s - applying linear animation using values (setting last key value: %d)\n&quot;,
+<span class="lineNum">     344 </span>            :                                         gf_node_get_scene_time((GF_Node*)rai-&gt;anim_elt), gf_node_get_log_name((GF_Node *)rai-&gt;anim_elt), keyValueIndex));
+<span class="lineNum">     345 </span><span class="lineNoCov">          0 :                                 value_info.far_ptr = gf_list_get(values, rai-&gt;values_count - 1);</span>
+<span class="lineNum">     346 </span>            :                                 /* no further interpolation needed
+<span class="lineNum">     347 </span>            :                                    therefore no need to resolve inherit and currentColor */
+<span class="lineNum">     348 </span><span class="lineNoCov">          0 :                                 gf_svg_attributes_copy(&amp;rai-&gt;interpolated_value, &amp;value_info, 0);</span>
+<span class="lineNum">     349 </span><span class="lineNoCov">          0 :                         } else {</span>
+<span class="lineNum">     350 </span>            : 
+<span class="lineNum">     351 </span><span class="lineNoCov">          0 :                                 GF_LOG(GF_LOG_DEBUG, GF_LOG_SMIL,</span>
+<span class="lineNum">     352 </span>            :                                        (&quot;[SMIL Animation] Time %f - Animation     %s - applying linear animation using values (key value indices: %d, %d / coeff: %f)\n&quot;,
+<span class="lineNum">     353 </span>            :                                         gf_node_get_scene_time((GF_Node*)rai-&gt;anim_elt), gf_node_get_log_name((GF_Node *)rai-&gt;anim_elt), keyValueIndex, keyValueIndex+1, interpolation_coefficient));
+<span class="lineNum">     354 </span><span class="lineNoCov">          0 :                                 value_info.far_ptr = gf_list_get(values, keyValueIndex);</span>
+<span class="lineNum">     355 </span><span class="lineNoCov">          0 :                                 if (rai-&gt;owner-&gt;is_property &amp;&amp; gf_svg_attribute_is_interpolatable(animp-&gt;values-&gt;type)) {</span>
+<span class="lineNum">     356 </span><span class="lineNoCov">          0 :                                         gf_svg_attributes_resolve_currentColor(&amp;value_info, &amp;rai-&gt;owner-&gt;current_color_value);</span>
+<span class="lineNum">     357 </span><span class="lineNoCov">          0 :                                         gf_svg_attributes_resolve_inherit(&amp;value_info, &amp;rai-&gt;owner-&gt;parent_presentation_value);</span>
+<span class="lineNum">     358 </span><span class="lineNoCov">          0 :                                 }</span>
+<span class="lineNum">     359 </span>            : 
+<span class="lineNum">     360 </span><span class="lineNoCov">          0 :                                 value_info_next.far_ptr = gf_list_get(values, keyValueIndex+1);</span>
+<span class="lineNum">     361 </span><span class="lineNoCov">          0 :                                 if (rai-&gt;owner-&gt;is_property &amp;&amp; gf_svg_attribute_is_interpolatable(animp-&gt;values-&gt;type)) {</span>
+<span class="lineNum">     362 </span><span class="lineNoCov">          0 :                                         gf_svg_attributes_resolve_currentColor(&amp;value_info_next, &amp;rai-&gt;owner-&gt;current_color_value);</span>
+<span class="lineNum">     363 </span><span class="lineNoCov">          0 :                                         gf_svg_attributes_resolve_inherit(&amp;value_info_next, &amp;rai-&gt;owner-&gt;parent_presentation_value);</span>
+<span class="lineNum">     364 </span><span class="lineNoCov">          0 :                                 }</span>
+<span class="lineNum">     365 </span>            : 
+<span class="lineNum">     366 </span><span class="lineNoCov">          0 :                                 gf_svg_attributes_interpolate(&amp;value_info,</span>
+<span class="lineNum">     367 </span>            :                                                               &amp;value_info_next,
+<span class="lineNum">     368 </span><span class="lineNoCov">          0 :                                                               &amp;rai-&gt;interpolated_value,</span>
+<span class="lineNum">     369 </span><span class="lineNoCov">          0 :                                                               interpolation_coefficient, 1);</span>
+<span class="lineNum">     370 </span>            :                         }
+<span class="lineNum">     371 </span>            :                         break;
+<span class="lineNum">     372 </span>            :                 }
+<span class="lineNum">     373 </span>            :         }
+<a name="374"><span class="lineNum">     374 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     375 </span>            : 
+<span class="lineNum">     376 </span>            : static void gf_smil_anim_animate_from_to(SMIL_Anim_RTI *rai, Fixed normalized_simple_time)
+<span class="lineNum">     377 </span>            : {
+<span class="lineNum">     378 </span><span class="lineNoCov">          0 :         GF_FieldInfo from_info, to_info;</span>
+<span class="lineNum">     379 </span><span class="lineNoCov">          0 :         SMILAnimationAttributesPointers *animp = rai-&gt;animp;</span>
+<span class="lineNum">     380 </span><span class="lineNoCov">          0 :         Fixed interpolation_coefficient;</span>
+<span class="lineNum">     381 </span><span class="lineNoCov">          0 :         s32 useFrom = (normalized_simple_time&lt;=FIX_ONE/2);</span>
+<span class="lineNum">     382 </span>            :         u32 real_calcMode;
+<span class="lineNum">     383 </span>            : 
+<span class="lineNum">     384 </span><span class="lineNoCov">          0 :         real_calcMode = (animp-&gt;to &amp;&amp; gf_svg_attribute_is_interpolatable(animp-&gt;to-&gt;type)?</span>
+<span class="lineNum">     385 </span><span class="lineNoCov">          0 :                          (animp-&gt;calcMode ? *animp-&gt;calcMode : SMIL_CALCMODE_LINEAR):</span>
+<span class="lineNum">     386 </span>            :                          SMIL_CALCMODE_DISCRETE
+<span class="lineNum">     387 </span>            :                         );
+<span class="lineNum">     388 </span>            : 
+<span class="lineNum">     389 </span><span class="lineNoCov">          0 :         if (rai-&gt;change_detection_mode) {</span>
+<span class="lineNum">     390 </span><span class="lineNoCov">          0 :                 if (rai-&gt;previous_coef == normalized_simple_time)</span>
+<span class="lineNum">     391 </span><span class="lineNoCov">          0 :                         rai-&gt;interpolated_value_changed = 0;</span>
+<span class="lineNum">     392 </span>            :                 else {
+<span class="lineNum">     393 </span><span class="lineNoCov">          0 :                         if (real_calcMode == SMIL_CALCMODE_DISCRETE &amp;&amp;</span>
+<span class="lineNum">     394 </span><span class="lineNoCov">          0 :                                 useFrom == rai-&gt;previous_key_index) {</span>
+<span class="lineNum">     395 </span><span class="lineNoCov">          0 :                                 rai-&gt;interpolated_value_changed = 0;</span>
+<span class="lineNum">     396 </span><span class="lineNoCov">          0 :                         } else {</span>
+<span class="lineNum">     397 </span><span class="lineNoCov">          0 :                                 rai-&gt;interpolated_value_changed = 1;</span>
+<span class="lineNum">     398 </span>            :                         }
+<span class="lineNum">     399 </span>            :                 }
+<span class="lineNum">     400 </span>            :         } else {
+<span class="lineNum">     401 </span>            : 
+<span class="lineNum">     402 </span><span class="lineNoCov">          0 :                 if (animp-&gt;from) {</span>
+<span class="lineNum">     403 </span><span class="lineNoCov">          0 :                         from_info.fieldType = animp-&gt;from-&gt;type;</span>
+<span class="lineNum">     404 </span><span class="lineNoCov">          0 :                         from_info.far_ptr = animp-&gt;from-&gt;value;</span>
+<span class="lineNum">     405 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     406 </span><span class="lineNoCov">          0 :                         from_info.fieldType = 0;</span>
+<span class="lineNum">     407 </span><span class="lineNoCov">          0 :                         from_info.far_ptr = NULL;</span>
+<span class="lineNum">     408 </span>            :                 }
+<span class="lineNum">     409 </span>            : 
+<span class="lineNum">     410 </span><span class="lineNoCov">          0 :                 if (rai-&gt;is_first_anim)</span>
+<span class="lineNum">     411 </span><span class="lineNoCov">          0 :                         gf_svg_attributes_resolve_unspecified(&amp;from_info,</span>
+<span class="lineNum">     412 </span><span class="lineNoCov">          0 :                                                               &amp;rai-&gt;owner-&gt;specified_value,</span>
+<span class="lineNum">     413 </span><span class="lineNoCov">          0 :                                                               &amp;rai-&gt;default_transform_value);</span>
+<span class="lineNum">     414 </span>            :                 else
+<span class="lineNum">     415 </span><span class="lineNoCov">          0 :                         gf_svg_attributes_resolve_unspecified(&amp;from_info,</span>
+<span class="lineNum">     416 </span><span class="lineNoCov">          0 :                                                               &amp;rai-&gt;owner-&gt;presentation_value,</span>
+<span class="lineNum">     417 </span><span class="lineNoCov">          0 :                                                               &amp;rai-&gt;default_transform_value);</span>
+<span class="lineNum">     418 </span>            : 
+<span class="lineNum">     419 </span><span class="lineNoCov">          0 :                 if (rai-&gt;owner-&gt;is_property &amp;&amp; gf_svg_attribute_is_interpolatable(from_info.fieldType)) {</span>
+<span class="lineNum">     420 </span><span class="lineNoCov">          0 :                         gf_svg_attributes_resolve_currentColor(&amp;from_info, &amp;rai-&gt;owner-&gt;current_color_value);</span>
+<span class="lineNum">     421 </span><span class="lineNoCov">          0 :                         gf_svg_attributes_resolve_inherit(&amp;from_info, &amp;rai-&gt;owner-&gt;parent_presentation_value);</span>
+<span class="lineNum">     422 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     423 </span><span class="lineNoCov">          0 :                 if (animp-&gt;to) {</span>
+<span class="lineNum">     424 </span><span class="lineNoCov">          0 :                         to_info.fieldType = animp-&gt;to-&gt;type;</span>
+<span class="lineNum">     425 </span><span class="lineNoCov">          0 :                         to_info.far_ptr = animp-&gt;to-&gt;value;</span>
+<span class="lineNum">     426 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     427 </span><span class="lineNoCov">          0 :                         to_info.fieldType = 0;</span>
+<span class="lineNum">     428 </span><span class="lineNoCov">          0 :                         to_info.far_ptr = NULL;</span>
+<span class="lineNum">     429 </span>            :                 }
+<span class="lineNum">     430 </span>            : 
+<span class="lineNum">     431 </span><span class="lineNoCov">          0 :                 if (rai-&gt;is_first_anim)</span>
+<span class="lineNum">     432 </span><span class="lineNoCov">          0 :                         gf_svg_attributes_resolve_unspecified(&amp;to_info,</span>
+<span class="lineNum">     433 </span><span class="lineNoCov">          0 :                                                               &amp;rai-&gt;owner-&gt;specified_value,</span>
+<span class="lineNum">     434 </span><span class="lineNoCov">          0 :                                                               &amp;rai-&gt;default_transform_value);</span>
+<span class="lineNum">     435 </span>            :                 else
+<span class="lineNum">     436 </span><span class="lineNoCov">          0 :                         gf_svg_attributes_resolve_unspecified(&amp;to_info,</span>
+<span class="lineNum">     437 </span><span class="lineNoCov">          0 :                                                               &amp;rai-&gt;owner-&gt;presentation_value,</span>
+<span class="lineNum">     438 </span><span class="lineNoCov">          0 :                                                               &amp;rai-&gt;default_transform_value);</span>
+<span class="lineNum">     439 </span>            : 
+<span class="lineNum">     440 </span><span class="lineNoCov">          0 :                 if (rai-&gt;owner-&gt;is_property &amp;&amp; gf_svg_attribute_is_interpolatable(to_info.fieldType)) {</span>
+<span class="lineNum">     441 </span><span class="lineNoCov">          0 :                         gf_svg_attributes_resolve_currentColor(&amp;to_info, &amp;rai-&gt;owner-&gt;current_color_value);</span>
+<span class="lineNum">     442 </span><span class="lineNoCov">          0 :                         gf_svg_attributes_resolve_inherit(&amp;to_info, &amp;rai-&gt;owner-&gt;parent_presentation_value);</span>
+<span class="lineNum">     443 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     444 </span>            : 
+<span class="lineNum">     445 </span><span class="lineNoCov">          0 :                 gf_smil_anim_use_keypoints_keytimes(rai, normalized_simple_time, &amp;interpolation_coefficient, NULL);</span>
+<span class="lineNum">     446 </span>            : 
+<span class="lineNum">     447 </span><span class="lineNoCov">          0 :                 rai-&gt;previous_coef = interpolation_coefficient;</span>
+<span class="lineNum">     448 </span>            : 
+<span class="lineNum">     449 </span><span class="lineNoCov">          0 :                 switch (real_calcMode) {</span>
+<span class="lineNum">     450 </span>            :                 case SMIL_CALCMODE_DISCRETE:
+<span class="lineNum">     451 </span>            :                 {
+<span class="lineNum">     452 </span>            :                         /* before half of the duration stay at 'from' and then switch to 'to' */
+<span class="lineNum">     453 </span><span class="lineNoCov">          0 :                         GF_LOG(GF_LOG_DEBUG, GF_LOG_SMIL,</span>
+<span class="lineNum">     454 </span>            :                                (&quot;[SMIL Animation] Time %f - Animation     %s - applying from-to animation (using %s value)\n&quot;,
+<span class="lineNum">     455 </span>            :                                 gf_node_get_scene_time((GF_Node*)rai-&gt;anim_elt), gf_node_get_log_name((GF_Node *)rai-&gt;anim_elt), (useFrom?&quot;from&quot;:&quot;to&quot;)));
+<span class="lineNum">     456 </span><span class="lineNoCov">          0 :                         gf_svg_attributes_copy(&amp;rai-&gt;interpolated_value, (useFrom?&amp;from_info:&amp;to_info), 0);</span>
+<span class="lineNum">     457 </span><span class="lineNoCov">          0 :                         rai-&gt;previous_key_index = useFrom;</span>
+<span class="lineNum">     458 </span>            :                 }
+<span class="lineNum">     459 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     460 </span>            :                 case SMIL_CALCMODE_SPLINE:
+<span class="lineNum">     461 </span>            :                 case SMIL_CALCMODE_PACED:
+<span class="lineNum">     462 </span>            :                 case SMIL_CALCMODE_LINEAR:
+<span class="lineNum">     463 </span>            :                 default:
+<span class="lineNum">     464 </span><span class="lineNoCov">          0 :                         GF_LOG(GF_LOG_DEBUG, GF_LOG_SMIL,</span>
+<span class="lineNum">     465 </span>            :                                (&quot;[SMIL Animation] Time %f - Animation     %s - applying from-to animation (linear interpolation, using coefficient %f)\n&quot;,
+<span class="lineNum">     466 </span>            :                                 gf_node_get_scene_time((GF_Node*)rai-&gt;anim_elt), gf_node_get_log_name((GF_Node *)rai-&gt;anim_elt), interpolation_coefficient));
+<span class="lineNum">     467 </span><span class="lineNoCov">          0 :                         gf_svg_attributes_interpolate(&amp;from_info, &amp;to_info, &amp;rai-&gt;interpolated_value, interpolation_coefficient, 1);</span>
+<span class="lineNum">     468 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     469 </span>            :                 }
+<span class="lineNum">     470 </span>            :         }
+<a name="471"><span class="lineNum">     471 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     472 </span>            : 
+<span class="lineNum">     473 </span>            : static void gf_smil_anim_animate_from_by(SMIL_Anim_RTI *rai, Fixed normalized_simple_time)
+<span class="lineNum">     474 </span>            : {
+<span class="lineNum">     475 </span>            :         Fixed from_coef;
+<span class="lineNum">     476 </span><span class="lineNoCov">          0 :         GF_FieldInfo from_info, by_info;</span>
+<span class="lineNum">     477 </span><span class="lineNoCov">          0 :         SMILAnimationAttributesPointers *animp = rai-&gt;animp;</span>
+<span class="lineNum">     478 </span><span class="lineNoCov">          0 :         s32 useFrom = (normalized_simple_time&lt;=FIX_ONE/2);</span>
+<span class="lineNum">     479 </span>            : 
+<span class="lineNum">     480 </span><span class="lineNoCov">          0 :         if (rai-&gt;change_detection_mode) {</span>
+<span class="lineNum">     481 </span><span class="lineNoCov">          0 :                 if (rai-&gt;previous_coef == normalized_simple_time)</span>
+<span class="lineNum">     482 </span><span class="lineNoCov">          0 :                         rai-&gt;interpolated_value_changed = 0;</span>
+<span class="lineNum">     483 </span>            :                 else {
+<span class="lineNum">     484 </span><span class="lineNoCov">          0 :                         if (animp-&gt;calcMode &amp;&amp;</span>
+<span class="lineNum">     485 </span><span class="lineNoCov">          0 :                                 *animp-&gt;calcMode == SMIL_CALCMODE_DISCRETE &amp;&amp;</span>
+<span class="lineNum">     486 </span><span class="lineNoCov">          0 :                                 useFrom == rai-&gt;previous_key_index) {</span>
+<span class="lineNum">     487 </span><span class="lineNoCov">          0 :                                 rai-&gt;interpolated_value_changed = 0;</span>
+<span class="lineNum">     488 </span><span class="lineNoCov">          0 :                         } else {</span>
+<span class="lineNum">     489 </span><span class="lineNoCov">          0 :                                 rai-&gt;interpolated_value_changed = 1;</span>
+<span class="lineNum">     490 </span>            :                         }
+<span class="lineNum">     491 </span>            :                 }
+<span class="lineNum">     492 </span>            :         } else {
+<span class="lineNum">     493 </span><span class="lineNoCov">          0 :                 rai-&gt;previous_coef = normalized_simple_time;</span>
+<span class="lineNum">     494 </span>            : 
+<span class="lineNum">     495 </span><span class="lineNoCov">          0 :                 if (animp-&gt;from) {</span>
+<span class="lineNum">     496 </span><span class="lineNoCov">          0 :                         from_info.fieldType = animp-&gt;from-&gt;type;</span>
+<span class="lineNum">     497 </span><span class="lineNoCov">          0 :                         from_info.far_ptr = animp-&gt;from-&gt;value;</span>
+<span class="lineNum">     498 </span>            :                         from_coef = FIX_ONE;
+<span class="lineNum">     499 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     500 </span><span class="lineNoCov">          0 :                         from_info.fieldType = 0;</span>
+<span class="lineNum">     501 </span><span class="lineNoCov">          0 :                         from_info.far_ptr = NULL;</span>
+<span class="lineNum">     502 </span>            :                         /* this is a by animation only, then, it is always additive,
+<span class="lineNum">     503 </span>            :                            we don't need the from value*/
+<span class="lineNum">     504 </span>            :                         from_coef = 0;
+<span class="lineNum">     505 </span>            :                 }
+<span class="lineNum">     506 </span>            : 
+<span class="lineNum">     507 </span><span class="lineNoCov">          0 :                 if (rai-&gt;is_first_anim)</span>
+<span class="lineNum">     508 </span><span class="lineNoCov">          0 :                         gf_svg_attributes_resolve_unspecified(&amp;from_info,</span>
+<span class="lineNum">     509 </span><span class="lineNoCov">          0 :                                                               &amp;rai-&gt;owner-&gt;specified_value,</span>
+<span class="lineNum">     510 </span><span class="lineNoCov">          0 :                                                               &amp;rai-&gt;default_transform_value);</span>
+<span class="lineNum">     511 </span>            :                 else
+<span class="lineNum">     512 </span><span class="lineNoCov">          0 :                         gf_svg_attributes_resolve_unspecified(&amp;from_info,</span>
+<span class="lineNum">     513 </span><span class="lineNoCov">          0 :                                                               &amp;rai-&gt;owner-&gt;presentation_value,</span>
+<span class="lineNum">     514 </span><span class="lineNoCov">          0 :                                                               &amp;rai-&gt;default_transform_value);</span>
+<span class="lineNum">     515 </span>            : 
+<span class="lineNum">     516 </span><span class="lineNoCov">          0 :                 if (rai-&gt;owner-&gt;is_property &amp;&amp; gf_svg_attribute_is_interpolatable(from_info.fieldType)) {</span>
+<span class="lineNum">     517 </span><span class="lineNoCov">          0 :                         gf_svg_attributes_resolve_currentColor(&amp;from_info, &amp;rai-&gt;owner-&gt;current_color_value);</span>
+<span class="lineNum">     518 </span><span class="lineNoCov">          0 :                         gf_svg_attributes_resolve_inherit(&amp;from_info, &amp;rai-&gt;owner-&gt;parent_presentation_value);</span>
+<span class="lineNum">     519 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     520 </span>            : 
+<span class="lineNum">     521 </span><span class="lineNoCov">          0 :                 if (animp-&gt;by) {</span>
+<span class="lineNum">     522 </span><span class="lineNoCov">          0 :                         by_info.fieldType = animp-&gt;by-&gt;type;</span>
+<span class="lineNum">     523 </span><span class="lineNoCov">          0 :                         by_info.far_ptr = animp-&gt;by-&gt;value;</span>
+<span class="lineNum">     524 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     525 </span><span class="lineNoCov">          0 :                         by_info.fieldType = 0;</span>
+<span class="lineNum">     526 </span><span class="lineNoCov">          0 :                         by_info.far_ptr = NULL;</span>
+<span class="lineNum">     527 </span>            :                 }
+<span class="lineNum">     528 </span>            : 
+<span class="lineNum">     529 </span><span class="lineNoCov">          0 :                 if (rai-&gt;owner-&gt;is_property &amp;&amp; gf_svg_attribute_is_interpolatable(from_info.fieldType)) {</span>
+<span class="lineNum">     530 </span><span class="lineNoCov">          0 :                         gf_svg_attributes_resolve_currentColor(&amp;by_info, &amp;rai-&gt;owner-&gt;current_color_value);</span>
+<span class="lineNum">     531 </span><span class="lineNoCov">          0 :                         gf_svg_attributes_resolve_inherit(&amp;by_info, &amp;rai-&gt;owner-&gt;parent_presentation_value);</span>
+<span class="lineNum">     532 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     533 </span>            : 
+<span class="lineNum">     534 </span><span class="lineNoCov">          0 :                 switch ((animp-&gt;calcMode ? *animp-&gt;calcMode : SMIL_CALCMODE_LINEAR)) {</span>
+<span class="lineNum">     535 </span>            :                 case SMIL_CALCMODE_DISCRETE:
+<span class="lineNum">     536 </span>            :                 {
+<span class="lineNum">     537 </span>            :                         /* before half of the duration stay at 'from' and then switch to 'to' */
+<span class="lineNum">     538 </span><span class="lineNoCov">          0 :                         if (useFrom) {</span>
+<span class="lineNum">     539 </span><span class="lineNoCov">          0 :                                 GF_LOG(GF_LOG_DEBUG, GF_LOG_SMIL,</span>
+<span class="lineNum">     540 </span>            :                                        (&quot;[SMIL Animation] Time %f - Animation     %s - applying from-by animation (setting from)&quot;,
+<span class="lineNum">     541 </span>            :                                         gf_node_get_scene_time((GF_Node*)rai-&gt;anim_elt), gf_node_get_log_name((GF_Node *)rai-&gt;anim_elt)));
+<span class="lineNum">     542 </span><span class="lineNoCov">          0 :                                 gf_svg_attributes_muladd(from_coef, &amp;from_info, 0, &amp;by_info, &amp;rai-&gt;interpolated_value, 0);</span>
+<span class="lineNum">     543 </span><span class="lineNoCov">          0 :                         } else {</span>
+<span class="lineNum">     544 </span><span class="lineNoCov">          0 :                                 GF_LOG(GF_LOG_DEBUG, GF_LOG_SMIL,</span>
+<span class="lineNum">     545 </span>            :                                        (&quot;[SMIL Animation] Time %f - Animation     %s - applying from-by animation (setting from+by)&quot;,
+<span class="lineNum">     546 </span>            :                                         gf_node_get_scene_time((GF_Node*)rai-&gt;anim_elt), gf_node_get_log_name((GF_Node *)rai-&gt;anim_elt)));
+<span class="lineNum">     547 </span><span class="lineNoCov">          0 :                                 gf_svg_attributes_muladd(from_coef, &amp;from_info, FIX_ONE, &amp;by_info, &amp;rai-&gt;interpolated_value, 0);</span>
+<span class="lineNum">     548 </span>            :                         }
+<span class="lineNum">     549 </span><span class="lineNoCov">          0 :                         rai-&gt;previous_key_index = useFrom;</span>
+<span class="lineNum">     550 </span>            :                 }
+<span class="lineNum">     551 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     552 </span>            :                 case SMIL_CALCMODE_SPLINE:
+<span class="lineNum">     553 </span>            :                 case SMIL_CALCMODE_PACED:
+<span class="lineNum">     554 </span>            :                 case SMIL_CALCMODE_LINEAR:
+<span class="lineNum">     555 </span>            :                 default:
+<span class="lineNum">     556 </span><span class="lineNoCov">          0 :                         GF_LOG(GF_LOG_DEBUG, GF_LOG_SMIL,</span>
+<span class="lineNum">     557 </span>            :                                (&quot;[SMIL Animation] Time %f - Animation     %s - applying from-by animation (linear interpolation between from and from+by, coef: %f)\n&quot;,
+<span class="lineNum">     558 </span>            :                                 gf_node_get_scene_time((GF_Node*)rai-&gt;anim_elt), gf_node_get_log_name((GF_Node *)rai-&gt;anim_elt), normalized_simple_time));
+<span class="lineNum">     559 </span><span class="lineNoCov">          0 :                         gf_svg_attributes_muladd(from_coef, &amp;from_info, normalized_simple_time, &amp;by_info, &amp;rai-&gt;interpolated_value, 0);</span>
+<span class="lineNum">     560 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     561 </span>            :                 }
+<span class="lineNum">     562 </span>            :         }
+<a name="563"><span class="lineNum">     563 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     564 </span>            : 
+<span class="lineNum">     565 </span>            : static void gf_svg_compute_path_anim(SMIL_Anim_RTI *rai, GF_Matrix2D *m, Fixed normalized_simple_time)
+<span class="lineNum">     566 </span>            : {
+<span class="lineNum">     567 </span>            :         Fixed offset;
+<span class="lineNum">     568 </span><span class="lineNoCov">          0 :         offset = gf_mulfix(normalized_simple_time, rai-&gt;length);</span>
+<span class="lineNum">     569 </span><span class="lineNoCov">          0 :         gf_mx2d_init(*m);</span>
+<span class="lineNum">     570 </span>            : 
+<span class="lineNum">     571 </span><span class="lineNoCov">          0 :         gf_path_iterator_get_transform(rai-&gt;path_iterator, offset, 1, m, 1, 0);</span>
+<span class="lineNum">     572 </span>            :         //GF_LOG(GF_LOG_DEBUG, GF_LOG_SMIL, (&quot;offset: %f, position: (%f, %f)&quot;, offset, ((GF_Matrix2D *)rai-&gt;interpolated_value.far_ptr)-&gt;m[2], ((GF_Matrix2D *)rai-&gt;interpolated_value.far_ptr)-&gt;m[5]));
+<span class="lineNum">     573 </span><span class="lineNoCov">          0 :         switch (rai-&gt;rotate) {</span>
+<span class="lineNum">     574 </span>            :         case SVG_NUMBER_AUTO:
+<span class="lineNum">     575 </span>            :                 break;
+<span class="lineNum">     576 </span>            :         case SVG_NUMBER_AUTO_REVERSE:
+<span class="lineNum">     577 </span><span class="lineNoCov">          0 :                 gf_mx2d_add_rotation(m, m-&gt;m[2], m-&gt;m[5], GF_PI);</span>
+<span class="lineNum">     578 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     579 </span>            :         default:
+<span class="lineNum">     580 </span><span class="lineNoCov">          0 :                 m-&gt;m[0] = FIX_ONE;</span>
+<span class="lineNum">     581 </span><span class="lineNoCov">          0 :                 m-&gt;m[1] = 0;</span>
+<span class="lineNum">     582 </span><span class="lineNoCov">          0 :                 m-&gt;m[3] = 0;</span>
+<span class="lineNum">     583 </span><span class="lineNoCov">          0 :                 m-&gt;m[4] = FIX_ONE;</span>
+<span class="lineNum">     584 </span><span class="lineNoCov">          0 :         }</span>
+<a name="585"><span class="lineNum">     585 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     586 </span>            : 
+<span class="lineNum">     587 </span>            : static void gf_smil_anim_animate_using_path(SMIL_Anim_RTI *rai, Fixed normalized_simple_time)
+<span class="lineNum">     588 </span>            : {
+<span class="lineNum">     589 </span><span class="lineNoCov">          0 :         Fixed interpolation_coefficient;</span>
+<span class="lineNum">     590 </span>            : 
+<span class="lineNum">     591 </span><span class="lineNoCov">          0 :         gf_smil_anim_use_keypoints_keytimes(rai, normalized_simple_time, &amp;interpolation_coefficient, NULL);</span>
+<span class="lineNum">     592 </span>            : 
+<span class="lineNum">     593 </span><span class="lineNoCov">          0 :         if (rai-&gt;change_detection_mode) {</span>
+<span class="lineNum">     594 </span><span class="lineNoCov">          0 :                 if (rai-&gt;previous_coef == interpolation_coefficient)</span>
+<span class="lineNum">     595 </span><span class="lineNoCov">          0 :                         rai-&gt;interpolated_value_changed = 0;</span>
+<span class="lineNum">     596 </span>            :                 else {
+<span class="lineNum">     597 </span><span class="lineNoCov">          0 :                         rai-&gt;interpolated_value_changed = 1;</span>
+<span class="lineNum">     598 </span>            :                 }
+<span class="lineNum">     599 </span>            :         } else {
+<span class="lineNum">     600 </span><span class="lineNoCov">          0 :                 rai-&gt;previous_coef = interpolation_coefficient;</span>
+<span class="lineNum">     601 </span>            : 
+<span class="lineNum">     602 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_DEBUG, GF_LOG_SMIL,</span>
+<span class="lineNum">     603 </span>            :                        (&quot;[SMIL Animation] Time %f - Animation     %s - applying path animation (coef: %f)\n&quot;,
+<span class="lineNum">     604 </span>            :                         gf_node_get_scene_time((GF_Node*)rai-&gt;anim_elt), gf_node_get_log_name((GF_Node *)rai-&gt;anim_elt), normalized_simple_time));
+<span class="lineNum">     605 </span>            : 
+<span class="lineNum">     606 </span><span class="lineNoCov">          0 :                 gf_svg_compute_path_anim(rai, (GF_Matrix2D*)rai-&gt;interpolated_value.far_ptr, interpolation_coefficient);</span>
+<span class="lineNum">     607 </span>            :         }
+<a name="608"><span class="lineNum">     608 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     609 </span>            : 
+<span class="lineNum">     610 </span>            : static void gf_smil_anim_compute_interpolation_value(SMIL_Anim_RTI *rai, Fixed normalized_simple_time)
+<span class="lineNum">     611 </span>            : {
+<span class="lineNum">     612 </span><span class="lineNoCov">          0 :         SMILAnimationAttributesPointers *animp = rai-&gt;animp;</span>
+<span class="lineNum">     613 </span>            : 
+<span class="lineNum">     614 </span><span class="lineNoCov">          0 :         if (rai-&gt;path) {</span>
+<span class="lineNum">     615 </span><span class="lineNoCov">          0 :                 gf_smil_anim_animate_using_path(rai, normalized_simple_time);</span>
+<span class="lineNum">     616 </span><span class="lineNoCov">          0 :         } else if (rai-&gt;anim_elt-&gt;sgprivate-&gt;tag == TAG_SVG_set) {</span>
+<span class="lineNum">     617 </span><span class="lineNoCov">          0 :                 gf_smil_anim_set(rai);</span>
+<span class="lineNum">     618 </span><span class="lineNoCov">          0 :         } else if (rai-&gt;values_count) {</span>
+<span class="lineNum">     619 </span>            :                 /* Ignore 'from'/'to'/'by'*/
+<span class="lineNum">     620 </span><span class="lineNoCov">          0 :                 gf_smil_anim_animate_using_values(rai, normalized_simple_time);</span>
+<span class="lineNum">     621 </span><span class="lineNoCov">          0 :         } else if ((animp-&gt;by &amp;&amp; animp-&gt;by-&gt;type) &amp;&amp; (!animp-&gt;to || animp-&gt;to-&gt;type == 0)) {</span>
+<span class="lineNum">     622 </span>            :                 /* 'to' is not specified but 'by' is, so this is a 'by' animation or a 'from'-'by' animation */
+<span class="lineNum">     623 </span><span class="lineNoCov">          0 :                 gf_smil_anim_animate_from_by(rai, normalized_simple_time);</span>
+<span class="lineNum">     624 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     625 </span>            :                 /* Ignore 'by' if specified */
+<span class="lineNum">     626 </span><span class="lineNoCov">          0 :                 gf_smil_anim_animate_from_to(rai, normalized_simple_time);</span>
+<span class="lineNum">     627 </span>            :         }
+<span class="lineNum">     628 </span>            : 
+<span class="lineNum">     629 </span>            : #ifndef GPAC_DISABLE_LOG
+<span class="lineNum">     630 </span>            :         if (0 &amp;&amp; gf_log_tool_level_on(GF_LOG_SMIL, GF_LOG_DEBUG)) {
+<span class="lineNum">     631 </span>            :                 char *str;
+<span class="lineNum">     632 </span>            :                 gf_log_lt(GF_LOG_DEBUG, GF_LOG_SMIL);
+<span class="lineNum">     633 </span>            :                 str = gf_svg_dump_attribute(rai-&gt;anim_elt, &amp;rai-&gt;interpolated_value);
+<span class="lineNum">     634 </span>            : 
+<span class="lineNum">     635 </span>            :                 gf_log(&quot;[SMIL Animation] Time %f - Animation     %s - Interpolation value changed for attribute %s, new value: %s \n&quot;,
+<span class="lineNum">     636 </span>            :                        gf_node_get_scene_time(rai-&gt;anim_elt), gf_node_get_log_name(rai-&gt;anim_elt),
+<span class="lineNum">     637 </span>            :                        gf_svg_get_attribute_name(rai-&gt;anim_elt, rai-&gt;owner-&gt;presentation_value.fieldIndex), str);
+<span class="lineNum">     638 </span>            : 
+<span class="lineNum">     639 </span>            :                 if (str) gf_free(str);
+<span class="lineNum">     640 </span>            :         }
+<span class="lineNum">     641 </span>            : #endif
+<a name="642"><span class="lineNum">     642 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     643 </span>            : 
+<span class="lineNum">     644 </span>            : void gf_smil_anim_set_anim_runtime_in_timing(GF_Node *n)
+<span class="lineNum">     645 </span>            : {
+<span class="lineNum">     646 </span><span class="lineNoCov">          0 :         u32 i, j;</span>
+<span class="lineNum">     647 </span>            :         SVGTimedAnimBaseElement *timed_elt = NULL;
+<span class="lineNum">     648 </span>            :         SMIL_Timing_RTI *rti = NULL;
+<span class="lineNum">     649 </span>            :         GF_Node *target = NULL;
+<span class="lineNum">     650 </span>            : 
+<span class="lineNum">     651 </span><span class="lineNoCov">          0 :         if (!n) return;</span>
+<span class="lineNum">     652 </span><span class="lineNoCov">          0 :         timed_elt = (SVGTimedAnimBaseElement *)n;</span>
+<span class="lineNum">     653 </span>            : 
+<span class="lineNum">     654 </span><span class="lineNoCov">          0 :         if (!gf_svg_is_animation_tag(n-&gt;sgprivate-&gt;tag)) return;</span>
+<span class="lineNum">     655 </span>            : 
+<span class="lineNum">     656 </span><span class="lineNoCov">          0 :         target = timed_elt-&gt;xlinkp-&gt;href-&gt;target;</span>
+<span class="lineNum">     657 </span><span class="lineNoCov">          0 :         if (!target) return;</span>
+<span class="lineNum">     658 </span>            : 
+<span class="lineNum">     659 </span><span class="lineNoCov">          0 :         if (timed_elt-&gt;timingp) rti = timed_elt-&gt;timingp-&gt;runtime;</span>
+<span class="lineNum">     660 </span><span class="lineNoCov">          0 :         if (!rti) return;</span>
+<span class="lineNum">     661 </span>            : 
+<span class="lineNum">     662 </span><span class="lineNoCov">          0 :         rti-&gt;rai = NULL;</span>
+<span class="lineNum">     663 </span>            : 
+<span class="lineNum">     664 </span><span class="lineNoCov">          0 :         for (i = 0; i &lt; gf_node_animation_count(target); i++) {</span>
+<span class="lineNum">     665 </span>            :                 SMIL_Anim_RTI *rai_tmp;
+<span class="lineNum">     666 </span><span class="lineNoCov">          0 :                 SMIL_AttributeAnimations *aa = (SMIL_AttributeAnimations *)gf_node_animation_get(target, i);</span>
+<span class="lineNum">     667 </span><span class="lineNoCov">          0 :                 j=0;</span>
+<span class="lineNum">     668 </span><span class="lineNoCov">          0 :                 while ((rai_tmp = (SMIL_Anim_RTI *)gf_list_enum(aa-&gt;anims, &amp;j))) {</span>
+<span class="lineNum">     669 </span><span class="lineNoCov">          0 :                         if (rai_tmp-&gt;timingp-&gt;runtime == rti) {</span>
+<span class="lineNum">     670 </span><span class="lineNoCov">          0 :                                 rti-&gt;rai = rai_tmp;</span>
+<span class="lineNum">     671 </span><span class="lineNoCov">          0 :                                 return;</span>
+<span class="lineNum">     672 </span>            :                         }
+<span class="lineNum">     673 </span>            :                 }
+<span class="lineNum">     674 </span><span class="lineNoCov">          0 :         }</span>
+<a name="675"><span class="lineNum">     675 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     676 </span>            : 
+<span class="lineNum">     677 </span>            : static void gf_smil_anim_get_last_specified_value(SMIL_Anim_RTI *rai)
+<span class="lineNum">     678 </span>            : {
+<span class="lineNum">     679 </span><span class="lineNoCov">          0 :         SMILAnimationAttributesPointers *animp = rai-&gt;animp;</span>
+<span class="lineNum">     680 </span>            : 
+<span class="lineNum">     681 </span><span class="lineNoCov">          0 :         if (!animp) return;</span>
+<span class="lineNum">     682 </span>            : 
+<span class="lineNum">     683 </span><span class="lineNoCov">          0 :         if (rai-&gt;path) {</span>
+<span class="lineNum">     684 </span><span class="lineNoCov">          0 :                 if (!rai-&gt;last_specified_value.far_ptr) rai-&gt;last_specified_value.far_ptr = gf_malloc(sizeof(GF_Matrix2D));</span>
+<span class="lineNum">     685 </span><span class="lineNoCov">          0 :                 gf_svg_compute_path_anim(rai, rai-&gt;last_specified_value.far_ptr, FIX_ONE);</span>
+<span class="lineNum">     686 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     687 </span><span class="lineNoCov">          0 :         } else if (rai-&gt;anim_elt-&gt;sgprivate-&gt;tag == TAG_SVG_set) {</span>
+<span class="lineNum">     688 </span><span class="lineNoCov">          0 :                 if (animp-&gt;to) {</span>
+<span class="lineNum">     689 </span><span class="lineNoCov">          0 :                         rai-&gt;last_specified_value.fieldType = animp-&gt;to-&gt;type;</span>
+<span class="lineNum">     690 </span><span class="lineNoCov">          0 :                         rai-&gt;last_specified_value.far_ptr   = animp-&gt;to-&gt;value;</span>
+<span class="lineNum">     691 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     692 </span>            :                         /* TODO ??? */
+<span class="lineNum">     693 </span><span class="lineNoCov">          0 :                         GF_LOG(GF_LOG_ERROR, GF_LOG_SMIL,</span>
+<span class="lineNum">     694 </span>            :                                (&quot;[SMIL Animation] Animation     %s - set element without to attribute\n&quot;,
+<span class="lineNum">     695 </span>            :                                 gf_node_get_log_name((GF_Node *)rai-&gt;anim_elt)));
+<span class="lineNum">     696 </span>            :                 }
+<span class="lineNum">     697 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     698 </span>            :         }
+<span class="lineNum">     699 </span>            : 
+<span class="lineNum">     700 </span><span class="lineNoCov">          0 :         if (rai-&gt;values_count) {</span>
+<span class="lineNum">     701 </span>            :                 /* Ignore from/to/by*/
+<span class="lineNum">     702 </span><span class="lineNoCov">          0 :                 rai-&gt;last_specified_value.fieldType = animp-&gt;values-&gt;type;</span>
+<span class="lineNum">     703 </span><span class="lineNoCov">          0 :                 rai-&gt;last_specified_value.far_ptr = gf_list_last(animp-&gt;values-&gt;values);</span>
+<span class="lineNum">     704 </span><span class="lineNoCov">          0 :         } else if ((animp-&gt;by &amp;&amp; animp-&gt;by-&gt;type) &amp;&amp; (!animp-&gt;to || animp-&gt;to-&gt;type == 0)) {</span>
+<span class="lineNum">     705 </span><span class="lineNoCov">          0 :                 rai-&gt;last_specified_value.fieldType = animp-&gt;by-&gt;type;</span>
+<span class="lineNum">     706 </span><span class="lineNoCov">          0 :                 rai-&gt;last_specified_value.far_ptr   = animp-&gt;by-&gt;value;</span>
+<span class="lineNum">     707 </span><span class="lineNoCov">          0 :         } else if (animp-&gt;to) {</span>
+<span class="lineNum">     708 </span><span class="lineNoCov">          0 :                 rai-&gt;last_specified_value.fieldType = animp-&gt;to-&gt;type;</span>
+<span class="lineNum">     709 </span><span class="lineNoCov">          0 :                 rai-&gt;last_specified_value.far_ptr   = animp-&gt;to-&gt;value;</span>
+<span class="lineNum">     710 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     711 </span><span class="lineNoCov">          0 :         if (gf_svg_is_inherit(&amp;rai-&gt;last_specified_value)) {</span>
+<span class="lineNum">     712 </span><span class="lineNoCov">          0 :                 rai-&gt;last_specified_value.fieldType = rai-&gt;owner-&gt;presentation_value.fieldType;</span>
+<span class="lineNum">     713 </span><span class="lineNoCov">          0 :                 rai-&gt;last_specified_value.far_ptr = rai-&gt;owner-&gt;presentation_value.far_ptr;</span>
+<span class="lineNum">     714 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     715 </span><span class="lineNoCov">          0 :         if (rai-&gt;owner-&gt;is_property &amp;&amp; gf_svg_attribute_is_interpolatable(rai-&gt;last_specified_value.fieldType)) {</span>
+<span class="lineNum">     716 </span><span class="lineNoCov">          0 :                 gf_svg_attributes_resolve_currentColor(&amp;rai-&gt;last_specified_value, &amp;rai-&gt;owner-&gt;current_color_value);</span>
+<span class="lineNum">     717 </span><span class="lineNoCov">          0 :                 gf_svg_attributes_resolve_inherit(&amp;rai-&gt;last_specified_value, &amp;rai-&gt;owner-&gt;parent_presentation_value);</span>
+<span class="lineNum">     718 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     719 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     720 </span>            : 
+<span class="lineNum">     721 </span>            : /* if the animation behavior is accumulative and this is not the first iteration,
+<a name="722"><span class="lineNum">     722 </span>            :    then we modify the interpolation value as follows:</a>
+<span class="lineNum">     723 </span>            :     interpolation value += last specified value * number of iterations completed */
+<span class="lineNum">     724 </span>            : static void gf_smil_anim_apply_accumulate(SMIL_Anim_RTI *rai)
+<span class="lineNum">     725 </span>            : {
+<span class="lineNum">     726 </span>            :         u32 nb_iterations;
+<span class="lineNum">     727 </span>            : 
+<span class="lineNum">     728 </span><span class="lineNoCov">          0 :         SMILAnimationAttributesPointers *animp = rai-&gt;animp;</span>
+<span class="lineNum">     729 </span><span class="lineNoCov">          0 :         SMILTimingAttributesPointers *timingp = rai-&gt;timingp;</span>
+<span class="lineNum">     730 </span>            : 
+<span class="lineNum">     731 </span><span class="lineNoCov">          0 :         nb_iterations = (timingp-&gt;runtime-&gt;current_interval ? timingp-&gt;runtime-&gt;current_interval-&gt;nb_iterations : 1);</span>
+<span class="lineNum">     732 </span>            : 
+<span class="lineNum">     733 </span><span class="lineNoCov">          0 :         if (rai-&gt;change_detection_mode) {</span>
+<span class="lineNum">     734 </span><span class="lineNoCov">          0 :                 if ((animp-&gt;accumulate &amp;&amp; *animp-&gt;accumulate == SMIL_ACCUMULATE_SUM)</span>
+<span class="lineNum">     735 </span><span class="lineNoCov">          0 :                         &amp;&amp; nb_iterations &gt; 0</span>
+<span class="lineNum">     736 </span><span class="lineNoCov">          0 :                         &amp;&amp; rai-&gt;previous_iteration != (s32) nb_iterations) {</span>
+<span class="lineNum">     737 </span>            :                         /* if we actually do accumulation and the number of iteration is different,
+<span class="lineNum">     738 </span>            :                         then we force the result as changed regardless of the result of the interpolation
+<span class="lineNum">     739 </span>            :                         (TODO: check if this need to be improved)*/
+<span class="lineNum">     740 </span><span class="lineNoCov">          0 :                         rai-&gt;interpolated_value_changed = 1;</span>
+<span class="lineNum">     741 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     742 </span>            :                         /* if we don't accumulate we leave the value of interpolated_value_changed unchanged */
+<span class="lineNum">     743 </span>            :                 }
+<span class="lineNum">     744 </span>            :         } else {
+<span class="lineNum">     745 </span><span class="lineNoCov">          0 :                 if (nb_iterations &gt; 0 &amp;&amp; rai-&gt;previous_iteration != (s32) nb_iterations) {</span>
+<span class="lineNum">     746 </span><span class="lineNoCov">          0 :                         rai-&gt;previous_iteration = nb_iterations;</span>
+<span class="lineNum">     747 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     748 </span>            : 
+<span class="lineNum">     749 </span><span class="lineNoCov">          0 :                 if ((animp-&gt;accumulate &amp;&amp; *animp-&gt;accumulate == SMIL_ACCUMULATE_SUM) &amp;&amp; nb_iterations &gt; 0) {</span>
+<span class="lineNum">     750 </span><span class="lineNoCov">          0 :                         GF_LOG(GF_LOG_DEBUG, GF_LOG_SMIL,</span>
+<span class="lineNum">     751 </span>            :                                (&quot;[SMIL Animation] Time %f - Animation     %s - applying accumulation (iteration #%d)\n&quot;,
+<span class="lineNum">     752 </span>            :                                 gf_node_get_scene_time((GF_Node*)rai-&gt;anim_elt), gf_node_get_log_name((GF_Node *)rai-&gt;anim_elt), nb_iterations));
+<span class="lineNum">     753 </span>            : 
+<span class="lineNum">     754 </span><span class="lineNoCov">          0 :                         gf_svg_attributes_muladd(FIX_ONE, &amp;rai-&gt;interpolated_value,</span>
+<span class="lineNum">     755 </span><span class="lineNoCov">          0 :                                                  INT2FIX(nb_iterations), &amp;rai-&gt;last_specified_value,</span>
+<span class="lineNum">     756 </span>            :                                                  &amp;rai-&gt;interpolated_value, 1);
+<span class="lineNum">     757 </span>            : 
+<span class="lineNum">     758 </span><span class="lineNoCov">          0 :                         if ((animp-&gt;from) &amp;&amp; animp-&gt;by &amp;&amp; (rai-&gt;last_specified_value.far_ptr == animp-&gt;by-&gt;value)) {</span>
+<span class="lineNum">     759 </span>            :                                 /* this is a from-by animation, the last specified value is not the 'by' value but actually 'from'+'by',
+<span class="lineNum">     760 </span>            :                                 we need to add nb_iterations times from to the interpolated_value
+<span class="lineNum">     761 </span>            :                                 see (animate-elem-210-t.svg (upper two circles in the mid column, after 9s/14s */
+<span class="lineNum">     762 </span><span class="lineNoCov">          0 :                                 GF_FieldInfo from_info;</span>
+<span class="lineNum">     763 </span><span class="lineNoCov">          0 :                                 from_info.fieldType = rai-&gt;animp-&gt;from-&gt;type;</span>
+<span class="lineNum">     764 </span><span class="lineNoCov">          0 :                                 from_info.far_ptr = rai-&gt;animp-&gt;from-&gt;value;</span>
+<span class="lineNum">     765 </span><span class="lineNoCov">          0 :                                 gf_svg_attributes_muladd(FIX_ONE, &amp;rai-&gt;interpolated_value,</span>
+<span class="lineNum">     766 </span>            :                                                          INT2FIX(nb_iterations), &amp;from_info,
+<span class="lineNum">     767 </span>            :                                                          &amp;rai-&gt;interpolated_value, 1);
+<span class="lineNum">     768 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     769 </span>            :                 }
+<span class="lineNum">     770 </span>            :         }
+<a name="771"><span class="lineNum">     771 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     772 </span>            : 
+<span class="lineNum">     773 </span>            : static void gf_smil_apply_additive(SMIL_Anim_RTI *rai)
+<span class="lineNum">     774 </span>            : {
+<span class="lineNum">     775 </span><span class="lineNoCov">          0 :         SMILAnimationAttributesPointers *animp = rai-&gt;animp;</span>
+<span class="lineNum">     776 </span><span class="lineNoCov">          0 :         if (rai-&gt;change_detection_mode) return;</span>
+<span class="lineNum">     777 </span>            :         else {
+<span class="lineNum">     778 </span>            :                 /* Apply additive behavior if required
+<span class="lineNum">     779 </span>            :                         PV = (additive == sum ? PV + animp-&gt;IV : animp-&gt;IV); */
+<span class="lineNum">     780 </span><span class="lineNoCov">          0 :                 if (animp-&gt;additive &amp;&amp; *animp-&gt;additive == SMIL_ADDITIVE_SUM) {</span>
+<span class="lineNum">     781 </span><span class="lineNoCov">          0 :                         GF_LOG(GF_LOG_DEBUG, GF_LOG_SMIL,</span>
+<span class="lineNum">     782 </span>            :                                (&quot;[SMIL Animation] Time %f - Animation     %s - applying additive behavior\n&quot;,
+<span class="lineNum">     783 </span>            :                                 gf_node_get_scene_time((GF_Node*)rai-&gt;anim_elt), gf_node_get_log_name((GF_Node *)rai-&gt;anim_elt)));
+<span class="lineNum">     784 </span>            : 
+<span class="lineNum">     785 </span><span class="lineNoCov">          0 :                         gf_svg_attributes_add((rai-&gt;is_first_anim ? &amp;rai-&gt;owner-&gt;specified_value : &amp;rai-&gt;owner-&gt;presentation_value),</span>
+<span class="lineNum">     786 </span><span class="lineNoCov">          0 :                                               &amp;rai-&gt;interpolated_value,</span>
+<span class="lineNum">     787 </span>            :                                               &amp;rai-&gt;owner-&gt;presentation_value,
+<span class="lineNum">     788 </span>            :                                               1);
+<span class="lineNum">     789 </span>            : 
+<span class="lineNum">     790 </span>            : #ifndef GPAC_DISABLE_LOG
+<span class="lineNum">     791 </span><span class="lineNoCov">          0 :                         if (gf_log_tool_level_on(GF_LOG_SMIL, GF_LOG_DEBUG)) {</span>
+<span class="lineNum">     792 </span>            :                                 char *str;
+<span class="lineNum">     793 </span><span class="lineNoCov">          0 :                                 gf_log_lt(GF_LOG_DEBUG, GF_LOG_SMIL);</span>
+<span class="lineNum">     794 </span><span class="lineNoCov">          0 :                                 str = gf_svg_dump_attribute((GF_Node*)rai-&gt;anim_elt, &amp;rai-&gt;owner-&gt;presentation_value);</span>
+<span class="lineNum">     795 </span><span class="lineNoCov">          0 :                                 gf_log(&quot;[SMIL Animation] Time %f - Animation     %s - Presentation value changed for attribute %s, new value: %s\n&quot;,</span>
+<span class="lineNum">     796 </span><span class="lineNoCov">          0 :                                        gf_node_get_scene_time((GF_Node*)rai-&gt;anim_elt), gf_node_get_log_name((GF_Node*)rai-&gt;anim_elt),</span>
+<span class="lineNum">     797 </span><span class="lineNoCov">          0 :                                        gf_svg_get_attribute_name((GF_Node*)rai-&gt;anim_elt, rai-&gt;owner-&gt;presentation_value.fieldIndex), str);</span>
+<span class="lineNum">     798 </span>            : 
+<span class="lineNum">     799 </span><span class="lineNoCov">          0 :                                 if (str) gf_free(str);</span>
+<span class="lineNum">     800 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     801 </span>            : #endif
+<span class="lineNum">     802 </span>            : 
+<span class="lineNum">     803 </span>            :                 } else {
+<span class="lineNum">     804 </span><span class="lineNoCov">          0 :                         GF_LOG(GF_LOG_DEBUG, GF_LOG_SMIL,</span>
+<span class="lineNum">     805 </span>            :                                (&quot;[SMIL Animation] Time %f - Animation     %s - applying non-additive behavior\n&quot;,
+<span class="lineNum">     806 </span>            :                                 gf_node_get_scene_time((GF_Node*)rai-&gt;anim_elt), gf_node_get_log_name((GF_Node *)rai-&gt;anim_elt)));
+<span class="lineNum">     807 </span>            : 
+<span class="lineNum">     808 </span>            :                         /* FIXME: if we switch pointers to avoid copying values,
+<span class="lineNum">     809 </span>            :                         we need to modify the address in the DOM node as well,
+<span class="lineNum">     810 </span>            :                         we also need to take care about change detections. Not easy!!
+<span class="lineNum">     811 </span>            : 
+<span class="lineNum">     812 </span>            :                         void *tmp = rai-&gt;owner-&gt;presentation_value.far_ptr;
+<span class="lineNum">     813 </span>            :                         rai-&gt;owner-&gt;presentation_value.far_ptr = rai-&gt;interpolated_value.far_ptr;
+<span class="lineNum">     814 </span>            :                         rai-&gt;interpolated_value.far_ptr = tmp;
+<span class="lineNum">     815 </span>            :                         */
+<span class="lineNum">     816 </span>            : 
+<span class="lineNum">     817 </span><span class="lineNoCov">          0 :                         gf_svg_attributes_copy(&amp;rai-&gt;owner-&gt;presentation_value, &amp;rai-&gt;interpolated_value, 1);</span>
+<span class="lineNum">     818 </span>            : #ifndef GPAC_DISABLE_LOG
+<span class="lineNum">     819 </span><span class="lineNoCov">          0 :                         if (gf_log_tool_level_on(GF_LOG_SMIL, GF_LOG_DEBUG)) {</span>
+<span class="lineNum">     820 </span>            :                                 char *str;
+<span class="lineNum">     821 </span><span class="lineNoCov">          0 :                                 gf_log_lt(GF_LOG_DEBUG, GF_LOG_SMIL);</span>
+<span class="lineNum">     822 </span><span class="lineNoCov">          0 :                                 str = gf_svg_dump_attribute((GF_Node*)rai-&gt;anim_elt, &amp;rai-&gt;owner-&gt;presentation_value);</span>
+<span class="lineNum">     823 </span>            : 
+<span class="lineNum">     824 </span><span class="lineNoCov">          0 :                                 gf_log(&quot;[SMIL Animation] Time %f - Animation     %s - Presentation value changed for attribute %s, new value: %s\n&quot;,</span>
+<span class="lineNum">     825 </span><span class="lineNoCov">          0 :                                        gf_node_get_scene_time((GF_Node*)rai-&gt;anim_elt), gf_node_get_log_name((GF_Node*)rai-&gt;anim_elt),</span>
+<span class="lineNum">     826 </span><span class="lineNoCov">          0 :                                        gf_svg_get_attribute_name((GF_Node*)rai-&gt;anim_elt, rai-&gt;owner-&gt;presentation_value.fieldIndex), str);</span>
+<span class="lineNum">     827 </span>            : 
+<span class="lineNum">     828 </span><span class="lineNoCov">          0 :                                 if (str) gf_free(str);</span>
+<span class="lineNum">     829 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     830 </span>            : #endif
+<span class="lineNum">     831 </span>            :                 }
+<span class="lineNum">     832 </span>            :         }
+<a name="833"><span class="lineNum">     833 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     834 </span>            : 
+<span class="lineNum">     835 </span>            : static void gf_smil_anim_animate(SMIL_Timing_RTI *rti, Fixed normalized_simple_time)
+<span class="lineNum">     836 </span>            : {
+<span class="lineNum">     837 </span><span class="lineNoCov">          0 :         SMIL_Anim_RTI *rai = rti-&gt;rai;</span>
+<span class="lineNum">     838 </span><span class="lineNoCov">          0 :         SMILAnimationAttributesPointers *animp = rai-&gt;animp;</span>
+<span class="lineNum">     839 </span>            : 
+<span class="lineNum">     840 </span><span class="lineNoCov">          0 :         if (!rai || !animp) return;</span>
+<span class="lineNum">     841 </span>            : 
+<span class="lineNum">     842 </span><span class="lineNoCov">          0 :         gf_smil_anim_compute_interpolation_value(rai, normalized_simple_time);</span>
+<span class="lineNum">     843 </span><span class="lineNoCov">          0 :         gf_smil_anim_apply_accumulate(rai);</span>
+<span class="lineNum">     844 </span><span class="lineNoCov">          0 :         gf_smil_apply_additive(rai);</span>
+<a name="845"><span class="lineNum">     845 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     846 </span>            : 
+<span class="lineNum">     847 </span>            : static void gf_smil_anim_animate_with_fraction(SMIL_Timing_RTI *rti, Fixed normalized_simple_time)
+<span class="lineNum">     848 </span>            : {
+<span class="lineNum">     849 </span><span class="lineNoCov">          0 :         gf_smil_anim_animate(rti, rti-&gt;fraction);</span>
+<span class="lineNum">     850 </span><span class="lineNoCov">          0 :         rti-&gt;evaluate_status = SMIL_TIMING_EVAL_NONE;</span>
+<a name="851"><span class="lineNum">     851 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     852 </span>            : 
+<span class="lineNum">     853 </span>            : void gf_smil_anim_reset_variables(SMIL_Anim_RTI *rai)
+<span class="lineNum">     854 </span>            : {
+<span class="lineNum">     855 </span><span class="lineNoCov">          0 :         if (!rai) return;</span>
+<span class="lineNum">     856 </span>            :         /* we reset all the animation parameters to force computation of next interpolation value
+<span class="lineNum">     857 </span>            :            when the animation restarts */
+<span class="lineNum">     858 </span><span class="lineNoCov">          0 :         rai-&gt;interpolated_value_changed = 0;</span>
+<span class="lineNum">     859 </span><span class="lineNoCov">          0 :         rai-&gt;previous_key_index = -1;</span>
+<span class="lineNum">     860 </span><span class="lineNoCov">          0 :         rai-&gt;previous_coef = -FIX_ONE;</span>
+<span class="lineNum">     861 </span><span class="lineNoCov">          0 :         rai-&gt;previous_iteration = -1;</span>
+<span class="lineNum">     862 </span><span class="lineNoCov">          0 :         rai-&gt;previous_keytime_index = 0;</span>
+<span class="lineNum">     863 </span><span class="lineNoCov">          0 :         rai-&gt;anim_done = 0;</span>
+<span class="lineNum">     864 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     865 </span>            : 
+<span class="lineNum">     866 </span>            : /* copy/paste of the animate function
+<a name="867"><span class="lineNum">     867 </span>            :  TODO: check if computations of interpolation value can be avoided.</a>
+<span class="lineNum">     868 </span>            : */
+<span class="lineNum">     869 </span>            : static void gf_smil_anim_freeze(SMIL_Timing_RTI *rti, Fixed normalized_simple_time)
+<span class="lineNum">     870 </span>            : {
+<span class="lineNum">     871 </span><span class="lineNoCov">          0 :         SMIL_Anim_RTI *rai = rti-&gt;rai;</span>
+<span class="lineNum">     872 </span><span class="lineNoCov">          0 :         SMILAnimationAttributesPointers *animp = rai-&gt;animp;</span>
+<span class="lineNum">     873 </span>            : 
+<span class="lineNum">     874 </span><span class="lineNoCov">          0 :         if (!rai || !animp) return;</span>
+<span class="lineNum">     875 </span>            : 
+<span class="lineNum">     876 </span><span class="lineNoCov">          0 :         if (rai-&gt;change_detection_mode) {</span>
+<span class="lineNum">     877 </span><span class="lineNoCov">          0 :                 if (rai-&gt;anim_done == 0)</span>
+<span class="lineNum">     878 </span><span class="lineNoCov">          0 :                         rai-&gt;interpolated_value_changed = 1;</span>
+<span class="lineNum">     879 </span>            :                 else
+<span class="lineNum">     880 </span><span class="lineNoCov">          0 :                         rai-&gt;interpolated_value_changed = 0;</span>
+<span class="lineNum">     881 </span>            :         } else {
+<span class="lineNum">     882 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_DEBUG, GF_LOG_SMIL,</span>
+<span class="lineNum">     883 </span>            :                        (&quot;[SMIL Animation] Time %f - Animation     %s - applying freeze behavior\n&quot;,
+<span class="lineNum">     884 </span>            :                         gf_node_get_scene_time((GF_Node*)rai-&gt;anim_elt), gf_node_get_log_name((GF_Node *)rai-&gt;anim_elt)));
+<span class="lineNum">     885 </span>            : 
+<span class="lineNum">     886 </span><span class="lineNoCov">          0 :                 gf_smil_anim_compute_interpolation_value(rai, normalized_simple_time);</span>
+<span class="lineNum">     887 </span><span class="lineNoCov">          0 :                 gf_smil_anim_apply_accumulate(rai);</span>
+<span class="lineNum">     888 </span><span class="lineNoCov">          0 :                 gf_smil_apply_additive(rai);</span>
+<span class="lineNum">     889 </span><span class="lineNoCov">          0 :                 rai-&gt;anim_done = 1;</span>
+<span class="lineNum">     890 </span>            :         }
+<a name="891"><span class="lineNum">     891 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     892 </span>            : 
+<span class="lineNum">     893 </span>            : static void gf_smil_anim_remove(SMIL_Timing_RTI *rti, Fixed normalized_simple_time)
+<span class="lineNum">     894 </span>            : {
+<span class="lineNum">     895 </span><span class="lineNoCov">          0 :         SMIL_Anim_RTI *rai = rti-&gt;rai;</span>
+<span class="lineNum">     896 </span><span class="lineNoCov">          0 :         if (!rai) return;</span>
+<span class="lineNum">     897 </span>            : 
+<span class="lineNum">     898 </span><span class="lineNoCov">          0 :         if (rai-&gt;change_detection_mode) {</span>
+<span class="lineNum">     899 </span><span class="lineNoCov">          0 :                 if (rai-&gt;anim_done == 0)</span>
+<span class="lineNum">     900 </span><span class="lineNoCov">          0 :                         rai-&gt;interpolated_value_changed = 1;</span>
+<span class="lineNum">     901 </span>            :                 else
+<span class="lineNum">     902 </span><span class="lineNoCov">          0 :                         rai-&gt;interpolated_value_changed = 0;</span>
+<span class="lineNum">     903 </span>            :         } else {
+<span class="lineNum">     904 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_DEBUG, GF_LOG_SMIL,</span>
+<span class="lineNum">     905 </span>            :                        (&quot;[SMIL Animation] Time %f - Animation     %s - applying remove behavior\n&quot;,
+<span class="lineNum">     906 </span>            :                         gf_node_get_scene_time((GF_Node*)rai-&gt;anim_elt), gf_node_get_log_name((GF_Node *)rai-&gt;anim_elt)));
+<span class="lineNum">     907 </span>            : 
+<span class="lineNum">     908 </span>            :                 /* TODO: see if we can avoid this copy by switching pointers */
+<span class="lineNum">     909 </span><span class="lineNoCov">          0 :                 gf_svg_attributes_copy(&amp;rai-&gt;owner-&gt;presentation_value, &amp;rai-&gt;owner-&gt;specified_value, 0);</span>
+<span class="lineNum">     910 </span>            :                 /* TODO: check if we need to apply additive behavior even in fill='remove'
+<span class="lineNum">     911 </span>            :                    maybe (see animate-elem-211-t.svg) */
+<span class="lineNum">     912 </span>            : 
+<span class="lineNum">     913 </span><span class="lineNoCov">          0 :                 rai-&gt;anim_done = 1;</span>
+<span class="lineNum">     914 </span>            : 
+<span class="lineNum">     915 </span>            : #ifndef GPAC_DISABLE_LOG
+<span class="lineNum">     916 </span><span class="lineNoCov">          0 :                 if (gf_log_tool_level_on(GF_LOG_SMIL, GF_LOG_DEBUG)) {</span>
+<span class="lineNum">     917 </span>            :                         char *str;
+<span class="lineNum">     918 </span><span class="lineNoCov">          0 :                         gf_log_lt(GF_LOG_DEBUG, GF_LOG_SMIL);</span>
+<span class="lineNum">     919 </span><span class="lineNoCov">          0 :                         str = gf_svg_dump_attribute((GF_Node*)rai-&gt;anim_elt, &amp;rai-&gt;owner-&gt;presentation_value);</span>
+<span class="lineNum">     920 </span>            : 
+<span class="lineNum">     921 </span><span class="lineNoCov">          0 :                         gf_log(&quot;[SMIL Animation] Time %f - Animation     %s - Presentation value changed for attribute %s, new value: %s\n&quot;,</span>
+<span class="lineNum">     922 </span><span class="lineNoCov">          0 :                                gf_node_get_scene_time((GF_Node*)rai-&gt;anim_elt), gf_node_get_log_name((GF_Node*)rai-&gt;anim_elt),</span>
+<span class="lineNum">     923 </span><span class="lineNoCov">          0 :                                gf_svg_get_attribute_name((GF_Node*)rai-&gt;anim_elt, rai-&gt;owner-&gt;presentation_value.fieldIndex), str);</span>
+<span class="lineNum">     924 </span><span class="lineNoCov">          0 :                         if (str) gf_free(str);</span>
+<span class="lineNum">     925 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     926 </span>            : #endif
+<span class="lineNum">     927 </span>            : 
+<span class="lineNum">     928 </span>            :         }
+<a name="929"><span class="lineNum">     929 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     930 </span>            : 
+<span class="lineNum">     931 </span>            : static void gf_smil_anim_evaluate(SMIL_Timing_RTI *rti, Fixed normalized_simple_time, u32 state)
+<span class="lineNum">     932 </span>            : {
+<span class="lineNum">     933 </span><span class="lineNoCov">          0 :         SMIL_Anim_RTI *rai = rti-&gt;rai;</span>
+<span class="lineNum">     934 </span><span class="lineNoCov">          0 :         switch (state) {</span>
+<span class="lineNum">     935 </span>            :         case SMIL_TIMING_EVAL_REPEAT:
+<span class="lineNum">     936 </span>            :                 /* we are starting a new cycle of animation, therefore we need to reset the previous state variables
+<span class="lineNum">     937 </span>            :                    like previous_keytime_index ... */
+<span class="lineNum">     938 </span><span class="lineNoCov">          0 :                 gf_smil_anim_reset_variables(rai);</span>
+<span class="lineNum">     939 </span>            :         case SMIL_TIMING_EVAL_UPDATE:
+<span class="lineNum">     940 </span><span class="lineNoCov">          0 :                 gf_smil_anim_animate(rti, normalized_simple_time);</span>
+<span class="lineNum">     941 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     942 </span>            :         case SMIL_TIMING_EVAL_FREEZE:
+<span class="lineNum">     943 </span><span class="lineNoCov">          0 :                 gf_smil_anim_freeze(rti, normalized_simple_time);</span>
+<span class="lineNum">     944 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     945 </span>            :         case SMIL_TIMING_EVAL_REMOVE:
+<span class="lineNum">     946 </span><span class="lineNoCov">          0 :                 gf_smil_anim_remove(rti, normalized_simple_time);</span>
+<span class="lineNum">     947 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     948 </span>            :         case SMIL_TIMING_EVAL_FRACTION:
+<span class="lineNum">     949 </span><span class="lineNoCov">          0 :                 gf_smil_anim_animate_with_fraction(rti, normalized_simple_time);</span>
+<span class="lineNum">     950 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     951 </span>            :                 /*
+<span class="lineNum">     952 </span>            :                         discard should be done before in smil_notify_time
+<span class="lineNum">     953 </span>            :                         case SMIL_TIMING_EVAL_DISCARD:
+<span class="lineNum">     954 </span>            :                                 break;
+<span class="lineNum">     955 </span>            :                 */
+<span class="lineNum">     956 </span>            :         }
+<span class="lineNum">     957 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     958 </span>            : /**************************************************************************************
+<span class="lineNum">     959 </span>            :  **************************************************************************************/
+<a name="960"><span class="lineNum">     960 </span>            : </a>
+<span class="lineNum">     961 </span>            : GF_EXPORT
+<span class="lineNum">     962 </span>            : void gf_svg_apply_animations(GF_Node *node, SVGPropertiesPointers *render_svg_props)
+<span class="lineNum">     963 </span>            : {
+<span class="lineNum">     964 </span>            :         u32 count_all, i;
+<span class="lineNum">     965 </span>            :         u32 active_anim;
+<span class="lineNum">     966 </span>            : #ifndef GPAC_DISABLE_LOG
+<span class="lineNum">     967 </span>            :         u32 time=0;
+<span class="lineNum">     968 </span>            : 
+<span class="lineNum">     969 </span><span class="lineNoCov">          0 :         if (gf_log_tool_level_on(GF_LOG_RTI, GF_LOG_DEBUG)) {</span>
+<span class="lineNum">     970 </span><span class="lineNoCov">          0 :                 time = gf_sys_clock();</span>
+<span class="lineNum">     971 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     972 </span>            : #endif
+<span class="lineNum">     973 </span>            : 
+<span class="lineNum">     974 </span>            :         /* Perform all the animations on this node */
+<span class="lineNum">     975 </span><span class="lineNoCov">          0 :         count_all = gf_node_animation_count(node);</span>
+<span class="lineNum">     976 </span><span class="lineNoCov">          0 :         for (i = 0; i &lt; count_all; i++) {</span>
+<span class="lineNum">     977 </span><span class="lineNoCov">          0 :                 GF_FieldInfo info;</span>
+<span class="lineNum">     978 </span>            :                 s32 j;
+<span class="lineNum">     979 </span>            :                 u32 count;
+<span class="lineNum">     980 </span>            :                 SMIL_AttributeAnimations *aa;
+<span class="lineNum">     981 </span>            : 
+<span class="lineNum">     982 </span>            : 
+<span class="lineNum">     983 </span><span class="lineNoCov">          0 :                 aa = (SMIL_AttributeAnimations *)gf_node_animation_get(node, i);</span>
+<span class="lineNum">     984 </span><span class="lineNoCov">          0 :                 count = gf_list_count(aa-&gt;anims);</span>
+<span class="lineNum">     985 </span><span class="lineNoCov">          0 :                 if (!count) continue;</span>
+<span class="lineNum">     986 </span>            : 
+<span class="lineNum">     987 </span><span class="lineNoCov">          0 :                 aa-&gt;presentation_value_changed = 0;</span>
+<span class="lineNum">     988 </span>            : 
+<span class="lineNum">     989 </span><span class="lineNoCov">          0 :                 if (aa-&gt;is_property) {</span>
+<span class="lineNum">     990 </span>            :                         /* Storing the pointer to the parent presentation value,
+<span class="lineNum">     991 </span>            :                            i.e. the presentation value produced at the parent level in the tree */
+<span class="lineNum">     992 </span><span class="lineNoCov">          0 :                         aa-&gt;parent_presentation_value = aa-&gt;presentation_value;</span>
+<span class="lineNum">     993 </span><span class="lineNoCov">          0 :                         aa-&gt;parent_presentation_value.far_ptr =</span>
+<span class="lineNum">     994 </span><span class="lineNoCov">          0 :                             gf_svg_get_property_pointer((SVG_Element *)node, aa-&gt;orig_dom_ptr, render_svg_props);</span>
+<span class="lineNum">     995 </span>            : 
+<span class="lineNum">     996 </span>            :                         /* Storing also the pointer to the presentation value of the color property
+<span class="lineNum">     997 </span>            :                            (special handling of the keyword 'currentColor' if used in animation values) */
+<span class="lineNum">     998 </span><span class="lineNoCov">          0 :                         gf_node_get_attribute_by_tag(node, TAG_SVG_ATT_color, 1, 1, &amp;info);</span>
+<span class="lineNum">     999 </span><span class="lineNoCov">          0 :                         aa-&gt;current_color_value.far_ptr = info.far_ptr;</span>
+<span class="lineNum">    1000 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">    1001 </span>            : 
+<span class="lineNum">    1002 </span>            :                 /* We start with the last animation (TODO in the execution order), then scan in the reverse order
+<span class="lineNum">    1003 </span>            :                 up to the first animation which is not additive, to determine if the presentation value will change
+<span class="lineNum">    1004 </span>            :                 We evaluate each animation, but only in the 'change_detection_mode' */
+<span class="lineNum">    1005 </span><span class="lineNoCov">          0 :                 for (j = count-1; j &gt;= 0; j--) {</span>
+<span class="lineNum">    1006 </span><span class="lineNoCov">          0 :                         SMIL_Anim_RTI *rai = (SMIL_Anim_RTI *)gf_list_get(aa-&gt;anims, j);</span>
+<span class="lineNum">    1007 </span><span class="lineNoCov">          0 :                         SMIL_Timing_RTI *rti = rai-&gt;timingp-&gt;runtime;</span>
+<span class="lineNum">    1008 </span>            : 
+<span class="lineNum">    1009 </span><span class="lineNoCov">          0 :                         rai-&gt;interpolated_value_changed = 0;</span>
+<span class="lineNum">    1010 </span>            : 
+<span class="lineNum">    1011 </span>            :                         /* The evaluate_status has been updated when notifying the new scene time to this animation,
+<span class="lineNum">    1012 </span>            :                            i.e. before the scene tree traversal */
+<span class="lineNum">    1013 </span><span class="lineNoCov">          0 :                         if (rti-&gt;evaluate_status) {</span>
+<span class="lineNum">    1014 </span><span class="lineNoCov">          0 :                                 rai-&gt;change_detection_mode = 1;</span>
+<span class="lineNum">    1015 </span><span class="lineNoCov">          0 :                                 rti-&gt;evaluate(rti, rti-&gt;normalized_simple_time, rti-&gt;evaluate_status);</span>
+<span class="lineNum">    1016 </span><span class="lineNoCov">          0 :                                 aa-&gt;presentation_value_changed += rai-&gt;interpolated_value_changed;</span>
+<span class="lineNum">    1017 </span><span class="lineNoCov">          0 :                                 if (!rai-&gt;animp-&gt;additive || *rai-&gt;animp-&gt;additive == SMIL_ADDITIVE_REPLACE) {</span>
+<span class="lineNum">    1018 </span>            :                                         /* we don't need to check previous animations since this one will overwrite it */
+<span class="lineNum">    1019 </span><span class="lineNoCov">          0 :                                         j--;</span>
+<span class="lineNum">    1020 </span><span class="lineNoCov">          0 :                                         break;</span>
+<span class="lineNum">    1021 </span>            :                                 }
+<span class="lineNum">    1022 </span>            :                         }
+<span class="lineNum">    1023 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">    1024 </span>            : 
+<span class="lineNum">    1025 </span>            :                 active_anim = 0;
+<span class="lineNum">    1026 </span><span class="lineNoCov">          0 :                 if (aa-&gt;presentation_value_changed) {</span>
+<span class="lineNum">    1027 </span>            :                         /* If the result of all the combined animations will produce a different result compared to the previous frame,
+<span class="lineNum">    1028 </span>            :                         we start in the forward order from the j were the previous step stopped (i.e. the first anim in replace mode)
+<span class="lineNum">    1029 </span>            :                         and evaluate each animation, in the computation mode (change_detection_mode = 0)*/
+<span class="lineNum">    1030 </span><span class="lineNoCov">          0 :                         for (j++; j&lt;(s32)count; j++) {</span>
+<span class="lineNum">    1031 </span><span class="lineNoCov">          0 :                                 SMIL_Anim_RTI *rai = (SMIL_Anim_RTI *)gf_list_get(aa-&gt;anims, j);</span>
+<span class="lineNum">    1032 </span><span class="lineNoCov">          0 :                                 SMIL_Timing_RTI *rti = rai-&gt;timingp-&gt;runtime;</span>
+<span class="lineNum">    1033 </span>            : 
+<span class="lineNum">    1034 </span><span class="lineNoCov">          0 :                                 if (j == 0) rai-&gt;is_first_anim = 1;</span>
+<span class="lineNum">    1035 </span><span class="lineNoCov">          0 :                                 else rai-&gt;is_first_anim = 0;</span>
+<span class="lineNum">    1036 </span>            : 
+<span class="lineNum">    1037 </span><span class="lineNoCov">          0 :                                 if (rti-&gt;evaluate_status) {</span>
+<span class="lineNum">    1038 </span><span class="lineNoCov">          0 :                                         rai-&gt;change_detection_mode = 0;</span>
+<span class="lineNum">    1039 </span><span class="lineNoCov">          0 :                                         rti-&gt;evaluate(rti, rti-&gt;normalized_simple_time, rti-&gt;evaluate_status);</span>
+<span class="lineNum">    1040 </span><span class="lineNoCov">          0 :                                         active_anim++;</span>
+<span class="lineNum">    1041 </span><span class="lineNoCov">          0 :                                 }</span>
+<span class="lineNum">    1042 </span>            :                         }
+<span class="lineNum">    1043 </span>            :                 }
+<span class="lineNum">    1044 </span>            : 
+<span class="lineNum">    1045 </span>            :                 /* DEBUG: uncomment this line to remove animation effect, and keep animation computation */
+<span class="lineNum">    1046 </span>            : //              gf_svg_attributes_copy(&amp;aa-&gt;presentation_value, &amp;aa-&gt;specified_value, 0);
+<span class="lineNum">    1047 </span>            : 
+<span class="lineNum">    1048 </span>            : #ifndef GPAC_DISABLE_LOG
+<span class="lineNum">    1049 </span><span class="lineNoCov">          0 :                 if (aa-&gt;presentation_value_changed) {</span>
+<span class="lineNum">    1050 </span><span class="lineNoCov">          0 :                         if (gf_log_tool_level_on(GF_LOG_SMIL, GF_LOG_DEBUG)) {</span>
+<span class="lineNum">    1051 </span>            :                                 char *str;
+<span class="lineNum">    1052 </span><span class="lineNoCov">          0 :                                 gf_log_lt(GF_LOG_DEBUG, GF_LOG_SMIL);</span>
+<span class="lineNum">    1053 </span><span class="lineNoCov">          0 :                                 str = gf_svg_dump_attribute(node, &amp;aa-&gt;presentation_value);</span>
+<span class="lineNum">    1054 </span>            : 
+<span class="lineNum">    1055 </span><span class="lineNoCov">          0 :                                 gf_log(&quot;[SMIL Animation] Time %f - Element %s - Presentation value changed for attribute %s, new value: %s - dirty flags %x\n&quot;,</span>
+<span class="lineNum">    1056 </span><span class="lineNoCov">          0 :                                        gf_node_get_scene_time(node), gf_node_get_log_name(node),</span>
+<span class="lineNum">    1057 </span><span class="lineNoCov">          0 :                                        gf_svg_get_attribute_name(node, aa-&gt;presentation_value.fieldIndex), str, aa-&gt;dirty_flags);</span>
+<span class="lineNum">    1058 </span>            : 
+<span class="lineNum">    1059 </span><span class="lineNoCov">          0 :                                 if (str) gf_free(str);</span>
+<span class="lineNum">    1060 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">    1061 </span>            :                 }
+<span class="lineNum">    1062 </span>            : #endif
+<span class="lineNum">    1063 </span>            : 
+<span class="lineNum">    1064 </span>            :                 /* we only set dirty flags when a real flag is set to avoid unnecessary computation
+<span class="lineNum">    1065 </span>            :                    for example, it is not necessary to set it when the anim is an animateTransform
+<span class="lineNum">    1066 </span>            :                    since there is no associated flag */
+<span class="lineNum">    1067 </span><span class="lineNoCov">          0 :                 if (aa-&gt;dirty_flags) {</span>
+<span class="lineNum">    1068 </span><span class="lineNoCov">          0 :                         if (aa-&gt;presentation_value_changed) {</span>
+<span class="lineNum">    1069 </span><span class="lineNoCov">          0 :                                 gf_node_dirty_set(node, aa-&gt;dirty_flags, aa-&gt;dirty_parents);</span>
+<span class="lineNum">    1070 </span><span class="lineNoCov">          0 :                         } else {</span>
+<span class="lineNum">    1071 </span>            :                                 /* WARNING - This does not work for use elements because apply_animations may be called several times */
+<span class="lineNum">    1072 </span><span class="lineNoCov">          0 :                                 if (active_anim) gf_node_dirty_clear(node, aa-&gt;dirty_flags);</span>
+<span class="lineNum">    1073 </span>            :                         }
+<span class="lineNum">    1074 </span>            :                 }
+<span class="lineNum">    1075 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">    1076 </span>            : 
+<span class="lineNum">    1077 </span>            : #ifndef GPAC_DISABLE_LOG
+<span class="lineNum">    1078 </span><span class="lineNoCov">          0 :         if (gf_log_tool_level_on(GF_LOG_RTI, GF_LOG_DEBUG)) {</span>
+<span class="lineNum">    1079 </span><span class="lineNoCov">          0 :                 time_spent_in_anim += gf_sys_clock() - time;</span>
+<span class="lineNum">    1080 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">    1081 </span>            : #endif
+<span class="lineNum">    1082 </span><span class="lineNoCov">          0 : }</span>
+<a name="1083"><span class="lineNum">    1083 </span>            : </a>
+<span class="lineNum">    1084 </span>            : 
+<span class="lineNum">    1085 </span>            : GF_Node *gf_smil_anim_get_target(GF_Node *e)
+<span class="lineNum">    1086 </span>            : {
+<span class="lineNum">    1087 </span>            :         XLinkAttributesPointers *xlinkp = NULL;
+<span class="lineNum">    1088 </span><span class="lineNoCov">          0 :         if (!gf_svg_is_animation_tag(e-&gt;sgprivate-&gt;tag)) return NULL;</span>
+<span class="lineNum">    1089 </span><span class="lineNoCov">          0 :         xlinkp = ((SVGTimedAnimBaseElement *)e)-&gt;xlinkp;</span>
+<span class="lineNum">    1090 </span><span class="lineNoCov">          0 :         return (xlinkp &amp;&amp; xlinkp-&gt;href) ? xlinkp-&gt;href-&gt;target : NULL;</span>
+<span class="lineNum">    1091 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">    1092 </span>            : 
+<span class="lineNum">    1093 </span>            : /* Attributes from the animation elements are not easy to use during runtime,
+<span class="lineNum">    1094 </span>            :    the runtime info is a set of easy to use structures.
+<a name="1095"><span class="lineNum">    1095 </span>            :    This function initializes them (interpolation values ...)</a>
+<span class="lineNum">    1096 </span>            :    Needs to be called after gf_smil_timing_init_runtime_info */
+<span class="lineNum">    1097 </span>            : void gf_smil_anim_init_runtime_info(GF_Node *e)
+<span class="lineNum">    1098 </span>            : {
+<span class="lineNum">    1099 </span>            :         u32 i;
+<span class="lineNum">    1100 </span><span class="lineNoCov">          0 :         GF_FieldInfo target_attribute;</span>
+<span class="lineNum">    1101 </span>            :         SMIL_AttributeAnimations *aa = NULL;
+<span class="lineNum">    1102 </span>            :         SMIL_Anim_RTI *rai;
+<span class="lineNum">    1103 </span>            :         XLinkAttributesPointers *xlinkp = NULL;
+<span class="lineNum">    1104 </span>            :         SMILAnimationAttributesPointers *animp = NULL;
+<span class="lineNum">    1105 </span>            :         SMILTimingAttributesPointers *timingp = NULL;
+<span class="lineNum">    1106 </span>            :         GF_Node *target = NULL;
+<span class="lineNum">    1107 </span>            : 
+<span class="lineNum">    1108 </span><span class="lineNoCov">          0 :         if (!e) return;</span>
+<span class="lineNum">    1109 </span>            : 
+<span class="lineNum">    1110 </span>            :         /* Filling animation structures to be independent of the SVG Element structure */
+<span class="lineNum">    1111 </span><span class="lineNoCov">          0 :         animp = ((SVGTimedAnimBaseElement *)e)-&gt;animp;</span>
+<span class="lineNum">    1112 </span><span class="lineNoCov">          0 :         timingp = ((SVGTimedAnimBaseElement *)e)-&gt;timingp;</span>
+<span class="lineNum">    1113 </span><span class="lineNoCov">          0 :         if (!animp || !timingp) return;</span>
+<span class="lineNum">    1114 </span><span class="lineNoCov">          0 :         xlinkp = ((SVGTimedAnimBaseElement *)e)-&gt;xlinkp;</span>
+<span class="lineNum">    1115 </span>            : 
+<span class="lineNum">    1116 </span><span class="lineNoCov">          0 :         target = xlinkp-&gt;href-&gt;target;</span>
+<span class="lineNum">    1117 </span>            : 
+<span class="lineNum">    1118 </span><span class="lineNoCov">          0 :         memset(&amp;target_attribute, 0, sizeof(GF_FieldInfo));</span>
+<span class="lineNum">    1119 </span><span class="lineNoCov">          0 :         if (animp-&gt;attributeName &amp;&amp; (animp-&gt;attributeName-&gt;name || animp-&gt;attributeName-&gt;tag)) {</span>
+<span class="lineNum">    1120 </span>            :                 /* Filling the target_attribute structure with info on the animated attribute (type, pointer to data, ...)
+<span class="lineNum">    1121 </span>            :                 NOTE: the animated attribute is created with a default value, if it was not specified on the target element */
+<span class="lineNum">    1122 </span><span class="lineNoCov">          0 :                 if (animp-&gt;attributeName-&gt;tag) {</span>
+<span class="lineNum">    1123 </span><span class="lineNoCov">          0 :                         gf_node_get_attribute_by_tag(target, animp-&gt;attributeName-&gt;tag, 1, 1, &amp;target_attribute);</span>
+<span class="lineNum">    1124 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">    1125 </span><span class="lineNoCov">          0 :                         gf_node_get_field_by_name(target, animp-&gt;attributeName-&gt;name, &amp;target_attribute);</span>
+<span class="lineNum">    1126 </span>            :                 }
+<span class="lineNum">    1127 </span>            :         } else {
+<span class="lineNum">    1128 </span>            :                 /* All animation elements should have a target attribute except for animateMotion
+<span class="lineNum">    1129 </span>            :                 cf http://www.w3.org/mid/u403c21ajf1sjqtk58g0g38eaep9f9g2ss@hive.bjoern.hoehrmann.de
+<span class="lineNum">    1130 </span>            :                 &quot;For animateMotion, the attributeName is implied and cannot be specified;
+<span class="lineNum">    1131 </span>            :                 animateTransform requires specification of the attribute name and any attribute that is
+<span class="lineNum">    1132 </span>            :                 a transform-like attribute can be a target, e.g. gradientTransform.&quot;*/
+<span class="lineNum">    1133 </span>            : 
+<span class="lineNum">    1134 </span><span class="lineNoCov">          0 :                 switch (e-&gt;sgprivate-&gt;tag) {</span>
+<span class="lineNum">    1135 </span>            :                 case TAG_SVG_animateMotion:
+<span class="lineNum">    1136 </span>            :                         /* Explicit creation of the pseudo 'motionTransform' attribute since it cannot be specified */
+<span class="lineNum">    1137 </span><span class="lineNoCov">          0 :                         gf_node_get_attribute_by_tag(target, TAG_SVG_ATT_motionTransform, 1, 0, &amp;target_attribute);</span>
+<span class="lineNum">    1138 </span><span class="lineNoCov">          0 :                         gf_mx2d_init(*(GF_Matrix2D *)target_attribute.far_ptr);</span>
+<span class="lineNum">    1139 </span>            :                         break;
+<span class="lineNum">    1140 </span>            :                 default:
+<span class="lineNum">    1141 </span><span class="lineNoCov">          0 :                         GF_LOG(GF_LOG_WARNING, GF_LOG_SMIL,</span>
+<span class="lineNum">    1142 </span>            :                                (&quot;[SMIL Animation] Missing attributeName attribute on element %s\n&quot;,
+<span class="lineNum">    1143 </span>            :                                 gf_node_get_log_name((GF_Node*)e) ));
+<span class="lineNum">    1144 </span><span class="lineNoCov">          0 :                         return;</span>
+<span class="lineNum">    1145 </span>            :                 }
+<span class="lineNum">    1146 </span>            :         }
+<span class="lineNum">    1147 </span>            : 
+<span class="lineNum">    1148 </span><span class="lineNoCov">          0 :         if (animp-&gt;attributeType &amp;&amp; *animp-&gt;attributeType == SMIL_ATTRIBUTETYPE_CSS) {</span>
+<span class="lineNum">    1149 </span>            :                 /* see example animate-elem-219-t.svg from the SVG test suite, upper row */
+<span class="lineNum">    1150 </span><span class="lineNoCov">          0 :                 if (!gf_svg_is_property(target, &amp;target_attribute)) {</span>
+<span class="lineNum">    1151 </span><span class="lineNoCov">          0 :                         GF_LOG(GF_LOG_WARNING, GF_LOG_SMIL,</span>
+<span class="lineNum">    1152 </span>            :                                (&quot;[SMIL Animation] Using CSS attributeType for an animation on an attribute which is not a property %s\n&quot;,
+<span class="lineNum">    1153 </span>            :                                 gf_node_get_log_name((GF_Node*)e) ));
+<span class="lineNum">    1154 </span><span class="lineNoCov">          0 :                         return;</span>
+<span class="lineNum">    1155 </span>            :                 }
+<span class="lineNum">    1156 </span>            :         }
+<span class="lineNum">    1157 </span>            : 
+<span class="lineNum">    1158 </span>            :         /* Creation and setup of the runtime structure for animation */
+<span class="lineNum">    1159 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(rai, SMIL_Anim_RTI)</span>
+<span class="lineNum">    1160 </span><span class="lineNoCov">          0 :         if (!rai) {</span>
+<span class="lineNum">    1161 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_SMIL, (&quot;[SMIL Animation] Failed to allocated SMIL anim RTI\n&quot;));</span>
+<span class="lineNum">    1162 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">    1163 </span>            :         }
+<span class="lineNum">    1164 </span>            : 
+<span class="lineNum">    1165 </span><span class="lineNoCov">          0 :         rai-&gt;anim_elt = e;</span>
+<span class="lineNum">    1166 </span><span class="lineNoCov">          0 :         rai-&gt;animp = animp;</span>
+<span class="lineNum">    1167 </span><span class="lineNoCov">          0 :         rai-&gt;timingp = timingp;</span>
+<span class="lineNum">    1168 </span><span class="lineNoCov">          0 :         rai-&gt;xlinkp = xlinkp;</span>
+<span class="lineNum">    1169 </span>            : 
+<span class="lineNum">    1170 </span><span class="lineNoCov">          0 :         gf_mx2d_init(rai-&gt;identity);</span>
+<span class="lineNum">    1171 </span><span class="lineNoCov">          0 :         rai-&gt;default_transform_value.far_ptr = &amp;rai-&gt;identity;</span>
+<span class="lineNum">    1172 </span><span class="lineNoCov">          0 :         rai-&gt;default_transform_value.fieldType = SVG_Transform_datatype;</span>
+<span class="lineNum">    1173 </span>            : 
+<span class="lineNum">    1174 </span>            :         /* the interpolated value has the same type as the target attribute,
+<span class="lineNum">    1175 </span>            :            but we need to create a new pointer to hold its value */
+<span class="lineNum">    1176 </span><span class="lineNoCov">          0 :         rai-&gt;interpolated_value = target_attribute;</span>
+<span class="lineNum">    1177 </span><span class="lineNoCov">          0 :         rai-&gt;interpolated_value.far_ptr = gf_svg_create_attribute_value(target_attribute.fieldType);</span>
+<span class="lineNum">    1178 </span>            : 
+<span class="lineNum">    1179 </span>            :         /* there has not been any interpolation yet, so the previous key index and interpolation coefficient
+<span class="lineNum">    1180 </span>            :            shall not be set*/
+<span class="lineNum">    1181 </span><span class="lineNoCov">          0 :         gf_smil_anim_reset_variables(rai);</span>
+<span class="lineNum">    1182 </span>            : 
+<span class="lineNum">    1183 </span><span class="lineNoCov">          0 :         rai-&gt;values_count = (animp-&gt;values ? gf_list_count(animp-&gt;values-&gt;values) : 0);</span>
+<span class="lineNum">    1184 </span><span class="lineNoCov">          0 :         rai-&gt;key_times_count = (animp-&gt;keyTimes ? gf_list_count(*animp-&gt;keyTimes) : 0);</span>
+<span class="lineNum">    1185 </span><span class="lineNoCov">          0 :         rai-&gt;key_points_count = (animp-&gt;keyPoints ? gf_list_count(*animp-&gt;keyPoints) : 0);</span>
+<span class="lineNum">    1186 </span><span class="lineNoCov">          0 :         rai-&gt;key_splines_count = (animp-&gt;keySplines ? gf_list_count(*animp-&gt;keySplines) : 0);</span>
+<span class="lineNum">    1187 </span>            : 
+<span class="lineNum">    1188 </span>            : 
+<span class="lineNum">    1189 </span><span class="lineNoCov">          0 :         if (!rai-&gt;values_count &amp;&amp;                                                                             /* 'values' attribute not specified */</span>
+<span class="lineNum">    1190 </span><span class="lineNoCov">          0 :                 (!animp-&gt;to || animp-&gt;to-&gt;type == 0) &amp;&amp;                                                 /* 'to' attribute not specified */</span>
+<span class="lineNum">    1191 </span><span class="lineNoCov">          0 :                 (!animp-&gt;from || animp-&gt;from-&gt;type == 0) &amp;&amp;                                     /* 'from' attribute not specified */</span>
+<span class="lineNum">    1192 </span><span class="lineNoCov">          0 :                 (animp-&gt;by &amp;&amp; animp-&gt;by-&gt;type != 0)) {                                          /* 'by' attribute specified */</span>
+<span class="lineNum">    1193 </span>            :                 /* if this is a 'by' animation without from the animation is defined to be additive
+<span class="lineNum">    1194 </span>            :                    see http://www.w3.org/TR/2005/REC-SMIL2-20051213/animation.html#AnimationNS-FromToBy
+<span class="lineNum">    1195 </span>            :                    we override the additive attribute */
+<span class="lineNum">    1196 </span><span class="lineNoCov">          0 :                 if (!animp-&gt;additive) {</span>
+<span class="lineNum">    1197 </span>            :                         /* this case can only happen with dynamic allocation of attributes */
+<span class="lineNum">    1198 </span><span class="lineNoCov">          0 :                         GF_FieldInfo info;</span>
+<span class="lineNum">    1199 </span><span class="lineNoCov">          0 :                         gf_node_get_attribute_by_tag(e, TAG_SVG_ATT_additive, 1, 0, &amp;info);</span>
+<span class="lineNum">    1200 </span><span class="lineNoCov">          0 :                         animp-&gt;additive = info.far_ptr;</span>
+<span class="lineNum">    1201 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">    1202 </span><span class="lineNoCov">          0 :                 if (*animp-&gt;additive == SMIL_ADDITIVE_REPLACE) {</span>
+<span class="lineNum">    1203 </span><span class="lineNoCov">          0 :                         GF_LOG(GF_LOG_WARNING, GF_LOG_SMIL, (&quot;[SMIL Animation] Warning: by-animations cannot use additive=\&quot;replace\&quot;\n&quot;));</span>
+<span class="lineNum">    1204 </span>            :                 }
+<span class="lineNum">    1205 </span><span class="lineNoCov">          0 :                 *animp-&gt;additive = SMIL_ADDITIVE_SUM;</span>
+<span class="lineNum">    1206 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">    1207 </span>            : 
+<span class="lineNum">    1208 </span>            :         /*TODO
+<span class="lineNum">    1209 </span>            :         http://www.w3.org/TR/2005/REC-SMIL2-20051213/animation.html#animationNS-ToAnimation
+<span class="lineNum">    1210 </span>            :                 To animation defines its own kind of additive semantics, so the additive attribute is ignored.
+<span class="lineNum">    1211 </span>            :         */
+<span class="lineNum">    1212 </span>            : 
+<span class="lineNum">    1213 </span>            :         /*TODO
+<span class="lineNum">    1214 </span>            :         http://www.w3.org/TR/2005/REC-SMIL2-20051213/animation.html#animationNS-ToAnimation
+<span class="lineNum">    1215 </span>            :                 Because to animation is defined in terms of absolute values of the target attribute,
+<span class="lineNum">    1216 </span>            :                 cumulative animation is not defined:
+<span class="lineNum">    1217 </span>            :         */
+<span class="lineNum">    1218 </span>            : 
+<span class="lineNum">    1219 </span>            :         /* TODO
+<span class="lineNum">    1220 </span>            :         http://www.w3.org/TR/2005/REC-SMIL2-20051213/animation.html#animationNS-setElement
+<span class="lineNum">    1221 </span>            :         The set element is non-additive. The additive and accumulate attributes are not allowed,
+<span class="lineNum">    1222 </span>            :         and will be ignored if specified.
+<span class="lineNum">    1223 </span>            :         */
+<span class="lineNum">    1224 </span>            : 
+<span class="lineNum">    1225 </span>            :         /* For animateMotion, we need to retrieve the value of the rotate attribute, retrieve the path either
+<span class="lineNum">    1226 </span>            :         from the 'path' attribute or from the 'mpath' element, and then initialize the path iterator*/
+<span class="lineNum">    1227 </span><span class="lineNoCov">          0 :         if (e-&gt;sgprivate-&gt;tag == TAG_SVG_animateMotion) {</span>
+<span class="lineNum">    1228 </span>            :                 GF_Path *the_path = NULL;
+<span class="lineNum">    1229 </span>            :                 GF_ChildNodeItem *child = NULL;
+<span class="lineNum">    1230 </span>            : 
+<span class="lineNum">    1231 </span><span class="lineNoCov">          0 :                 GF_FieldInfo info;</span>
+<span class="lineNum">    1232 </span><span class="lineNoCov">          0 :                 if (gf_node_get_attribute_by_tag(e, TAG_SVG_ATT_rotate, 0, 0, &amp;info) == GF_OK) {</span>
+<span class="lineNum">    1233 </span><span class="lineNoCov">          0 :                         rai-&gt;rotate = ((SVG_Rotate *)info.far_ptr)-&gt;type;</span>
+<span class="lineNum">    1234 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">    1235 </span><span class="lineNoCov">          0 :                         rai-&gt;rotate = SVG_NUMBER_VALUE;</span>
+<span class="lineNum">    1236 </span>            :                 }
+<span class="lineNum">    1237 </span><span class="lineNoCov">          0 :                 if (gf_node_get_attribute_by_tag(e, TAG_SVG_ATT_path, 0, 0, &amp;info) == GF_OK) {</span>
+<span class="lineNum">    1238 </span><span class="lineNoCov">          0 :                         the_path = ((SVG_PathData *)info.far_ptr);</span>
+<span class="lineNum">    1239 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">    1240 </span><span class="lineNoCov">          0 :                 child = ((SVG_Element *)e)-&gt;children;</span>
+<span class="lineNum">    1241 </span>            : 
+<span class="lineNum">    1242 </span><span class="lineNoCov">          0 :                 if ((!animp-&gt;to || animp-&gt;to-&gt;type == 0) &amp;&amp;</span>
+<span class="lineNum">    1243 </span><span class="lineNoCov">          0 :                         (!animp-&gt;by || animp-&gt;by-&gt;type == 0) &amp;&amp;</span>
+<span class="lineNum">    1244 </span><span class="lineNoCov">          0 :                         (!animp-&gt;values || animp-&gt;values-&gt;type == 0)) {</span>
+<span class="lineNum">    1245 </span>            : #if USE_GF_PATH
+<span class="lineNum">    1246 </span><span class="lineNoCov">          0 :                         if (!gf_path_is_empty(the_path)) {</span>
+<span class="lineNum">    1247 </span><span class="lineNoCov">          0 :                                 rai-&gt;path = the_path;</span>
+<span class="lineNum">    1248 </span><span class="lineNoCov">          0 :                                 rai-&gt;path_iterator = gf_path_iterator_new(rai-&gt;path);</span>
+<span class="lineNum">    1249 </span><span class="lineNoCov">          0 :                                 rai-&gt;length = gf_path_iterator_get_length(rai-&gt;path_iterator);</span>
+<span class="lineNum">    1250 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">    1251 </span>            : #else
+<span class="lineNum">    1252 </span>            :                         rai-&gt;path = gf_path_new();
+<span class="lineNum">    1253 </span>            :                         if (gf_list_count(the_path-&gt;points)) {
+<span class="lineNum">    1254 </span>            :                                 gf_svg_path_build(rai-&gt;path, the_path-&gt;commands, the_path-&gt;points);
+<span class="lineNum">    1255 </span>            :                                 rai-&gt;path_iterator = gf_path_iterator_new(rai-&gt;path);
+<span class="lineNum">    1256 </span>            :                                 rai-&gt;length = gf_path_iterator_get_length(rai-&gt;path_iterator);
+<span class="lineNum">    1257 </span>            :                         }
+<span class="lineNum">    1258 </span>            : #endif
+<span class="lineNum">    1259 </span>            :                         else {
+<span class="lineNum">    1260 </span><span class="lineNoCov">          0 :                                 while (child) {</span>
+<span class="lineNum">    1261 </span>            :                                         GF_Node *used_path = NULL;
+<span class="lineNum">    1262 </span><span class="lineNoCov">          0 :                                         u32 child_tag = gf_node_get_tag(child-&gt;node);</span>
+<span class="lineNum">    1263 </span><span class="lineNoCov">          0 :                                         if (child_tag == TAG_SVG_mpath) {</span>
+<span class="lineNum">    1264 </span><span class="lineNoCov">          0 :                                                 GF_FieldInfo info;</span>
+<span class="lineNum">    1265 </span><span class="lineNoCov">          0 :                                                 if (gf_node_get_attribute_by_tag(child-&gt;node, TAG_XLINK_ATT_href, 0, 0, &amp;info) == GF_OK) {</span>
+<span class="lineNum">    1266 </span><span class="lineNoCov">          0 :                                                         XMLRI *iri = (XMLRI *)info.far_ptr;</span>
+<span class="lineNum">    1267 </span><span class="lineNoCov">          0 :                                                         if (iri-&gt;target) used_path = iri-&gt;target;</span>
+<span class="lineNum">    1268 </span><span class="lineNoCov">          0 :                                                         else if (iri-&gt;string) used_path =</span>
+<span class="lineNum">    1269 </span><span class="lineNoCov">          0 :                                                                     (GF_Node *)gf_sg_find_node_by_name(gf_node_get_graph(child-&gt;node), iri-&gt;string);</span>
+<span class="lineNum">    1270 </span><span class="lineNoCov">          0 :                                                         if (used_path &amp;&amp; gf_node_get_tag(used_path) == TAG_SVG_path) {</span>
+<span class="lineNum">    1271 </span><span class="lineNoCov">          0 :                                                                 gf_node_get_attribute_by_tag(used_path, TAG_SVG_ATT_d, 1, 0, &amp;info);</span>
+<span class="lineNum">    1272 </span>            : #if USE_GF_PATH
+<span class="lineNum">    1273 </span><span class="lineNoCov">          0 :                                                                 rai-&gt;path = (SVG_PathData *)info.far_ptr;</span>
+<span class="lineNum">    1274 </span>            : #else
+<span class="lineNum">    1275 </span>            :                                                                 gf_svg_path_build(rai-&gt;path,
+<span class="lineNum">    1276 </span>            :                                                                                   ((SVG_PathData *)info.far_ptr)-&gt;commands,
+<span class="lineNum">    1277 </span>            :                                                                                   ((SVG_PathData *)info.far_ptr)-&gt;points);
+<span class="lineNum">    1278 </span>            : #endif
+<span class="lineNum">    1279 </span><span class="lineNoCov">          0 :                                                                 rai-&gt;path_iterator = gf_path_iterator_new(rai-&gt;path);</span>
+<span class="lineNum">    1280 </span><span class="lineNoCov">          0 :                                                                 rai-&gt;length = gf_path_iterator_get_length(rai-&gt;path_iterator);</span>
+<span class="lineNum">    1281 </span><span class="lineNoCov">          0 :                                                         }</span>
+<span class="lineNum">    1282 </span><span class="lineNoCov">          0 :                                                 }</span>
+<span class="lineNum">    1283 </span>            :                                                 break;
+<span class="lineNum">    1284 </span><span class="lineNoCov">          0 :                                         }</span>
+<span class="lineNum">    1285 </span><span class="lineNoCov">          0 :                                         child = child-&gt;next;</span>
+<span class="lineNum">    1286 </span><span class="lineNoCov">          0 :                                 }</span>
+<span class="lineNum">    1287 </span>            :                         }
+<span class="lineNum">    1288 </span>            :                 }
+<span class="lineNum">    1289 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">    1290 </span>            : 
+<span class="lineNum">    1291 </span>            :         /* for all animations, check if there is already one animation on this attribute,
+<span class="lineNum">    1292 </span>            :            if yes, get the list and append the new animation runtime info
+<span class="lineNum">    1293 </span>            :            if no, create a list and add the new animation runtime info. */
+<span class="lineNum">    1294 </span><span class="lineNoCov">          0 :         for (i = 0; i &lt; gf_node_animation_count(target); i++) {</span>
+<span class="lineNum">    1295 </span><span class="lineNoCov">          0 :                 aa = (SMIL_AttributeAnimations *)gf_node_animation_get(target, i);</span>
+<span class="lineNum">    1296 </span><span class="lineNoCov">          0 :                 if (aa-&gt;presentation_value.fieldIndex == target_attribute.fieldIndex) {</span>
+<span class="lineNum">    1297 </span><span class="lineNoCov">          0 :                         gf_list_add(aa-&gt;anims, rai);</span>
+<span class="lineNum">    1298 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1299 </span>            :                 }
+<span class="lineNum">    1300 </span>            :                 aa = NULL;
+<span class="lineNum">    1301 </span>            :         }
+<span class="lineNum">    1302 </span><span class="lineNoCov">          0 :         if (!aa) {</span>
+<span class="lineNum">    1303 </span><span class="lineNoCov">          0 :                 GF_SAFEALLOC(aa, SMIL_AttributeAnimations)</span>
+<span class="lineNum">    1304 </span><span class="lineNoCov">          0 :                 if (!aa) {</span>
+<span class="lineNum">    1305 </span><span class="lineNoCov">          0 :                         GF_LOG(GF_LOG_ERROR, GF_LOG_SMIL, (&quot;[SMIL Animation] Failed to allocated SMIL attribue ani\n&quot;));</span>
+<span class="lineNum">    1306 </span><span class="lineNoCov">          0 :                         return;</span>
+<span class="lineNum">    1307 </span>            :                 }
+<span class="lineNum">    1308 </span>            : 
+<span class="lineNum">    1309 </span>            :                 /* We determine if the animated attribute is a property since this changes quite a lot the animation model */
+<span class="lineNum">    1310 </span><span class="lineNoCov">          0 :                 aa-&gt;is_property = gf_svg_is_property(target, &amp;target_attribute);</span>
+<span class="lineNum">    1311 </span><span class="lineNoCov">          0 :                 aa-&gt;current_color_value.fieldType = SVG_Paint_datatype;</span>
+<span class="lineNum">    1312 </span>            : 
+<span class="lineNum">    1313 </span>            :                 /* We copy (one copy for all animations on the same attribute) the DOM specified
+<span class="lineNum">    1314 </span>            :                    value before any animation starts (because the animation will override it),
+<span class="lineNum">    1315 </span>            :                    we also save the initial memory address of the specified value (orig_dom_ptr)
+<span class="lineNum">    1316 </span>            :                    for inheritance hack */
+<span class="lineNum">    1317 </span><span class="lineNoCov">          0 :                 aa-&gt;specified_value = target_attribute;</span>
+<span class="lineNum">    1318 </span><span class="lineNoCov">          0 :                 aa-&gt;orig_dom_ptr = aa-&gt;specified_value.far_ptr;</span>
+<span class="lineNum">    1319 </span><span class="lineNoCov">          0 :                 aa-&gt;specified_value.far_ptr = gf_svg_create_attribute_value(target_attribute.fieldType);</span>
+<span class="lineNum">    1320 </span><span class="lineNoCov">          0 :                 gf_svg_attributes_copy(&amp;aa-&gt;specified_value, &amp;target_attribute, 0);</span>
+<span class="lineNum">    1321 </span>            : 
+<span class="lineNum">    1322 </span>            :                 /* Now, the initial memory address of the specified value holds the presentation value,
+<span class="lineNum">    1323 </span>            :                    and the presentation value is initialized */
+<span class="lineNum">    1324 </span><span class="lineNoCov">          0 :                 aa-&gt;presentation_value = target_attribute;</span>
+<span class="lineNum">    1325 </span>            : 
+<span class="lineNum">    1326 </span><span class="lineNoCov">          0 :                 aa-&gt;anims = gf_list_new();</span>
+<span class="lineNum">    1327 </span><span class="lineNoCov">          0 :                 gf_list_add(aa-&gt;anims, rai);</span>
+<span class="lineNum">    1328 </span><span class="lineNoCov">          0 :                 gf_node_animation_add(target, aa);</span>
+<span class="lineNum">    1329 </span>            : 
+<span class="lineNum">    1330 </span>            :                 /* determine what the rendering will need to do when the animation runs */
+<span class="lineNum">    1331 </span><span class="lineNoCov">          0 :                 aa-&gt;dirty_flags = gf_svg_get_modification_flags((SVG_Element *)target, &amp;target_attribute);</span>
+<span class="lineNum">    1332 </span>            : 
+<span class="lineNum">    1333 </span>            :                 /* If the animation will result in a change of geometry or of the display property,
+<span class="lineNum">    1334 </span>            :                    this animation will require traversing the tree, we need to inform the parents of the target node */
+<span class="lineNum">    1335 </span><span class="lineNoCov">          0 :                 aa-&gt;dirty_parents = 0;</span>
+<span class="lineNum">    1336 </span><span class="lineNoCov">          0 :                 if (aa-&gt;dirty_flags &amp; (GF_SG_SVG_GEOMETRY_DIRTY | GF_SG_SVG_DISPLAY_DIRTY)) aa-&gt;dirty_parents = 1;</span>
+<span class="lineNum">    1337 </span>            :         }
+<span class="lineNum">    1338 </span>            : 
+<span class="lineNum">    1339 </span><span class="lineNoCov">          0 :         rai-&gt;owner = aa;</span>
+<span class="lineNum">    1340 </span><span class="lineNoCov">          0 :         gf_smil_anim_get_last_specified_value(rai);</span>
+<span class="lineNum">    1341 </span>            : 
+<span class="lineNum">    1342 </span>            :         /* for animation (unlike other timed elements like video), the evaluation (i.e. interpolation) cannot be done
+<span class="lineNum">    1343 </span>            :         during timing evaluation, because due to inheritance, interpolation can only be computed
+<span class="lineNum">    1344 </span>            :         during scene tree traversal, therefore we need to postpone evaluation of the timed element */
+<span class="lineNum">    1345 </span><span class="lineNoCov">          0 :         timingp-&gt;runtime-&gt;postpone = 1;</span>
+<span class="lineNum">    1346 </span>            : 
+<span class="lineNum">    1347 </span><span class="lineNoCov">          0 :         timingp-&gt;runtime-&gt;evaluate = gf_smil_anim_evaluate;</span>
+<a name="1348"><span class="lineNum">    1348 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">    1349 </span>            : 
+<span class="lineNum">    1350 </span>            : void gf_smil_anim_delete_runtime_info(SMIL_Anim_RTI *rai)
+<span class="lineNum">    1351 </span>            : {
+<span class="lineNum">    1352 </span><span class="lineNoCov">          0 :         gf_svg_delete_attribute_value(rai-&gt;interpolated_value.fieldType,</span>
+<span class="lineNum">    1353 </span><span class="lineNoCov">          0 :                                       rai-&gt;interpolated_value.far_ptr,</span>
+<span class="lineNum">    1354 </span><span class="lineNoCov">          0 :                                       rai-&gt;anim_elt-&gt;sgprivate-&gt;scenegraph);</span>
+<span class="lineNum">    1355 </span><span class="lineNoCov">          0 :         if (rai-&gt;path) {</span>
+<span class="lineNum">    1356 </span><span class="lineNoCov">          0 :                 gf_svg_delete_attribute_value(rai-&gt;last_specified_value.fieldType,</span>
+<span class="lineNum">    1357 </span><span class="lineNoCov">          0 :                                               rai-&gt;last_specified_value.far_ptr,</span>
+<span class="lineNum">    1358 </span><span class="lineNoCov">          0 :                                               rai-&gt;anim_elt-&gt;sgprivate-&gt;scenegraph);</span>
+<span class="lineNum">    1359 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">    1360 </span>            : #if USE_GF_PATH
+<span class="lineNum">    1361 </span>            : #else
+<span class="lineNum">    1362 </span>            :         if (rai-&gt;path) gf_path_del(rai-&gt;path);
+<span class="lineNum">    1363 </span>            : #endif
+<span class="lineNum">    1364 </span><span class="lineNoCov">          0 :         if (rai-&gt;path_iterator) gf_path_iterator_del(rai-&gt;path_iterator);</span>
+<span class="lineNum">    1365 </span><span class="lineNoCov">          0 :         gf_free(rai);</span>
+<a name="1366"><span class="lineNum">    1366 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">    1367 </span>            : 
+<span class="lineNum">    1368 </span>            : void gf_smil_anim_remove_from_target(GF_Node *anim, GF_Node *target)
+<span class="lineNum">    1369 </span>            : {
+<span class="lineNum">    1370 </span><span class="lineNoCov">          0 :         u32 i, j;</span>
+<span class="lineNum">    1371 </span><span class="lineNoCov">          0 :         if (!target) return;</span>
+<span class="lineNum">    1372 </span><span class="lineNoCov">          0 :         for (i = 0; i &lt; gf_node_animation_count((GF_Node *)target); i ++) {</span>
+<span class="lineNum">    1373 </span>            :                 SMIL_Anim_RTI *rai;
+<span class="lineNum">    1374 </span><span class="lineNoCov">          0 :                 SMIL_AttributeAnimations *aa = (SMIL_AttributeAnimations *)gf_node_animation_get((GF_Node *)target, i);</span>
+<span class="lineNum">    1375 </span><span class="lineNoCov">          0 :                 j=0;</span>
+<span class="lineNum">    1376 </span><span class="lineNoCov">          0 :                 while ((rai = (SMIL_Anim_RTI *)gf_list_enum(aa-&gt;anims, &amp;j))) {</span>
+<span class="lineNum">    1377 </span><span class="lineNoCov">          0 :                         if ((GF_Node *)rai-&gt;anim_elt == anim) {</span>
+<span class="lineNum">    1378 </span><span class="lineNoCov">          0 :                                 gf_list_rem(aa-&gt;anims, j-1);</span>
+<span class="lineNum">    1379 </span><span class="lineNoCov">          0 :                                 gf_smil_anim_delete_runtime_info(rai);</span>
+<span class="lineNum">    1380 </span><span class="lineNoCov">          0 :                                 break;</span>
+<span class="lineNum">    1381 </span>            :                         }
+<span class="lineNum">    1382 </span>            :                 }
+<span class="lineNum">    1383 </span><span class="lineNoCov">          0 :                 if (gf_list_count(aa-&gt;anims) == 0) {</span>
+<span class="lineNum">    1384 </span><span class="lineNoCov">          0 :                         gf_list_del(aa-&gt;anims);</span>
+<span class="lineNum">    1385 </span><span class="lineNoCov">          0 :                         gf_svg_delete_attribute_value(aa-&gt;specified_value.fieldType,</span>
+<span class="lineNum">    1386 </span><span class="lineNoCov">          0 :                                                       aa-&gt;specified_value.far_ptr,</span>
+<span class="lineNum">    1387 </span><span class="lineNoCov">          0 :                                                       target-&gt;sgprivate-&gt;scenegraph);</span>
+<span class="lineNum">    1388 </span><span class="lineNoCov">          0 :                         aa-&gt;presentation_value.far_ptr = aa-&gt;orig_dom_ptr;</span>
+<span class="lineNum">    1389 </span><span class="lineNoCov">          0 :                         gf_node_animation_rem((GF_Node *)target, i);</span>
+<span class="lineNum">    1390 </span><span class="lineNoCov">          0 :                         gf_free(aa);</span>
+<span class="lineNum">    1391 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">    1392 </span>            :         }
+<a name="1393"><span class="lineNum">    1393 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">    1394 </span>            : 
+<span class="lineNum">    1395 </span>            : void gf_smil_anim_delete_animations(GF_Node *e)
+<span class="lineNum">    1396 </span>            : {
+<span class="lineNum">    1397 </span><span class="lineNoCov">          0 :         u32 i, j;</span>
+<span class="lineNum">    1398 </span>            : 
+<span class="lineNum">    1399 </span><span class="lineNoCov">          0 :         for (i = 0; i &lt; gf_node_animation_count(e); i ++) {</span>
+<span class="lineNum">    1400 </span>            :                 SMIL_Anim_RTI *rai;
+<span class="lineNum">    1401 </span><span class="lineNoCov">          0 :                 SMIL_AttributeAnimations *aa = (SMIL_AttributeAnimations *)gf_node_animation_get(e, i);</span>
+<span class="lineNum">    1402 </span><span class="lineNoCov">          0 :                 gf_svg_delete_attribute_value(aa-&gt;specified_value.fieldType,</span>
+<span class="lineNum">    1403 </span><span class="lineNoCov">          0 :                                               aa-&gt;specified_value.far_ptr,</span>
+<span class="lineNum">    1404 </span><span class="lineNoCov">          0 :                                               e-&gt;sgprivate-&gt;scenegraph);</span>
+<span class="lineNum">    1405 </span><span class="lineNoCov">          0 :                 j=0;</span>
+<span class="lineNum">    1406 </span><span class="lineNoCov">          0 :                 while ((rai = (SMIL_Anim_RTI *)gf_list_enum(aa-&gt;anims, &amp;j))) {</span>
+<span class="lineNum">    1407 </span><span class="lineNoCov">          0 :                         rai-&gt;xlinkp-&gt;href-&gt;target = NULL;</span>
+<span class="lineNum">    1408 </span><span class="lineNoCov">          0 :                         gf_smil_anim_delete_runtime_info(rai);</span>
+<span class="lineNum">    1409 </span>            :                 }
+<span class="lineNum">    1410 </span><span class="lineNoCov">          0 :                 gf_list_del(aa-&gt;anims);</span>
+<span class="lineNum">    1411 </span><span class="lineNoCov">          0 :                 gf_free(aa);</span>
+<span class="lineNum">    1412 </span>            :         }
+<span class="lineNum">    1413 </span><span class="lineNoCov">          0 :         gf_node_animation_del(e);</span>
+<a name="1414"><span class="lineNum">    1414 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">    1415 </span>            : 
+<span class="lineNum">    1416 </span>            : void gf_smil_anim_init_discard(GF_Node *node)
+<span class="lineNum">    1417 </span>            : {
+<span class="lineNum">    1418 </span><span class="lineNoCov">          0 :         SVGAllAttributes all_atts;</span>
+<span class="lineNum">    1419 </span>            :         XLinkAttributesPointers *xlinkp = NULL;
+<span class="lineNum">    1420 </span><span class="lineNoCov">          0 :         SVGTimedAnimBaseElement *e = (SVGTimedAnimBaseElement *)node;</span>
+<span class="lineNum">    1421 </span><span class="lineNoCov">          0 :         gf_smil_timing_init_runtime_info(node);</span>
+<span class="lineNum">    1422 </span>            : 
+<span class="lineNum">    1423 </span><span class="lineNoCov">          0 :         gf_svg_flatten_attributes((SVG_Element *)e, &amp;all_atts);</span>
+<span class="lineNum">    1424 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(e-&gt;xlinkp, XLinkAttributesPointers);</span>
+<span class="lineNum">    1425 </span><span class="lineNoCov">          0 :         if (!e-&gt;xlinkp) {</span>
+<span class="lineNum">    1426 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_SMIL,(&quot;[SMIL] Error creating anim xlink attrib\n&quot;));</span>
+<span class="lineNum">    1427 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">    1428 </span>            :         }
+<span class="lineNum">    1429 </span>            :         xlinkp = e-&gt;xlinkp;
+<span class="lineNum">    1430 </span><span class="lineNoCov">          0 :         xlinkp-&gt;href = all_atts.xlink_href;</span>
+<span class="lineNum">    1431 </span><span class="lineNoCov">          0 :         xlinkp-&gt;type = all_atts.xlink_type;</span>
+<span class="lineNum">    1432 </span>            : 
+<span class="lineNum">    1433 </span><span class="lineNoCov">          0 :         e-&gt;timingp-&gt;runtime-&gt;evaluate_status = SMIL_TIMING_EVAL_DISCARD;</span>
+<a name="1434"><span class="lineNum">    1434 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">    1435 </span>            : 
+<span class="lineNum">    1436 </span>            : void gf_smil_anim_init_node(GF_Node *node)
+<span class="lineNum">    1437 </span>            : {
+<span class="lineNum">    1438 </span>            :         XLinkAttributesPointers *xlinkp = NULL;
+<span class="lineNum">    1439 </span>            :         SMILAnimationAttributesPointers *animp = NULL;
+<span class="lineNum">    1440 </span><span class="lineNoCov">          0 :         SVGAllAttributes all_atts;</span>
+<span class="lineNum">    1441 </span><span class="lineNoCov">          0 :         SVGTimedAnimBaseElement *e = (SVGTimedAnimBaseElement *)node;</span>
+<span class="lineNum">    1442 </span>            : 
+<span class="lineNum">    1443 </span><span class="lineNoCov">          0 :         gf_svg_flatten_attributes((SVG_Element *)e, &amp;all_atts);</span>
+<span class="lineNum">    1444 </span><span class="lineNoCov">          0 :         e-&gt;xlinkp = gf_malloc(sizeof(XLinkAttributesPointers));</span>
+<span class="lineNum">    1445 </span>            :         xlinkp = e-&gt;xlinkp;
+<span class="lineNum">    1446 </span><span class="lineNoCov">          0 :         xlinkp-&gt;href = all_atts.xlink_href;</span>
+<span class="lineNum">    1447 </span><span class="lineNoCov">          0 :         xlinkp-&gt;type = all_atts.xlink_type;</span>
+<span class="lineNum">    1448 </span>            : 
+<span class="lineNum">    1449 </span>            :         /*perform init of default values
+<span class="lineNum">    1450 </span>            :           When the xlink:href attribute of animation is not set, the target defaults to the parent element */
+<span class="lineNum">    1451 </span><span class="lineNoCov">          0 :         if (!xlinkp-&gt;href) {</span>
+<span class="lineNum">    1452 </span><span class="lineNoCov">          0 :                 GF_FieldInfo info;</span>
+<span class="lineNum">    1453 </span><span class="lineNoCov">          0 :                 gf_node_get_attribute_by_tag((GF_Node *)node, TAG_XLINK_ATT_href, 1, 0, &amp;info);</span>
+<span class="lineNum">    1454 </span><span class="lineNoCov">          0 :                 xlinkp-&gt;href = info.far_ptr;</span>
+<span class="lineNum">    1455 </span><span class="lineNoCov">          0 :                 xlinkp-&gt;href-&gt;type = XMLRI_ELEMENTID;</span>
+<span class="lineNum">    1456 </span><span class="lineNoCov">          0 :                 xlinkp-&gt;href-&gt;target = gf_node_get_parent(node, 0);</span>
+<span class="lineNum">    1457 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">    1458 </span><span class="lineNoCov">          0 :         if (xlinkp-&gt;href-&gt;type == XMLRI_STRING) {</span>
+<span class="lineNum">    1459 </span><span class="lineNoCov">          0 :                 if (!xlinkp-&gt;href-&gt;string) {</span>
+<span class="lineNum">    1460 </span><span class="lineNoCov">          0 :                         GF_LOG(GF_LOG_ERROR, GF_LOG_SMIL,(&quot;Error: IRI not initialized\n&quot;));</span>
+<span class="lineNum">    1461 </span><span class="lineNoCov">          0 :                         return;</span>
+<span class="lineNum">    1462 </span>            :                 } else {
+<span class="lineNum">    1463 </span>            :                         GF_Node *n;
+<span class="lineNum">    1464 </span>            : 
+<span class="lineNum">    1465 </span><span class="lineNoCov">          0 :                         n = (GF_Node*)gf_sg_find_node_by_name(gf_node_get_graph(node), xlinkp-&gt;href-&gt;string);</span>
+<span class="lineNum">    1466 </span><span class="lineNoCov">          0 :                         if (n) {</span>
+<span class="lineNum">    1467 </span><span class="lineNoCov">          0 :                                 xlinkp-&gt;href-&gt;type = XMLRI_ELEMENTID;</span>
+<span class="lineNum">    1468 </span><span class="lineNoCov">          0 :                                 xlinkp-&gt;href-&gt;target = n;</span>
+<span class="lineNum">    1469 </span><span class="lineNoCov">          0 :                                 gf_node_register_iri(node-&gt;sgprivate-&gt;scenegraph, xlinkp-&gt;href);</span>
+<span class="lineNum">    1470 </span>            :                         } else {
+<span class="lineNum">    1471 </span><span class="lineNoCov">          0 :                                 return;</span>
+<span class="lineNum">    1472 </span>            :                         }
+<span class="lineNum">    1473 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">    1474 </span>            :         }
+<span class="lineNum">    1475 </span><span class="lineNoCov">          0 :         if (!xlinkp-&gt;href-&gt;target) {</span>
+<span class="lineNum">    1476 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_WARNING, GF_LOG_SMIL,(&quot;Trying to initialize an animation when the target is not known\n&quot;));</span>
+<span class="lineNum">    1477 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">    1478 </span>            :         }
+<span class="lineNum">    1479 </span>            : 
+<span class="lineNum">    1480 </span>            :         // We may not have an attribute name, when using an animateMotion element
+<span class="lineNum">    1481 </span><span class="lineNoCov">          0 :         if (node-&gt;sgprivate-&gt;tag != TAG_SVG_animateMotion &amp;&amp; !all_atts.attributeName) {</span>
+<span class="lineNum">    1482 </span>            :                 goto end_init;
+<span class="lineNum">    1483 </span>            :         }
+<span class="lineNum">    1484 </span>            : 
+<span class="lineNum">    1485 </span>            :         /* if an attribute (to, from or by) is present but its type is not set
+<span class="lineNum">    1486 </span>            :         (e.g. it could not be determined before, the target was not known), we try to get the type from the target */
+<span class="lineNum">    1487 </span><span class="lineNoCov">          0 :         if ( (all_atts.to &amp;&amp; (all_atts.to-&gt;type==0))</span>
+<span class="lineNum">    1488 </span><span class="lineNoCov">          0 :                 || (all_atts.from &amp;&amp; (all_atts.from-&gt;type==0))</span>
+<span class="lineNum">    1489 </span><span class="lineNoCov">          0 :                 || (all_atts.by &amp;&amp; (all_atts.by-&gt;type==0))</span>
+<span class="lineNum">    1490 </span>            :            ) {
+<span class="lineNum">    1491 </span><span class="lineNoCov">          0 :                 GF_FieldInfo info;</span>
+<span class="lineNum">    1492 </span><span class="lineNoCov">          0 :                 if (gf_node_get_attribute_by_name((GF_Node *)xlinkp-&gt;href-&gt;target, all_atts.attributeName-&gt;name, 0, 1, 1, &amp;info)==GF_OK) {</span>
+<span class="lineNum">    1493 </span><span class="lineNoCov">          0 :                         u32 anim_value_type = info.fieldType;</span>
+<span class="lineNum">    1494 </span>            :                         u32 i;
+<span class="lineNum">    1495 </span><span class="lineNoCov">          0 :                         for (i=0; i&lt;3; i++) {</span>
+<span class="lineNum">    1496 </span>            :                                 u32 tag = 0;
+<span class="lineNum">    1497 </span><span class="lineNoCov">          0 :                                 switch (i) {</span>
+<span class="lineNum">    1498 </span>            :                                 case 0:
+<span class="lineNum">    1499 </span>            :                                         tag=TAG_SVG_ATT_to;
+<span class="lineNum">    1500 </span><span class="lineNoCov">          0 :                                         break;</span>
+<span class="lineNum">    1501 </span>            :                                 case 1:
+<span class="lineNum">    1502 </span>            :                                         tag=TAG_SVG_ATT_from;
+<span class="lineNum">    1503 </span><span class="lineNoCov">          0 :                                         break;</span>
+<span class="lineNum">    1504 </span>            :                                 case 2:
+<span class="lineNum">    1505 </span>            :                                         tag=TAG_SVG_ATT_by;
+<span class="lineNum">    1506 </span><span class="lineNoCov">          0 :                                         break;</span>
+<span class="lineNum">    1507 </span>            :                                 }
+<span class="lineNum">    1508 </span><span class="lineNoCov">          0 :                                 if (gf_node_get_attribute_by_tag((GF_Node *)node, tag, 0, 0, &amp;info)==GF_OK) {</span>
+<span class="lineNum">    1509 </span><span class="lineNoCov">          0 :                                         SMIL_AnimateValue *attval = info.far_ptr;</span>
+<span class="lineNum">    1510 </span><span class="lineNoCov">          0 :                                         if (attval-&gt;type==0) {</span>
+<span class="lineNum">    1511 </span><span class="lineNoCov">          0 :                                                 SVG_String string = attval-&gt;value;</span>
+<span class="lineNum">    1512 </span><span class="lineNoCov">          0 :                                                 attval-&gt;value = NULL;</span>
+<span class="lineNum">    1513 </span><span class="lineNoCov">          0 :                                                 if (string) {</span>
+<span class="lineNum">    1514 </span><span class="lineNoCov">          0 :                                                         gf_svg_parse_attribute((GF_Node *)node, &amp;info, string, anim_value_type);</span>
+<span class="lineNum">    1515 </span><span class="lineNoCov">          0 :                                                         gf_free(string);</span>
+<span class="lineNum">    1516 </span><span class="lineNoCov">          0 :                                                 }</span>
+<span class="lineNum">    1517 </span><span class="lineNoCov">          0 :                                         }</span>
+<span class="lineNum">    1518 </span><span class="lineNoCov">          0 :                                 }</span>
+<span class="lineNum">    1519 </span>            :                         }
+<span class="lineNum">    1520 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">    1521 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">    1522 </span>            : 
+<span class="lineNum">    1523 </span><span class="lineNoCov">          0 :         e-&gt;animp = gf_malloc(sizeof(SMILAnimationAttributesPointers));</span>
+<span class="lineNum">    1524 </span>            :         animp = e-&gt;animp;
+<span class="lineNum">    1525 </span><span class="lineNoCov">          0 :         animp-&gt;accumulate     = all_atts.accumulate;</span>
+<span class="lineNum">    1526 </span><span class="lineNoCov">          0 :         animp-&gt;additive               = all_atts.additive;</span>
+<span class="lineNum">    1527 </span><span class="lineNoCov">          0 :         animp-&gt;attributeName = all_atts.attributeName;</span>
+<span class="lineNum">    1528 </span><span class="lineNoCov">          0 :         animp-&gt;attributeType = all_atts.attributeType;</span>
+<span class="lineNum">    1529 </span><span class="lineNoCov">          0 :         animp-&gt;by                     = all_atts.by;</span>
+<span class="lineNum">    1530 </span><span class="lineNoCov">          0 :         animp-&gt;calcMode               = all_atts.calcMode;</span>
+<span class="lineNum">    1531 </span><span class="lineNoCov">          0 :         animp-&gt;from                   = all_atts.from;</span>
+<span class="lineNum">    1532 </span><span class="lineNoCov">          0 :         animp-&gt;keySplines     = all_atts.keySplines;</span>
+<span class="lineNum">    1533 </span><span class="lineNoCov">          0 :         animp-&gt;keyTimes               = all_atts.keyTimes;</span>
+<span class="lineNum">    1534 </span><span class="lineNoCov">          0 :         animp-&gt;lsr_enabled    = all_atts.lsr_enabled;</span>
+<span class="lineNum">    1535 </span><span class="lineNoCov">          0 :         animp-&gt;to                     = all_atts.to;</span>
+<span class="lineNum">    1536 </span><span class="lineNoCov">          0 :         animp-&gt;type                   = all_atts.transform_type;</span>
+<span class="lineNum">    1537 </span><span class="lineNoCov">          0 :         animp-&gt;values                 = all_atts.values;</span>
+<span class="lineNum">    1538 </span><span class="lineNoCov">          0 :         if (node-&gt;sgprivate-&gt;tag == TAG_SVG_animateMotion) {</span>
+<span class="lineNum">    1539 </span><span class="lineNoCov">          0 :                 e-&gt;animp-&gt;keyPoints = all_atts.keyPoints;</span>
+<span class="lineNum">    1540 </span><span class="lineNoCov">          0 :                 e-&gt;animp-&gt;origin = all_atts.origin;</span>
+<span class="lineNum">    1541 </span><span class="lineNoCov">          0 :                 e-&gt;animp-&gt;path = all_atts.path;</span>
+<span class="lineNum">    1542 </span><span class="lineNoCov">          0 :                 e-&gt;animp-&gt;rotate = all_atts.rotate;</span>
+<span class="lineNum">    1543 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">    1544 </span><span class="lineNoCov">          0 :                 e-&gt;animp-&gt;keyPoints = NULL;</span>
+<span class="lineNum">    1545 </span><span class="lineNoCov">          0 :                 e-&gt;animp-&gt;origin = NULL;</span>
+<span class="lineNum">    1546 </span><span class="lineNoCov">          0 :                 e-&gt;animp-&gt;path = NULL;</span>
+<span class="lineNum">    1547 </span><span class="lineNoCov">          0 :                 e-&gt;animp-&gt;rotate = NULL;</span>
+<span class="lineNum">    1548 </span>            :         }
+<span class="lineNum">    1549 </span>            : 
+<span class="lineNum">    1550 </span>            : end_init:
+<span class="lineNum">    1551 </span><span class="lineNoCov">          0 :         gf_smil_timing_init_runtime_info(node);</span>
+<span class="lineNum">    1552 </span><span class="lineNoCov">          0 :         gf_smil_anim_init_runtime_info(node);</span>
+<span class="lineNum">    1553 </span><span class="lineNoCov">          0 :         gf_smil_anim_set_anim_runtime_in_timing(node);</span>
+<span class="lineNum">    1554 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">    1555 </span>            : 
+<span class="lineNum">    1556 </span>            : 
+<span class="lineNum">    1557 </span>            : 
+<span class="lineNum">    1558 </span>            : #endif /*GPAC_DISABLE_SVG*/
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,62 @@
+*** bifs-keynavigator logs (GPAC version 0.6.2-DEV-revUNKNOWN-HEAD ) - test date 14/05/2017 22:17:34 ***
+
+
+*** Subtest "BT2MP4": executing "MP4Box -noprog -for-test  -mem-track -mp4 /Users/travis/build/gpac/gpac/tests/media/bifs/bifs-keynavigator.bt" ***
+[32mBT: MPEG-4 Scene Parsing
+[0mSaving to /Users/travis/build/gpac/gpac/tests/media/bifs/bifs-keynavigator.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "BT2XMT": executing "MP4Box -noprog -for-test  -mem-track -xmt /Users/travis/build/gpac/gpac/tests/media/bifs/bifs-keynavigator.bt" ***
+[32mBT: MPEG-4 Scene Parsing
+[0mScene loaded - dumping 1 systems streams
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "MP42BT": executing "MP4Box -noprog -for-test  -mem-track -bt /Users/travis/build/gpac/gpac/tests/media/bifs/bifs-keynavigator.mp4 -out test2.bt" ***
+[32mMPEG-4 BIFS Scene Parsing
+[0mScene loaded - dumping 1 systems streams
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "MP42XMT": executing "MP4Box -noprog -for-test  -mem-track -xmt /Users/travis/build/gpac/gpac/tests/media/bifs/bifs-keynavigator.mp4 -out test.xmt" ***
+[32mMPEG-4 BIFS Scene Parsing
+[0mScene loaded - dumping 1 systems streams
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+[32mMPEG-4 BIFS Scene Parsing
+[0mAnalysing Scene
+ Done re-executing MP4Box -noprog -for-test  -mem-track -stat /Users/travis/build/gpac/gpac/tests/media/bifs/bifs-keynavigator.mp4 -std - return value is 139 
+
+[32mMPEG-4 BIFS Scene Parsing
+[0mAnalysing Scene
+ Done re-executing MP4Box -noprog -for-test  -mem-track -stats /Users/travis/build/gpac/gpac/tests/media/bifs/bifs-keynavigator.mp4 -std - return value is 139 
+
+[32mMPEG-4 BIFS Scene Parsing
+[0mAnalysing Scene
+ Done re-executing MP4Box -noprog -for-test  -mem-track -statx /Users/travis/build/gpac/gpac/tests/media/bifs/bifs-keynavigator.mp4 -std - return value is 139 
+
+
+*** Subtest "XMT2BT": executing "MP4Box -noprog -for-test  -mem-track -bt /Users/travis/build/gpac/gpac/tests/media/bifs/bifs-keynavigator.xmt -out test1.bt" ***
+[32mXMT: MPEG-4 (XMT) Scene Parsing
+[0mScene loaded - dumping 1 systems streams
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "XMT2MP4": executing "MP4Box -noprog -for-test  -mem-track -mp4 /Users/travis/build/gpac/gpac/tests/media/bifs/bifs-keynavigator.xmt -out /Users/travis/build/gpac/gpac/tests/media/bifs/bifs-keynavigator.mp4.tmp" ***
+[32mXMT: MPEG-4 (XMT) Scene Parsing
+[0mSaving to /Users/travis/build/gpac/gpac/tests/media/bifs/bifs-keynavigator.mp4.tmp: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m

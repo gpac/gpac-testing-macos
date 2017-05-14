@@ -1,0 +1,6 @@
+ <test name="compositor-glonly-bifs-2D-texturing-compositetexture2D-bitmap" result="OK" date="14/05/2017 22:23:47">
+
+  <stat subtest="" execution_status="N/A" return_status="" mem_total_avg="N/A" mem_resident_avg="N/A" mem_resident_max="N/A" cpu_percent="N/A" cpu_elapsed_time="N/A" cpu_user_time="N/A" cpu_kernel_time="N/A" page_faults="N/A" file_inputs="N/A" socket_msg_rec="N/A" socket_msg_sent="N/A" return_value="0">
+   <command_line></command_line>
+  </stat>
+ </test>

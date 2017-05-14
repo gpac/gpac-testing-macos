@@ -1,0 +1,17 @@
+*** encryption-cenc-ctr logs (GPAC version 0.6.2-DEV-revUNKNOWN-HEAD ) - test date 14/05/2017 22:23:55 ***
+
+
+*** Subtest "Encrypt": executing "MP4Box -noprog -for-test  -mem-track -crypt /Users/travis/build/gpac/gpac/tests/media/encryption/drm_ctr.xml -out /Users/travis/build/gpac/gpac/tests/results/temp/cenc-ctr-crypted.mp4 /Users/travis/build/gpac/gpac/tests/results/temp/source_media.mp4" ***
+Saving to /Users/travis/build/gpac/gpac/tests/results/temp/cenc-ctr-crypted.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "Decrypt": executing "MP4Box -noprog -for-test  -mem-track -decrypt /Users/travis/build/gpac/gpac/tests/media/encryption/drm_ctr.xml -out /Users/travis/build/gpac/gpac/tests/results/temp/cenc-ctr-decrypted.mp4 /Users/travis/build/gpac/gpac/tests/results/temp/source_media.mp4" ***
+Saving to /Users/travis/build/gpac/gpac/tests/results/temp/cenc-ctr-decrypted.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+Same Hash for /Users/travis/build/gpac/gpac/tests/results/temp/source_media.mp4 and /Users/travis/build/gpac/gpac/tests/results/temp/cenc-ctr-decrypted.mp4

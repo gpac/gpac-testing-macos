@@ -1,0 +1,1119 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - bifs/memory_decoder.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">bifs</a> - memory_decoder.c<span style="font-size: 80%;"> (source / <a href="memory_decoder.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">432</td>
+            <td class="headerCovTableEntry">612</td>
+            <td class="headerCovTableEntryLo">70.6 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-05-14 22:31:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">21</td>
+            <td class="headerCovTableEntry">23</td>
+            <td class="headerCovTableEntryHi">91.3 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *                      GPAC - Multimedia Framework C SDK
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *                      Authors: Jean Le Feuvre
+<span class="lineNum">       5 </span>            :  *                      Copyright (c) Telecom ParisTech 2000-2012
+<span class="lineNum">       6 </span>            :  *                                      All rights reserved
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  *  This file is part of GPAC / BIFS codec sub-project
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  *  GPAC is free software; you can redistribute it and/or modify
+<span class="lineNum">      11 </span>            :  *  it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">      12 </span>            :  *  the Free Software Foundation; either version 2, or (at your option)
+<span class="lineNum">      13 </span>            :  *  any later version.
+<span class="lineNum">      14 </span>            :  *
+<span class="lineNum">      15 </span>            :  *  GPAC is distributed in the hope that it will be useful,
+<span class="lineNum">      16 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      17 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      18 </span>            :  *  GNU Lesser General Public License for more details.
+<span class="lineNum">      19 </span>            :  *
+<span class="lineNum">      20 </span>            :  *  You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      21 </span>            :  *  License along with this library; see the file COPYING.  If not, write to
+<span class="lineNum">      22 </span>            :  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+<span class="lineNum">      23 </span>            :  *
+<span class="lineNum">      24 </span>            :  */
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : 
+<span class="lineNum">      27 </span>            : #include &lt;gpac/internal/bifs_dev.h&gt;
+<span class="lineNum">      28 </span>            : #include &quot;quant.h&quot;
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : 
+<span class="lineNum">      31 </span>            : #ifndef GPAC_DISABLE_BIFS
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span>            : GF_Err ParseMFFieldList(GF_BifsDecoder *codec, GF_BitStream *bs, GF_Node *node, GF_FieldInfo *field);
+<span class="lineNum">      34 </span>            : GF_Err ParseMFFieldVec(GF_BifsDecoder *codec, GF_BitStream *bs, GF_Node *node, GF_FieldInfo *field);
+<a name="35"><span class="lineNum">      35 </span>            : </a>
+<span class="lineNum">      36 </span>            : 
+<span class="lineNum">      37 </span>            : static void BM_SetCommandNode(GF_Command *com, GF_Node *node)
+<span class="lineNum">      38 </span>            : {
+<span class="lineNum">      39 </span><span class="lineCov">       6676 :         com-&gt;node = node;</span>
+<span class="lineNum">      40 </span><span class="lineCov">       3338 :         gf_node_register(node, NULL);</span>
+<a name="41"><span class="lineNum">      41 </span><span class="lineCov">       3338 : }</span></a>
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            : static GF_Err BM_ParseMultipleIndexedReplace(GF_BifsDecoder *codec, GF_BitStream *bs, GF_List *com_list)
+<span class="lineNum">      44 </span>            : {
+<span class="lineNum">      45 </span><span class="lineCov">         10 :         u32 ID, ind, field_ind, NumBits, lenpos, lennum, count;</span>
+<span class="lineNum">      46 </span>            :         GF_Node *node;
+<span class="lineNum">      47 </span>            :         GF_Err e;
+<span class="lineNum">      48 </span>            :         GF_Command *com;
+<span class="lineNum">      49 </span>            :         GF_CommandField *inf;
+<span class="lineNum">      50 </span><span class="lineCov">          5 :         GF_FieldInfo field;</span>
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span><span class="lineCov">          5 :         ID = 1 + gf_bs_read_int(bs, codec-&gt;info-&gt;config.NodeIDBits);</span>
+<span class="lineNum">      53 </span><span class="lineCov">          5 :         node = gf_sg_find_node(codec-&gt;current_graph, ID);</span>
+<span class="lineNum">      54 </span><span class="lineCov">          5 :         if (!node) return GF_NON_COMPLIANT_BITSTREAM;</span>
+<span class="lineNum">      55 </span><span class="lineCov">          5 :         NumBits = gf_get_bit_size(gf_node_get_num_fields_in_mode(node, GF_SG_FIELD_CODING_IN)-1);</span>
+<span class="lineNum">      56 </span><span class="lineCov">          5 :         ind = gf_bs_read_int(bs, NumBits);</span>
+<span class="lineNum">      57 </span><span class="lineCov">          5 :         e = gf_bifs_get_field_index(node, ind, GF_SG_FIELD_CODING_IN, &amp;field_ind);</span>
+<span class="lineNum">      58 </span><span class="lineCov">          5 :         if (e) return e;</span>
+<span class="lineNum">      59 </span><span class="lineCov">          5 :         e = gf_node_get_field(node, field_ind, &amp;field);</span>
+<span class="lineNum">      60 </span><span class="lineCov">          5 :         if (gf_sg_vrml_is_sf_field(field.fieldType)) return GF_NON_COMPLIANT_BITSTREAM;</span>
+<span class="lineNum">      61 </span>            : 
+<span class="lineNum">      62 </span><span class="lineCov">          5 :         lenpos = gf_bs_read_int(bs, 5);</span>
+<span class="lineNum">      63 </span><span class="lineCov">          5 :         lennum = gf_bs_read_int(bs, 5);</span>
+<span class="lineNum">      64 </span><span class="lineCov">          5 :         count = gf_bs_read_int(bs, lennum);</span>
+<span class="lineNum">      65 </span>            : 
+<span class="lineNum">      66 </span><span class="lineCov">          5 :         com = gf_sg_command_new(codec-&gt;current_graph, GF_SG_MULTIPLE_INDEXED_REPLACE);</span>
+<span class="lineNum">      67 </span><span class="lineCov">          5 :         BM_SetCommandNode(com, node);</span>
+<span class="lineNum">      68 </span><span class="lineCov">          5 :         field.fieldType = gf_sg_vrml_get_sf_type(field.fieldType);</span>
+<span class="lineNum">      69 </span>            : 
+<span class="lineNum">      70 </span><span class="lineCov">         40 :         while (count) {</span>
+<span class="lineNum">      71 </span><span class="lineCov">         15 :                 inf = gf_sg_command_field_new(com);</span>
+<span class="lineNum">      72 </span><span class="lineCov">         15 :                 inf-&gt;pos = gf_bs_read_int(bs, lenpos);</span>
+<span class="lineNum">      73 </span><span class="lineCov">         15 :                 inf-&gt;fieldIndex = field.fieldIndex;</span>
+<span class="lineNum">      74 </span><span class="lineCov">         15 :                 inf-&gt;fieldType = field.fieldType;</span>
+<span class="lineNum">      75 </span>            : 
+<span class="lineNum">      76 </span><span class="lineCov">         15 :                 if (field.fieldType==GF_SG_VRML_SFNODE) {</span>
+<span class="lineNum">      77 </span><span class="lineNoCov">          0 :                         inf-&gt;new_node = gf_bifs_dec_node(codec, bs, field.NDTtype);</span>
+<span class="lineNum">      78 </span><span class="lineNoCov">          0 :                         if (codec-&gt;LastError) goto err;</span>
+<span class="lineNum">      79 </span><span class="lineNoCov">          0 :                         inf-&gt;field_ptr = &amp;inf-&gt;new_node;</span>
+<span class="lineNum">      80 </span><span class="lineNoCov">          0 :                         gf_node_register(inf-&gt;new_node, NULL);</span>
+<span class="lineNum">      81 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">      82 </span><span class="lineCov">         15 :                         field.far_ptr = inf-&gt;field_ptr = gf_sg_vrml_field_pointer_new(inf-&gt;fieldType);</span>
+<span class="lineNum">      83 </span><span class="lineCov">         15 :                         e = gf_bifs_dec_sf_field(codec, bs, node, &amp;field, GF_TRUE);</span>
+<span class="lineNum">      84 </span><span class="lineCov">         15 :                         if (e) goto err;</span>
+<span class="lineNum">      85 </span>            :                 }
+<span class="lineNum">      86 </span><span class="lineCov">         15 :                 count--;</span>
+<span class="lineNum">      87 </span>            :         }
+<span class="lineNum">      88 </span>            : err:
+<span class="lineNum">      89 </span><span class="lineCov">          5 :         if (e) gf_sg_command_del(com);</span>
+<span class="lineNum">      90 </span><span class="lineCov">          5 :         else gf_list_add(com_list, com);</span>
+<span class="lineNum">      91 </span><span class="lineCov">          5 :         return e;</span>
+<a name="92"><span class="lineNum">      92 </span><span class="lineCov">          5 : }</span></a>
+<span class="lineNum">      93 </span>            : 
+<span class="lineNum">      94 </span>            : static GF_Err BM_ParseMultipleReplace(GF_BifsDecoder *codec, GF_BitStream *bs, GF_List *com_list)
+<span class="lineNum">      95 </span>            : {
+<span class="lineNum">      96 </span><span class="lineCov">         10 :         u32 i, numFields, index, flag, nbBits, field_ref, fieldind;</span>
+<span class="lineNum">      97 </span>            :         GF_Err e;
+<span class="lineNum">      98 </span><span class="lineCov">          5 :         GF_FieldInfo field;</span>
+<span class="lineNum">      99 </span>            :         u32 NodeID;
+<span class="lineNum">     100 </span>            :         GF_Node *node;
+<span class="lineNum">     101 </span>            :         GF_Command *com;
+<span class="lineNum">     102 </span>            :         GF_CommandField *inf;
+<span class="lineNum">     103 </span>            : 
+<span class="lineNum">     104 </span><span class="lineCov">          5 :         NodeID = 1 + gf_bs_read_int(bs, codec-&gt;info-&gt;config.NodeIDBits);</span>
+<span class="lineNum">     105 </span><span class="lineCov">          5 :         node = gf_sg_find_node(codec-&gt;current_graph, NodeID);</span>
+<span class="lineNum">     106 </span><span class="lineCov">          5 :         if (!node) return GF_NON_COMPLIANT_BITSTREAM;</span>
+<span class="lineNum">     107 </span>            : 
+<span class="lineNum">     108 </span>            :         e = GF_OK;
+<span class="lineNum">     109 </span><span class="lineCov">          5 :         com = gf_sg_command_new(codec-&gt;current_graph, GF_SG_MULTIPLE_REPLACE);</span>
+<span class="lineNum">     110 </span><span class="lineCov">          5 :         BM_SetCommandNode(com, node);</span>
+<span class="lineNum">     111 </span><span class="lineCov">          5 :         flag = gf_bs_read_int(bs, 1);</span>
+<span class="lineNum">     112 </span><span class="lineCov">          5 :         if (flag) {</span>
+<span class="lineNum">     113 </span><span class="lineCov">          5 :                 numFields = gf_node_get_num_fields_in_mode(node, GF_SG_FIELD_CODING_DEF);</span>
+<span class="lineNum">     114 </span><span class="lineCov">         50 :                 for (i=0; i&lt;numFields; i++) {</span>
+<span class="lineNum">     115 </span><span class="lineCov">         20 :                         flag = gf_bs_read_int(bs, 1);</span>
+<span class="lineNum">     116 </span><span class="lineCov">         20 :                         if (!flag) continue;</span>
+<span class="lineNum">     117 </span><span class="lineCov">         15 :                         gf_bifs_get_field_index(node, i, GF_SG_FIELD_CODING_DEF, &amp;index);</span>
+<span class="lineNum">     118 </span><span class="lineCov">         15 :                         e = gf_node_get_field(node, index, &amp;field);</span>
+<span class="lineNum">     119 </span><span class="lineCov">         15 :                         if (e) goto exit;</span>
+<span class="lineNum">     120 </span><span class="lineCov">         15 :                         inf = gf_sg_command_field_new(com);</span>
+<span class="lineNum">     121 </span><span class="lineCov">         15 :                         inf-&gt;fieldType = field.fieldType;</span>
+<span class="lineNum">     122 </span><span class="lineCov">         15 :                         inf-&gt;fieldIndex = field.fieldIndex;</span>
+<span class="lineNum">     123 </span><span class="lineCov">         15 :                         if (inf-&gt;fieldType==GF_SG_VRML_SFNODE) {</span>
+<span class="lineNum">     124 </span><span class="lineCov">          5 :                                 field.far_ptr = inf-&gt;field_ptr = &amp;inf-&gt;new_node;</span>
+<span class="lineNum">     125 </span><span class="lineCov">         15 :                         } else if (inf-&gt;fieldType==GF_SG_VRML_MFNODE) {</span>
+<span class="lineNum">     126 </span><span class="lineNoCov">          0 :                                 field.far_ptr = inf-&gt;field_ptr = &amp;inf-&gt;node_list;</span>
+<span class="lineNum">     127 </span><span class="lineNoCov">          0 :                         } else {</span>
+<span class="lineNum">     128 </span><span class="lineCov">         10 :                                 field.far_ptr = inf-&gt;field_ptr = gf_sg_vrml_field_pointer_new(inf-&gt;fieldType);</span>
+<span class="lineNum">     129 </span>            :                         }
+<span class="lineNum">     130 </span><span class="lineCov">         15 :                         e = gf_bifs_dec_field(codec, bs, node, &amp;field, GF_TRUE);</span>
+<span class="lineNum">     131 </span><span class="lineCov">         15 :                         if (e) goto exit;</span>
+<span class="lineNum">     132 </span>            :                 }
+<span class="lineNum">     133 </span>            :         } else {
+<span class="lineNum">     134 </span><span class="lineNoCov">          0 :                 flag = gf_bs_read_int(bs, 1);</span>
+<span class="lineNum">     135 </span><span class="lineNoCov">          0 :                 nbBits = gf_get_bit_size(gf_node_get_num_fields_in_mode(node, GF_SG_FIELD_CODING_DEF)-1);</span>
+<span class="lineNum">     136 </span><span class="lineNoCov">          0 :                 while (!flag &amp;&amp; (codec-&gt;LastError&gt;=0)) {</span>
+<span class="lineNum">     137 </span><span class="lineNoCov">          0 :                         field_ref = gf_bs_read_int(bs, nbBits);</span>
+<span class="lineNum">     138 </span><span class="lineNoCov">          0 :                         e = gf_bifs_get_field_index(node, field_ref, GF_SG_FIELD_CODING_DEF, &amp;fieldind);</span>
+<span class="lineNum">     139 </span><span class="lineNoCov">          0 :                         if (e) goto exit;</span>
+<span class="lineNum">     140 </span><span class="lineNoCov">          0 :                         e = gf_node_get_field(node, fieldind, &amp;field);</span>
+<span class="lineNum">     141 </span><span class="lineNoCov">          0 :                         if (e) goto exit;</span>
+<span class="lineNum">     142 </span><span class="lineNoCov">          0 :                         inf = gf_sg_command_field_new(com);</span>
+<span class="lineNum">     143 </span><span class="lineNoCov">          0 :                         inf-&gt;fieldType = field.fieldType;</span>
+<span class="lineNum">     144 </span><span class="lineNoCov">          0 :                         inf-&gt;fieldIndex = field.fieldIndex;</span>
+<span class="lineNum">     145 </span><span class="lineNoCov">          0 :                         if (inf-&gt;fieldType==GF_SG_VRML_SFNODE) {</span>
+<span class="lineNum">     146 </span><span class="lineNoCov">          0 :                                 field.far_ptr = inf-&gt;field_ptr = &amp;inf-&gt;new_node;</span>
+<span class="lineNum">     147 </span><span class="lineNoCov">          0 :                         } else if (inf-&gt;fieldType==GF_SG_VRML_MFNODE) {</span>
+<span class="lineNum">     148 </span><span class="lineNoCov">          0 :                                 field.far_ptr = inf-&gt;field_ptr = &amp;inf-&gt;node_list;</span>
+<span class="lineNum">     149 </span><span class="lineNoCov">          0 :                         } else {</span>
+<span class="lineNum">     150 </span><span class="lineNoCov">          0 :                                 field.far_ptr = inf-&gt;field_ptr = gf_sg_vrml_field_pointer_new(inf-&gt;fieldType);</span>
+<span class="lineNum">     151 </span>            :                         }
+<span class="lineNum">     152 </span><span class="lineNoCov">          0 :                         e = gf_bifs_dec_field(codec, bs, node, &amp;field, GF_TRUE);</span>
+<span class="lineNum">     153 </span><span class="lineNoCov">          0 :                         if (e) goto exit;</span>
+<span class="lineNum">     154 </span><span class="lineNoCov">          0 :                         flag = gf_bs_read_int(bs, 1);</span>
+<span class="lineNum">     155 </span>            :                 }
+<span class="lineNum">     156 </span>            :         }
+<span class="lineNum">     157 </span>            : 
+<span class="lineNum">     158 </span>            : 
+<span class="lineNum">     159 </span>            : exit:
+<span class="lineNum">     160 </span><span class="lineCov">          5 :         if (e) gf_sg_command_del(com);</span>
+<span class="lineNum">     161 </span><span class="lineCov">          5 :         else gf_list_add(com_list, com);</span>
+<span class="lineNum">     162 </span><span class="lineCov">          5 :         return e;</span>
+<a name="163"><span class="lineNum">     163 </span><span class="lineCov">          5 : }</span></a>
+<span class="lineNum">     164 </span>            : 
+<span class="lineNum">     165 </span>            : static GF_Err BM_ParseGlobalQuantizer(GF_BifsDecoder *codec, GF_BitStream *bs, GF_List *com_list)
+<span class="lineNum">     166 </span>            : {
+<span class="lineNum">     167 </span>            :         GF_Node *node;
+<span class="lineNum">     168 </span>            :         GF_Command *com;
+<span class="lineNum">     169 </span>            :         GF_CommandField *inf;
+<span class="lineNum">     170 </span><span class="lineCov">         10 :         node = gf_bifs_dec_node(codec, bs, NDT_SFWorldNode);</span>
+<span class="lineNum">     171 </span><span class="lineCov">          5 :         if (!node) return GF_NON_COMPLIANT_BITSTREAM;</span>
+<span class="lineNum">     172 </span>            : 
+<span class="lineNum">     173 </span>            :         /*reset global QP*/
+<span class="lineNum">     174 </span><span class="lineCov">          5 :         if (codec-&gt;scenegraph-&gt;global_qp) {</span>
+<span class="lineNum">     175 </span><span class="lineNoCov">          0 :                 gf_node_unregister(codec-&gt;scenegraph-&gt;global_qp, NULL);</span>
+<span class="lineNum">     176 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     177 </span><span class="lineCov">          5 :         codec-&gt;ActiveQP = NULL;</span>
+<span class="lineNum">     178 </span><span class="lineCov">          5 :         codec-&gt;scenegraph-&gt;global_qp = NULL;</span>
+<span class="lineNum">     179 </span>            : 
+<span class="lineNum">     180 </span><span class="lineCov">         10 :         if (node &amp;&amp; (gf_node_get_tag(node) != TAG_MPEG4_QuantizationParameter)) {</span>
+<span class="lineNum">     181 </span><span class="lineNoCov">          0 :                 gf_node_unregister(node, NULL);</span>
+<span class="lineNum">     182 </span><span class="lineNoCov">          0 :                 return GF_NON_COMPLIANT_BITSTREAM;</span>
+<span class="lineNum">     183 </span>            :         }
+<span class="lineNum">     184 </span>            : 
+<span class="lineNum">     185 </span>            :         /*register global QP*/
+<span class="lineNum">     186 </span><span class="lineCov">          5 :         codec-&gt;ActiveQP = (M_QuantizationParameter *) node;</span>
+<span class="lineNum">     187 </span><span class="lineCov">          5 :         codec-&gt;ActiveQP-&gt;isLocal = 0;</span>
+<span class="lineNum">     188 </span><span class="lineCov">          5 :         codec-&gt;scenegraph-&gt;global_qp = node;</span>
+<span class="lineNum">     189 </span><span class="lineCov">          5 :         if (node) {</span>
+<span class="lineNum">     190 </span>            :                 /*register TWICE: once for the command, and for the scenegraph globalQP*/
+<span class="lineNum">     191 </span><span class="lineCov">          5 :                 node-&gt;sgprivate-&gt;num_instances = 2;</span>
+<span class="lineNum">     192 </span><span class="lineCov">          5 :         }</span>
+<span class="lineNum">     193 </span><span class="lineCov">          5 :         com = gf_sg_command_new(codec-&gt;current_graph, GF_SG_GLOBAL_QUANTIZER);</span>
+<span class="lineNum">     194 </span><span class="lineCov">          5 :         inf = gf_sg_command_field_new(com);</span>
+<span class="lineNum">     195 </span><span class="lineCov">          5 :         inf-&gt;new_node = node;</span>
+<span class="lineNum">     196 </span><span class="lineCov">          5 :         inf-&gt;field_ptr = &amp;inf-&gt;new_node;</span>
+<span class="lineNum">     197 </span><span class="lineCov">          5 :         inf-&gt;fieldType = GF_SG_VRML_SFNODE;</span>
+<span class="lineNum">     198 </span><span class="lineCov">          5 :         gf_list_add(com_list, com);</span>
+<span class="lineNum">     199 </span><span class="lineCov">          5 :         return GF_OK;</span>
+<a name="200"><span class="lineNum">     200 </span><span class="lineCov">          5 : }</span></a>
+<span class="lineNum">     201 </span>            : 
+<span class="lineNum">     202 </span>            : static GF_Err BM_ParseProtoDelete(GF_BifsDecoder *codec, GF_BitStream *bs, GF_List *com_list)
+<span class="lineNum">     203 </span>            : {
+<span class="lineNum">     204 </span>            :         u32 flag, count;
+<span class="lineNum">     205 </span><span class="lineCov">         10 :         GF_Command *com = gf_sg_command_new(codec-&gt;current_graph, GF_SG_PROTO_DELETE);</span>
+<span class="lineNum">     206 </span><span class="lineCov">          5 :         flag = gf_bs_read_int(bs, 1);</span>
+<span class="lineNum">     207 </span><span class="lineCov">          5 :         if (flag) {</span>
+<span class="lineNum">     208 </span>            :                 count = 0;
+<span class="lineNum">     209 </span><span class="lineCov">          5 :                 flag = gf_bs_read_int(bs, 1);</span>
+<span class="lineNum">     210 </span><span class="lineCov">         20 :                 while (flag) {</span>
+<span class="lineNum">     211 </span><span class="lineCov">          5 :                         com-&gt;del_proto_list = (u32*)gf_realloc(com-&gt;del_proto_list, sizeof(u32) * (com-&gt;del_proto_list_size+1));</span>
+<span class="lineNum">     212 </span><span class="lineCov">          5 :                         com-&gt;del_proto_list[count] = gf_bs_read_int(bs, codec-&gt;info-&gt;config.ProtoIDBits);</span>
+<span class="lineNum">     213 </span><span class="lineCov">          5 :                         com-&gt;del_proto_list_size++;</span>
+<span class="lineNum">     214 </span><span class="lineCov">          5 :                         flag = gf_bs_read_int(bs, 1);</span>
+<span class="lineNum">     215 </span>            :                 }
+<span class="lineNum">     216 </span>            :         } else {
+<span class="lineNum">     217 </span><span class="lineNoCov">          0 :                 flag = gf_bs_read_int(bs, 5);</span>
+<span class="lineNum">     218 </span><span class="lineNoCov">          0 :                 com-&gt;del_proto_list_size = gf_bs_read_int(bs, flag);</span>
+<span class="lineNum">     219 </span><span class="lineNoCov">          0 :                 com-&gt;del_proto_list = (u32*)gf_realloc(com-&gt;del_proto_list, sizeof(u32) * (com-&gt;del_proto_list_size));</span>
+<span class="lineNum">     220 </span>            :                 flag = 0;
+<span class="lineNum">     221 </span><span class="lineNoCov">          0 :                 while (flag&lt;com-&gt;del_proto_list_size) {</span>
+<span class="lineNum">     222 </span><span class="lineNoCov">          0 :                         com-&gt;del_proto_list[flag] = gf_bs_read_int(bs, codec-&gt;info-&gt;config.ProtoIDBits);</span>
+<span class="lineNum">     223 </span><span class="lineNoCov">          0 :                         flag++;</span>
+<span class="lineNum">     224 </span>            :                 }
+<span class="lineNum">     225 </span>            :         }
+<span class="lineNum">     226 </span><span class="lineCov">          5 :         gf_list_add(com_list, com);</span>
+<span class="lineNum">     227 </span><span class="lineCov">          5 :         return GF_OK;</span>
+<a name="228"><span class="lineNum">     228 </span>            : }</a>
+<span class="lineNum">     229 </span>            : 
+<span class="lineNum">     230 </span>            : static GF_Err BM_XReplace(GF_BifsDecoder *codec, GF_BitStream *bs, GF_List *com_list)
+<span class="lineNum">     231 </span>            : {
+<span class="lineNum">     232 </span><span class="lineNoCov">          0 :         GF_FieldInfo targetField, fromField, decfield;</span>
+<span class="lineNum">     233 </span>            :         GF_Node *target, *n, *fromNode;
+<span class="lineNum">     234 </span>            :         s32 pos = -2;
+<span class="lineNum">     235 </span><span class="lineNoCov">          0 :         u32 id, nbBits, ind, aind;</span>
+<span class="lineNum">     236 </span>            :         GF_Err e;
+<span class="lineNum">     237 </span>            :         GF_Command *com;
+<span class="lineNum">     238 </span>            :         GF_CommandField *inf;
+<span class="lineNum">     239 </span>            : 
+<span class="lineNum">     240 </span><span class="lineNoCov">          0 :         id = 1 + gf_bs_read_int(bs, codec-&gt;info-&gt;config.NodeIDBits);</span>
+<span class="lineNum">     241 </span><span class="lineNoCov">          0 :         target = gf_sg_find_node(codec-&gt;current_graph, id);</span>
+<span class="lineNum">     242 </span><span class="lineNoCov">          0 :         if (!target) return GF_SG_UNKNOWN_NODE;</span>
+<span class="lineNum">     243 </span>            : 
+<span class="lineNum">     244 </span><span class="lineNoCov">          0 :         com = gf_sg_command_new(codec-&gt;current_graph, GF_SG_XREPLACE);</span>
+<span class="lineNum">     245 </span><span class="lineNoCov">          0 :         BM_SetCommandNode(com, target);</span>
+<span class="lineNum">     246 </span>            : 
+<span class="lineNum">     247 </span><span class="lineNoCov">          0 :         nbBits = gf_get_bit_size(gf_node_get_num_fields_in_mode(target, GF_SG_FIELD_CODING_IN)-1);</span>
+<span class="lineNum">     248 </span><span class="lineNoCov">          0 :         ind = gf_bs_read_int(bs, nbBits);</span>
+<span class="lineNum">     249 </span><span class="lineNoCov">          0 :         e = gf_bifs_get_field_index(target, ind, GF_SG_FIELD_CODING_IN, &amp;aind);</span>
+<span class="lineNum">     250 </span><span class="lineNoCov">          0 :         if (e) return e;</span>
+<span class="lineNum">     251 </span><span class="lineNoCov">          0 :         e = gf_node_get_field(target, aind, &amp;targetField);</span>
+<span class="lineNum">     252 </span><span class="lineNoCov">          0 :         if (e) return e;</span>
+<span class="lineNum">     253 </span>            : 
+<span class="lineNum">     254 </span><span class="lineNoCov">          0 :         inf = gf_sg_command_field_new(com);</span>
+<span class="lineNum">     255 </span><span class="lineNoCov">          0 :         inf-&gt;fieldIndex = aind;</span>
+<span class="lineNum">     256 </span>            : 
+<span class="lineNum">     257 </span><span class="lineNoCov">          0 :         if (!gf_sg_vrml_is_sf_field(targetField.fieldType)) {</span>
+<span class="lineNum">     258 </span>            :                 /*this is indexed replacement*/
+<span class="lineNum">     259 </span><span class="lineNoCov">          0 :                 if (gf_bs_read_int(bs, 1)) {</span>
+<span class="lineNum">     260 </span>            :                         /*index is dynamic*/
+<span class="lineNum">     261 </span><span class="lineNoCov">          0 :                         if (gf_bs_read_int(bs, 1)) {</span>
+<span class="lineNum">     262 </span><span class="lineNoCov">          0 :                                 id = 1 + gf_bs_read_int(bs, codec-&gt;info-&gt;config.NodeIDBits);</span>
+<span class="lineNum">     263 </span><span class="lineNoCov">          0 :                                 n = gf_sg_find_node(codec-&gt;current_graph, id);</span>
+<span class="lineNum">     264 </span><span class="lineNoCov">          0 :                                 if (!n) return GF_SG_UNKNOWN_NODE;</span>
+<span class="lineNum">     265 </span><span class="lineNoCov">          0 :                                 com-&gt;toNodeID = id;</span>
+<span class="lineNum">     266 </span>            : 
+<span class="lineNum">     267 </span><span class="lineNoCov">          0 :                                 nbBits = gf_get_bit_size(gf_node_get_num_fields_in_mode(n, GF_SG_FIELD_CODING_DEF)-1);</span>
+<span class="lineNum">     268 </span><span class="lineNoCov">          0 :                                 ind = gf_bs_read_int(bs, nbBits);</span>
+<span class="lineNum">     269 </span><span class="lineNoCov">          0 :                                 e = gf_bifs_get_field_index(n, ind, GF_SG_FIELD_CODING_DEF, &amp;aind);</span>
+<span class="lineNum">     270 </span><span class="lineNoCov">          0 :                                 if (e) return e;</span>
+<span class="lineNum">     271 </span><span class="lineNoCov">          0 :                                 e = gf_node_get_field(n, aind, &amp;fromField);</span>
+<span class="lineNum">     272 </span><span class="lineNoCov">          0 :                                 if (e) return e;</span>
+<span class="lineNum">     273 </span><span class="lineNoCov">          0 :                                 com-&gt;toFieldIndex = aind;</span>
+<span class="lineNum">     274 </span><span class="lineNoCov">          0 :                         } else {</span>
+<span class="lineNum">     275 </span><span class="lineNoCov">          0 :                                 u32 type = gf_bs_read_int(bs, 2);</span>
+<span class="lineNum">     276 </span><span class="lineNoCov">          0 :                                 switch (type) {</span>
+<span class="lineNum">     277 </span>            :                                 case 0:
+<span class="lineNum">     278 </span><span class="lineNoCov">          0 :                                         pos = gf_bs_read_int(bs, 16);</span>
+<span class="lineNum">     279 </span><span class="lineNoCov">          0 :                                         break;</span>
+<span class="lineNum">     280 </span>            :                                 case 2:
+<span class="lineNum">     281 </span>            :                                         pos = 0;
+<span class="lineNum">     282 </span><span class="lineNoCov">          0 :                                         break;</span>
+<span class="lineNum">     283 </span>            :                                 case 3:
+<span class="lineNum">     284 </span>            :                                         pos = -1;
+<span class="lineNum">     285 </span><span class="lineNoCov">          0 :                                         break;</span>
+<span class="lineNum">     286 </span>            :                                 }
+<span class="lineNum">     287 </span>            :                         }
+<span class="lineNum">     288 </span>            :                 }
+<span class="lineNum">     289 </span><span class="lineNoCov">          0 :                 if (targetField.fieldType==GF_SG_VRML_MFNODE) {</span>
+<span class="lineNum">     290 </span><span class="lineNoCov">          0 :                         if (gf_bs_read_int(bs, 1)) {</span>
+<span class="lineNum">     291 </span><span class="lineNoCov">          0 :                                 target = gf_node_list_get_child(*(GF_ChildNodeItem **)targetField.far_ptr, pos);</span>
+<span class="lineNum">     292 </span><span class="lineNoCov">          0 :                                 if (!target) return GF_SG_UNKNOWN_NODE;</span>
+<span class="lineNum">     293 </span>            : 
+<span class="lineNum">     294 </span><span class="lineNoCov">          0 :                                 nbBits = gf_get_bit_size(gf_node_get_num_fields_in_mode(target, GF_SG_FIELD_CODING_IN)-1);</span>
+<span class="lineNum">     295 </span><span class="lineNoCov">          0 :                                 ind = gf_bs_read_int(bs, nbBits);</span>
+<span class="lineNum">     296 </span><span class="lineNoCov">          0 :                                 e = gf_bifs_get_field_index(target, ind, GF_SG_FIELD_CODING_IN, &amp;aind);</span>
+<span class="lineNum">     297 </span><span class="lineNoCov">          0 :                                 if (e) return e;</span>
+<span class="lineNum">     298 </span><span class="lineNoCov">          0 :                                 e = gf_node_get_field(target, aind, &amp;targetField);</span>
+<span class="lineNum">     299 </span><span class="lineNoCov">          0 :                                 if (e) return e;</span>
+<span class="lineNum">     300 </span>            :                                 pos = -2;
+<span class="lineNum">     301 </span><span class="lineNoCov">          0 :                                 com-&gt;child_field = aind;</span>
+<span class="lineNum">     302 </span><span class="lineNoCov">          0 :                                 com-&gt;ChildNodeTag = gf_node_get_tag(target);</span>
+<span class="lineNum">     303 </span><span class="lineNoCov">          0 :                                 if (com-&gt;ChildNodeTag == TAG_ProtoNode) {</span>
+<span class="lineNum">     304 </span><span class="lineNoCov">          0 :                                         s32 p_id = gf_sg_proto_get_id(gf_node_get_proto(target));</span>
+<span class="lineNum">     305 </span><span class="lineNoCov">          0 :                                         com-&gt;ChildNodeTag = -p_id;</span>
+<span class="lineNum">     306 </span><span class="lineNoCov">          0 :                                 }</span>
+<span class="lineNum">     307 </span>            :                         }
+<span class="lineNum">     308 </span>            :                 }
+<span class="lineNum">     309 </span><span class="lineNoCov">          0 :                 inf-&gt;pos = pos;</span>
+<span class="lineNum">     310 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     311 </span>            : 
+<span class="lineNum">     312 </span>            :         fromNode = NULL;
+<span class="lineNum">     313 </span><span class="lineNoCov">          0 :         if (gf_bs_read_int(bs, 1)) {</span>
+<span class="lineNum">     314 </span><span class="lineNoCov">          0 :                 id = 1 + gf_bs_read_int(bs, codec-&gt;info-&gt;config.NodeIDBits);</span>
+<span class="lineNum">     315 </span><span class="lineNoCov">          0 :                 fromNode = gf_sg_find_node(codec-&gt;current_graph, id);</span>
+<span class="lineNum">     316 </span><span class="lineNoCov">          0 :                 if (!fromNode) return GF_SG_UNKNOWN_NODE;</span>
+<span class="lineNum">     317 </span><span class="lineNoCov">          0 :                 com-&gt;fromNodeID = id;</span>
+<span class="lineNum">     318 </span>            : 
+<span class="lineNum">     319 </span><span class="lineNoCov">          0 :                 nbBits = gf_get_bit_size(gf_node_get_num_fields_in_mode(fromNode, GF_SG_FIELD_CODING_DEF)-1);</span>
+<span class="lineNum">     320 </span><span class="lineNoCov">          0 :                 ind = gf_bs_read_int(bs, nbBits);</span>
+<span class="lineNum">     321 </span><span class="lineNoCov">          0 :                 e = gf_bifs_get_field_index(fromNode, ind, GF_SG_FIELD_CODING_DEF, &amp;aind);</span>
+<span class="lineNum">     322 </span><span class="lineNoCov">          0 :                 if (e) return e;</span>
+<span class="lineNum">     323 </span><span class="lineNoCov">          0 :                 e = gf_node_get_field(fromNode, aind, &amp;fromField);</span>
+<span class="lineNum">     324 </span><span class="lineNoCov">          0 :                 if (e) return e;</span>
+<span class="lineNum">     325 </span><span class="lineNoCov">          0 :                 com-&gt;fromFieldIndex = aind;</span>
+<span class="lineNum">     326 </span>            : 
+<span class="lineNum">     327 </span><span class="lineNoCov">          0 :                 return GF_OK;</span>
+<span class="lineNum">     328 </span>            :         }
+<span class="lineNum">     329 </span>            : 
+<span class="lineNum">     330 </span>            : 
+<span class="lineNum">     331 </span><span class="lineNoCov">          0 :         if (pos&gt;= -1) {</span>
+<span class="lineNum">     332 </span><span class="lineNoCov">          0 :                 inf-&gt;fieldType = gf_sg_vrml_get_sf_type(targetField.fieldType);</span>
+<span class="lineNum">     333 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     334 </span><span class="lineNoCov">          0 :                 inf-&gt;fieldType = targetField.fieldType;</span>
+<span class="lineNum">     335 </span>            :         }
+<span class="lineNum">     336 </span><span class="lineNoCov">          0 :         decfield.fieldIndex = inf-&gt;fieldIndex;</span>
+<span class="lineNum">     337 </span><span class="lineNoCov">          0 :         decfield.fieldType = inf-&gt;fieldType;</span>
+<span class="lineNum">     338 </span>            : 
+<span class="lineNum">     339 </span><span class="lineNoCov">          0 :         if (inf-&gt;fieldType==GF_SG_VRML_SFNODE) {</span>
+<span class="lineNum">     340 </span><span class="lineNoCov">          0 :                 decfield.far_ptr = inf-&gt;field_ptr = &amp;inf-&gt;new_node;</span>
+<span class="lineNum">     341 </span><span class="lineNoCov">          0 :         } else if (inf-&gt;fieldType==GF_SG_VRML_MFNODE) {</span>
+<span class="lineNum">     342 </span><span class="lineNoCov">          0 :                 decfield.far_ptr = inf-&gt;field_ptr = &amp;inf-&gt;node_list;</span>
+<span class="lineNum">     343 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     344 </span><span class="lineNoCov">          0 :                 decfield.far_ptr = inf-&gt;field_ptr = gf_sg_vrml_field_pointer_new(inf-&gt;fieldType);</span>
+<span class="lineNum">     345 </span>            :         }
+<span class="lineNum">     346 </span><span class="lineNoCov">          0 :         e = gf_bifs_dec_sf_field(codec, bs, target, &amp;decfield, GF_TRUE);</span>
+<span class="lineNum">     347 </span><span class="lineNoCov">          0 :         if (e) return e;</span>
+<span class="lineNum">     348 </span>            : 
+<span class="lineNum">     349 </span><span class="lineNoCov">          0 :         gf_list_add(com_list, com);</span>
+<span class="lineNum">     350 </span>            : 
+<span class="lineNum">     351 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<a name="352"><span class="lineNum">     352 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     353 </span>            : 
+<span class="lineNum">     354 </span>            : static GF_Err BM_ParseExtendedUpdates(GF_BifsDecoder *codec, GF_BitStream *bs, GF_List *com_list)
+<span class="lineNum">     355 </span>            : {
+<span class="lineNum">     356 </span><span class="lineCov">         70 :         u32 type = gf_bs_read_int(bs, 8);</span>
+<span class="lineNum">     357 </span>            :         GF_Err e;
+<span class="lineNum">     358 </span>            : 
+<span class="lineNum">     359 </span><span class="lineCov">         35 :         switch (type) {</span>
+<span class="lineNum">     360 </span>            :         case 0:
+<span class="lineNum">     361 </span>            :         {
+<span class="lineNum">     362 </span><span class="lineCov">          5 :                 GF_Command *com = gf_sg_command_new(codec-&gt;current_graph, GF_SG_PROTO_INSERT);</span>
+<span class="lineNum">     363 </span><span class="lineCov">          5 :                 e = gf_bifs_dec_proto_list(codec, bs, com-&gt;new_proto_list);</span>
+<span class="lineNum">     364 </span><span class="lineCov">          5 :                 if (e) gf_sg_command_del(com);</span>
+<span class="lineNum">     365 </span><span class="lineCov">          5 :                 else gf_list_add(com_list, com);</span>
+<span class="lineNum">     366 </span>            :         }
+<span class="lineNum">     367 </span><span class="lineCov">          5 :         return e;</span>
+<span class="lineNum">     368 </span>            :         case 1:
+<span class="lineNum">     369 </span><span class="lineCov">          5 :                 return BM_ParseProtoDelete(codec, bs, com_list);</span>
+<span class="lineNum">     370 </span>            :         case 2:
+<span class="lineNum">     371 </span>            :         {
+<span class="lineNum">     372 </span><span class="lineCov">          5 :                 GF_Command *com = gf_sg_command_new(codec-&gt;current_graph, GF_SG_PROTO_DELETE_ALL);</span>
+<span class="lineNum">     373 </span><span class="lineCov">          5 :                 return gf_list_add(com_list, com);</span>
+<span class="lineNum">     374 </span>            :         }
+<span class="lineNum">     375 </span>            :         case 3:
+<span class="lineNum">     376 </span><span class="lineCov">          5 :                 return BM_ParseMultipleIndexedReplace(codec, bs, com_list);</span>
+<span class="lineNum">     377 </span>            :         case 4:
+<span class="lineNum">     378 </span><span class="lineCov">          5 :                 return BM_ParseMultipleReplace(codec, bs, com_list);</span>
+<span class="lineNum">     379 </span>            :         case 5:
+<span class="lineNum">     380 </span><span class="lineCov">          5 :                 return BM_ParseGlobalQuantizer(codec, bs, com_list);</span>
+<span class="lineNum">     381 </span>            :         case 6:
+<span class="lineNum">     382 </span>            :         {
+<span class="lineNum">     383 </span>            :                 GF_Command *com;
+<span class="lineNum">     384 </span><span class="lineCov">          5 :                 u32 ID = 1 + gf_bs_read_int(bs, codec-&gt;info-&gt;config.NodeIDBits);</span>
+<span class="lineNum">     385 </span><span class="lineCov">          5 :                 GF_Node *n = gf_sg_find_node(codec-&gt;current_graph, ID);</span>
+<span class="lineNum">     386 </span><span class="lineCov">          5 :                 if (!n) return GF_OK;</span>
+<span class="lineNum">     387 </span><span class="lineCov">          5 :                 com = gf_sg_command_new(codec-&gt;current_graph, GF_SG_NODE_DELETE_EX);</span>
+<span class="lineNum">     388 </span><span class="lineCov">          5 :                 BM_SetCommandNode(com, n);</span>
+<span class="lineNum">     389 </span><span class="lineCov">          5 :                 gf_list_add(com_list, com);</span>
+<span class="lineNum">     390 </span><span class="lineCov">          5 :         }</span>
+<span class="lineNum">     391 </span><span class="lineCov">          5 :         return GF_OK;</span>
+<span class="lineNum">     392 </span>            :         case 7:
+<span class="lineNum">     393 </span><span class="lineNoCov">          0 :                 return BM_XReplace(codec, bs, com_list);</span>
+<span class="lineNum">     394 </span>            : 
+<span class="lineNum">     395 </span>            :         default:
+<span class="lineNum">     396 </span><span class="lineNoCov">          0 :                 return GF_BIFS_UNKNOWN_VERSION;</span>
+<span class="lineNum">     397 </span>            :         }
+<span class="lineNum">     398 </span><span class="lineCov">         35 : }</span>
+<a name="399"><span class="lineNum">     399 </span>            : </a>
+<span class="lineNum">     400 </span>            : /*inserts a node in a container (node.children)*/
+<span class="lineNum">     401 </span>            : GF_Err BM_ParseNodeInsert(GF_BifsDecoder *codec, GF_BitStream *bs, GF_List *com_list)
+<span class="lineNum">     402 </span>            : {
+<span class="lineNum">     403 </span>            :         u32 NodeID, NDT;
+<span class="lineNum">     404 </span>            :         GF_Command *com;
+<span class="lineNum">     405 </span>            :         GF_CommandField *inf;
+<span class="lineNum">     406 </span>            :         s32 type, pos;
+<span class="lineNum">     407 </span>            :         GF_Node *node, *def;
+<span class="lineNum">     408 </span>            : 
+<span class="lineNum">     409 </span><span class="lineCov">        390 :         NodeID = 1 + gf_bs_read_int(bs, codec-&gt;info-&gt;config.NodeIDBits);</span>
+<span class="lineNum">     410 </span><span class="lineCov">        195 :         def = gf_sg_find_node(codec-&gt;current_graph, NodeID);</span>
+<span class="lineNum">     411 </span><span class="lineCov">        195 :         if (!def) return GF_NON_COMPLIANT_BITSTREAM;</span>
+<span class="lineNum">     412 </span><span class="lineCov">        195 :         NDT = gf_bifs_get_child_table(def);</span>
+<span class="lineNum">     413 </span><span class="lineCov">        195 :         if (!NDT) return GF_NON_COMPLIANT_BITSTREAM;</span>
+<span class="lineNum">     414 </span>            : 
+<span class="lineNum">     415 </span><span class="lineCov">        195 :         type = gf_bs_read_int(bs, 2);</span>
+<span class="lineNum">     416 </span><span class="lineCov">        195 :         switch (type) {</span>
+<span class="lineNum">     417 </span>            :         case 0:
+<span class="lineNum">     418 </span><span class="lineCov">         10 :                 pos = gf_bs_read_int(bs, 8);</span>
+<span class="lineNum">     419 </span><span class="lineCov">         10 :                 break;</span>
+<span class="lineNum">     420 </span>            :         case 2:
+<span class="lineNum">     421 </span>            :                 pos = 0;
+<span class="lineNum">     422 </span><span class="lineCov">         25 :                 break;</span>
+<span class="lineNum">     423 </span>            :         case 3:
+<span class="lineNum">     424 </span>            :                 /*-1 means append*/
+<span class="lineNum">     425 </span>            :                 pos = -1;
+<span class="lineNum">     426 </span><span class="lineCov">        160 :                 break;</span>
+<span class="lineNum">     427 </span>            :         default:
+<span class="lineNum">     428 </span><span class="lineNoCov">          0 :                 return GF_NON_COMPLIANT_BITSTREAM;</span>
+<span class="lineNum">     429 </span>            :         }
+<span class="lineNum">     430 </span><span class="lineCov">        195 :         node = gf_bifs_dec_node(codec, bs, NDT);</span>
+<span class="lineNum">     431 </span><span class="lineCov">        195 :         if (!codec-&gt;LastError) {</span>
+<span class="lineNum">     432 </span><span class="lineCov">        195 :                 com = gf_sg_command_new(codec-&gt;current_graph, GF_SG_NODE_INSERT);</span>
+<span class="lineNum">     433 </span><span class="lineCov">        195 :                 BM_SetCommandNode(com, def);</span>
+<span class="lineNum">     434 </span><span class="lineCov">        195 :                 inf = gf_sg_command_field_new(com);</span>
+<span class="lineNum">     435 </span><span class="lineCov">        195 :                 inf-&gt;pos = pos;</span>
+<span class="lineNum">     436 </span><span class="lineCov">        195 :                 inf-&gt;new_node = node;</span>
+<span class="lineNum">     437 </span><span class="lineCov">        195 :                 inf-&gt;field_ptr = &amp;inf-&gt;new_node;</span>
+<span class="lineNum">     438 </span><span class="lineCov">        195 :                 inf-&gt;fieldType = GF_SG_VRML_SFNODE;</span>
+<span class="lineNum">     439 </span><span class="lineCov">        195 :                 gf_list_add(com_list, com);</span>
+<span class="lineNum">     440 </span>            :                 /*register*/
+<span class="lineNum">     441 </span><span class="lineCov">        195 :                 gf_node_register(node, NULL);</span>
+<span class="lineNum">     442 </span><span class="lineCov">        195 :         }</span>
+<span class="lineNum">     443 </span><span class="lineCov">        195 :         return codec-&gt;LastError;</span>
+<span class="lineNum">     444 </span><span class="lineCov">        195 : }</span>
+<a name="445"><span class="lineNum">     445 </span>            : </a>
+<span class="lineNum">     446 </span>            : /*NB This can insert a node as well (but usually not in the .children field)*/
+<span class="lineNum">     447 </span>            : GF_Err BM_ParseIndexInsert(GF_BifsDecoder *codec, GF_BitStream *bs, GF_List *com_list)
+<span class="lineNum">     448 </span>            : {
+<span class="lineNum">     449 </span>            :         GF_Err e;
+<span class="lineNum">     450 </span>            :         u32 NodeID;
+<span class="lineNum">     451 </span><span class="lineCov">         10 :         u32 NumBits, ind, field_ind;</span>
+<span class="lineNum">     452 </span>            :         u8 type;
+<span class="lineNum">     453 </span>            :         GF_Command *com;
+<span class="lineNum">     454 </span>            :         GF_CommandField *inf;
+<span class="lineNum">     455 </span>            :         s32 pos;
+<span class="lineNum">     456 </span>            :         GF_Node *def, *node;
+<span class="lineNum">     457 </span><span class="lineCov">          5 :         GF_FieldInfo field, sffield;</span>
+<span class="lineNum">     458 </span>            : 
+<span class="lineNum">     459 </span><span class="lineCov">          5 :         NodeID = 1 + gf_bs_read_int(bs, codec-&gt;info-&gt;config.NodeIDBits);</span>
+<span class="lineNum">     460 </span><span class="lineCov">          5 :         def = gf_sg_find_node(codec-&gt;current_graph, NodeID);</span>
+<span class="lineNum">     461 </span><span class="lineCov">          5 :         if (!def) return GF_NON_COMPLIANT_BITSTREAM;</span>
+<span class="lineNum">     462 </span>            :         /*index insertion uses IN mode for field index*/
+<span class="lineNum">     463 </span><span class="lineCov">          5 :         NumBits = gf_get_bit_size(gf_node_get_num_fields_in_mode(def, GF_SG_FIELD_CODING_IN)-1);</span>
+<span class="lineNum">     464 </span><span class="lineCov">          5 :         ind = gf_bs_read_int(bs, NumBits);</span>
+<span class="lineNum">     465 </span>            : 
+<span class="lineNum">     466 </span><span class="lineCov">          5 :         e = gf_bifs_get_field_index(def, ind, GF_SG_FIELD_CODING_IN, &amp;field_ind);</span>
+<span class="lineNum">     467 </span><span class="lineCov">          5 :         if (e) return e;</span>
+<span class="lineNum">     468 </span>            : 
+<span class="lineNum">     469 </span><span class="lineCov">          5 :         type = gf_bs_read_int(bs, 2);</span>
+<span class="lineNum">     470 </span><span class="lineCov">          5 :         switch (type) {</span>
+<span class="lineNum">     471 </span>            :         case 0:
+<span class="lineNum">     472 </span><span class="lineNoCov">          0 :                 pos = gf_bs_read_int(bs, 16);</span>
+<span class="lineNum">     473 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     474 </span>            :         case 2:
+<span class="lineNum">     475 </span>            :                 pos = 0;
+<span class="lineNum">     476 </span><span class="lineCov">          5 :                 break;</span>
+<span class="lineNum">     477 </span>            :         case 3:
+<span class="lineNum">     478 </span>            :                 pos = -1;
+<span class="lineNum">     479 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     480 </span>            :         default:
+<span class="lineNum">     481 </span><span class="lineNoCov">          0 :                 return GF_NON_COMPLIANT_BITSTREAM;</span>
+<span class="lineNum">     482 </span>            :         }
+<span class="lineNum">     483 </span>            : 
+<span class="lineNum">     484 </span><span class="lineCov">          5 :         e = gf_node_get_field(def, field_ind, &amp;field);</span>
+<span class="lineNum">     485 </span><span class="lineCov">          5 :         if (e) return e;</span>
+<span class="lineNum">     486 </span><span class="lineCov">          5 :         if (gf_sg_vrml_is_sf_field(field.fieldType)) return GF_NON_COMPLIANT_BITSTREAM;</span>
+<span class="lineNum">     487 </span>            : 
+<span class="lineNum">     488 </span><span class="lineCov">          5 :         memcpy(&amp;sffield, &amp;field, sizeof(GF_FieldInfo));</span>
+<span class="lineNum">     489 </span><span class="lineCov">          5 :         sffield.fieldType = gf_sg_vrml_get_sf_type(field.fieldType);</span>
+<span class="lineNum">     490 </span>            : 
+<span class="lineNum">     491 </span>            :         /*rescale the MFField and parse the SFField*/
+<span class="lineNum">     492 </span><span class="lineCov">          5 :         if (field.fieldType==GF_SG_VRML_MFNODE) {</span>
+<span class="lineNum">     493 </span><span class="lineNoCov">          0 :                 node = gf_bifs_dec_node(codec, bs, field.NDTtype);</span>
+<span class="lineNum">     494 </span><span class="lineNoCov">          0 :                 if (!codec-&gt;LastError) {</span>
+<span class="lineNum">     495 </span><span class="lineNoCov">          0 :                         com = gf_sg_command_new(codec-&gt;current_graph, GF_SG_INDEXED_INSERT);</span>
+<span class="lineNum">     496 </span><span class="lineNoCov">          0 :                         BM_SetCommandNode(com, def);</span>
+<span class="lineNum">     497 </span><span class="lineNoCov">          0 :                         inf = gf_sg_command_field_new(com);</span>
+<span class="lineNum">     498 </span><span class="lineNoCov">          0 :                         inf-&gt;pos = pos;</span>
+<span class="lineNum">     499 </span><span class="lineNoCov">          0 :                         inf-&gt;fieldIndex = field_ind;</span>
+<span class="lineNum">     500 </span><span class="lineNoCov">          0 :                         inf-&gt;fieldType = sffield.fieldType;</span>
+<span class="lineNum">     501 </span><span class="lineNoCov">          0 :                         inf-&gt;new_node = node;</span>
+<span class="lineNum">     502 </span><span class="lineNoCov">          0 :                         inf-&gt;field_ptr = &amp;inf-&gt;new_node;</span>
+<span class="lineNum">     503 </span><span class="lineNoCov">          0 :                         gf_list_add(com_list, com);</span>
+<span class="lineNum">     504 </span>            :                         /*register*/
+<span class="lineNum">     505 </span><span class="lineNoCov">          0 :                         gf_node_register(node, NULL);</span>
+<span class="lineNum">     506 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     507 </span>            :         } else {
+<span class="lineNum">     508 </span><span class="lineCov">          5 :                 com = gf_sg_command_new(codec-&gt;current_graph, GF_SG_INDEXED_INSERT);</span>
+<span class="lineNum">     509 </span><span class="lineCov">          5 :                 BM_SetCommandNode(com, def);</span>
+<span class="lineNum">     510 </span><span class="lineCov">          5 :                 inf = gf_sg_command_field_new(com);</span>
+<span class="lineNum">     511 </span><span class="lineCov">          5 :                 inf-&gt;pos = pos;</span>
+<span class="lineNum">     512 </span><span class="lineCov">          5 :                 inf-&gt;fieldIndex = field_ind;</span>
+<span class="lineNum">     513 </span><span class="lineCov">          5 :                 inf-&gt;fieldType = sffield.fieldType;</span>
+<span class="lineNum">     514 </span><span class="lineCov">          5 :                 sffield.far_ptr = inf-&gt;field_ptr = gf_sg_vrml_field_pointer_new(sffield.fieldType);</span>
+<span class="lineNum">     515 </span><span class="lineCov">          5 :                 codec-&gt;LastError = gf_bifs_dec_sf_field(codec, bs, def, &amp;sffield, GF_TRUE);</span>
+<span class="lineNum">     516 </span><span class="lineCov">          5 :                 gf_list_add(com_list, com);</span>
+<span class="lineNum">     517 </span>            :         }
+<span class="lineNum">     518 </span><span class="lineCov">          5 :         return codec-&gt;LastError;</span>
+<span class="lineNum">     519 </span><span class="lineCov">          5 : }</span>
+<a name="520"><span class="lineNum">     520 </span>            : </a>
+<span class="lineNum">     521 </span>            : 
+<span class="lineNum">     522 </span>            : GF_Err BM_ParseRouteInsert(GF_BifsDecoder *codec, GF_BitStream *bs, GF_List *com_list)
+<span class="lineNum">     523 </span>            : {
+<span class="lineNum">     524 </span>            :         GF_Err e;
+<span class="lineNum">     525 </span>            :         u8 flag;
+<span class="lineNum">     526 </span>            :         GF_Command *com;
+<span class="lineNum">     527 </span>            :         GF_Node *InNode, *OutNode;
+<span class="lineNum">     528 </span><span class="lineCov">        290 :         u32 RouteID, outField, inField, numBits, ind, node_id;</span>
+<span class="lineNum">     529 </span><span class="lineCov">        145 :         char name[1000];</span>
+<span class="lineNum">     530 </span>            : 
+<span class="lineNum">     531 </span>            :         RouteID = 0;
+<span class="lineNum">     532 </span>            : 
+<span class="lineNum">     533 </span><span class="lineCov">        145 :         flag = gf_bs_read_int(bs, 1);</span>
+<span class="lineNum">     534 </span>            :         /*def'ed route*/
+<span class="lineNum">     535 </span><span class="lineCov">        145 :         if (flag) {</span>
+<span class="lineNum">     536 </span><span class="lineCov">        115 :                 RouteID = 1 + gf_bs_read_int(bs, codec-&gt;info-&gt;config.RouteIDBits);</span>
+<span class="lineNum">     537 </span><span class="lineCov">        115 :                 if (codec-&gt;UseName) gf_bifs_dec_name(bs, name);</span>
+<span class="lineNum">     538 </span>            :         }
+<span class="lineNum">     539 </span>            :         /*origin*/
+<span class="lineNum">     540 </span><span class="lineCov">        145 :         node_id = 1 + gf_bs_read_int(bs, codec-&gt;info-&gt;config.NodeIDBits);</span>
+<span class="lineNum">     541 </span><span class="lineCov">        145 :         OutNode = gf_sg_find_node(codec-&gt;current_graph, node_id);</span>
+<span class="lineNum">     542 </span><span class="lineCov">        145 :         if (!OutNode) return GF_SG_UNKNOWN_NODE;</span>
+<span class="lineNum">     543 </span>            : 
+<span class="lineNum">     544 </span><span class="lineCov">        145 :         numBits = gf_node_get_num_fields_in_mode(OutNode, GF_SG_FIELD_CODING_OUT) - 1;</span>
+<span class="lineNum">     545 </span><span class="lineCov">        145 :         numBits = gf_get_bit_size(numBits);</span>
+<span class="lineNum">     546 </span><span class="lineCov">        145 :         ind = gf_bs_read_int(bs, numBits);</span>
+<span class="lineNum">     547 </span><span class="lineCov">        145 :         e = gf_bifs_get_field_index(OutNode, ind, GF_SG_FIELD_CODING_OUT, &amp;outField);</span>
+<span class="lineNum">     548 </span><span class="lineCov">        145 :         if (e) return e;</span>
+<span class="lineNum">     549 </span>            : 
+<span class="lineNum">     550 </span>            :         /*target*/
+<span class="lineNum">     551 </span><span class="lineCov">        145 :         node_id = 1 + gf_bs_read_int(bs, codec-&gt;info-&gt;config.NodeIDBits);</span>
+<span class="lineNum">     552 </span><span class="lineCov">        145 :         InNode = gf_sg_find_node(codec-&gt;current_graph, node_id);</span>
+<span class="lineNum">     553 </span><span class="lineCov">        145 :         if (!InNode) return GF_SG_UNKNOWN_NODE;</span>
+<span class="lineNum">     554 </span>            : 
+<span class="lineNum">     555 </span><span class="lineCov">        145 :         numBits = gf_node_get_num_fields_in_mode(InNode, GF_SG_FIELD_CODING_IN) - 1;</span>
+<span class="lineNum">     556 </span><span class="lineCov">        145 :         numBits = gf_get_bit_size(numBits);</span>
+<span class="lineNum">     557 </span><span class="lineCov">        145 :         ind = gf_bs_read_int(bs, numBits);</span>
+<span class="lineNum">     558 </span><span class="lineCov">        145 :         e = gf_bifs_get_field_index(InNode, ind, GF_SG_FIELD_CODING_IN, &amp;inField);</span>
+<span class="lineNum">     559 </span><span class="lineCov">        145 :         if (e) return e;</span>
+<span class="lineNum">     560 </span>            : 
+<span class="lineNum">     561 </span><span class="lineCov">        145 :         com = gf_sg_command_new(codec-&gt;current_graph, GF_SG_ROUTE_INSERT);</span>
+<span class="lineNum">     562 </span><span class="lineCov">        145 :         com-&gt;RouteID = RouteID;</span>
+<span class="lineNum">     563 </span><span class="lineCov">        145 :         if (codec-&gt;UseName) com-&gt;def_name = gf_strdup( name);</span>
+<span class="lineNum">     564 </span><span class="lineCov">        145 :         com-&gt;fromNodeID = gf_node_get_id(OutNode);</span>
+<span class="lineNum">     565 </span><span class="lineCov">        145 :         com-&gt;fromFieldIndex = outField;</span>
+<span class="lineNum">     566 </span><span class="lineCov">        145 :         com-&gt;toNodeID = gf_node_get_id(InNode);</span>
+<span class="lineNum">     567 </span><span class="lineCov">        145 :         com-&gt;toFieldIndex = inField;</span>
+<span class="lineNum">     568 </span><span class="lineCov">        145 :         gf_list_add(com_list, com);</span>
+<span class="lineNum">     569 </span><span class="lineCov">        145 :         return codec-&gt;LastError;</span>
+<span class="lineNum">     570 </span><span class="lineCov">        145 : }</span>
+<a name="571"><span class="lineNum">     571 </span>            : </a>
+<span class="lineNum">     572 </span>            : 
+<span class="lineNum">     573 </span>            : GF_Err BM_ParseInsert(GF_BifsDecoder *codec, GF_BitStream *bs, GF_List *com_list)
+<span class="lineNum">     574 </span>            : {
+<span class="lineNum">     575 </span>            :         u8 type;
+<span class="lineNum">     576 </span>            : 
+<span class="lineNum">     577 </span><span class="lineCov">        760 :         type = gf_bs_read_int(bs, 2);</span>
+<span class="lineNum">     578 </span><span class="lineCov">        380 :         switch (type) {</span>
+<span class="lineNum">     579 </span>            :         case 0:
+<span class="lineNum">     580 </span><span class="lineCov">        195 :                 return BM_ParseNodeInsert(codec, bs, com_list);</span>
+<span class="lineNum">     581 </span>            :         case 1:
+<span class="lineNum">     582 </span><span class="lineCov">         35 :                 return BM_ParseExtendedUpdates(codec, bs, com_list);</span>
+<span class="lineNum">     583 </span>            :         case 2:
+<span class="lineNum">     584 </span><span class="lineCov">          5 :                 return BM_ParseIndexInsert(codec, bs, com_list);</span>
+<span class="lineNum">     585 </span>            :         case 3:
+<span class="lineNum">     586 </span><span class="lineCov">        145 :                 return BM_ParseRouteInsert(codec, bs, com_list);</span>
+<span class="lineNum">     587 </span>            :         default:
+<span class="lineNum">     588 </span><span class="lineNoCov">          0 :                 return GF_NON_COMPLIANT_BITSTREAM;</span>
+<span class="lineNum">     589 </span>            :         }
+<span class="lineNum">     590 </span><span class="lineCov">        380 : }</span>
+<a name="591"><span class="lineNum">     591 </span>            : </a>
+<span class="lineNum">     592 </span>            : 
+<span class="lineNum">     593 </span>            : GF_Err BM_ParseIndexDelete(GF_BifsDecoder *codec, GF_BitStream *bs, GF_List *com_list)
+<span class="lineNum">     594 </span>            : {
+<span class="lineNum">     595 </span><span class="lineCov">         10 :         u32 NodeID, NumBits, ind, field_ind;</span>
+<span class="lineNum">     596 </span>            :         s32 pos;
+<span class="lineNum">     597 </span>            :         GF_Command *com;
+<span class="lineNum">     598 </span>            :         u8 type;
+<span class="lineNum">     599 </span>            :         GF_Node *node;
+<span class="lineNum">     600 </span>            :         GF_Err e;
+<span class="lineNum">     601 </span>            :         GF_CommandField *inf;
+<span class="lineNum">     602 </span><span class="lineCov">          5 :         GF_FieldInfo field;</span>
+<span class="lineNum">     603 </span>            : 
+<span class="lineNum">     604 </span><span class="lineCov">          5 :         NodeID = 1 + gf_bs_read_int(bs, codec-&gt;info-&gt;config.NodeIDBits);</span>
+<span class="lineNum">     605 </span><span class="lineCov">          5 :         node = gf_sg_find_node(codec-&gt;current_graph, NodeID);</span>
+<span class="lineNum">     606 </span><span class="lineCov">          5 :         if (!node) return GF_NON_COMPLIANT_BITSTREAM;</span>
+<span class="lineNum">     607 </span>            : 
+<span class="lineNum">     608 </span><span class="lineCov">          5 :         NumBits = gf_get_bit_size(gf_node_get_num_fields_in_mode(node, GF_SG_FIELD_CODING_IN) - 1);</span>
+<span class="lineNum">     609 </span><span class="lineCov">          5 :         ind = gf_bs_read_int(bs, NumBits);</span>
+<span class="lineNum">     610 </span>            : 
+<span class="lineNum">     611 </span><span class="lineCov">          5 :         type = gf_bs_read_int(bs, 2);</span>
+<span class="lineNum">     612 </span><span class="lineCov">          5 :         switch (type) {</span>
+<span class="lineNum">     613 </span>            :         case 0:
+<span class="lineNum">     614 </span><span class="lineNoCov">          0 :                 pos = (u32) gf_bs_read_int(bs, 16);</span>
+<span class="lineNum">     615 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     616 </span>            :         case 2:
+<span class="lineNum">     617 </span>            :                 pos = 0;
+<span class="lineNum">     618 </span><span class="lineCov">          5 :                 break;</span>
+<span class="lineNum">     619 </span>            :         case 3:
+<span class="lineNum">     620 </span>            :                 pos = -1;
+<span class="lineNum">     621 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     622 </span>            :         default:
+<span class="lineNum">     623 </span><span class="lineNoCov">          0 :                 return GF_NON_COMPLIANT_BITSTREAM;</span>
+<span class="lineNum">     624 </span>            :         }
+<span class="lineNum">     625 </span><span class="lineCov">          5 :         e = gf_bifs_get_field_index(node, ind, GF_SG_FIELD_CODING_IN, &amp;field_ind);</span>
+<span class="lineNum">     626 </span><span class="lineCov">          5 :         if (e) return e;</span>
+<span class="lineNum">     627 </span><span class="lineCov">          5 :         e = gf_node_get_field(node, field_ind, &amp;field);</span>
+<span class="lineNum">     628 </span><span class="lineCov">          5 :         if (e) return e;</span>
+<span class="lineNum">     629 </span><span class="lineCov">          5 :         if (gf_sg_vrml_is_sf_field(field.fieldType)) return GF_NON_COMPLIANT_BITSTREAM;</span>
+<span class="lineNum">     630 </span><span class="lineCov">          5 :         com = gf_sg_command_new(codec-&gt;current_graph, GF_SG_INDEXED_DELETE);</span>
+<span class="lineNum">     631 </span><span class="lineCov">          5 :         BM_SetCommandNode(com, node);</span>
+<span class="lineNum">     632 </span><span class="lineCov">          5 :         inf = gf_sg_command_field_new(com);</span>
+<span class="lineNum">     633 </span><span class="lineCov">          5 :         inf-&gt;pos = pos;</span>
+<span class="lineNum">     634 </span><span class="lineCov">          5 :         inf-&gt;fieldIndex = field.fieldIndex;</span>
+<span class="lineNum">     635 </span><span class="lineCov">          5 :         inf-&gt;fieldType = gf_sg_vrml_get_sf_type(field.fieldType);</span>
+<span class="lineNum">     636 </span><span class="lineCov">          5 :         gf_list_add(com_list, com);</span>
+<span class="lineNum">     637 </span><span class="lineCov">          5 :         return codec-&gt;LastError;</span>
+<span class="lineNum">     638 </span><span class="lineCov">          5 : }</span>
+<span class="lineNum">     639 </span>            : 
+<a name="640"><span class="lineNum">     640 </span>            : </a>
+<span class="lineNum">     641 </span>            : 
+<span class="lineNum">     642 </span>            : GF_Err BM_ParseDelete(GF_BifsDecoder *codec, GF_BitStream *bs, GF_List *com_list)
+<span class="lineNum">     643 </span>            : {
+<span class="lineNum">     644 </span>            :         u8 type;
+<span class="lineNum">     645 </span>            :         u32 ID;
+<span class="lineNum">     646 </span>            :         GF_Command *com;
+<span class="lineNum">     647 </span>            :         GF_Node *n;
+<span class="lineNum">     648 </span>            : 
+<span class="lineNum">     649 </span><span class="lineCov">        450 :         type = gf_bs_read_int(bs, 2);</span>
+<span class="lineNum">     650 </span><span class="lineCov">        225 :         switch (type) {</span>
+<span class="lineNum">     651 </span>            :         case 0:
+<span class="lineNum">     652 </span><span class="lineCov">         80 :                 ID = 1+gf_bs_read_int(bs, codec-&gt;info-&gt;config.NodeIDBits);</span>
+<span class="lineNum">     653 </span><span class="lineCov">         80 :                 n = gf_sg_find_node(codec-&gt;current_graph, ID);</span>
+<span class="lineNum">     654 </span><span class="lineCov">         80 :                 if (!n) return GF_OK;</span>
+<span class="lineNum">     655 </span><span class="lineCov">         80 :                 com = gf_sg_command_new(codec-&gt;current_graph, GF_SG_NODE_DELETE);</span>
+<span class="lineNum">     656 </span><span class="lineCov">         80 :                 BM_SetCommandNode(com, n);</span>
+<span class="lineNum">     657 </span><span class="lineCov">         80 :                 gf_list_add(com_list, com);</span>
+<span class="lineNum">     658 </span><span class="lineCov">         80 :                 return GF_OK;</span>
+<span class="lineNum">     659 </span>            :         case 2:
+<span class="lineNum">     660 </span><span class="lineCov">          5 :                 return BM_ParseIndexDelete(codec, bs, com_list);</span>
+<span class="lineNum">     661 </span>            :         case 3:
+<span class="lineNum">     662 </span><span class="lineCov">        140 :                 com = gf_sg_command_new(codec-&gt;current_graph, GF_SG_ROUTE_DELETE);</span>
+<span class="lineNum">     663 </span><span class="lineCov">        140 :                 com-&gt;RouteID = 1+gf_bs_read_int(bs, codec-&gt;info-&gt;config.RouteIDBits);</span>
+<span class="lineNum">     664 </span><span class="lineCov">        140 :                 gf_list_add(com_list, com);</span>
+<span class="lineNum">     665 </span><span class="lineCov">        140 :                 return GF_OK;</span>
+<span class="lineNum">     666 </span>            :         default:
+<span class="lineNum">     667 </span><span class="lineNoCov">          0 :                 return GF_NON_COMPLIANT_BITSTREAM;</span>
+<span class="lineNum">     668 </span>            :         }
+<span class="lineNum">     669 </span>            :         return GF_OK;
+<span class="lineNum">     670 </span><span class="lineCov">        225 : }</span>
+<a name="671"><span class="lineNum">     671 </span>            : </a>
+<span class="lineNum">     672 </span>            : 
+<span class="lineNum">     673 </span>            : GF_Err BM_ParseNodeReplace(GF_BifsDecoder *codec, GF_BitStream *bs, GF_List *com_list)
+<span class="lineNum">     674 </span>            : {
+<span class="lineNum">     675 </span>            :         u32 NodeID;
+<span class="lineNum">     676 </span>            :         GF_Command *com;
+<span class="lineNum">     677 </span>            :         GF_Node *node;
+<span class="lineNum">     678 </span>            :         GF_CommandField *inf;
+<span class="lineNum">     679 </span>            : 
+<span class="lineNum">     680 </span><span class="lineCov">         80 :         NodeID = 1 + gf_bs_read_int(bs, codec-&gt;info-&gt;config.NodeIDBits);</span>
+<span class="lineNum">     681 </span>            :         /*this is delete / new on a DEF node: replace ALL instances*/
+<span class="lineNum">     682 </span><span class="lineCov">         40 :         node = gf_sg_find_node(codec-&gt;current_graph, NodeID);</span>
+<span class="lineNum">     683 </span><span class="lineCov">         40 :         if (!node) return GF_NON_COMPLIANT_BITSTREAM;</span>
+<span class="lineNum">     684 </span>            : 
+<span class="lineNum">     685 </span><span class="lineCov">         40 :         com = gf_sg_command_new(codec-&gt;current_graph, GF_SG_NODE_REPLACE);</span>
+<span class="lineNum">     686 </span><span class="lineCov">         40 :         BM_SetCommandNode(com, node);</span>
+<span class="lineNum">     687 </span><span class="lineCov">         40 :         inf = gf_sg_command_field_new(com);</span>
+<span class="lineNum">     688 </span><span class="lineCov">         40 :         inf-&gt;new_node = gf_bifs_dec_node(codec, bs, NDT_SFWorldNode);</span>
+<span class="lineNum">     689 </span><span class="lineCov">         40 :         inf-&gt;fieldType = GF_SG_VRML_SFNODE;</span>
+<span class="lineNum">     690 </span><span class="lineCov">         40 :         inf-&gt;field_ptr = &amp;inf-&gt;new_node;</span>
+<span class="lineNum">     691 </span><span class="lineCov">         40 :         gf_list_add(com_list, com);</span>
+<span class="lineNum">     692 </span><span class="lineCov">         40 :         gf_node_register(inf-&gt;new_node, NULL);</span>
+<span class="lineNum">     693 </span><span class="lineCov">         40 :         return codec-&gt;LastError;</span>
+<a name="694"><span class="lineNum">     694 </span><span class="lineCov">         40 : }</span></a>
+<span class="lineNum">     695 </span>            : 
+<span class="lineNum">     696 </span>            : GF_Err BM_ParseFieldReplace(GF_BifsDecoder *codec, GF_BitStream *bs, GF_List *com_list)
+<span class="lineNum">     697 </span>            : {
+<span class="lineNum">     698 </span>            :         GF_Err e;
+<span class="lineNum">     699 </span>            :         GF_Command *com;
+<span class="lineNum">     700 </span><span class="lineCov">       5784 :         u32 NodeID, ind, field_ind, NumBits;</span>
+<span class="lineNum">     701 </span>            :         GF_Node *node;
+<span class="lineNum">     702 </span><span class="lineCov">       2892 :         GF_FieldInfo field;</span>
+<span class="lineNum">     703 </span>            :         GF_CommandField *inf;
+<span class="lineNum">     704 </span>            : 
+<span class="lineNum">     705 </span><span class="lineCov">       2892 :         NodeID = 1 + gf_bs_read_int(bs, codec-&gt;info-&gt;config.NodeIDBits);</span>
+<span class="lineNum">     706 </span><span class="lineCov">       2892 :         node = gf_sg_find_node(codec-&gt;current_graph, NodeID);</span>
+<span class="lineNum">     707 </span><span class="lineCov">       2892 :         if (!node) return GF_NON_COMPLIANT_BITSTREAM;</span>
+<span class="lineNum">     708 </span><span class="lineCov">       2892 :         NumBits = gf_get_bit_size(gf_node_get_num_fields_in_mode(node, GF_SG_FIELD_CODING_IN)-1);</span>
+<span class="lineNum">     709 </span><span class="lineCov">       2892 :         ind = gf_bs_read_int(bs, NumBits);</span>
+<span class="lineNum">     710 </span><span class="lineCov">       2892 :         e = gf_bifs_get_field_index(node, ind, GF_SG_FIELD_CODING_IN, &amp;field_ind);</span>
+<span class="lineNum">     711 </span><span class="lineCov">       2892 :         if (e) return e;</span>
+<span class="lineNum">     712 </span>            : 
+<span class="lineNum">     713 </span><span class="lineCov">       2892 :         e = gf_node_get_field(node, field_ind, &amp;field);</span>
+<span class="lineNum">     714 </span><span class="lineCov">       2892 :         if (e) return e;</span>
+<span class="lineNum">     715 </span>            : 
+<span class="lineNum">     716 </span><span class="lineCov">       2892 :         com = gf_sg_command_new(codec-&gt;current_graph, GF_SG_FIELD_REPLACE);</span>
+<span class="lineNum">     717 </span><span class="lineCov">       2892 :         BM_SetCommandNode(com, node);</span>
+<span class="lineNum">     718 </span><span class="lineCov">       2892 :         inf = gf_sg_command_field_new(com);</span>
+<span class="lineNum">     719 </span><span class="lineCov">       2892 :         inf-&gt;fieldIndex = field_ind;</span>
+<span class="lineNum">     720 </span><span class="lineCov">       2892 :         inf-&gt;fieldType = field.fieldType;</span>
+<span class="lineNum">     721 </span><span class="lineCov">       2892 :         if (inf-&gt;fieldType == GF_SG_VRML_SFNODE) {</span>
+<span class="lineNum">     722 </span><span class="lineCov">          5 :                 field.far_ptr = inf-&gt;field_ptr = &amp;inf-&gt;new_node;</span>
+<span class="lineNum">     723 </span><span class="lineCov">       2892 :         } else if (inf-&gt;fieldType == GF_SG_VRML_MFNODE) {</span>
+<span class="lineNum">     724 </span><span class="lineNoCov">          0 :                 field.far_ptr = inf-&gt;field_ptr = &amp;inf-&gt;node_list;</span>
+<span class="lineNum">     725 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     726 </span><span class="lineCov">       2887 :                 field.far_ptr = inf-&gt;field_ptr = gf_sg_vrml_field_pointer_new(field.fieldType);</span>
+<span class="lineNum">     727 </span>            :         }
+<span class="lineNum">     728 </span>            :         /*parse the field*/
+<span class="lineNum">     729 </span><span class="lineCov">       2892 :         codec-&gt;LastError = gf_bifs_dec_field(codec, bs, node, &amp;field, GF_TRUE);</span>
+<span class="lineNum">     730 </span>            : 
+<span class="lineNum">     731 </span><span class="lineCov">       2892 :         gf_list_add(com_list, com);</span>
+<span class="lineNum">     732 </span><span class="lineCov">       2892 :         return codec-&gt;LastError;</span>
+<a name="733"><span class="lineNum">     733 </span><span class="lineCov">       2892 : }</span></a>
+<span class="lineNum">     734 </span>            : 
+<span class="lineNum">     735 </span>            : GF_Err BM_ParseIndexValueReplace(GF_BifsDecoder *codec, GF_BitStream *bs, GF_List *com_list)
+<span class="lineNum">     736 </span>            : {
+<span class="lineNum">     737 </span><span class="lineCov">        212 :         u32 NodeID, ind, field_ind, NumBits;</span>
+<span class="lineNum">     738 </span>            :         s32 type, pos;
+<span class="lineNum">     739 </span>            :         GF_Command *com;
+<span class="lineNum">     740 </span>            :         GF_Node *node;
+<span class="lineNum">     741 </span>            :         GF_Err e;
+<span class="lineNum">     742 </span><span class="lineCov">        106 :         GF_FieldInfo field, sffield;</span>
+<span class="lineNum">     743 </span>            :         GF_CommandField *inf;
+<span class="lineNum">     744 </span>            : 
+<span class="lineNum">     745 </span>            :         /*get the node*/
+<span class="lineNum">     746 </span><span class="lineCov">        106 :         NodeID = 1 + gf_bs_read_int(bs, codec-&gt;info-&gt;config.NodeIDBits);</span>
+<span class="lineNum">     747 </span>            : 
+<span class="lineNum">     748 </span><span class="lineCov">        106 :         node = gf_sg_find_node(codec-&gt;current_graph, NodeID);</span>
+<span class="lineNum">     749 </span><span class="lineCov">        106 :         if (!node) return GF_NON_COMPLIANT_BITSTREAM;</span>
+<span class="lineNum">     750 </span><span class="lineCov">        106 :         NumBits = gf_get_bit_size(gf_node_get_num_fields_in_mode(node, GF_SG_FIELD_CODING_IN)-1);</span>
+<span class="lineNum">     751 </span><span class="lineCov">        106 :         ind = gf_bs_read_int(bs, NumBits);</span>
+<span class="lineNum">     752 </span><span class="lineCov">        106 :         e = gf_bifs_get_field_index(node, ind, GF_SG_FIELD_CODING_IN, &amp;field_ind);</span>
+<span class="lineNum">     753 </span><span class="lineCov">        106 :         if (e) return e;</span>
+<span class="lineNum">     754 </span>            : 
+<span class="lineNum">     755 </span><span class="lineCov">        106 :         e = gf_node_get_field(node, field_ind, &amp;field);</span>
+<span class="lineNum">     756 </span><span class="lineCov">        106 :         if (e) return e;</span>
+<span class="lineNum">     757 </span><span class="lineCov">        106 :         if (gf_sg_vrml_is_sf_field(field.fieldType)) return GF_NON_COMPLIANT_BITSTREAM;</span>
+<span class="lineNum">     758 </span>            : 
+<span class="lineNum">     759 </span><span class="lineCov">        106 :         type = gf_bs_read_int(bs, 2);</span>
+<span class="lineNum">     760 </span><span class="lineCov">        106 :         switch (type) {</span>
+<span class="lineNum">     761 </span>            :         case 0:
+<span class="lineNum">     762 </span><span class="lineCov">         13 :                 pos = gf_bs_read_int(bs, 16);</span>
+<span class="lineNum">     763 </span><span class="lineCov">         13 :                 break;</span>
+<span class="lineNum">     764 </span>            :         case 2:
+<span class="lineNum">     765 </span>            :                 pos = 0;
+<span class="lineNum">     766 </span><span class="lineCov">         93 :                 break;</span>
+<span class="lineNum">     767 </span>            :         case 3:
+<span class="lineNum">     768 </span><span class="lineNoCov">          0 :                 pos = ((GenMFField *) field.far_ptr)-&gt;count - 1;</span>
+<span class="lineNum">     769 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     770 </span>            :         default:
+<span class="lineNum">     771 </span><span class="lineNoCov">          0 :                 return GF_NON_COMPLIANT_BITSTREAM;</span>
+<span class="lineNum">     772 </span>            :         }
+<span class="lineNum">     773 </span>            : 
+<span class="lineNum">     774 </span><span class="lineCov">        106 :         com = gf_sg_command_new(codec-&gt;current_graph, GF_SG_INDEXED_REPLACE);</span>
+<span class="lineNum">     775 </span><span class="lineCov">        106 :         BM_SetCommandNode(com, node);</span>
+<span class="lineNum">     776 </span><span class="lineCov">        106 :         inf = gf_sg_command_field_new(com);</span>
+<span class="lineNum">     777 </span><span class="lineCov">        106 :         inf-&gt;fieldIndex = field.fieldIndex;</span>
+<span class="lineNum">     778 </span><span class="lineCov">        106 :         inf-&gt;pos = pos;</span>
+<span class="lineNum">     779 </span>            : 
+<span class="lineNum">     780 </span><span class="lineCov">        106 :         if (field.fieldType == GF_SG_VRML_MFNODE) {</span>
+<span class="lineNum">     781 </span><span class="lineCov">         35 :                 inf-&gt;fieldType = GF_SG_VRML_SFNODE;</span>
+<span class="lineNum">     782 </span><span class="lineCov">         35 :                 inf-&gt;new_node = gf_bifs_dec_node(codec, bs, field.NDTtype);</span>
+<span class="lineNum">     783 </span><span class="lineCov">         35 :                 inf-&gt;field_ptr = &amp;inf-&gt;new_node;</span>
+<span class="lineNum">     784 </span><span class="lineCov">         55 :                 if (inf-&gt;new_node) gf_node_register(inf-&gt;new_node, NULL);</span>
+<span class="lineNum">     785 </span>            :         } else {
+<span class="lineNum">     786 </span><span class="lineCov">         71 :                 memcpy(&amp;sffield, &amp;field, sizeof(GF_FieldInfo));</span>
+<span class="lineNum">     787 </span><span class="lineCov">         71 :                 sffield.fieldType = gf_sg_vrml_get_sf_type(field.fieldType);</span>
+<span class="lineNum">     788 </span><span class="lineCov">         71 :                 inf-&gt;fieldType = sffield.fieldType;</span>
+<span class="lineNum">     789 </span><span class="lineCov">         71 :                 sffield.far_ptr = inf-&gt;field_ptr = gf_sg_vrml_field_pointer_new(sffield.fieldType);</span>
+<span class="lineNum">     790 </span><span class="lineCov">         71 :                 codec-&gt;LastError = gf_bifs_dec_sf_field(codec, bs, node, &amp;sffield, GF_TRUE);</span>
+<span class="lineNum">     791 </span>            :         }
+<span class="lineNum">     792 </span><span class="lineCov">        106 :         gf_list_add(com_list, com);</span>
+<span class="lineNum">     793 </span><span class="lineCov">        106 :         return codec-&gt;LastError;</span>
+<a name="794"><span class="lineNum">     794 </span><span class="lineCov">        106 : }</span></a>
+<span class="lineNum">     795 </span>            : 
+<span class="lineNum">     796 </span>            : GF_Err BM_ParseRouteReplace(GF_BifsDecoder *codec, GF_BitStream *bs, GF_List *com_list)
+<span class="lineNum">     797 </span>            : {
+<span class="lineNum">     798 </span>            :         GF_Err e;
+<span class="lineNum">     799 </span>            :         GF_Command *com;
+<span class="lineNum">     800 </span><span class="lineCov">        110 :         u32 RouteID, numBits, ind, node_id, fromID, toID;</span>
+<span class="lineNum">     801 </span>            :         GF_Node *OutNode, *InNode;
+<span class="lineNum">     802 </span>            : 
+<span class="lineNum">     803 </span><span class="lineCov">         55 :         RouteID = 1+gf_bs_read_int(bs, codec-&gt;info-&gt;config.RouteIDBits);</span>
+<span class="lineNum">     804 </span>            : 
+<span class="lineNum">     805 </span>            :         /*origin*/
+<span class="lineNum">     806 </span><span class="lineCov">         55 :         node_id = 1 + gf_bs_read_int(bs, codec-&gt;info-&gt;config.NodeIDBits);</span>
+<span class="lineNum">     807 </span><span class="lineCov">         55 :         OutNode = gf_sg_find_node(codec-&gt;current_graph, node_id);</span>
+<span class="lineNum">     808 </span><span class="lineCov">         55 :         if (!OutNode) return GF_NON_COMPLIANT_BITSTREAM;</span>
+<span class="lineNum">     809 </span><span class="lineCov">         55 :         numBits = gf_get_bit_size(gf_node_get_num_fields_in_mode(OutNode, GF_SG_FIELD_CODING_OUT) - 1);</span>
+<span class="lineNum">     810 </span><span class="lineCov">         55 :         ind = gf_bs_read_int(bs, numBits);</span>
+<span class="lineNum">     811 </span><span class="lineCov">         55 :         e = gf_bifs_get_field_index(OutNode, ind, GF_SG_FIELD_CODING_OUT, &amp;fromID);</span>
+<span class="lineNum">     812 </span><span class="lineCov">         55 :         if (e) return e;</span>
+<span class="lineNum">     813 </span>            : 
+<span class="lineNum">     814 </span>            :         /*target*/
+<span class="lineNum">     815 </span><span class="lineCov">         55 :         node_id = 1 + gf_bs_read_int(bs, codec-&gt;info-&gt;config.NodeIDBits);</span>
+<span class="lineNum">     816 </span><span class="lineCov">         55 :         InNode = gf_sg_find_node(codec-&gt;current_graph, node_id);</span>
+<span class="lineNum">     817 </span><span class="lineCov">         55 :         if (!InNode) return GF_NON_COMPLIANT_BITSTREAM;</span>
+<span class="lineNum">     818 </span><span class="lineCov">         55 :         numBits = gf_get_bit_size(gf_node_get_num_fields_in_mode(InNode, GF_SG_FIELD_CODING_IN) - 1);</span>
+<span class="lineNum">     819 </span><span class="lineCov">         55 :         ind = gf_bs_read_int(bs, numBits);</span>
+<span class="lineNum">     820 </span><span class="lineCov">         55 :         e = gf_bifs_get_field_index(InNode, ind, GF_SG_FIELD_CODING_IN, &amp;toID);</span>
+<span class="lineNum">     821 </span><span class="lineCov">         55 :         if (e) return e;</span>
+<span class="lineNum">     822 </span>            : 
+<span class="lineNum">     823 </span><span class="lineCov">         55 :         com = gf_sg_command_new(codec-&gt;current_graph, GF_SG_ROUTE_REPLACE);</span>
+<span class="lineNum">     824 </span><span class="lineCov">         55 :         com-&gt;RouteID = RouteID;</span>
+<span class="lineNum">     825 </span><span class="lineCov">         55 :         com-&gt;fromNodeID = gf_node_get_id(OutNode);</span>
+<span class="lineNum">     826 </span><span class="lineCov">         55 :         com-&gt;fromFieldIndex = fromID;</span>
+<span class="lineNum">     827 </span><span class="lineCov">         55 :         com-&gt;toNodeID = gf_node_get_id(InNode);</span>
+<span class="lineNum">     828 </span><span class="lineCov">         55 :         com-&gt;toFieldIndex = toID;</span>
+<span class="lineNum">     829 </span><span class="lineCov">         55 :         gf_list_add(com_list, com);</span>
+<span class="lineNum">     830 </span><span class="lineCov">         55 :         return codec-&gt;LastError;</span>
+<span class="lineNum">     831 </span><span class="lineCov">         55 : }</span>
+<a name="832"><span class="lineNum">     832 </span>            : </a>
+<span class="lineNum">     833 </span>            : 
+<span class="lineNum">     834 </span>            : GF_Err BM_ParseReplace(GF_BifsDecoder *codec, GF_BitStream *bs, GF_List *com_list)
+<span class="lineNum">     835 </span>            : {
+<span class="lineNum">     836 </span>            :         u8 type;
+<span class="lineNum">     837 </span><span class="lineCov">       6186 :         type = gf_bs_read_int(bs, 2);</span>
+<span class="lineNum">     838 </span><span class="lineCov">       3093 :         switch (type) {</span>
+<span class="lineNum">     839 </span>            :         case 0:
+<span class="lineNum">     840 </span><span class="lineCov">         40 :                 return BM_ParseNodeReplace(codec, bs, com_list);</span>
+<span class="lineNum">     841 </span>            :         case 1:
+<span class="lineNum">     842 </span><span class="lineCov">       2892 :                 return BM_ParseFieldReplace(codec, bs, com_list);</span>
+<span class="lineNum">     843 </span>            :         case 2:
+<span class="lineNum">     844 </span><span class="lineCov">        106 :                 return BM_ParseIndexValueReplace(codec, bs, com_list);</span>
+<span class="lineNum">     845 </span>            :         case 3:
+<span class="lineNum">     846 </span><span class="lineCov">         55 :                 return BM_ParseRouteReplace(codec, bs, com_list);</span>
+<span class="lineNum">     847 </span>            :         }
+<span class="lineNum">     848 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<a name="849"><span class="lineNum">     849 </span><span class="lineCov">       3093 : }</span></a>
+<span class="lineNum">     850 </span>            : 
+<span class="lineNum">     851 </span>            : GF_Err BM_SceneReplace(GF_BifsDecoder *codec, GF_BitStream *bs, GF_List *com_list)
+<span class="lineNum">     852 </span>            : {
+<span class="lineNum">     853 </span>            :         GF_Command *com;
+<span class="lineNum">     854 </span>            :         GF_Node *backup_root;
+<span class="lineNum">     855 </span>            :         GF_List *backup_routes;
+<span class="lineNum">     856 </span>            :         GF_Err BD_DecSceneReplace(GF_BifsDecoder * codec, GF_BitStream *bs, GF_List *proto_list);
+<span class="lineNum">     857 </span>            : 
+<span class="lineNum">     858 </span><span class="lineCov">       2948 :         backup_routes = codec-&gt;scenegraph-&gt;Routes;</span>
+<span class="lineNum">     859 </span><span class="lineCov">       1474 :         backup_root = codec-&gt;scenegraph-&gt;RootNode;</span>
+<span class="lineNum">     860 </span><span class="lineCov">       1474 :         com = gf_sg_command_new(codec-&gt;current_graph, GF_SG_SCENE_REPLACE);</span>
+<span class="lineNum">     861 </span><span class="lineCov">       1474 :         codec-&gt;scenegraph-&gt;Routes = gf_list_new();</span>
+<span class="lineNum">     862 </span><span class="lineCov">       1474 :         codec-&gt;current_graph = codec-&gt;scenegraph;</span>
+<span class="lineNum">     863 </span><span class="lineCov">       1474 :         codec-&gt;LastError = BD_DecSceneReplace(codec, bs, com-&gt;new_proto_list);</span>
+<span class="lineNum">     864 </span><span class="lineCov">       1474 :         com-&gt;use_names = codec-&gt;UseName;</span>
+<span class="lineNum">     865 </span>            : 
+<span class="lineNum">     866 </span>            :         /*restore*/
+<span class="lineNum">     867 </span><span class="lineCov">       1474 :         com-&gt;node = codec-&gt;scenegraph-&gt;RootNode;</span>
+<span class="lineNum">     868 </span><span class="lineCov">       1474 :         codec-&gt;scenegraph-&gt;RootNode = backup_root;</span>
+<span class="lineNum">     869 </span><span class="lineCov">       1474 :         gf_list_add(com_list, com);</span>
+<span class="lineNum">     870 </span>            :         /*insert routes*/
+<span class="lineNum">     871 </span><span class="lineCov">      14192 :         while (gf_list_count(codec-&gt;scenegraph-&gt;Routes)) {</span>
+<span class="lineNum">     872 </span><span class="lineCov">       5622 :                 GF_Route *r = (GF_Route*)gf_list_get(codec-&gt;scenegraph-&gt;Routes, 0);</span>
+<span class="lineNum">     873 </span><span class="lineCov">       5622 :                 GF_Command *ri = gf_sg_command_new(codec-&gt;current_graph, GF_SG_ROUTE_INSERT);</span>
+<span class="lineNum">     874 </span><span class="lineCov">       5622 :                 gf_list_rem(codec-&gt;scenegraph-&gt;Routes, 0);</span>
+<span class="lineNum">     875 </span><span class="lineCov">       5622 :                 ri-&gt;fromFieldIndex = r-&gt;FromField.fieldIndex;</span>
+<span class="lineNum">     876 </span><span class="lineCov">       5622 :                 ri-&gt;fromNodeID = gf_node_get_id(r-&gt;FromNode);</span>
+<span class="lineNum">     877 </span><span class="lineCov">       5622 :                 ri-&gt;toFieldIndex = r-&gt;ToField.fieldIndex;</span>
+<span class="lineNum">     878 </span><span class="lineCov">       5622 :                 ri-&gt;toNodeID = gf_node_get_id(r-&gt;ToNode);</span>
+<span class="lineNum">     879 </span><span class="lineCov">       5702 :                 if (r-&gt;ID) ri-&gt;RouteID = r-&gt;ID;</span>
+<span class="lineNum">     880 </span><span class="lineCov">      11249 :                 ri-&gt;def_name = r-&gt;name ? gf_strdup(r-&gt;name) : NULL;</span>
+<span class="lineNum">     881 </span><span class="lineCov">       5622 :                 gf_list_add(com_list, ri);</span>
+<span class="lineNum">     882 </span><span class="lineCov">       5622 :                 gf_sg_route_del(r);</span>
+<span class="lineNum">     883 </span>            :         }
+<span class="lineNum">     884 </span><span class="lineCov">       1474 :         gf_list_del(codec-&gt;scenegraph-&gt;Routes);</span>
+<span class="lineNum">     885 </span><span class="lineCov">       1474 :         codec-&gt;scenegraph-&gt;Routes = backup_routes;</span>
+<span class="lineNum">     886 </span><span class="lineCov">       1474 :         return codec-&gt;LastError;</span>
+<span class="lineNum">     887 </span>            : }
+<a name="888"><span class="lineNum">     888 </span>            : </a>
+<span class="lineNum">     889 </span>            : 
+<span class="lineNum">     890 </span>            : GF_Err BM_ParseCommand(GF_BifsDecoder *codec, GF_BitStream *bs, GF_List *com_list)
+<span class="lineNum">     891 </span>            : {
+<span class="lineNum">     892 </span>            :         u8 go, type;
+<span class="lineNum">     893 </span>            :         u32 count;
+<span class="lineNum">     894 </span>            :         GF_Err e;
+<span class="lineNum">     895 </span>            :         go = 1;
+<span class="lineNum">     896 </span>            :         e = GF_OK;
+<span class="lineNum">     897 </span>            : 
+<span class="lineNum">     898 </span><span class="lineCov">       8254 :         codec-&gt;LastError = GF_OK;</span>
+<span class="lineNum">     899 </span>            :         count = 0;
+<span class="lineNum">     900 </span>            : 
+<span class="lineNum">     901 </span><span class="lineCov">      18598 :         while (go) {</span>
+<span class="lineNum">     902 </span><span class="lineCov">      10344 :                 type = gf_bs_read_int(bs, 2);</span>
+<span class="lineNum">     903 </span><span class="lineCov">      10344 :                 switch (type) {</span>
+<span class="lineNum">     904 </span>            :                 case 0:
+<span class="lineNum">     905 </span><span class="lineCov">        380 :                         e = BM_ParseInsert(codec, bs, com_list);</span>
+<span class="lineNum">     906 </span><span class="lineCov">        380 :                         break;</span>
+<span class="lineNum">     907 </span>            :                 case 1:
+<span class="lineNum">     908 </span><span class="lineCov">        225 :                         e = BM_ParseDelete(codec, bs, com_list);</span>
+<span class="lineNum">     909 </span><span class="lineCov">        225 :                         break;</span>
+<span class="lineNum">     910 </span>            :                 case 2:
+<span class="lineNum">     911 </span><span class="lineCov">       3093 :                         e = BM_ParseReplace(codec, bs, com_list);</span>
+<span class="lineNum">     912 </span><span class="lineCov">       3093 :                         break;</span>
+<span class="lineNum">     913 </span>            :                 case 3:
+<span class="lineNum">     914 </span><span class="lineCov">       1474 :                         e = BM_SceneReplace(codec, bs, com_list);</span>
+<span class="lineNum">     915 </span><span class="lineCov">       1474 :                         break;</span>
+<span class="lineNum">     916 </span>            :                 }
+<span class="lineNum">     917 </span><span class="lineCov">       5172 :                 if (e) return e;</span>
+<span class="lineNum">     918 </span>            : 
+<span class="lineNum">     919 </span><span class="lineCov">       5172 :                 go = gf_bs_read_int(bs, 1);</span>
+<span class="lineNum">     920 </span><span class="lineCov">       5172 :                 count++;</span>
+<span class="lineNum">     921 </span>            : 
+<span class="lineNum">     922 </span>            :         }
+<span class="lineNum">     923 </span><span class="lineCov">       4127 :         while (gf_list_count(codec-&gt;QPs)) {</span>
+<span class="lineNum">     924 </span><span class="lineNoCov">          0 :                 gf_bifs_dec_qp_remove(codec, GF_TRUE);</span>
+<span class="lineNum">     925 </span>            :         }
+<span class="lineNum">     926 </span><span class="lineCov">       4127 :         return GF_OK;</span>
+<a name="927"><span class="lineNum">     927 </span><span class="lineCov">       4127 : }</span></a>
+<span class="lineNum">     928 </span>            : 
+<span class="lineNum">     929 </span>            : void BM_EndOfStream(void *co)
+<span class="lineNum">     930 </span>            : {
+<span class="lineNum">     931 </span><span class="lineNoCov">          0 :         ((GF_BifsDecoder *) co)-&gt;LastError = GF_IO_ERR;</span>
+<span class="lineNum">     932 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     933 </span>            : 
+<span class="lineNum">     934 </span>            : void gf_bs_set_eos_callback(GF_BitStream *bs, void (*EndOfStream)(void *par), void *par);
+<a name="935"><span class="lineNum">     935 </span>            : </a>
+<span class="lineNum">     936 </span>            : 
+<span class="lineNum">     937 </span>            : GF_Err gf_bifs_flush_command_list(GF_BifsDecoder *codec)
+<span class="lineNum">     938 </span>            : {
+<span class="lineNum">     939 </span>            :         GF_BitStream *bs;
+<span class="lineNum">     940 </span>            :         GF_Err e;
+<span class="lineNum">     941 </span>            :         CommandBufferItem *cbi;
+<span class="lineNum">     942 </span><span class="lineCov">       4188 :         u32 NbPass = gf_list_count(codec-&gt;command_buffers);</span>
+<span class="lineNum">     943 </span><span class="lineCov">       2094 :         GF_List *nextPass = gf_list_new();</span>
+<span class="lineNum">     944 </span><span class="lineCov">       4188 :         while (NbPass) {</span>
+<span class="lineNum">     945 </span><span class="lineCov">       2570 :                 while (gf_list_count(codec-&gt;command_buffers)) {</span>
+<span class="lineNum">     946 </span><span class="lineCov">       2253 :                         cbi = (CommandBufferItem *)gf_list_get(codec-&gt;command_buffers, 0);</span>
+<span class="lineNum">     947 </span><span class="lineCov">       2253 :                         gf_list_rem(codec-&gt;command_buffers, 0);</span>
+<span class="lineNum">     948 </span><span class="lineCov">       2253 :                         codec-&gt;current_graph = gf_node_get_graph(cbi-&gt;node);</span>
+<span class="lineNum">     949 </span>            :                         e = GF_OK;
+<span class="lineNum">     950 </span><span class="lineCov">       2253 :                         if (cbi-&gt;cb-&gt;bufferSize) {</span>
+<span class="lineNum">     951 </span><span class="lineCov">       2253 :                                 bs = gf_bs_new((char*)cbi-&gt;cb-&gt;buffer, cbi-&gt;cb-&gt;bufferSize, GF_BITSTREAM_READ);</span>
+<span class="lineNum">     952 </span><span class="lineCov">       2253 :                                 gf_bs_set_eos_callback(bs, BM_EndOfStream, codec);</span>
+<span class="lineNum">     953 </span><span class="lineCov">       2253 :                                 e = BM_ParseCommand(codec, bs, cbi-&gt;cb-&gt;commandList);</span>
+<span class="lineNum">     954 </span><span class="lineCov">       2253 :                                 gf_bs_del(bs);</span>
+<span class="lineNum">     955 </span><span class="lineCov">       2253 :                         }</span>
+<span class="lineNum">     956 </span><span class="lineCov">       2253 :                         if (!e) {</span>
+<span class="lineNum">     957 </span><span class="lineCov">       2253 :                                 gf_free(cbi);</span>
+<span class="lineNum">     958 </span><span class="lineCov">       2253 :                                 continue;</span>
+<span class="lineNum">     959 </span>            :                         }
+<span class="lineNum">     960 </span>            :                         /*this may be an error or a dependency pb - reset coimmand list and move to next pass*/
+<span class="lineNum">     961 </span><span class="lineNoCov">          0 :                         while (gf_list_count(cbi-&gt;cb-&gt;commandList)) {</span>
+<span class="lineNum">     962 </span>            :                                 u32 i;
+<span class="lineNum">     963 </span>            :                                 GF_CommandField *cf;
+<span class="lineNum">     964 </span><span class="lineNoCov">          0 :                                 GF_Command *com = (GF_Command *)gf_list_get(cbi-&gt;cb-&gt;commandList, 0);</span>
+<span class="lineNum">     965 </span><span class="lineNoCov">          0 :                                 gf_list_rem(cbi-&gt;cb-&gt;commandList, 0);</span>
+<span class="lineNum">     966 </span><span class="lineNoCov">          0 :                                 cf = (GF_CommandField *) gf_list_get(com-&gt;command_fields, 0);</span>
+<span class="lineNum">     967 </span><span class="lineNoCov">          0 :                                 if (cf &amp;&amp; cf-&gt;fieldType==GF_SG_VRML_SFCOMMANDBUFFER) {</span>
+<span class="lineNum">     968 </span><span class="lineNoCov">          0 :                                         for (i=0; i&lt;gf_list_count(codec-&gt;command_buffers); i++) {</span>
+<span class="lineNum">     969 </span><span class="lineNoCov">          0 :                                                 CommandBufferItem *cbi2 = (CommandBufferItem *)gf_list_get(codec-&gt;command_buffers, i);</span>
+<span class="lineNum">     970 </span><span class="lineNoCov">          0 :                                                 if (cbi2-&gt;cb == cf-&gt;field_ptr) {</span>
+<span class="lineNum">     971 </span><span class="lineNoCov">          0 :                                                         gf_free(cbi2);</span>
+<span class="lineNum">     972 </span><span class="lineNoCov">          0 :                                                         gf_list_rem(codec-&gt;command_buffers, i);</span>
+<span class="lineNum">     973 </span><span class="lineNoCov">          0 :                                                         i--;</span>
+<span class="lineNum">     974 </span><span class="lineNoCov">          0 :                                                 }</span>
+<span class="lineNum">     975 </span>            :                                         }
+<span class="lineNum">     976 </span>            :                                 }
+<span class="lineNum">     977 </span><span class="lineNoCov">          0 :                                 gf_sg_command_del(com);</span>
+<span class="lineNum">     978 </span>            :                         }
+<span class="lineNum">     979 </span><span class="lineNoCov">          0 :                         gf_list_add(nextPass, cbi);</span>
+<span class="lineNum">     980 </span>            :                 }
+<span class="lineNum">     981 </span><span class="lineCov">        317 :                 if (!gf_list_count(nextPass)) break;</span>
+<span class="lineNum">     982 </span>            :                 /*prepare next pass*/
+<span class="lineNum">     983 </span><span class="lineNoCov">          0 :                 while (gf_list_count(nextPass)) {</span>
+<span class="lineNum">     984 </span><span class="lineNoCov">          0 :                         cbi = (CommandBufferItem *)gf_list_get(nextPass, 0);</span>
+<span class="lineNum">     985 </span><span class="lineNoCov">          0 :                         gf_list_rem(nextPass, 0);</span>
+<span class="lineNum">     986 </span><span class="lineNoCov">          0 :                         gf_list_add(codec-&gt;command_buffers, cbi);</span>
+<span class="lineNum">     987 </span>            :                 }
+<span class="lineNum">     988 </span><span class="lineNoCov">          0 :                 NbPass --;</span>
+<span class="lineNum">     989 </span><span class="lineNoCov">          0 :                 if (NbPass &gt; gf_list_count(codec-&gt;command_buffers)) NbPass = gf_list_count(codec-&gt;command_buffers);</span>
+<span class="lineNum">     990 </span><span class="lineNoCov">          0 :                 codec-&gt;LastError = GF_OK;</span>
+<span class="lineNum">     991 </span>            :         }
+<span class="lineNum">     992 </span><span class="lineCov">       2094 :         gf_list_del(nextPass);</span>
+<span class="lineNum">     993 </span><span class="lineCov">       2094 :         return GF_OK;</span>
+<span class="lineNum">     994 </span>            : }
+<a name="995"><span class="lineNum">     995 </span>            : </a>
+<span class="lineNum">     996 </span>            : GF_EXPORT
+<span class="lineNum">     997 </span>            : GF_Err gf_bifs_decode_command_list(GF_BifsDecoder *codec, u16 ESID, char *data, u32 data_length, GF_List *com_list)
+<span class="lineNum">     998 </span>            : {
+<span class="lineNum">     999 </span>            :         GF_BitStream *bs;
+<span class="lineNum">    1000 </span>            :         GF_Err e;
+<span class="lineNum">    1001 </span>            : 
+<span class="lineNum">    1002 </span><span class="lineCov">       5622 :         if (!codec || !data || !codec-&gt;dec_memory_mode || !com_list) return GF_BAD_PARAM;</span>
+<span class="lineNum">    1003 </span>            : 
+<span class="lineNum">    1004 </span><span class="lineCov">       1874 :         codec-&gt;info = gf_bifs_dec_get_stream(codec, ESID);</span>
+<span class="lineNum">    1005 </span><span class="lineCov">       1874 :         if (!codec-&gt;info) return GF_BAD_PARAM;</span>
+<span class="lineNum">    1006 </span><span class="lineCov">       1874 :         if (codec-&gt;info-&gt;config.elementaryMasks ) return GF_NOT_SUPPORTED;</span>
+<span class="lineNum">    1007 </span>            : 
+<span class="lineNum">    1008 </span>            :         /*root parse (not conditionals)*/
+<span class="lineNum">    1009 </span>            :         assert(codec-&gt;scenegraph);
+<span class="lineNum">    1010 </span>            :         /*setup current scene graph*/
+<span class="lineNum">    1011 </span><span class="lineCov">       1874 :         codec-&gt;current_graph = codec-&gt;scenegraph;</span>
+<span class="lineNum">    1012 </span>            : 
+<span class="lineNum">    1013 </span><span class="lineCov">       1874 :         codec-&gt;ActiveQP = (M_QuantizationParameter*) codec-&gt;scenegraph-&gt;global_qp;</span>
+<span class="lineNum">    1014 </span>            : 
+<span class="lineNum">    1015 </span><span class="lineCov">       1874 :         bs = gf_bs_new(data, data_length, GF_BITSTREAM_READ);</span>
+<span class="lineNum">    1016 </span><span class="lineCov">       1874 :         gf_bs_set_eos_callback(bs, BM_EndOfStream, codec);</span>
+<span class="lineNum">    1017 </span>            : 
+<span class="lineNum">    1018 </span><span class="lineCov">       1874 :         e = BM_ParseCommand(codec, bs, com_list);</span>
+<span class="lineNum">    1019 </span><span class="lineCov">       1874 :         gf_bs_del(bs);</span>
+<span class="lineNum">    1020 </span>            : 
+<span class="lineNum">    1021 </span>            :         /*decode conditionals / input sensors*/
+<span class="lineNum">    1022 </span><span class="lineCov">       1874 :         if (!e) {</span>
+<span class="lineNum">    1023 </span><span class="lineCov">       1874 :                 gf_bifs_flush_command_list(codec);</span>
+<span class="lineNum">    1024 </span><span class="lineCov">       1874 :         }</span>
+<span class="lineNum">    1025 </span>            :         /*if err or not reset conditionals*/
+<span class="lineNum">    1026 </span><span class="lineCov">       1874 :         while (gf_list_count(codec-&gt;command_buffers)) {</span>
+<span class="lineNum">    1027 </span><span class="lineNoCov">          0 :                 CommandBufferItem *cbi = (CommandBufferItem *)gf_list_get(codec-&gt;command_buffers, 0);</span>
+<span class="lineNum">    1028 </span><span class="lineNoCov">          0 :                 gf_free(cbi);</span>
+<span class="lineNum">    1029 </span><span class="lineNoCov">          0 :                 gf_list_rem(codec-&gt;command_buffers, 0);</span>
+<span class="lineNum">    1030 </span>            :         }
+<span class="lineNum">    1031 </span>            : 
+<span class="lineNum">    1032 </span>            :         /*reset current config*/
+<span class="lineNum">    1033 </span><span class="lineCov">       1874 :         codec-&gt;info = NULL;</span>
+<span class="lineNum">    1034 </span><span class="lineCov">       1874 :         codec-&gt;current_graph = NULL;</span>
+<span class="lineNum">    1035 </span>            : 
+<span class="lineNum">    1036 </span>            : 
+<span class="lineNum">    1037 </span>            : 
+<span class="lineNum">    1038 </span>            : //      gf_mx_v(codec-&gt;mx);
+<span class="lineNum">    1039 </span><span class="lineCov">       1874 :         return e;</span>
+<span class="lineNum">    1040 </span><span class="lineCov">       1874 : }</span>
+<span class="lineNum">    1041 </span>            : 
+<span class="lineNum">    1042 </span>            : #endif /*GPAC_DISABLE_BIFS*/
+<span class="lineNum">    1043 </span>            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

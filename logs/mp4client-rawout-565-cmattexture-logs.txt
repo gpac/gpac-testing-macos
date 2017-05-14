@@ -1,0 +1,2 @@
+*** mp4client-rawout-565-cmattexture logs (GPAC version 0.6.2-DEV-revUNKNOWN-HEAD ) - test date 14/05/2017 22:29:07 ***
+

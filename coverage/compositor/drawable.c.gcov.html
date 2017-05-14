@@ -1,0 +1,1640 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - compositor/drawable.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">compositor</a> - drawable.c<span style="font-size: 80%;"> (source / <a href="drawable.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">245</td>
+            <td class="headerCovTableEntry">819</td>
+            <td class="headerCovTableEntryLo">29.9 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-05-14 22:31:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">26</td>
+            <td class="headerCovTableEntry">39</td>
+            <td class="headerCovTableEntryLo">66.7 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *                      GPAC - Multimedia Framework C SDK
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *                      Authors: Jean Le Feuvre
+<span class="lineNum">       5 </span>            :  *                      Copyright (c) Telecom ParisTech 2000-2012
+<span class="lineNum">       6 </span>            :  *                                      All rights reserved
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  *  This file is part of GPAC / Scene Compositor sub-project
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  *  GPAC is free software; you can redistribute it and/or modify
+<span class="lineNum">      11 </span>            :  *  it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">      12 </span>            :  *  the Free Software Foundation; either version 2, or (at your option)
+<span class="lineNum">      13 </span>            :  *  any later version.
+<span class="lineNum">      14 </span>            :  *
+<span class="lineNum">      15 </span>            :  *  GPAC is distributed in the hope that it will be useful,
+<span class="lineNum">      16 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      17 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      18 </span>            :  *  GNU Lesser General Public License for more details.
+<span class="lineNum">      19 </span>            :  *
+<span class="lineNum">      20 </span>            :  *  You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      21 </span>            :  *  License along with this library; see the file COPYING.  If not, write to
+<span class="lineNum">      22 </span>            :  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+<span class="lineNum">      23 </span>            :  *
+<span class="lineNum">      24 </span>            :  */
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : #include &quot;drawable.h&quot;
+<span class="lineNum">      27 </span>            : #include &quot;visual_manager.h&quot;
+<span class="lineNum">      28 </span>            : #include &quot;nodes_stacks.h&quot;
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : 
+<a name="31"><span class="lineNum">      31 </span>            : </a>
+<span class="lineNum">      32 </span>            : /*default draw routine*/
+<span class="lineNum">      33 </span>            : void drawable_draw(Drawable *drawable, GF_TraverseState *tr_state)
+<span class="lineNum">      34 </span>            : {
+<span class="lineNum">      35 </span><span class="lineCov">          6 :         visual_2d_texture_path(tr_state-&gt;visual, tr_state-&gt;ctx-&gt;drawable-&gt;path, tr_state-&gt;ctx, tr_state);</span>
+<span class="lineNum">      36 </span><span class="lineCov">          3 :         visual_2d_draw_path(tr_state-&gt;visual, tr_state-&gt;ctx-&gt;drawable-&gt;path, tr_state-&gt;ctx, NULL, NULL, tr_state);</span>
+<span class="lineNum">      37 </span><span class="lineCov">          3 : }</span>
+<span class="lineNum">      38 </span>            : 
+<a name="39"><span class="lineNum">      39 </span>            : /*default point_over routine*/</a>
+<span class="lineNum">      40 </span>            : #ifndef GPAC_DISABLE_VRML
+<span class="lineNum">      41 </span>            : void vrml_drawable_pick(Drawable *drawable, GF_TraverseState *tr_state)
+<span class="lineNum">      42 </span>            : {
+<span class="lineNum">      43 </span><span class="lineNoCov">          0 :         DrawAspect2D asp;</span>
+<span class="lineNum">      44 </span><span class="lineNoCov">          0 :         GF_Matrix2D inv_2d;</span>
+<span class="lineNum">      45 </span>            :         StrikeInfo2D *si;
+<span class="lineNum">      46 </span><span class="lineNoCov">          0 :         Fixed x, y;</span>
+<span class="lineNum">      47 </span>            :         u32 i, count;
+<span class="lineNum">      48 </span><span class="lineNoCov">          0 :         GF_Node *appear = tr_state-&gt;override_appearance ? tr_state-&gt;override_appearance : tr_state-&gt;appear;</span>
+<span class="lineNum">      49 </span><span class="lineNoCov">          0 :         GF_Compositor *compositor = tr_state-&gt;visual-&gt;compositor;</span>
+<span class="lineNum">      50 </span>            : 
+<span class="lineNum">      51 </span>            : #ifndef GPAC_DISABLE_3D
+<span class="lineNum">      52 </span><span class="lineNoCov">          0 :         if (tr_state-&gt;visual-&gt;type_3d) {</span>
+<span class="lineNum">      53 </span><span class="lineNoCov">          0 :                 visual_3d_vrml_drawable_pick(drawable-&gt;node, tr_state, NULL, drawable);</span>
+<span class="lineNum">      54 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">      55 </span>            :         }
+<span class="lineNum">      56 </span>            : #endif
+<span class="lineNum">      57 </span><span class="lineNoCov">          0 :         gf_mx2d_copy(inv_2d, tr_state-&gt;transform);</span>
+<span class="lineNum">      58 </span><span class="lineNoCov">          0 :         gf_mx2d_inverse(&amp;inv_2d);</span>
+<span class="lineNum">      59 </span><span class="lineNoCov">          0 :         x = tr_state-&gt;ray.orig.x;</span>
+<span class="lineNum">      60 </span><span class="lineNoCov">          0 :         y = tr_state-&gt;ray.orig.y;</span>
+<span class="lineNum">      61 </span><span class="lineNoCov">          0 :         gf_mx2d_apply_coords(&amp;inv_2d, &amp;x, &amp;y);</span>
+<span class="lineNum">      62 </span>            : 
+<span class="lineNum">      63 </span><span class="lineNoCov">          0 :         memset(&amp;asp, 0, sizeof(DrawAspect2D));</span>
+<span class="lineNum">      64 </span><span class="lineNoCov">          0 :         drawable_get_aspect_2d_mpeg4(drawable-&gt;node, &amp;asp, tr_state);</span>
+<span class="lineNum">      65 </span>            : 
+<span class="lineNum">      66 </span>            :         /*MPEG-4 picking is always on regardless of color properties*/
+<span class="lineNum">      67 </span>            :         if (/*tr_state-&gt;ctx-&gt;aspect.fill_texture */
+<span class="lineNum">      68 </span>            :             /* (tr_state-&gt;pick_type&lt;PICK_FULL) */
+<span class="lineNum">      69 </span>            :             /* GF_COL_A(asp.fill_color)*/
+<span class="lineNum">      70 </span>            :             1) {
+<span class="lineNum">      71 </span><span class="lineNoCov">          0 :                 if (gf_path_point_over(drawable-&gt;path, x, y)) {</span>
+<span class="lineNum">      72 </span>            :                         goto picked;
+<span class="lineNum">      73 </span>            :                 }
+<span class="lineNum">      74 </span>            :         }
+<span class="lineNum">      75 </span>            : 
+<span class="lineNum">      76 </span><span class="lineNoCov">          0 :         if (asp.pen_props.width || asp.line_texture ) {</span>
+<span class="lineNum">      77 </span><span class="lineNoCov">          0 :                 si = drawable_get_strikeinfo(tr_state-&gt;visual-&gt;compositor, drawable, &amp;asp, appear, NULL, 0, NULL);</span>
+<span class="lineNum">      78 </span><span class="lineNoCov">          0 :                 if (si &amp;&amp; si-&gt;outline &amp;&amp; gf_path_point_over(si-&gt;outline, x, y)) {</span>
+<span class="lineNum">      79 </span>            :                         goto picked;
+<span class="lineNum">      80 </span>            :                 }
+<span class="lineNum">      81 </span>            :         }
+<span class="lineNum">      82 </span><span class="lineNoCov">          0 :         return;</span>
+<span class="lineNum">      83 </span>            : 
+<span class="lineNum">      84 </span>            : picked:
+<span class="lineNum">      85 </span><span class="lineNoCov">          0 :         compositor-&gt;hit_local_point.x = x;</span>
+<span class="lineNum">      86 </span><span class="lineNoCov">          0 :         compositor-&gt;hit_local_point.y = y;</span>
+<span class="lineNum">      87 </span><span class="lineNoCov">          0 :         compositor-&gt;hit_local_point.z = 0;</span>
+<span class="lineNum">      88 </span>            : 
+<span class="lineNum">      89 </span><span class="lineNoCov">          0 :         gf_mx_from_mx2d(&amp;compositor-&gt;hit_world_to_local, &amp;tr_state-&gt;transform);</span>
+<span class="lineNum">      90 </span><span class="lineNoCov">          0 :         gf_mx_from_mx2d(&amp;compositor-&gt;hit_local_to_world, &amp;inv_2d);</span>
+<span class="lineNum">      91 </span>            : 
+<span class="lineNum">      92 </span><span class="lineNoCov">          0 :         gf_list_reset(compositor-&gt;hit_use_stack);</span>
+<span class="lineNum">      93 </span><span class="lineNoCov">          0 :         compositor-&gt;hit_node = drawable-&gt;node;</span>
+<span class="lineNum">      94 </span><span class="lineNoCov">          0 :         compositor-&gt;hit_use_dom_events = 0;</span>
+<span class="lineNum">      95 </span><span class="lineNoCov">          0 :         compositor-&gt;hit_normal.x = compositor-&gt;hit_normal.y = 0;</span>
+<span class="lineNum">      96 </span><span class="lineNoCov">          0 :         compositor-&gt;hit_normal.z = FIX_ONE;</span>
+<span class="lineNum">      97 </span><span class="lineNoCov">          0 :         compositor-&gt;hit_texcoords.x = gf_divfix(x - drawable-&gt;path-&gt;bbox.x, drawable-&gt;path-&gt;bbox.width);</span>
+<span class="lineNum">      98 </span><span class="lineNoCov">          0 :         compositor-&gt;hit_texcoords.y = FIX_ONE - gf_divfix(drawable-&gt;path-&gt;bbox.y - y, drawable-&gt;path-&gt;bbox.height);</span>
+<span class="lineNum">      99 </span>            : 
+<span class="lineNum">     100 </span>            : #ifndef GPAC_DISABLE_VRML
+<span class="lineNum">     101 </span><span class="lineNoCov">          0 :         if (compositor_is_composite_texture(appear)) {</span>
+<span class="lineNum">     102 </span><span class="lineNoCov">          0 :                 compositor-&gt;hit_appear = appear;</span>
+<span class="lineNum">     103 </span><span class="lineNoCov">          0 :         } else</span>
+<span class="lineNum">     104 </span>            : #endif
+<span class="lineNum">     105 </span>            :         {
+<span class="lineNum">     106 </span><span class="lineNoCov">          0 :                 compositor-&gt;hit_appear = NULL;</span>
+<span class="lineNum">     107 </span>            :         }
+<span class="lineNum">     108 </span><span class="lineNoCov">          0 :         compositor-&gt;hit_text = NULL;</span>
+<span class="lineNum">     109 </span>            : 
+<span class="lineNum">     110 </span><span class="lineNoCov">          0 :         gf_list_reset(tr_state-&gt;visual-&gt;compositor-&gt;sensors);</span>
+<span class="lineNum">     111 </span><span class="lineNoCov">          0 :         count = gf_list_count(tr_state-&gt;vrml_sensors);</span>
+<span class="lineNum">     112 </span><span class="lineNoCov">          0 :         for (i=0; i&lt;count; i++) {</span>
+<span class="lineNum">     113 </span><span class="lineNoCov">          0 :                 gf_list_add(tr_state-&gt;visual-&gt;compositor-&gt;sensors, gf_list_get(tr_state-&gt;vrml_sensors, i));</span>
+<span class="lineNum">     114 </span>            :         }
+<span class="lineNum">     115 </span><span class="lineNoCov">          0 : }</span>
+<a name="116"><span class="lineNum">     116 </span>            : #endif /*GPAC_DISABLE_VRML*/</a>
+<span class="lineNum">     117 </span>            : 
+<span class="lineNum">     118 </span>            : Drawable *drawable_new()
+<span class="lineNum">     119 </span>            : {
+<span class="lineNum">     120 </span>            :         Drawable *tmp;
+<span class="lineNum">     121 </span><span class="lineCov">        141 :         GF_SAFEALLOC(tmp, Drawable)</span>
+<span class="lineNum">     122 </span><span class="lineCov">         47 :         if (!tmp) {</span>
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_COMPOSE, (&quot;[Compositor] Failed to allocate drawable object\n&quot;));</span>
+<span class="lineNum">     124 </span><span class="lineNoCov">          0 :                 return NULL;</span>
+<span class="lineNum">     125 </span>            :         }
+<span class="lineNum">     126 </span><span class="lineCov">         47 :         tmp-&gt;path = gf_path_new();</span>
+<span class="lineNum">     127 </span>            :         /*allocate a default visual container*/
+<span class="lineNum">     128 </span><span class="lineCov">         94 :         GF_SAFEALLOC(tmp-&gt;dri, DRInfo);</span>
+<span class="lineNum">     129 </span><span class="lineCov">         47 :         if (tmp-&gt;dri) {</span>
+<span class="lineNum">     130 </span>            :                 /*allocate a default bounds container*/
+<span class="lineNum">     131 </span><span class="lineCov">         94 :                 GF_SAFEALLOC(tmp-&gt;dri-&gt;current_bounds, BoundInfo);</span>
+<span class="lineNum">     132 </span>            :         }
+<span class="lineNum">     133 </span>            :         
+<span class="lineNum">     134 </span><span class="lineCov">         94 :         if (!tmp-&gt;dri || !tmp-&gt;dri-&gt;current_bounds) {</span>
+<span class="lineNum">     135 </span><span class="lineNoCov">          0 :                 if (tmp-&gt;dri) gf_free(tmp-&gt;dri);</span>
+<span class="lineNum">     136 </span><span class="lineNoCov">          0 :                 gf_path_del(tmp-&gt;path);</span>
+<span class="lineNum">     137 </span><span class="lineNoCov">          0 :                 gf_free(tmp);</span>
+<span class="lineNum">     138 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_COMPOSE, (&quot;[Compositor] Failed to allocate drawable object bounds\n&quot;));</span>
+<span class="lineNum">     139 </span><span class="lineNoCov">          0 :                 return NULL;</span>
+<span class="lineNum">     140 </span>            :         }
+<span class="lineNum">     141 </span><span class="lineCov">         47 :         return tmp;</span>
+<a name="142"><span class="lineNum">     142 </span><span class="lineCov">         47 : }</span></a>
+<span class="lineNum">     143 </span>            : 
+<span class="lineNum">     144 </span>            : void drawable_reset_bounds(Drawable *dr, GF_VisualManager *visual)
+<span class="lineNum">     145 </span>            : {
+<span class="lineNum">     146 </span>            :         DRInfo *dri;
+<span class="lineNum">     147 </span>            :         BoundInfo *bi, *_cur;
+<span class="lineNum">     148 </span>            : 
+<span class="lineNum">     149 </span><span class="lineNoCov">          0 :         dri = dr-&gt;dri;</span>
+<span class="lineNum">     150 </span><span class="lineNoCov">          0 :         while (dri) {</span>
+<span class="lineNum">     151 </span><span class="lineNoCov">          0 :                 if (dri-&gt;visual != visual) {</span>
+<span class="lineNum">     152 </span><span class="lineNoCov">          0 :                         dri = dri-&gt;next;</span>
+<span class="lineNum">     153 </span><span class="lineNoCov">          0 :                         continue;</span>
+<span class="lineNum">     154 </span>            :                 }
+<span class="lineNum">     155 </span>            :                 /*destroy previous bounds only, since current ones are always used during traversing*/
+<span class="lineNum">     156 </span><span class="lineNoCov">          0 :                 bi = dri-&gt;previous_bounds;</span>
+<span class="lineNum">     157 </span><span class="lineNoCov">          0 :                 while (bi) {</span>
+<span class="lineNum">     158 </span>            :                         _cur = bi;
+<span class="lineNum">     159 </span><span class="lineNoCov">          0 :                         bi = bi-&gt;next;</span>
+<span class="lineNum">     160 </span><span class="lineNoCov">          0 :                         gf_free(_cur);</span>
+<span class="lineNum">     161 </span>            :                 }
+<span class="lineNum">     162 </span><span class="lineNoCov">          0 :                 dri-&gt;previous_bounds = NULL;</span>
+<span class="lineNum">     163 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     164 </span>            :         }
+<a name="165"><span class="lineNum">     165 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     166 </span>            : 
+<span class="lineNum">     167 </span>            : void drawable_del_ex(Drawable *dr, GF_Compositor *compositor)
+<span class="lineNum">     168 </span>            : {
+<span class="lineNum">     169 </span>            :         StrikeInfo2D *si;
+<span class="lineNum">     170 </span>            :         Bool is_reg = 0;
+<span class="lineNum">     171 </span>            :         DRInfo *dri, *cur;
+<span class="lineNum">     172 </span>            :         BoundInfo *bi, *_cur;
+<span class="lineNum">     173 </span>            : 
+<span class="lineNum">     174 </span>            : 
+<span class="lineNum">     175 </span>            :         /*remove node from all visuals it's on*/
+<span class="lineNum">     176 </span><span class="lineCov">         94 :         dri = dr-&gt;dri;</span>
+<span class="lineNum">     177 </span><span class="lineCov">        282 :         while (dri) {</span>
+<span class="lineNum">     178 </span><span class="lineCov">        235 :                 is_reg = compositor ? gf_sc_visual_is_registered(compositor, dri-&gt;visual) : 0;</span>
+<span class="lineNum">     179 </span>            : 
+<span class="lineNum">     180 </span><span class="lineCov">         47 :                 bi = dri-&gt;current_bounds;</span>
+<span class="lineNum">     181 </span><span class="lineCov">        188 :                 while (bi) {</span>
+<span class="lineNum">     182 </span>            :                         _cur = bi;
+<span class="lineNum">     183 </span><span class="lineCov">         53 :                         if (is_reg &amp;&amp; bi-&gt;clip.width) {</span>
+<span class="lineNum">     184 </span><span class="lineCov">         12 :                                 ra_add(&amp;dri-&gt;visual-&gt;to_redraw, &amp;bi-&gt;clip);</span>
+<span class="lineNum">     185 </span><span class="lineCov">          6 :                         }</span>
+<span class="lineNum">     186 </span><span class="lineCov">         47 :                         bi = bi-&gt;next;</span>
+<span class="lineNum">     187 </span><span class="lineCov">         47 :                         gf_free(_cur);</span>
+<span class="lineNum">     188 </span>            :                 }
+<span class="lineNum">     189 </span><span class="lineCov">         47 :                 bi = dri-&gt;previous_bounds;</span>
+<span class="lineNum">     190 </span><span class="lineCov">         94 :                 while (bi) {</span>
+<span class="lineNum">     191 </span>            :                         _cur = bi;
+<span class="lineNum">     192 </span><span class="lineNoCov">          0 :                         if (is_reg &amp;&amp; bi-&gt;clip.width) {</span>
+<span class="lineNum">     193 </span><span class="lineNoCov">          0 :                                 ra_add(&amp;dri-&gt;visual-&gt;to_redraw, &amp;bi-&gt;clip);</span>
+<span class="lineNum">     194 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     195 </span><span class="lineNoCov">          0 :                         bi = bi-&gt;next;</span>
+<span class="lineNum">     196 </span><span class="lineNoCov">          0 :                         gf_free(_cur);</span>
+<span class="lineNum">     197 </span>            :                 }
+<span class="lineNum">     198 </span><span class="lineCov">         53 :                 if (is_reg) visual_2d_drawable_delete(dri-&gt;visual, dr);</span>
+<span class="lineNum">     199 </span>            :                 cur = dri;
+<span class="lineNum">     200 </span><span class="lineCov">         47 :                 dri = dri-&gt;next;</span>
+<span class="lineNum">     201 </span><span class="lineCov">         47 :                 gf_free(cur);</span>
+<span class="lineNum">     202 </span>            :         }
+<span class="lineNum">     203 </span><span class="lineCov">         47 :         if (compositor) {</span>
+<span class="lineNum">     204 </span><span class="lineCov">         47 :                 gf_sc_next_frame_state(compositor, GF_SC_DRAW_FRAME);</span>
+<span class="lineNum">     205 </span>            : 
+<span class="lineNum">     206 </span>            :                 /*check node isn't being tracked*/
+<span class="lineNum">     207 </span><span class="lineCov">         47 :                 if (compositor-&gt;grab_node==dr-&gt;node)</span>
+<span class="lineNum">     208 </span><span class="lineNoCov">          0 :                         compositor-&gt;grab_node = NULL;</span>
+<span class="lineNum">     209 </span>            : 
+<span class="lineNum">     210 </span><span class="lineCov">         47 :                 if (compositor-&gt;focus_node==dr-&gt;node) {</span>
+<span class="lineNum">     211 </span><span class="lineNoCov">          0 :                         compositor-&gt;focus_node = NULL;</span>
+<span class="lineNum">     212 </span><span class="lineNoCov">          0 :                         compositor-&gt;focus_text_type = 0;</span>
+<span class="lineNum">     213 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     214 </span><span class="lineCov">         47 :                 if (compositor-&gt;hit_node==dr-&gt;node) compositor-&gt;hit_node = NULL;</span>
+<span class="lineNum">     215 </span><span class="lineCov">         47 :                 if (compositor-&gt;hit_text==dr-&gt;node) compositor-&gt;hit_text = NULL;</span>
+<span class="lineNum">     216 </span>            :         }
+<span class="lineNum">     217 </span>            : 
+<span class="lineNum">     218 </span>            :         /*remove path object*/
+<span class="lineNum">     219 </span><span class="lineCov">         94 :         if (dr-&gt;path) gf_path_del(dr-&gt;path);</span>
+<span class="lineNum">     220 </span>            : 
+<span class="lineNum">     221 </span>            : #ifndef GPAC_DISABLE_3D
+<span class="lineNum">     222 </span><span class="lineCov">         47 :         if (dr-&gt;mesh) mesh_free(dr-&gt;mesh);</span>
+<span class="lineNum">     223 </span>            : #endif
+<span class="lineNum">     224 </span>            : 
+<span class="lineNum">     225 </span><span class="lineCov">         47 :         si = dr-&gt;outline;</span>
+<span class="lineNum">     226 </span><span class="lineCov">         94 :         while (si) {</span>
+<span class="lineNum">     227 </span><span class="lineNoCov">          0 :                 StrikeInfo2D *next = si-&gt;next;</span>
+<span class="lineNum">     228 </span>            :                 /*remove from main strike list*/
+<span class="lineNum">     229 </span><span class="lineNoCov">          0 :                 if (compositor) gf_list_del_item(compositor-&gt;strike_bank, si);</span>
+<span class="lineNum">     230 </span><span class="lineNoCov">          0 :                 delete_strikeinfo2d(si);</span>
+<span class="lineNum">     231 </span>            :                 si = next;
+<span class="lineNum">     232 </span>            :         }
+<span class="lineNum">     233 </span><span class="lineCov">         47 :         gf_free(dr);</span>
+<a name="234"><span class="lineNum">     234 </span><span class="lineCov">         47 : }</span></a>
+<span class="lineNum">     235 </span>            : 
+<span class="lineNum">     236 </span>            : void drawable_del(Drawable *dr)
+<span class="lineNum">     237 </span>            : {
+<span class="lineNum">     238 </span><span class="lineCov">         92 :         GF_Compositor *compositor = gf_sc_get_compositor(dr-&gt;node);</span>
+<a name="239"><span class="lineNum">     239 </span><span class="lineCov">         46 :         drawable_del_ex(dr, compositor);</span></a>
+<span class="lineNum">     240 </span><span class="lineCov">         46 : }</span>
+<span class="lineNum">     241 </span>            : void drawable_node_del(GF_Node *node)
+<span class="lineNum">     242 </span>            : {
+<span class="lineNum">     243 </span><span class="lineCov">         70 :         drawable_del( (Drawable *)gf_node_get_private(node) );</span>
+<a name="244"><span class="lineNum">     244 </span><span class="lineCov">         35 : }</span></a>
+<span class="lineNum">     245 </span>            : 
+<span class="lineNum">     246 </span>            : Drawable *drawable_stack_new(GF_Compositor *compositor, GF_Node *node)
+<span class="lineNum">     247 </span>            : {
+<span class="lineNum">     248 </span><span class="lineCov">         72 :         Drawable *stack = drawable_new();</span>
+<span class="lineNum">     249 </span><span class="lineCov">         36 :         stack-&gt;node = node;</span>
+<span class="lineNum">     250 </span><span class="lineCov">         36 :         gf_node_set_private(node, stack);</span>
+<span class="lineNum">     251 </span><span class="lineCov">         36 :         return stack;</span>
+<a name="252"><span class="lineNum">     252 </span>            : }</a>
+<span class="lineNum">     253 </span>            : 
+<span class="lineNum">     254 </span>            : static BoundInfo *drawable_check_alloc_bounds(struct _drawable_context *ctx, GF_VisualManager *visual)
+<span class="lineNum">     255 </span>            : {
+<span class="lineNum">     256 </span>            :         DRInfo *dri, *prev;
+<span class="lineNum">     257 </span>            :         BoundInfo *bi, *_prev;
+<span class="lineNum">     258 </span>            : 
+<span class="lineNum">     259 </span>            :         /*get bounds info for this visual manager*/
+<span class="lineNum">     260 </span>            :         prev = NULL;
+<span class="lineNum">     261 </span><span class="lineCov">         12 :         dri = ctx-&gt;drawable-&gt;dri;</span>
+<span class="lineNum">     262 </span><span class="lineCov">         12 :         while (dri) {</span>
+<span class="lineNum">     263 </span><span class="lineCov">          6 :                 if (dri-&gt;visual == visual) break;</span>
+<span class="lineNum">     264 </span><span class="lineCov">          6 :                 if (!dri-&gt;visual) {</span>
+<span class="lineNum">     265 </span><span class="lineCov">          6 :                         dri-&gt;visual = visual;</span>
+<span class="lineNum">     266 </span><span class="lineCov">          6 :                         break;</span>
+<span class="lineNum">     267 </span>            :                 }
+<span class="lineNum">     268 </span>            :                 prev = dri;
+<span class="lineNum">     269 </span><span class="lineNoCov">          0 :                 dri = dri-&gt;next;</span>
+<span class="lineNum">     270 </span>            :         }
+<span class="lineNum">     271 </span><span class="lineCov">          6 :         if (!dri) {</span>
+<span class="lineNum">     272 </span><span class="lineNoCov">          0 :                 GF_SAFEALLOC(dri, DRInfo);</span>
+<span class="lineNum">     273 </span><span class="lineNoCov">          0 :                 if (!dri) return NULL;</span>
+<span class="lineNum">     274 </span><span class="lineNoCov">          0 :                 dri-&gt;visual = visual;</span>
+<span class="lineNum">     275 </span><span class="lineNoCov">          0 :                 if (prev) prev-&gt;next = dri;</span>
+<span class="lineNum">     276 </span><span class="lineNoCov">          0 :                 else ctx-&gt;drawable-&gt;dri = dri;</span>
+<span class="lineNum">     277 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_DEBUG, GF_LOG_COMPOSE, (&quot;[Visual2D] Allocating new bound info storage on visual %08x for drawable %s\n&quot;, visual, gf_node_get_class_name(ctx-&gt;drawable-&gt;node)));</span>
+<span class="lineNum">     278 </span>            :         }
+<span class="lineNum">     279 </span>            : 
+<span class="lineNum">     280 </span>            :         /*get available bound info slot*/
+<span class="lineNum">     281 </span>            :         _prev = NULL;
+<span class="lineNum">     282 </span><span class="lineCov">          6 :         bi = dri-&gt;current_bounds;</span>
+<span class="lineNum">     283 </span><span class="lineCov">         12 :         while (bi) {</span>
+<span class="lineNum">     284 </span><span class="lineCov">          6 :                 if (!bi-&gt;clip.width) break;</span>
+<span class="lineNum">     285 </span>            :                 _prev = bi;
+<span class="lineNum">     286 </span><span class="lineNoCov">          0 :                 bi = bi-&gt;next;</span>
+<span class="lineNum">     287 </span>            :         }
+<span class="lineNum">     288 </span><span class="lineCov">          6 :         if (!bi) {</span>
+<span class="lineNum">     289 </span><span class="lineNoCov">          0 :                 GF_SAFEALLOC(bi, BoundInfo);</span>
+<span class="lineNum">     290 </span><span class="lineNoCov">          0 :                 if (!bi) return NULL;</span>
+<span class="lineNum">     291 </span><span class="lineNoCov">          0 :                 if (_prev) {</span>
+<span class="lineNum">     292 </span>            : //                      assert(!_prev-&gt;next);
+<span class="lineNum">     293 </span><span class="lineNoCov">          0 :                         _prev-&gt;next = bi;</span>
+<span class="lineNum">     294 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     295 </span>            :                 else {
+<span class="lineNum">     296 </span>            : //                      assert(!dri-&gt;current_bounds);
+<span class="lineNum">     297 </span><span class="lineNoCov">          0 :                         dri-&gt;current_bounds = bi;</span>
+<span class="lineNum">     298 </span>            :                 }
+<span class="lineNum">     299 </span>            :                 //GF_LOG(GF_LOG_DEBUG, GF_LOG_COMPOSE, (&quot;[Visual2D] Allocating new bound info for drawable %s\n&quot;, gf_node_get_class_name(ctx-&gt;drawable-&gt;node)));
+<span class="lineNum">     300 </span>            :         }
+<span class="lineNum">     301 </span>            :         /*reset next bound info*/
+<span class="lineNum">     302 </span><span class="lineCov">          6 :         if (bi-&gt;next) bi-&gt;next-&gt;clip.width = 0;</span>
+<span class="lineNum">     303 </span><span class="lineCov">          6 :         return bi;</span>
+<a name="304"><span class="lineNum">     304 </span><span class="lineCov">          6 : }</span></a>
+<span class="lineNum">     305 </span>            : 
+<span class="lineNum">     306 </span>            : void drawable_reset_group_highlight(GF_TraverseState *tr_state, GF_Node *n)
+<span class="lineNum">     307 </span>            : {
+<span class="lineNum">     308 </span><span class="lineCov">        158 :         Drawable *hlight = tr_state-&gt;visual-&gt;compositor-&gt;focus_highlight;</span>
+<span class="lineNum">     309 </span><span class="lineCov">        158 :         if (hlight &amp;&amp; (n == gf_node_get_private(hlight-&gt;node))) gf_node_set_private(hlight-&gt;node, NULL);</span>
+<a name="310"><span class="lineNum">     310 </span><span class="lineCov">         79 : }</span></a>
+<span class="lineNum">     311 </span>            : 
+<span class="lineNum">     312 </span>            : void drawable_mark_modified(Drawable *drawable, GF_TraverseState *tr_state)
+<span class="lineNum">     313 </span>            : {
+<span class="lineNum">     314 </span>            :         /*mark drawable as modified*/
+<span class="lineNum">     315 </span><span class="lineCov">         32 :         drawable-&gt;flags |= tr_state-&gt;visual-&gt;bounds_tracker_modif_flag;</span>
+<span class="lineNum">     316 </span>            :         /*and remove overlay flag*/
+<span class="lineNum">     317 </span><span class="lineCov">         16 :         drawable-&gt;flags &amp;= ~DRAWABLE_IS_OVERLAY;</span>
+<span class="lineNum">     318 </span>            : 
+<span class="lineNum">     319 </span><span class="lineCov">         16 :         drawable_reset_group_highlight(tr_state, drawable-&gt;node);</span>
+<span class="lineNum">     320 </span><span class="lineCov">         16 : }</span>
+<a name="321"><span class="lineNum">     321 </span>            : </a>
+<span class="lineNum">     322 </span>            : /*move current bounds to previous bounds*/
+<span class="lineNum">     323 </span>            : Bool drawable_flush_bounds(Drawable *drawable, GF_VisualManager *on_visual, u32 draw_mode)
+<span class="lineNum">     324 </span>            : {
+<span class="lineNum">     325 </span>            :         Bool was_drawn;
+<span class="lineNum">     326 </span>            :         DRInfo *dri;
+<span class="lineNum">     327 </span>            :         BoundInfo *tmp;
+<span class="lineNum">     328 </span>            : 
+<span class="lineNum">     329 </span>            :         /*reset node modified flag*/
+<span class="lineNum">     330 </span><span class="lineNoCov">          0 :         drawable-&gt;flags &amp;= ~DRAWABLE_HAS_CHANGED;</span>
+<span class="lineNum">     331 </span><span class="lineNoCov">          0 :         if (drawable-&gt;flags &amp; DRAWABLE_HAS_CHANGED_IN_LAST_TRAVERSE) {</span>
+<span class="lineNum">     332 </span><span class="lineNoCov">          0 :                 drawable-&gt;flags |= DRAWABLE_HAS_CHANGED;</span>
+<span class="lineNum">     333 </span><span class="lineNoCov">          0 :                 drawable-&gt;flags &amp;= ~DRAWABLE_HAS_CHANGED_IN_LAST_TRAVERSE;</span>
+<span class="lineNum">     334 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     335 </span>            : 
+<span class="lineNum">     336 </span><span class="lineNoCov">          0 :         dri = drawable-&gt;dri;</span>
+<span class="lineNum">     337 </span><span class="lineNoCov">          0 :         while (dri) {</span>
+<span class="lineNum">     338 </span><span class="lineNoCov">          0 :                 if (dri-&gt;visual == on_visual) break;</span>
+<span class="lineNum">     339 </span><span class="lineNoCov">          0 :                 dri = dri-&gt;next;</span>
+<span class="lineNum">     340 </span>            :         }
+<span class="lineNum">     341 </span><span class="lineNoCov">          0 :         if (!dri) return 0;</span>
+<span class="lineNum">     342 </span>            : 
+<span class="lineNum">     343 </span><span class="lineNoCov">          0 :         was_drawn = (dri-&gt;current_bounds &amp;&amp; dri-&gt;current_bounds-&gt;clip.width) ? 1 : 0;</span>
+<span class="lineNum">     344 </span>            : 
+<span class="lineNum">     345 </span><span class="lineNoCov">          0 :         if (draw_mode) {</span>
+<span class="lineNum">     346 </span>            :                 /*permanent direct drawing mode, destroy previous bounds*/
+<span class="lineNum">     347 </span><span class="lineNoCov">          0 :                 if (draw_mode==1) {</span>
+<span class="lineNum">     348 </span><span class="lineNoCov">          0 :                         if (dri-&gt;previous_bounds) {</span>
+<span class="lineNum">     349 </span><span class="lineNoCov">          0 :                                 GF_LOG(GF_LOG_DEBUG, GF_LOG_COMPOSE, (&quot;[Compositor2D] Destroying previous bounds info for drawable %s\n&quot;, gf_node_get_class_name(drawable-&gt;node)));</span>
+<span class="lineNum">     350 </span><span class="lineNoCov">          0 :                                 while (dri-&gt;previous_bounds) {</span>
+<span class="lineNum">     351 </span>            :                                         BoundInfo *bi = dri-&gt;previous_bounds;
+<span class="lineNum">     352 </span><span class="lineNoCov">          0 :                                         dri-&gt;previous_bounds = bi-&gt;next;</span>
+<span class="lineNum">     353 </span><span class="lineNoCov">          0 :                                         gf_free(bi);</span>
+<span class="lineNum">     354 </span>            :                                 }
+<span class="lineNum">     355 </span>            :                         }
+<span class="lineNum">     356 </span>            :                 }
+<span class="lineNum">     357 </span>            :         }
+<span class="lineNum">     358 </span>            :         /*indirect drawing, flush bounds*/
+<span class="lineNum">     359 </span>            :         else {
+<span class="lineNum">     360 </span><span class="lineNoCov">          0 :                 tmp = dri-&gt;previous_bounds;</span>
+<span class="lineNum">     361 </span><span class="lineNoCov">          0 :                 dri-&gt;previous_bounds = dri-&gt;current_bounds;</span>
+<span class="lineNum">     362 </span><span class="lineNoCov">          0 :                 dri-&gt;current_bounds = tmp;</span>
+<span class="lineNum">     363 </span>            :         }
+<span class="lineNum">     364 </span>            :         /*reset first allocated bound*/
+<span class="lineNum">     365 </span><span class="lineNoCov">          0 :         if (dri-&gt;current_bounds) dri-&gt;current_bounds-&gt;clip.width = 0;</span>
+<span class="lineNum">     366 </span>            : 
+<span class="lineNum">     367 </span><span class="lineNoCov">          0 :         drawable-&gt;flags &amp;= ~DRAWABLE_DRAWN_ON_VISUAL;</span>
+<span class="lineNum">     368 </span><span class="lineNoCov">          0 :         return was_drawn;</span>
+<span class="lineNum">     369 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     370 </span>            : 
+<span class="lineNum">     371 </span>            : /*
+<span class="lineNum">     372 </span>            :         return 1 if same bound is found in previous list (and remove it from the list)
+<span class="lineNum">     373 </span>            :         return 0 otherwise
+<a name="374"><span class="lineNum">     374 </span>            : */</a>
+<span class="lineNum">     375 </span>            : 
+<span class="lineNum">     376 </span>            : Bool drawable_has_same_bounds(struct _drawable_context *ctx, GF_VisualManager *visual)
+<span class="lineNum">     377 </span>            : {
+<span class="lineNum">     378 </span>            :         DRInfo *dri;
+<span class="lineNum">     379 </span>            :         BoundInfo *bi;
+<span class="lineNum">     380 </span>            : 
+<span class="lineNum">     381 </span><span class="lineNoCov">          0 :         dri = ctx-&gt;drawable-&gt;dri;</span>
+<span class="lineNum">     382 </span><span class="lineNoCov">          0 :         while (dri) {</span>
+<span class="lineNum">     383 </span><span class="lineNoCov">          0 :                 if (dri-&gt;visual == visual) break;</span>
+<span class="lineNum">     384 </span><span class="lineNoCov">          0 :                 dri = dri-&gt;next;</span>
+<span class="lineNum">     385 </span>            :         }
+<span class="lineNum">     386 </span><span class="lineNoCov">          0 :         if (!dri) return 0;</span>
+<span class="lineNum">     387 </span>            : 
+<span class="lineNum">     388 </span><span class="lineNoCov">          0 :         bi = dri-&gt;previous_bounds;</span>
+<span class="lineNum">     389 </span><span class="lineNoCov">          0 :         while (bi) {</span>
+<span class="lineNum">     390 </span>            :                 if (
+<span class="lineNum">     391 </span>            :                     /*if 0, end of bounds used in the previous pass*/
+<span class="lineNum">     392 </span><span class="lineNoCov">          0 :                     bi-&gt;clip.width</span>
+<span class="lineNum">     393 </span>            :                     /*we need the same Appearance || parent &lt;use&gt;*/
+<span class="lineNum">     394 </span><span class="lineNoCov">          0 :                     &amp;&amp; (bi-&gt;extra_check == ctx-&gt;appear)</span>
+<span class="lineNum">     395 </span>            :                     /*we need exact same cliper*/
+<span class="lineNum">     396 </span><span class="lineNoCov">          0 :                     &amp;&amp; (bi-&gt;clip.x==ctx-&gt;bi-&gt;clip.x) &amp;&amp; (bi-&gt;clip.y==ctx-&gt;bi-&gt;clip.y)</span>
+<span class="lineNum">     397 </span><span class="lineNoCov">          0 :                     &amp;&amp; (bi-&gt;clip.width==ctx-&gt;bi-&gt;clip.width) &amp;&amp; (bi-&gt;clip.height==ctx-&gt;bi-&gt;clip.height)</span>
+<span class="lineNum">     398 </span>            :                     /*only check x and y (if w or h have changed, object has changed -&gt; bounds info has been reset*/
+<span class="lineNum">     399 </span><span class="lineNoCov">          0 :                     &amp;&amp; (bi-&gt;unclip.x==ctx-&gt;bi-&gt;unclip.x) &amp;&amp; (bi-&gt;unclip.y==ctx-&gt;bi-&gt;unclip.y)</span>
+<span class="lineNum">     400 </span>            :                 ) {
+<span class="lineNum">     401 </span>            :                         /*remove*/
+<span class="lineNum">     402 </span><span class="lineNoCov">          0 :                         bi-&gt;clip.width = 0;</span>
+<span class="lineNum">     403 </span><span class="lineNoCov">          0 :                         return 1;</span>
+<span class="lineNum">     404 </span>            :                 }
+<span class="lineNum">     405 </span><span class="lineNoCov">          0 :                 bi = bi-&gt;next;</span>
+<span class="lineNum">     406 </span>            :         }
+<span class="lineNum">     407 </span><span class="lineNoCov">          0 :         return 0;</span>
+<span class="lineNum">     408 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     409 </span>            : 
+<span class="lineNum">     410 </span>            : /*
+<span class="lineNum">     411 </span>            :         return any previous bounds related to the same visual in @rc if any
+<a name="412"><span class="lineNum">     412 </span>            :         if nothing found return 0</a>
+<span class="lineNum">     413 </span>            : */
+<span class="lineNum">     414 </span>            : Bool drawable_get_previous_bound(Drawable *drawable, GF_IRect *rc, GF_VisualManager *visual)
+<span class="lineNum">     415 </span>            : {
+<span class="lineNum">     416 </span>            :         DRInfo *dri;
+<span class="lineNum">     417 </span>            :         BoundInfo *bi;
+<span class="lineNum">     418 </span>            : 
+<span class="lineNum">     419 </span><span class="lineNoCov">          0 :         dri = drawable-&gt;dri;</span>
+<span class="lineNum">     420 </span><span class="lineNoCov">          0 :         while (dri) {</span>
+<span class="lineNum">     421 </span><span class="lineNoCov">          0 :                 if (dri-&gt;visual == visual) break;</span>
+<span class="lineNum">     422 </span><span class="lineNoCov">          0 :                 dri = dri-&gt;next;</span>
+<span class="lineNum">     423 </span>            :         }
+<span class="lineNum">     424 </span><span class="lineNoCov">          0 :         if (!dri) return 0;</span>
+<span class="lineNum">     425 </span>            : 
+<span class="lineNum">     426 </span><span class="lineNoCov">          0 :         bi = dri-&gt;previous_bounds;</span>
+<span class="lineNum">     427 </span><span class="lineNoCov">          0 :         while (bi) {</span>
+<span class="lineNum">     428 </span><span class="lineNoCov">          0 :                 if (bi-&gt;clip.width) {</span>
+<span class="lineNum">     429 </span><span class="lineNoCov">          0 :                         *rc = bi-&gt;clip;</span>
+<span class="lineNum">     430 </span><span class="lineNoCov">          0 :                         bi-&gt;clip.width = 0;</span>
+<span class="lineNum">     431 </span><span class="lineNoCov">          0 :                         return 1;</span>
+<span class="lineNum">     432 </span>            :                 }
+<span class="lineNum">     433 </span><span class="lineNoCov">          0 :                 bi = bi-&gt;next;</span>
+<span class="lineNum">     434 </span>            :         }
+<span class="lineNum">     435 </span><span class="lineNoCov">          0 :         return 0;</span>
+<span class="lineNum">     436 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     437 </span>            : 
+<a name="438"><span class="lineNum">     438 </span>            : </a>
+<span class="lineNum">     439 </span>            : 
+<span class="lineNum">     440 </span>            : DrawableContext *NewDrawableContext()
+<span class="lineNum">     441 </span>            : {
+<span class="lineNum">     442 </span>            :         DrawableContext *tmp;
+<span class="lineNum">     443 </span><span class="lineCov">         27 :         GF_SAFEALLOC(tmp, DrawableContext);</span>
+<a name="444"><span class="lineNum">     444 </span><span class="lineCov">          9 :         return tmp;</span></a>
+<span class="lineNum">     445 </span>            : }
+<span class="lineNum">     446 </span>            : void DeleteDrawableContext(DrawableContext *ctx)
+<span class="lineNum">     447 </span>            : {
+<span class="lineNum">     448 </span><span class="lineCov">         18 :         drawctx_reset(ctx);</span>
+<a name="449"><span class="lineNum">     449 </span><span class="lineCov">          9 :         gf_free(ctx);</span></a>
+<span class="lineNum">     450 </span><span class="lineCov">          9 : }</span>
+<span class="lineNum">     451 </span>            : void drawctx_reset(DrawableContext *ctx)
+<span class="lineNum">     452 </span>            : {
+<span class="lineNum">     453 </span><span class="lineCov">         52 :         DrawableContext *next = ctx-&gt;next;</span>
+<span class="lineNum">     454 </span><span class="lineCov">         26 :         if (ctx-&gt;col_mat) gf_free(ctx-&gt;col_mat);</span>
+<span class="lineNum">     455 </span><span class="lineCov">         26 :         memset(ctx, 0, sizeof(DrawableContext));</span>
+<span class="lineNum">     456 </span><span class="lineCov">         26 :         ctx-&gt;next = next;</span>
+<span class="lineNum">     457 </span>            : 
+<span class="lineNum">     458 </span>            :         /*by default all nodes are transparent*/
+<span class="lineNum">     459 </span><span class="lineCov">         26 :         ctx-&gt;flags |= CTX_IS_TRANSPARENT;</span>
+<span class="lineNum">     460 </span>            : 
+<span class="lineNum">     461 </span>            :         /*BIFS has default value for 2D appearance ...*/
+<span class="lineNum">     462 </span><span class="lineCov">         26 :         ctx-&gt;aspect.fill_color = 0xFFCCCCCC;</span>
+<span class="lineNum">     463 </span><span class="lineCov">         26 :         ctx-&gt;aspect.line_color = 0xFFCCCCCC;</span>
+<span class="lineNum">     464 </span><span class="lineCov">         26 :         ctx-&gt;aspect.pen_props.width = FIX_ONE;</span>
+<span class="lineNum">     465 </span><span class="lineCov">         26 :         ctx-&gt;aspect.pen_props.cap = GF_LINE_CAP_FLAT;</span>
+<span class="lineNum">     466 </span><span class="lineCov">         26 :         ctx-&gt;aspect.pen_props.join = GF_LINE_JOIN_BEVEL;</span>
+<span class="lineNum">     467 </span><span class="lineCov">         26 :         ctx-&gt;aspect.pen_props.miterLimit = 4*FIX_ONE;</span>
+<span class="lineNum">     468 </span>            : 
+<a name="469"><span class="lineNum">     469 </span><span class="lineCov">         26 : }</span></a>
+<span class="lineNum">     470 </span>            : 
+<span class="lineNum">     471 </span>            : void drawctx_update_info(DrawableContext *ctx, GF_VisualManager *visual)
+<span class="lineNum">     472 </span>            : {
+<span class="lineNum">     473 </span>            :         DRInfo *dri;
+<span class="lineNum">     474 </span>            :         Bool moved, need_redraw, drawn;
+<span class="lineNum">     475 </span><span class="lineNoCov">          0 :         need_redraw = (ctx-&gt;flags &amp; CTX_REDRAW_MASK) ? 1 : 0;</span>
+<span class="lineNum">     476 </span>            : 
+<span class="lineNum">     477 </span>            :         drawn = 0;
+<span class="lineNum">     478 </span><span class="lineNoCov">          0 :         dri = ctx-&gt;drawable-&gt;dri;</span>
+<span class="lineNum">     479 </span><span class="lineNoCov">          0 :         while (dri) {</span>
+<span class="lineNum">     480 </span><span class="lineNoCov">          0 :                 if (dri-&gt;visual==visual) {</span>
+<span class="lineNum">     481 </span><span class="lineNoCov">          0 :                         if (dri-&gt;current_bounds &amp;&amp; dri-&gt;current_bounds-&gt;clip.width) drawn = 1;</span>
+<span class="lineNum">     482 </span>            :                         break;
+<span class="lineNum">     483 </span>            :                 }
+<span class="lineNum">     484 </span><span class="lineNoCov">          0 :                 dri = dri-&gt;next;</span>
+<span class="lineNum">     485 </span>            :         }
+<span class="lineNum">     486 </span><span class="lineNoCov">          0 :         if (drawn) {</span>
+<span class="lineNum">     487 </span><span class="lineNoCov">          0 :                 ctx-&gt;drawable-&gt;flags |= DRAWABLE_DRAWN_ON_VISUAL;</span>
+<span class="lineNum">     488 </span>            :                 /*node has been modified, do not check bounds, just assumed it moved*/
+<span class="lineNum">     489 </span><span class="lineNoCov">          0 :                 if (ctx-&gt;drawable-&gt;flags &amp; DRAWABLE_HAS_CHANGED) {</span>
+<span class="lineNum">     490 </span>            :                         moved = 1;
+<span class="lineNum">     491 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     492 </span>            :                         /*check if same bounds are used*/
+<span class="lineNum">     493 </span><span class="lineNoCov">          0 :                         moved = !drawable_has_same_bounds(ctx, visual);</span>
+<span class="lineNum">     494 </span>            :                 }
+<span class="lineNum">     495 </span>            : 
+<span class="lineNum">     496 </span><span class="lineNoCov">          0 :                 if (need_redraw || moved)</span>
+<span class="lineNum">     497 </span><span class="lineNoCov">          0 :                         ctx-&gt;flags |= CTX_REDRAW_MASK;</span>
+<span class="lineNum">     498 </span>            :         }
+<span class="lineNum">     499 </span>            : 
+<span class="lineNum">     500 </span>            :         /*in all cases reset dirty flag of appearance and its sub-nodes*/
+<span class="lineNum">     501 </span>            :         //if (ctx-&gt;flags &amp; CTX_HAS_APPEARANCE) gf_node_dirty_reset(ctx-&gt;appear);
+<span class="lineNum">     502 </span><span class="lineNoCov">          0 : }</span>
+<a name="503"><span class="lineNum">     503 </span>            : </a>
+<span class="lineNum">     504 </span>            : #ifndef GPAC_DISABLE_VRML
+<span class="lineNum">     505 </span>            : static Bool drawable_lineprops_dirty(GF_Node *node)
+<span class="lineNum">     506 </span>            : {
+<span class="lineNum">     507 </span><span class="lineNoCov">          0 :         LinePropStack *st = (LinePropStack *)gf_node_get_private(node);</span>
+<span class="lineNum">     508 </span><span class="lineNoCov">          0 :         if (!st) return 0;</span>
+<span class="lineNum">     509 </span>            : 
+<span class="lineNum">     510 </span><span class="lineNoCov">          0 :         if (st-&gt;compositor-&gt;current_frame == st-&gt;last_mod_time) return st-&gt;is_dirty;</span>
+<span class="lineNum">     511 </span><span class="lineNoCov">          0 :         if (gf_node_dirty_get(node) &amp; GF_SG_NODE_DIRTY) {</span>
+<span class="lineNum">     512 </span><span class="lineNoCov">          0 :                 gf_node_dirty_clear(node, 0);</span>
+<span class="lineNum">     513 </span><span class="lineNoCov">          0 :                 st-&gt;is_dirty = 1;</span>
+<span class="lineNum">     514 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     515 </span><span class="lineNoCov">          0 :                 st-&gt;is_dirty = 0;</span>
+<span class="lineNum">     516 </span>            :         }
+<span class="lineNum">     517 </span><span class="lineNoCov">          0 :         st-&gt;last_mod_time = st-&gt;compositor-&gt;current_frame;</span>
+<span class="lineNum">     518 </span><span class="lineNoCov">          0 :         return st-&gt;is_dirty;</span>
+<a name="519"><span class="lineNum">     519 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     520 </span>            : 
+<span class="lineNum">     521 </span>            : u32 drawable_get_aspect_2d_mpeg4(GF_Node *node, DrawAspect2D *asp, GF_TraverseState *tr_state)
+<span class="lineNum">     522 </span>            : {
+<span class="lineNum">     523 </span>            :         M_Material2D *m = NULL;
+<span class="lineNum">     524 </span>            :         M_LineProperties *LP;
+<span class="lineNum">     525 </span>            :         M_XLineProperties *XLP;
+<span class="lineNum">     526 </span><span class="lineCov">         68 :         GF_Node *appear = tr_state-&gt;override_appearance ? tr_state-&gt;override_appearance : tr_state-&gt;appear;</span>
+<span class="lineNum">     527 </span>            :         u32 ret = 0;
+<span class="lineNum">     528 </span>            : 
+<span class="lineNum">     529 </span><span class="lineCov">         17 :         asp-&gt;pen_props.cap = GF_LINE_CAP_FLAT;</span>
+<span class="lineNum">     530 </span><span class="lineCov">         17 :         asp-&gt;pen_props.join = GF_LINE_JOIN_MITER;</span>
+<span class="lineNum">     531 </span><span class="lineCov">         17 :         asp-&gt;pen_props.align = GF_PATH_LINE_CENTER;</span>
+<span class="lineNum">     532 </span><span class="lineCov">         17 :         asp-&gt;pen_props.miterLimit = 4*FIX_ONE;</span>
+<span class="lineNum">     533 </span><span class="lineCov">         17 :         asp-&gt;line_color = 0xFFCCCCCC;</span>
+<span class="lineNum">     534 </span><span class="lineCov">         17 :         asp-&gt;pen_props.width = 0;</span>
+<span class="lineNum">     535 </span>            : 
+<span class="lineNum">     536 </span><span class="lineCov">         17 :         if (appear == NULL) goto check_default;</span>
+<span class="lineNum">     537 </span>            : 
+<span class="lineNum">     538 </span><span class="lineCov">         17 :         if ( ((M_Appearance *) appear)-&gt;texture ) {</span>
+<span class="lineNum">     539 </span><span class="lineCov">          3 :                 asp-&gt;fill_texture = gf_sc_texture_get_handler( ((M_Appearance *) appear)-&gt;texture );</span>
+<span class="lineNum">     540 </span><span class="lineCov">          3 :         }</span>
+<span class="lineNum">     541 </span>            : 
+<span class="lineNum">     542 </span>            : 
+<span class="lineNum">     543 </span><span class="lineCov">         17 :         m = (M_Material2D *) ((M_Appearance *)appear)-&gt;material;</span>
+<span class="lineNum">     544 </span><span class="lineCov">         17 :         if ( m == NULL) {</span>
+<span class="lineNum">     545 </span><span class="lineNoCov">          0 :                 asp-&gt;fill_color &amp;= 0x00FFFFFF;</span>
+<span class="lineNum">     546 </span><span class="lineNoCov">          0 :                 goto check_default;</span>
+<span class="lineNum">     547 </span>            :         }
+<span class="lineNum">     548 </span><span class="lineCov">         17 :         switch (gf_node_get_tag((GF_Node *) m) ) {</span>
+<span class="lineNum">     549 </span>            :         case TAG_MPEG4_Material2D:
+<span class="lineNum">     550 </span>            :                 break;
+<span class="lineNum">     551 </span>            :         case TAG_MPEG4_Material:
+<span class="lineNum">     552 </span>            : #ifndef GPAC_DISABLE_X3D
+<span class="lineNum">     553 </span>            :         case TAG_X3D_Material:
+<span class="lineNum">     554 </span>            : #endif
+<span class="lineNum">     555 </span>            :         {
+<span class="lineNum">     556 </span><span class="lineNoCov">          0 :                 M_Material *mat = (M_Material *)m;</span>
+<span class="lineNum">     557 </span><span class="lineNoCov">          0 :                 asp-&gt;pen_props.width = 0;</span>
+<span class="lineNum">     558 </span><span class="lineNoCov">          0 :                 asp-&gt;fill_color = GF_COL_ARGB_FIXED(FIX_ONE, mat-&gt;diffuseColor.red, mat-&gt;diffuseColor.green, mat-&gt;diffuseColor.blue);</span>
+<span class="lineNum">     559 </span><span class="lineNoCov">          0 :                 if (!tr_state-&gt;color_mat.identity)</span>
+<span class="lineNum">     560 </span><span class="lineNoCov">          0 :                         asp-&gt;fill_color = gf_cmx_apply(&amp;tr_state-&gt;color_mat, asp-&gt;fill_color);</span>
+<span class="lineNum">     561 </span>            :         }
+<span class="lineNum">     562 </span><span class="lineNoCov">          0 :         return 0;</span>
+<span class="lineNum">     563 </span>            :         default:
+<span class="lineNum">     564 </span><span class="lineNoCov">          0 :                 return 0;</span>
+<span class="lineNum">     565 </span>            :         }
+<span class="lineNum">     566 </span>            : 
+<span class="lineNum">     567 </span><span class="lineCov">         17 :         asp-&gt;fill_color = GF_COL_ARGB_FIXED(FIX_ONE-m-&gt;transparency, m-&gt;emissiveColor.red, m-&gt;emissiveColor.green, m-&gt;emissiveColor.blue);</span>
+<span class="lineNum">     568 </span><span class="lineCov">         17 :         if (!tr_state-&gt;color_mat.identity)</span>
+<span class="lineNum">     569 </span><span class="lineNoCov">          0 :                 asp-&gt;fill_color = gf_cmx_apply(&amp;tr_state-&gt;color_mat, asp-&gt;fill_color);</span>
+<span class="lineNum">     570 </span>            : 
+<span class="lineNum">     571 </span><span class="lineCov">         17 :         asp-&gt;line_color = asp-&gt;fill_color;</span>
+<span class="lineNum">     572 </span><span class="lineCov">         17 :         if (!m-&gt;filled) asp-&gt;fill_color = 0;</span>
+<span class="lineNum">     573 </span>            : 
+<span class="lineNum">     574 </span><span class="lineCov">         17 :         if (m-&gt;lineProps == NULL) {</span>
+<span class="lineNum">     575 </span>            : check_default:
+<span class="lineNum">     576 </span>            :                 /*this is a bug in the spec: by default line width is 1.0, but in meterMetrics this means half of the screen :)*/
+<span class="lineNum">     577 </span><span class="lineCov">         17 :                 asp-&gt;pen_props.width = FIX_ONE;</span>
+<span class="lineNum">     578 </span><span class="lineCov">         17 :                 if (!tr_state-&gt;pixel_metrics) asp-&gt;pen_props.width = gf_divfix(asp-&gt;pen_props.width, tr_state-&gt;min_hsize);</span>
+<span class="lineNum">     579 </span><span class="lineCov">         34 :                 if (m &amp;&amp; m-&gt;transparency==FIX_ONE) {</span>
+<span class="lineNum">     580 </span><span class="lineCov">         11 :                         asp-&gt;pen_props.width = 0;</span>
+<span class="lineNum">     581 </span><span class="lineCov">         11 :                 } else {</span>
+<span class="lineNum">     582 </span><span class="lineCov">          6 :                         switch (gf_node_get_tag(node)) {</span>
+<span class="lineNum">     583 </span>            :                         case TAG_MPEG4_IndexedLineSet2D:
+<span class="lineNum">     584 </span><span class="lineNoCov">          0 :                                 asp-&gt;fill_color &amp;= 0x00FFFFFF;</span>
+<span class="lineNum">     585 </span><span class="lineNoCov">          0 :                                 break;</span>
+<span class="lineNum">     586 </span>            :                         case TAG_MPEG4_PointSet2D:
+<span class="lineNum">     587 </span><span class="lineNoCov">          0 :                                 asp-&gt;fill_color |= FIX2INT(255 * (m ? (FIX_ONE - m-&gt;transparency) : FIX_ONE)) &lt;&lt; 24;</span>
+<span class="lineNum">     588 </span><span class="lineNoCov">          0 :                                 asp-&gt;pen_props.width = 0;</span>
+<span class="lineNum">     589 </span><span class="lineNoCov">          0 :                                 break;</span>
+<span class="lineNum">     590 </span>            :                         default:
+<span class="lineNum">     591 </span><span class="lineCov">         12 :                                 if (GF_COL_A(asp-&gt;fill_color)) asp-&gt;pen_props.width = 0;</span>
+<span class="lineNum">     592 </span>            :                                 /*spec is unclear about that*/
+<span class="lineNum">     593 </span>            :                                 //else if (!m &amp;&amp; ctx-&gt;aspect.fill_texture) ctx-&gt;aspect.pen_props.width = 0;
+<span class="lineNum">     594 </span>            :                                 break;
+<span class="lineNum">     595 </span>            :                         }
+<span class="lineNum">     596 </span>            :                 }
+<span class="lineNum">     597 </span><span class="lineCov">         17 :                 return 0;</span>
+<span class="lineNum">     598 </span>            :         }
+<span class="lineNum">     599 </span>            :         LP = NULL;
+<span class="lineNum">     600 </span>            :         XLP = NULL;
+<span class="lineNum">     601 </span><span class="lineNoCov">          0 :         switch (gf_node_get_tag((GF_Node *) m-&gt;lineProps) ) {</span>
+<span class="lineNum">     602 </span>            :         case TAG_MPEG4_LineProperties:
+<span class="lineNum">     603 </span><span class="lineNoCov">          0 :                 LP = (M_LineProperties *) m-&gt;lineProps;</span>
+<span class="lineNum">     604 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     605 </span>            :         case TAG_MPEG4_XLineProperties:
+<span class="lineNum">     606 </span><span class="lineNoCov">          0 :                 XLP = (M_XLineProperties *) m-&gt;lineProps;</span>
+<span class="lineNum">     607 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     608 </span>            :         default:
+<span class="lineNum">     609 </span><span class="lineNoCov">          0 :                 asp-&gt;pen_props.width = 0;</span>
+<span class="lineNum">     610 </span><span class="lineNoCov">          0 :                 return 0;</span>
+<span class="lineNum">     611 </span>            :         }
+<span class="lineNum">     612 </span><span class="lineNoCov">          0 :         if (m-&gt;lineProps &amp;&amp; drawable_lineprops_dirty(m-&gt;lineProps))</span>
+<span class="lineNum">     613 </span><span class="lineNoCov">          0 :                 ret = CTX_APP_DIRTY;</span>
+<span class="lineNum">     614 </span>            : 
+<span class="lineNum">     615 </span><span class="lineNoCov">          0 :         if (LP) {</span>
+<span class="lineNum">     616 </span><span class="lineNoCov">          0 :                 asp-&gt;pen_props.dash = (u8) LP-&gt;lineStyle;</span>
+<span class="lineNum">     617 </span><span class="lineNoCov">          0 :                 asp-&gt;line_color = GF_COL_ARGB_FIXED(FIX_ONE-m-&gt;transparency, LP-&gt;lineColor.red, LP-&gt;lineColor.green, LP-&gt;lineColor.blue);</span>
+<span class="lineNum">     618 </span><span class="lineNoCov">          0 :                 asp-&gt;pen_props.width = LP-&gt;width;</span>
+<span class="lineNum">     619 </span><span class="lineNoCov">          0 :                 if (!tr_state-&gt;color_mat.identity) {</span>
+<span class="lineNum">     620 </span><span class="lineNoCov">          0 :                         asp-&gt;line_color = gf_cmx_apply(&amp;tr_state-&gt;color_mat, asp-&gt;line_color);</span>
+<span class="lineNum">     621 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     622 </span><span class="lineNoCov">          0 :                 return ret;</span>
+<span class="lineNum">     623 </span>            :         }
+<span class="lineNum">     624 </span>            : 
+<span class="lineNum">     625 </span><span class="lineNoCov">          0 :         asp-&gt;pen_props.dash = (u8) XLP-&gt;lineStyle;</span>
+<span class="lineNum">     626 </span><span class="lineNoCov">          0 :         asp-&gt;line_color = GF_COL_ARGB_FIXED(FIX_ONE-XLP-&gt;transparency, XLP-&gt;lineColor.red, XLP-&gt;lineColor.green, XLP-&gt;lineColor.blue);</span>
+<span class="lineNum">     627 </span><span class="lineNoCov">          0 :         asp-&gt;pen_props.width = XLP-&gt;width;</span>
+<span class="lineNum">     628 </span><span class="lineNoCov">          0 :         if (!tr_state-&gt;color_mat.identity) {</span>
+<span class="lineNum">     629 </span><span class="lineNoCov">          0 :                 asp-&gt;line_color = gf_cmx_apply(&amp;tr_state-&gt;color_mat, asp-&gt;line_color);</span>
+<span class="lineNum">     630 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     631 </span>            : 
+<span class="lineNum">     632 </span><span class="lineNoCov">          0 :         asp-&gt;line_scale = XLP-&gt;isScalable ? FIX_ONE : 0;</span>
+<span class="lineNum">     633 </span><span class="lineNoCov">          0 :         asp-&gt;pen_props.align = XLP-&gt;isCenterAligned ? GF_PATH_LINE_CENTER : GF_PATH_LINE_INSIDE;</span>
+<span class="lineNum">     634 </span><span class="lineNoCov">          0 :         asp-&gt;pen_props.cap = (u8) XLP-&gt;lineCap;</span>
+<span class="lineNum">     635 </span><span class="lineNoCov">          0 :         asp-&gt;pen_props.join = (u8) XLP-&gt;lineJoin;</span>
+<span class="lineNum">     636 </span><span class="lineNoCov">          0 :         asp-&gt;pen_props.miterLimit = XLP-&gt;miterLimit;</span>
+<span class="lineNum">     637 </span><span class="lineNoCov">          0 :         asp-&gt;pen_props.dash_offset = XLP-&gt;dashOffset;</span>
+<span class="lineNum">     638 </span>            : 
+<span class="lineNum">     639 </span>            :         /*dash settings strutc is the same as MFFloat from XLP, typecast without storing*/
+<span class="lineNum">     640 </span><span class="lineNoCov">          0 :         if (XLP-&gt;dashes.count) {</span>
+<span class="lineNum">     641 </span><span class="lineNoCov">          0 :                 asp-&gt;pen_props.dash_set = (GF_DashSettings *) &amp;XLP-&gt;dashes;</span>
+<span class="lineNum">     642 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     643 </span><span class="lineNoCov">          0 :                 asp-&gt;pen_props.dash_set = NULL;</span>
+<span class="lineNum">     644 </span>            :         }
+<span class="lineNum">     645 </span><span class="lineNoCov">          0 :         asp-&gt;line_texture = gf_sc_texture_get_handler(XLP-&gt;texture);</span>
+<span class="lineNum">     646 </span><span class="lineNoCov">          0 :         return ret;</span>
+<span class="lineNum">     647 </span><span class="lineCov">         17 : }</span>
+<span class="lineNum">     648 </span>            : #endif /*GPAC_DISABLE_VRML*/
+<a name="649"><span class="lineNum">     649 </span>            : </a>
+<span class="lineNum">     650 </span>            : 
+<span class="lineNum">     651 </span>            : static Bool check_transparent_skip(DrawableContext *ctx, Bool skipFill)
+<span class="lineNum">     652 </span>            : {
+<span class="lineNum">     653 </span>            :         /*if texture, cannot skip*/
+<span class="lineNum">     654 </span><span class="lineCov">         37 :         if (ctx-&gt;aspect.fill_texture) return 0;</span>
+<span class="lineNum">     655 </span><span class="lineCov">         36 :         if (! GF_COL_A(ctx-&gt;aspect.fill_color) &amp;&amp; !GF_COL_A(ctx-&gt;aspect.line_color) ) return 1;</span>
+<span class="lineNum">     656 </span><span class="lineCov">          3 :         if (ctx-&gt;aspect.pen_props.width == 0) {</span>
+<span class="lineNum">     657 </span><span class="lineCov">          3 :                 if (skipFill) return 1;</span>
+<span class="lineNum">     658 </span><span class="lineCov">          3 :                 if (!GF_COL_A(ctx-&gt;aspect.fill_color) ) return 1;</span>
+<span class="lineNum">     659 </span>            :         }
+<span class="lineNum">     660 </span><span class="lineCov">          3 :         return 0;</span>
+<span class="lineNum">     661 </span><span class="lineCov">         17 : }</span>
+<a name="662"><span class="lineNum">     662 </span>            : </a>
+<span class="lineNum">     663 </span>            : 
+<span class="lineNum">     664 </span>            : void drawable_check_texture_dirty(DrawableContext *ctx, Drawable *drawable, GF_TraverseState *tr_state)
+<span class="lineNum">     665 </span>            : {
+<span class="lineNum">     666 </span>            : #ifndef GPAC_DISABLE_3D
+<span class="lineNum">     667 </span>            :         Bool texture_ready=0;
+<span class="lineNum">     668 </span>            : #endif
+<span class="lineNum">     669 </span>            : 
+<span class="lineNum">     670 </span>            :         /*Update texture info - draw even if texture not created (this may happen if the media is removed)*/
+<span class="lineNum">     671 </span><span class="lineCov">         34 :         if (ctx-&gt;aspect.fill_texture) {</span>
+<span class="lineNum">     672 </span><span class="lineCov">          3 :                 if (ctx-&gt;aspect.fill_texture-&gt;needs_refresh) {</span>
+<span class="lineNum">     673 </span><span class="lineCov">          3 :                         ctx-&gt;flags |= CTX_TEXTURE_DIRTY;</span>
+<span class="lineNum">     674 </span><span class="lineCov">          3 :                 }</span>
+<span class="lineNum">     675 </span>            : #ifndef GPAC_DISABLE_3D
+<span class="lineNum">     676 </span>            :                 //in autoGL mode, a texture is dirty only if transparent. If not, the area covered over the video doesn't need to be repainted if unchanged
+<span class="lineNum">     677 </span>            :                 //disable for color matrix as we don't yet handle them in GL
+<span class="lineNum">     678 </span><span class="lineCov">          6 :                 if (tr_state-&gt;visual-&gt;compositor-&gt;hybrid_opengl &amp;&amp; !tr_state-&gt;visual-&gt;offscreen) {</span>
+<span class="lineNum">     679 </span><span class="lineNoCov">          0 :                         u8 alpha = GF_COL_A(ctx-&gt;aspect.fill_color);</span>
+<span class="lineNum">     680 </span><span class="lineNoCov">          0 :                         if (!alpha) alpha = GF_COL_A(ctx-&gt;aspect.line_color);</span>
+<span class="lineNum">     681 </span>            : 
+<span class="lineNum">     682 </span><span class="lineNoCov">          0 :                         if (!ctx-&gt;aspect.fill_texture-&gt;transparent &amp;&amp; (alpha==0xFF) &amp;&amp; !ctx-&gt;aspect.fill_texture-&gt;compute_gradient_matrix &amp;&amp; (drawable-&gt;flags &amp; DRAWABLE_HYBGL_INIT)) {</span>
+<span class="lineNum">     683 </span><span class="lineNoCov">          0 :                                 ctx-&gt;flags |= CTX_HYBOGL_NO_CLEAR;</span>
+<span class="lineNum">     684 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     685 </span>            :                         //otherwise, we need to redraw all object below, wether they changed ot not, because we have erased this part of the canvas
+<span class="lineNum">     686 </span>            :                         else {
+<span class="lineNum">     687 </span><span class="lineNoCov">          0 :                                 ctx-&gt;flags |= CTX_TEXTURE_DIRTY;</span>
+<span class="lineNum">     688 </span>            :                         }
+<span class="lineNum">     689 </span>            :                         //wait untill we have something to draw to decide that the texture is ready, otherwise we will not clear the canvas when texture is ready
+<span class="lineNum">     690 </span><span class="lineNoCov">          0 :                         if (ctx-&gt;aspect.fill_texture-&gt;compute_gradient_matrix || ctx-&gt;aspect.fill_texture-&gt;data)</span>
+<span class="lineNum">     691 </span><span class="lineNoCov">          0 :                                 texture_ready=1;</span>
+<span class="lineNum">     692 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     693 </span>            : #endif
+<span class="lineNum">     694 </span>            :         }
+<span class="lineNum">     695 </span>            :         //same as above
+<span class="lineNum">     696 </span><span class="lineCov">         17 :         if (ctx-&gt;aspect.line_texture) {</span>
+<span class="lineNum">     697 </span><span class="lineNoCov">          0 :                 if (ctx-&gt;aspect.line_texture-&gt;needs_refresh)</span>
+<span class="lineNum">     698 </span><span class="lineNoCov">          0 :                         ctx-&gt;flags |= CTX_TEXTURE_DIRTY;</span>
+<span class="lineNum">     699 </span>            : 
+<span class="lineNum">     700 </span>            : #ifndef GPAC_DISABLE_3D
+<span class="lineNum">     701 </span>            :                 //in autoGL mode, a texture is dirty only if transparent. If not, the area covered over the video doesn't need to be repainted if unchanged
+<span class="lineNum">     702 </span>            :                 //disable for color matrix as we don't yet handle them in GL
+<span class="lineNum">     703 </span><span class="lineNoCov">          0 :                 if (tr_state-&gt;visual-&gt;compositor-&gt;hybrid_opengl &amp;&amp; !tr_state-&gt;visual-&gt;offscreen) {</span>
+<span class="lineNum">     704 </span><span class="lineNoCov">          0 :                         u8 alpha = GF_COL_A(ctx-&gt;aspect.line_color);</span>
+<span class="lineNum">     705 </span><span class="lineNoCov">          0 :                         if (!ctx-&gt;aspect.line_texture-&gt;transparent &amp;&amp; (alpha==0xFF) &amp;&amp; !ctx-&gt;aspect.line_texture-&gt;compute_gradient_matrix &amp;&amp; (drawable-&gt;flags &amp; DRAWABLE_HYBGL_INIT))</span>
+<span class="lineNum">     706 </span><span class="lineNoCov">          0 :                                 ctx-&gt;flags |= CTX_HYBOGL_NO_CLEAR;</span>
+<span class="lineNum">     707 </span>            :                         //otherwise, we need to redraw all object below, wether they changed ot not, bacause we have erased this part of the canvas
+<span class="lineNum">     708 </span>            :                         else
+<span class="lineNum">     709 </span><span class="lineNoCov">          0 :                                 ctx-&gt;flags |= CTX_TEXTURE_DIRTY;</span>
+<span class="lineNum">     710 </span>            : 
+<span class="lineNum">     711 </span>            :                         //wait untill we have something to draw to decide that the texture is ready, otherwise we will not clear the canvas when texture is ready
+<span class="lineNum">     712 </span><span class="lineNoCov">          0 :                         if (ctx-&gt;aspect.line_texture-&gt;compute_gradient_matrix || ctx-&gt;aspect.line_texture-&gt;data)</span>
+<span class="lineNum">     713 </span><span class="lineNoCov">          0 :                                 texture_ready=1;</span>
+<span class="lineNum">     714 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     715 </span>            : #endif
+<span class="lineNum">     716 </span>            :         }
+<span class="lineNum">     717 </span>            : 
+<span class="lineNum">     718 </span>            : #ifndef GPAC_DISABLE_3D
+<span class="lineNum">     719 </span>            :         //from now on, we won't clear the canvas when updating this texture (unless transparent, cf above)
+<span class="lineNum">     720 </span><span class="lineCov">         17 :         if (texture_ready)</span>
+<span class="lineNum">     721 </span><span class="lineNoCov">          0 :                 drawable-&gt;flags |= DRAWABLE_HYBGL_INIT;</span>
+<span class="lineNum">     722 </span>            : #endif
+<span class="lineNum">     723 </span><span class="lineCov">         17 : }</span>
+<span class="lineNum">     724 </span>            : 
+<a name="725"><span class="lineNum">     725 </span>            : #ifndef GPAC_DISABLE_VRML</a>
+<span class="lineNum">     726 </span>            : 
+<span class="lineNum">     727 </span>            : DrawableContext *drawable_init_context_mpeg4(Drawable *drawable, GF_TraverseState *tr_state)
+<span class="lineNum">     728 </span>            : {
+<span class="lineNum">     729 </span>            :         DrawableContext *ctx;
+<span class="lineNum">     730 </span>            :         Bool skipFill;
+<span class="lineNum">     731 </span>            :         GF_Node *appear;
+<span class="lineNum">     732 </span>            :         assert(tr_state-&gt;visual);
+<span class="lineNum">     733 </span>            : 
+<span class="lineNum">     734 </span>            :         /*switched-off geometry nodes are not drawn*/
+<span class="lineNum">     735 </span><span class="lineCov">         34 :         if (tr_state-&gt;switched_off) {</span>
+<span class="lineNum">     736 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_DEBUG, GF_LOG_COMPOSE, (&quot;[Compositor2D] Drawable is switched off - skipping\n&quot;));</span>
+<span class="lineNum">     737 </span><span class="lineNoCov">          0 :                 return NULL;</span>
+<span class="lineNum">     738 </span>            :         }
+<span class="lineNum">     739 </span>            : 
+<span class="lineNum">     740 </span>            :         //Get a empty context from the current visual
+<span class="lineNum">     741 </span><span class="lineCov">         17 :         ctx = visual_2d_get_drawable_context(tr_state-&gt;visual);</span>
+<span class="lineNum">     742 </span><span class="lineCov">         17 :         if (!ctx) return NULL;</span>
+<span class="lineNum">     743 </span>            : 
+<span class="lineNum">     744 </span><span class="lineCov">         17 :         ctx-&gt;drawable = drawable;</span>
+<span class="lineNum">     745 </span>            : 
+<span class="lineNum">     746 </span><span class="lineCov">         51 :         appear = tr_state-&gt;override_appearance ? tr_state-&gt;override_appearance : tr_state-&gt;appear;</span>
+<span class="lineNum">     747 </span>            : 
+<span class="lineNum">     748 </span>            :         /*usually set by colorTransform or changes in OrderedGroup*/
+<span class="lineNum">     749 </span><span class="lineCov">         17 :         if (tr_state-&gt;invalidate_all)</span>
+<span class="lineNum">     750 </span><span class="lineNoCov">          0 :                 ctx-&gt;flags |= CTX_APP_DIRTY;</span>
+<span class="lineNum">     751 </span>            : 
+<span class="lineNum">     752 </span><span class="lineCov">         17 :         ctx-&gt;aspect.fill_texture = NULL;</span>
+<span class="lineNum">     753 </span><span class="lineCov">         17 :         if (appear) {</span>
+<span class="lineNum">     754 </span><span class="lineCov">         17 :                 ctx-&gt;appear = appear;</span>
+<span class="lineNum">     755 </span><span class="lineCov">         17 :                 if (gf_node_dirty_get(appear))</span>
+<span class="lineNum">     756 </span><span class="lineCov">         17 :                         ctx-&gt;flags |= CTX_APP_DIRTY;</span>
+<span class="lineNum">     757 </span>            :         }
+<span class="lineNum">     758 </span>            :         /*todo cliper*/
+<span class="lineNum">     759 </span>            : 
+<span class="lineNum">     760 </span>            :         /*FIXME - only needed for texture*/
+<span class="lineNum">     761 </span><span class="lineCov">         17 :         if (!tr_state-&gt;color_mat.identity) {</span>
+<span class="lineNum">     762 </span><span class="lineNoCov">          0 :                 GF_SAFEALLOC(ctx-&gt;col_mat, GF_ColorMatrix);</span>
+<span class="lineNum">     763 </span><span class="lineNoCov">          0 :                 gf_cmx_copy(ctx-&gt;col_mat, &amp;tr_state-&gt;color_mat);</span>
+<span class="lineNum">     764 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     765 </span>            : 
+<span class="lineNum">     766 </span>            :         /*IndexedLineSet2D and PointSet2D ignores fill flag and texturing*/
+<span class="lineNum">     767 </span>            :         skipFill = 0;
+<span class="lineNum">     768 </span><span class="lineCov">         17 :         ctx-&gt;aspect.fill_texture = NULL;</span>
+<span class="lineNum">     769 </span><span class="lineCov">         17 :         switch (gf_node_get_tag(ctx-&gt;drawable-&gt;node) ) {</span>
+<span class="lineNum">     770 </span>            : #ifndef GPAC_DISABLE_VRML
+<span class="lineNum">     771 </span>            :         case TAG_MPEG4_IndexedLineSet2D:
+<span class="lineNum">     772 </span>            :                 skipFill = 1;
+<span class="lineNum">     773 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     774 </span>            : #endif
+<span class="lineNum">     775 </span>            :         default:
+<span class="lineNum">     776 </span>            :                 break;
+<span class="lineNum">     777 </span>            :         }
+<span class="lineNum">     778 </span>            : 
+<span class="lineNum">     779 </span><span class="lineCov">         17 :         ctx-&gt;flags |= drawable_get_aspect_2d_mpeg4(drawable-&gt;node, &amp;ctx-&gt;aspect, tr_state);</span>
+<span class="lineNum">     780 </span>            : 
+<span class="lineNum">     781 </span><span class="lineCov">         17 :         drawable_check_texture_dirty(ctx, drawable, tr_state);</span>
+<span class="lineNum">     782 </span>            : 
+<span class="lineNum">     783 </span>            :         /*not clear in the spec: what happens when a transparent node is in form/layout ?? this may
+<span class="lineNum">     784 </span>            :         completely break layout of children. We consider the node should be drawn*/
+<span class="lineNum">     785 </span><span class="lineCov">         34 :         if (!tr_state-&gt;parent &amp;&amp; check_transparent_skip(ctx, skipFill)) {</span>
+<span class="lineNum">     786 </span><span class="lineCov">         11 :                 visual_2d_remove_last_context(tr_state-&gt;visual);</span>
+<span class="lineNum">     787 </span><span class="lineCov">         11 :                 GF_LOG(GF_LOG_DEBUG, GF_LOG_COMPOSE, (&quot;[Compositor2D] Drawable is fully transparent - skipping\n&quot;));</span>
+<span class="lineNum">     788 </span><span class="lineCov">         11 :                 return NULL;</span>
+<span class="lineNum">     789 </span>            :         }
+<span class="lineNum">     790 </span><span class="lineCov">          6 :         ctx-&gt;flags |= CTX_HAS_APPEARANCE;</span>
+<span class="lineNum">     791 </span>            : 
+<span class="lineNum">     792 </span>            :         /*we are drawing on a fliped coord surface, remember to flip the texture*/
+<span class="lineNum">     793 </span><span class="lineCov">          6 :         if (tr_state-&gt;fliped_coords)</span>
+<span class="lineNum">     794 </span><span class="lineNoCov">          0 :                 ctx-&gt;flags |= CTX_FLIPED_COORDS;</span>
+<span class="lineNum">     795 </span>            : 
+<span class="lineNum">     796 </span>            : #ifdef GF_SR_USE_DEPTH
+<span class="lineNum">     797 </span><span class="lineCov">          6 :         ctx-&gt;depth_gain=tr_state-&gt;depth_gain;</span>
+<span class="lineNum">     798 </span><span class="lineCov">          6 :         ctx-&gt;depth_offset=tr_state-&gt;depth_offset;</span>
+<span class="lineNum">     799 </span>            : #endif
+<span class="lineNum">     800 </span>            : 
+<span class="lineNum">     801 </span><span class="lineCov">          6 :         return ctx;</span>
+<span class="lineNum">     802 </span><span class="lineCov">         17 : }</span>
+<a name="803"><span class="lineNum">     803 </span>            : #endif</a>
+<span class="lineNum">     804 </span>            : 
+<span class="lineNum">     805 </span>            : static Bool drawable_finalize_end(struct _drawable_context *ctx, GF_TraverseState *tr_state)
+<span class="lineNum">     806 </span>            : {
+<span class="lineNum">     807 </span>            :         /*if direct draw we can remove the context*/
+<span class="lineNum">     808 </span><span class="lineCov">         12 :         Bool res = tr_state-&gt;immediate_draw ? 1 : 0;</span>
+<span class="lineNum">     809 </span>            :         /*copy final transform, once all parent layout is done*/
+<span class="lineNum">     810 </span><span class="lineCov">          6 :         gf_mx2d_copy(ctx-&gt;transform, tr_state-&gt;transform);</span>
+<span class="lineNum">     811 </span>            : 
+<span class="lineNum">     812 </span>            :         /*setup clipper and register bounds &amp; sensors*/
+<span class="lineNum">     813 </span><span class="lineCov">          6 :         gf_irect_intersect(&amp;ctx-&gt;bi-&gt;clip, &amp;tr_state-&gt;visual-&gt;top_clipper);</span>
+<span class="lineNum">     814 </span><span class="lineCov">         12 :         if (!ctx-&gt;bi-&gt;clip.width || !ctx-&gt;bi-&gt;clip.height) {</span>
+<span class="lineNum">     815 </span><span class="lineNoCov">          0 :                 ctx-&gt;bi-&gt;clip.width = 0;</span>
+<span class="lineNum">     816 </span>            :                 /*remove if this is the last context*/
+<span class="lineNum">     817 </span><span class="lineNoCov">          0 :                 if (tr_state-&gt;visual-&gt;cur_context == ctx) tr_state-&gt;visual-&gt;cur_context-&gt;drawable = NULL;</span>
+<span class="lineNum">     818 </span>            : 
+<span class="lineNum">     819 </span><span class="lineNoCov">          0 :                 return res;</span>
+<span class="lineNum">     820 </span>            :         }
+<span class="lineNum">     821 </span>            : 
+<span class="lineNum">     822 </span>            :         /*keep track of node drawn, whether direct or indirect drawing*/
+<span class="lineNum">     823 </span><span class="lineCov">          6 :         if (!(ctx-&gt;drawable-&gt;flags &amp; DRAWABLE_REGISTERED_WITH_VISUAL) ) {</span>
+<span class="lineNum">     824 </span>            :                 struct _drawable_store *it;
+<span class="lineNum">     825 </span><span class="lineCov">         12 :                 GF_SAFEALLOC(it, struct _drawable_store);</span>
+<span class="lineNum">     826 </span><span class="lineCov">          6 :                 if (!it) {</span>
+<span class="lineNum">     827 </span><span class="lineNoCov">          0 :                         return 0;</span>
+<span class="lineNum">     828 </span>            :                 }
+<span class="lineNum">     829 </span><span class="lineCov">          6 :                 it-&gt;drawable = ctx-&gt;drawable;</span>
+<span class="lineNum">     830 </span><span class="lineCov">          6 :                 if (tr_state-&gt;visual-&gt;last_prev_entry) {</span>
+<span class="lineNum">     831 </span><span class="lineCov">          2 :                         tr_state-&gt;visual-&gt;last_prev_entry-&gt;next = it;</span>
+<span class="lineNum">     832 </span><span class="lineCov">          2 :                         tr_state-&gt;visual-&gt;last_prev_entry = it;</span>
+<span class="lineNum">     833 </span><span class="lineCov">          2 :                 } else {</span>
+<span class="lineNum">     834 </span><span class="lineCov">          4 :                         tr_state-&gt;visual-&gt;prev_nodes = tr_state-&gt;visual-&gt;last_prev_entry = it;</span>
+<span class="lineNum">     835 </span>            :                 }
+<span class="lineNum">     836 </span>            :                 //GF_LOG(GF_LOG_DEBUG, GF_LOG_COMPOSE, (&quot;[Compositor2D] Registering new drawn node %s on visual\n&quot;, gf_node_get_class_name(it-&gt;drawable-&gt;node)));
+<span class="lineNum">     837 </span><span class="lineCov">          6 :                 ctx-&gt;drawable-&gt;flags |= DRAWABLE_REGISTERED_WITH_VISUAL;</span>
+<span class="lineNum">     838 </span><span class="lineCov">          6 :         }</span>
+<span class="lineNum">     839 </span>            : 
+<span class="lineNum">     840 </span>            :         /*we are in direct draw mode, draw ...*/
+<span class="lineNum">     841 </span><span class="lineCov">          6 :         if (res) {</span>
+<span class="lineNum">     842 </span>            :                 /*if over an overlay we cannot remove the context and cannot draw directly*/
+<span class="lineNum">     843 </span><span class="lineCov">          6 :                 if (visual_2d_overlaps_overlay(tr_state-&gt;visual, ctx, tr_state))</span>
+<span class="lineNum">     844 </span><span class="lineNoCov">          0 :                         return 0;</span>
+<span class="lineNum">     845 </span>            : 
+<span class="lineNum">     846 </span>            :                 assert(!tr_state-&gt;traversing_mode);
+<span class="lineNum">     847 </span><span class="lineCov">          6 :                 tr_state-&gt;traversing_mode = TRAVERSE_DRAW_2D;</span>
+<span class="lineNum">     848 </span><span class="lineCov">          6 :                 tr_state-&gt;ctx = ctx;</span>
+<span class="lineNum">     849 </span>            : 
+<span class="lineNum">     850 </span><span class="lineCov">          6 :                 if (ctx-&gt;drawable-&gt;flags &amp; DRAWABLE_USE_TRAVERSE_DRAW) {</span>
+<span class="lineNum">     851 </span><span class="lineCov">          3 :                         gf_node_allow_cyclic_traverse(ctx-&gt;drawable-&gt;node);</span>
+<span class="lineNum">     852 </span><span class="lineCov">          3 :                         gf_node_traverse(ctx-&gt;drawable-&gt;node, tr_state);</span>
+<span class="lineNum">     853 </span><span class="lineCov">          3 :                 } else {</span>
+<span class="lineNum">     854 </span><span class="lineCov">          3 :                         drawable_draw(ctx-&gt;drawable, tr_state);</span>
+<span class="lineNum">     855 </span>            :                 }
+<span class="lineNum">     856 </span>            : 
+<span class="lineNum">     857 </span><span class="lineCov">          6 :                 tr_state-&gt;ctx = NULL;</span>
+<span class="lineNum">     858 </span><span class="lineCov">          6 :                 tr_state-&gt;traversing_mode = TRAVERSE_SORT;</span>
+<span class="lineNum">     859 </span><span class="lineCov">          6 :         }</span>
+<span class="lineNum">     860 </span>            :         /*if the drawable is an overlay, always mark it as dirty to avoid flickering*/
+<span class="lineNum">     861 </span><span class="lineNoCov">          0 :         else if (ctx-&gt;drawable-&gt;flags &amp; DRAWABLE_IS_OVERLAY) {</span>
+<span class="lineNum">     862 </span><span class="lineNoCov">          0 :                 ctx-&gt;flags |= CTX_APP_DIRTY;</span>
+<span class="lineNum">     863 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     864 </span>            :         /*if direct draw we can remove the context*/
+<span class="lineNum">     865 </span><span class="lineCov">          6 :         return res;</span>
+<a name="866"><span class="lineNum">     866 </span><span class="lineCov">          6 : }</span></a>
+<span class="lineNum">     867 </span>            : 
+<span class="lineNum">     868 </span>            : void drawable_check_bounds(struct _drawable_context *ctx, GF_VisualManager *visual)
+<span class="lineNum">     869 </span>            : {
+<span class="lineNum">     870 </span><span class="lineCov">         12 :         if (!ctx-&gt;bi) {</span>
+<span class="lineNum">     871 </span><span class="lineCov">          6 :                 ctx-&gt;bi = drawable_check_alloc_bounds(ctx, visual);</span>
+<span class="lineNum">     872 </span>            :                 assert(ctx-&gt;bi);
+<span class="lineNum">     873 </span><span class="lineCov">          6 :                 ctx-&gt;bi-&gt;extra_check = ctx-&gt;appear;</span>
+<span class="lineNum">     874 </span><span class="lineCov">          6 :         }</span>
+<a name="875"><span class="lineNum">     875 </span><span class="lineCov">          6 : }</span></a>
+<span class="lineNum">     876 </span>            : 
+<span class="lineNum">     877 </span>            : void drawable_compute_line_scale(GF_TraverseState *tr_state, DrawAspect2D *asp)
+<span class="lineNum">     878 </span>            : {
+<span class="lineNum">     879 </span><span class="lineNoCov">          0 :         GF_Rect rc;</span>
+<span class="lineNum">     880 </span><span class="lineNoCov">          0 :         rc.x = rc.y = 0;</span>
+<span class="lineNum">     881 </span><span class="lineNoCov">          0 :         rc.width = rc.height = FIX_ONE;</span>
+<span class="lineNum">     882 </span>            : #ifndef GPAC_DISABLE_3D
+<span class="lineNum">     883 </span><span class="lineNoCov">          0 :         if (tr_state-&gt;visual-&gt;type_3d)</span>
+<span class="lineNum">     884 </span><span class="lineNoCov">          0 :                 gf_mx_apply_rect(&amp;tr_state-&gt;model_matrix, &amp;rc);</span>
+<span class="lineNum">     885 </span>            :         else
+<span class="lineNum">     886 </span>            : #endif
+<span class="lineNum">     887 </span><span class="lineNoCov">          0 :                 gf_mx2d_apply_rect(&amp;tr_state-&gt;transform, &amp;rc);</span>
+<span class="lineNum">     888 </span>            : 
+<span class="lineNum">     889 </span><span class="lineNoCov">          0 :         asp-&gt;line_scale = MAX(gf_divfix(tr_state-&gt;visual-&gt;compositor-&gt;scale_x, rc.width), gf_divfix(tr_state-&gt;visual-&gt;compositor-&gt;scale_y, rc.height));</span>
+<span class="lineNum">     890 </span><span class="lineNoCov">          0 : }</span>
+<a name="891"><span class="lineNum">     891 </span>            : </a>
+<span class="lineNum">     892 </span>            : //#define REMOVE_UNUSED_CTX
+<span class="lineNum">     893 </span>            : void drawable_finalize_sort_ex(DrawableContext *ctx, GF_TraverseState *tr_state, GF_Rect *orig_bounds, Bool skip_focus)
+<span class="lineNum">     894 </span>            : {
+<span class="lineNum">     895 </span>            : #ifdef REMVE_UNUSED_CTX
+<span class="lineNum">     896 </span>            :         Bool can_remove = 0;
+<span class="lineNum">     897 </span>            : #endif
+<span class="lineNum">     898 </span>            :         Fixed pw;
+<span class="lineNum">     899 </span><span class="lineCov">         12 :         GF_Rect unclip, store_orig_bounds;</span>
+<span class="lineNum">     900 </span><span class="lineCov">         18 :         GF_Node *appear = tr_state-&gt;override_appearance ? tr_state-&gt;override_appearance : tr_state-&gt;appear;</span>
+<span class="lineNum">     901 </span>            : 
+<span class="lineNum">     902 </span>            : 
+<span class="lineNum">     903 </span><span class="lineCov">          6 :         drawable_check_bounds(ctx, tr_state-&gt;visual);</span>
+<span class="lineNum">     904 </span>            : 
+<span class="lineNum">     905 </span><span class="lineCov">          6 :         if (orig_bounds) {</span>
+<span class="lineNum">     906 </span><span class="lineCov">          3 :                 store_orig_bounds = *orig_bounds;</span>
+<span class="lineNum">     907 </span><span class="lineCov">          3 :         } else {</span>
+<span class="lineNum">     908 </span><span class="lineCov">          3 :                 gf_path_get_bounds(ctx-&gt;drawable-&gt;path, &amp;store_orig_bounds);</span>
+<span class="lineNum">     909 </span>            :         }
+<span class="lineNum">     910 </span>            :         //if (store_orig_bounds) fprintf(stderr, &quot;store_orig_bounds: %d\n&quot;, (int) store_orig_bounds.width );
+<span class="lineNum">     911 </span><span class="lineCov">          6 :         ctx-&gt;bi-&gt;unclip = store_orig_bounds;</span>
+<span class="lineNum">     912 </span><span class="lineCov">          6 :         gf_mx2d_apply_rect(&amp;tr_state-&gt;transform, &amp;ctx-&gt;bi-&gt;unclip);</span>
+<span class="lineNum">     913 </span>            : 
+<span class="lineNum">     914 </span>            :         /*apply pen width*/
+<span class="lineNum">     915 </span><span class="lineCov">          6 :         if (ctx-&gt;aspect.pen_props.width) {</span>
+<span class="lineNum">     916 </span>            :                 StrikeInfo2D *si = NULL;
+<span class="lineNum">     917 </span>            : 
+<span class="lineNum">     918 </span><span class="lineNoCov">          0 :                 if (!ctx-&gt;aspect.line_scale)</span>
+<span class="lineNum">     919 </span><span class="lineNoCov">          0 :                         drawable_compute_line_scale(tr_state, &amp;ctx-&gt;aspect);</span>
+<span class="lineNum">     920 </span>            : 
+<span class="lineNum">     921 </span>            : #if 0
+<span class="lineNum">     922 </span>            :                 /*if pen is not scalable, apply user/viewport transform so that original aspect is kept*/
+<span class="lineNum">     923 </span>            :                 if (!ctx-&gt;aspect.line_scale) {
+<span class="lineNum">     924 </span>            :                         GF_Point2D pt;
+<span class="lineNum">     925 </span>            :                         pt.x = tr_state-&gt;transform.m[0] + tr_state-&gt;transform.m[1];
+<span class="lineNum">     926 </span>            :                         pt.y = tr_state-&gt;transform.m[3] + tr_state-&gt;transform.m[4];
+<span class="lineNum">     927 </span>            :                         ctx-&gt;aspect.line_scale = gf_divfix(FLT2FIX(1.41421356f) , gf_v2d_len(&amp;pt));
+<span class="lineNum">     928 </span>            :                 }
+<span class="lineNum">     929 </span>            : #endif
+<span class="lineNum">     930 </span>            : 
+<span class="lineNum">     931 </span>            :                 /*get strike info &amp; outline for exact bounds compute. If failure use default offset*/
+<span class="lineNum">     932 </span><span class="lineNoCov">          0 :                 si = drawable_get_strikeinfo(tr_state-&gt;visual-&gt;compositor, ctx-&gt;drawable, &amp;ctx-&gt;aspect, appear, ctx-&gt;drawable-&gt;path, ctx-&gt;flags, NULL);</span>
+<span class="lineNum">     933 </span><span class="lineNoCov">          0 :                 if (si &amp;&amp; si-&gt;outline) {</span>
+<span class="lineNum">     934 </span><span class="lineNoCov">          0 :                         gf_path_get_bounds(si-&gt;outline, &amp;ctx-&gt;bi-&gt;unclip);</span>
+<span class="lineNum">     935 </span><span class="lineNoCov">          0 :                         gf_mx2d_apply_rect(&amp;tr_state-&gt;transform, &amp;ctx-&gt;bi-&gt;unclip);</span>
+<span class="lineNum">     936 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     937 </span><span class="lineNoCov">          0 :                         pw = gf_mulfix(ctx-&gt;aspect.pen_props.width, ctx-&gt;aspect.line_scale);</span>
+<span class="lineNum">     938 </span><span class="lineNoCov">          0 :                         ctx-&gt;bi-&gt;unclip.x -= pw/2;</span>
+<span class="lineNum">     939 </span><span class="lineNoCov">          0 :                         ctx-&gt;bi-&gt;unclip.y += pw/2;</span>
+<span class="lineNum">     940 </span><span class="lineNoCov">          0 :                         ctx-&gt;bi-&gt;unclip.width += pw;</span>
+<span class="lineNum">     941 </span><span class="lineNoCov">          0 :                         ctx-&gt;bi-&gt;unclip.height += pw;</span>
+<span class="lineNum">     942 </span>            :                 }
+<span class="lineNum">     943 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     944 </span>            : 
+<span class="lineNum">     945 </span><span class="lineCov">         12 :         if (ctx-&gt;bi-&gt;unclip.width &amp;&amp; ctx-&gt;bi-&gt;unclip.height) {</span>
+<span class="lineNum">     946 </span><span class="lineCov">          6 :                 unclip = ctx-&gt;bi-&gt;unclip;</span>
+<span class="lineNum">     947 </span><span class="lineCov">          6 :                 if (! (ctx-&gt;flags &amp; CTX_NO_ANTIALIAS)) {</span>
+<span class="lineNum">     948 </span>            :                         /*grow of 2 pixels (-1 and +1) to handle AA, but ONLY on cliper otherwise we will modify layout/form */
+<span class="lineNum">     949 </span><span class="lineCov">         12 :                         pw = (tr_state-&gt;pixel_metrics) ? FIX_ONE : 2*FIX_ONE/tr_state-&gt;visual-&gt;width;</span>
+<span class="lineNum">     950 </span><span class="lineCov">          6 :                         unclip.x -= pw;</span>
+<span class="lineNum">     951 </span><span class="lineCov">          6 :                         unclip.y += pw;</span>
+<span class="lineNum">     952 </span><span class="lineCov">          6 :                         unclip.width += 2*pw;</span>
+<span class="lineNum">     953 </span><span class="lineCov">          6 :                         unclip.height += 2*pw;</span>
+<span class="lineNum">     954 </span><span class="lineCov">          6 :                 }</span>
+<span class="lineNum">     955 </span><span class="lineCov">          6 :                 ctx-&gt;bi-&gt;clip = gf_rect_pixelize(&amp;unclip);</span>
+<span class="lineNum">     956 </span><span class="lineCov">          6 :         } else {</span>
+<span class="lineNum">     957 </span><span class="lineNoCov">          0 :                 ctx-&gt;bi-&gt;clip.width = 0;</span>
+<span class="lineNum">     958 </span>            :         }
+<span class="lineNum">     959 </span>            : 
+<span class="lineNum">     960 </span>            : #ifdef REMVE_UNUSED_CTX
+<span class="lineNum">     961 </span>            :         can_remove = drawable_finalize_end(ctx, tr_state);
+<span class="lineNum">     962 </span>            : #else
+<span class="lineNum">     963 </span><span class="lineCov">          6 :         drawable_finalize_end(ctx, tr_state);</span>
+<span class="lineNum">     964 </span>            : #endif
+<span class="lineNum">     965 </span><span class="lineCov">          6 :         if (ctx-&gt;drawable &amp;&amp; !skip_focus)</span>
+<span class="lineNum">     966 </span><span class="lineCov">          6 :                 drawable_check_focus_highlight(ctx-&gt;drawable-&gt;node, tr_state, &amp;store_orig_bounds);</span>
+<span class="lineNum">     967 </span>            : 
+<span class="lineNum">     968 </span>            :         /*remove if this is the last context*/
+<span class="lineNum">     969 </span>            : #ifdef REMVE_UNUSED_CTX
+<span class="lineNum">     970 </span>            :         if (can_remove &amp;&amp; (tr_state-&gt;visual-&gt;cur_context == ctx))
+<span class="lineNum">     971 </span>            :                 tr_state-&gt;visual-&gt;cur_context-&gt;drawable = NULL;
+<span class="lineNum">     972 </span>            : #endif
+<a name="973"><span class="lineNum">     973 </span><span class="lineCov">          6 : }</span></a>
+<span class="lineNum">     974 </span>            : 
+<span class="lineNum">     975 </span>            : void drawable_finalize_sort(struct _drawable_context *ctx, GF_TraverseState *tr_state, GF_Rect *orig_bounds)
+<span class="lineNum">     976 </span>            : {
+<span class="lineNum">     977 </span><span class="lineCov">         12 :         drawable_finalize_sort_ex(ctx, tr_state, orig_bounds, 0);</span>
+<span class="lineNum">     978 </span><span class="lineCov">          6 : }</span>
+<a name="979"><span class="lineNum">     979 </span>            : </a>
+<span class="lineNum">     980 </span>            : 
+<span class="lineNum">     981 </span>            : void drawable_check_focus_highlight(GF_Node *node, GF_TraverseState *tr_state, GF_Rect *orig_bounds)
+<span class="lineNum">     982 </span>            : {
+<span class="lineNum">     983 </span>            :         DrawableContext *hl_ctx;
+<span class="lineNum">     984 </span>            :         Drawable *hlight;
+<span class="lineNum">     985 </span>            :         GF_Node *prev_node;
+<span class="lineNum">     986 </span>            :         u32 prev_mode;
+<span class="lineNum">     987 </span>            :         GF_Rect *bounds;
+<span class="lineNum">     988 </span><span class="lineCov">        138 :         GF_Matrix2D cur;</span>
+<span class="lineNum">     989 </span><span class="lineCov">         69 :         GF_Compositor *compositor = tr_state-&gt;visual-&gt;compositor;</span>
+<span class="lineNum">     990 </span>            : 
+<span class="lineNum">     991 </span><span class="lineCov">        138 :         if (compositor-&gt;disable_focus_highlight) return;</span>
+<span class="lineNum">     992 </span>            : 
+<span class="lineNum">     993 </span><span class="lineNoCov">          0 :         if (compositor-&gt;focus_node!=node) return;</span>
+<span class="lineNum">     994 </span>            :         /*if key navigator, don't draw a focus highlight*/
+<span class="lineNum">     995 </span><span class="lineNoCov">          0 :         if (compositor-&gt;keynav_node) return;</span>
+<span class="lineNum">     996 </span>            : 
+<span class="lineNum">     997 </span><span class="lineNoCov">          0 :         if (compositor-&gt;focus_used) {</span>
+<span class="lineNum">     998 </span><span class="lineNoCov">          0 :                 u32 count = gf_list_count(tr_state-&gt;use_stack);</span>
+<span class="lineNum">     999 </span><span class="lineNoCov">          0 :                 if (!count || (gf_list_get(tr_state-&gt;use_stack, count-1)!=compositor-&gt;focus_used) )</span>
+<span class="lineNum">    1000 </span><span class="lineNoCov">          0 :                         return;</span>
+<span class="lineNum">    1001 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">    1002 </span>            : 
+<span class="lineNum">    1003 </span><span class="lineNoCov">          0 :         hlight = compositor-&gt;focus_highlight;</span>
+<span class="lineNum">    1004 </span><span class="lineNoCov">          0 :         if (!hlight) return;</span>
+<span class="lineNum">    1005 </span>            : 
+<span class="lineNum">    1006 </span>            :         /*check if focus node has changed*/
+<span class="lineNum">    1007 </span><span class="lineNoCov">          0 :         prev_node = gf_node_get_private(hlight-&gt;node);</span>
+<span class="lineNum">    1008 </span><span class="lineNoCov">          0 :         if (prev_node != node) {</span>
+<span class="lineNum">    1009 </span>            :                 /*this is a grouping node, get its bounds*/
+<span class="lineNum">    1010 </span><span class="lineNoCov">          0 :                 if (!orig_bounds) {</span>
+<span class="lineNum">    1011 </span><span class="lineNoCov">          0 :                         gf_mx2d_copy(cur, tr_state-&gt;transform);</span>
+<span class="lineNum">    1012 </span><span class="lineNoCov">          0 :                         gf_mx2d_init(tr_state-&gt;transform);</span>
+<span class="lineNum">    1013 </span><span class="lineNoCov">          0 :                         prev_mode = tr_state-&gt;traversing_mode;</span>
+<span class="lineNum">    1014 </span><span class="lineNoCov">          0 :                         tr_state-&gt;traversing_mode = TRAVERSE_GET_BOUNDS;</span>
+<span class="lineNum">    1015 </span><span class="lineNoCov">          0 :                         tr_state-&gt;bounds.width = tr_state-&gt;bounds.height = 0;</span>
+<span class="lineNum">    1016 </span><span class="lineNoCov">          0 :                         tr_state-&gt;bounds.x = tr_state-&gt;bounds.y = 0;</span>
+<span class="lineNum">    1017 </span>            : 
+<span class="lineNum">    1018 </span><span class="lineNoCov">          0 :                         gf_sc_get_nodes_bounds(node, ((GF_ParentNode *)node)-&gt;children, tr_state, NULL);</span>
+<span class="lineNum">    1019 </span>            : 
+<span class="lineNum">    1020 </span><span class="lineNoCov">          0 :                         tr_state-&gt;traversing_mode = prev_mode;</span>
+<span class="lineNum">    1021 </span><span class="lineNoCov">          0 :                         gf_mx2d_copy(tr_state-&gt;transform, cur);</span>
+<span class="lineNum">    1022 </span>            :                         bounds = &amp;tr_state-&gt;bounds;
+<span class="lineNum">    1023 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">    1024 </span>            :                         bounds = orig_bounds;
+<span class="lineNum">    1025 </span>            :                 }
+<span class="lineNum">    1026 </span><span class="lineNoCov">          0 :                 gf_node_set_private(hlight-&gt;node, node);</span>
+<span class="lineNum">    1027 </span>            : 
+<span class="lineNum">    1028 </span><span class="lineNoCov">          0 :                 drawable_reset_path(hlight);</span>
+<span class="lineNum">    1029 </span><span class="lineNoCov">          0 :                 gf_path_reset(hlight-&gt;path);</span>
+<span class="lineNum">    1030 </span><span class="lineNoCov">          0 :                 gf_path_add_rect(hlight-&gt;path, bounds-&gt;x, bounds-&gt;y, bounds-&gt;width, bounds-&gt;height);</span>
+<span class="lineNum">    1031 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">    1032 </span><span class="lineNoCov">          0 :         hl_ctx = visual_2d_get_drawable_context(tr_state-&gt;visual);</span>
+<span class="lineNum">    1033 </span><span class="lineNoCov">          0 :         hl_ctx-&gt;drawable = hlight;</span>
+<span class="lineNum">    1034 </span><span class="lineNoCov">          0 :         hl_ctx-&gt;aspect.fill_color = compositor-&gt;highlight_fill;</span>
+<span class="lineNum">    1035 </span><span class="lineNoCov">          0 :         hl_ctx-&gt;aspect.line_color = compositor-&gt;highlight_stroke;</span>
+<span class="lineNum">    1036 </span><span class="lineNoCov">          0 :         hl_ctx-&gt;aspect.line_scale = 0;</span>
+<span class="lineNum">    1037 </span><span class="lineNoCov">          0 :         hl_ctx-&gt;aspect.pen_props.width = compositor-&gt;highlight_stroke_width;</span>
+<span class="lineNum">    1038 </span><span class="lineNoCov">          0 :         hl_ctx-&gt;aspect.pen_props.join = GF_LINE_JOIN_BEVEL;</span>
+<span class="lineNum">    1039 </span><span class="lineNoCov">          0 :         hl_ctx-&gt;aspect.pen_props.dash = GF_DASH_STYLE_DOT;</span>
+<span class="lineNum">    1040 </span>            : 
+<span class="lineNum">    1041 </span>            :         /*editing this node - move to solid stroke*/
+<span class="lineNum">    1042 </span><span class="lineNoCov">          0 :         if (compositor-&gt;edited_text) {</span>
+<span class="lineNum">    1043 </span><span class="lineNoCov">          0 :                 hl_ctx-&gt;aspect.pen_props.width = 2*FIX_ONE;</span>
+<span class="lineNum">    1044 </span><span class="lineNoCov">          0 :                 hl_ctx-&gt;aspect.pen_props.dash = 1;</span>
+<span class="lineNum">    1045 </span><span class="lineNoCov">          0 :                 hl_ctx-&gt;aspect.line_color = compositor-&gt;highlight_stroke;</span>
+<span class="lineNum">    1046 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">    1047 </span>            : 
+<span class="lineNum">    1048 </span>            : 
+<span class="lineNum">    1049 </span>            : #ifndef GPAC_DISABLE_3D
+<span class="lineNum">    1050 </span><span class="lineNoCov">          0 :         if (tr_state-&gt;visual-&gt;type_3d) {</span>
+<span class="lineNum">    1051 </span><span class="lineNoCov">          0 :                 gf_mx2d_copy(hl_ctx-&gt;transform, tr_state-&gt;transform);</span>
+<span class="lineNum">    1052 </span><span class="lineNoCov">          0 :                 visual_3d_draw_2d_with_aspect(hl_ctx-&gt;drawable, tr_state, &amp;hl_ctx-&gt;aspect);</span>
+<span class="lineNum">    1053 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">    1054 </span>            :         }
+<span class="lineNum">    1055 </span>            : #endif
+<span class="lineNum">    1056 </span>            :         gf_mx2d_copy(hl_ctx-&gt;transform, tr_state-&gt;transform);
+<span class="lineNum">    1057 </span><span class="lineNoCov">          0 :         drawable_finalize_sort_ex(hl_ctx, tr_state, NULL, 1);</span>
+<span class="lineNum">    1058 </span><span class="lineCov">         69 : }</span>
+<a name="1059"><span class="lineNum">    1059 </span>            : </a>
+<span class="lineNum">    1060 </span>            : 
+<span class="lineNum">    1061 </span>            : void drawable_traverse_focus(GF_Node *node, void *rs, Bool is_destroy)
+<span class="lineNum">    1062 </span>            : {
+<span class="lineNum">    1063 </span><span class="lineCov">          2 :         GF_TraverseState *tr_state = (GF_TraverseState *)rs;</span>
+<span class="lineNum">    1064 </span><span class="lineCov">          2 :         if (is_destroy) return;</span>
+<span class="lineNum">    1065 </span><span class="lineNoCov">          0 :         if (tr_state-&gt;traversing_mode == TRAVERSE_DRAW_2D)</span>
+<span class="lineNum">    1066 </span><span class="lineNoCov">          0 :                 visual_2d_draw_path(tr_state-&gt;visual, tr_state-&gt;ctx-&gt;drawable-&gt;path, tr_state-&gt;ctx, NULL, NULL, tr_state);</span>
+<span class="lineNum">    1067 </span><span class="lineCov">          1 : }</span>
+<a name="1068"><span class="lineNum">    1068 </span>            : </a>
+<span class="lineNum">    1069 </span>            : 
+<span class="lineNum">    1070 </span>            : void delete_strikeinfo2d(StrikeInfo2D *info)
+<span class="lineNum">    1071 </span>            : {
+<span class="lineNum">    1072 </span><span class="lineNoCov">          0 :         if (info-&gt;outline) gf_path_del(info-&gt;outline);</span>
+<span class="lineNum">    1073 </span>            : #ifndef GPAC_DISABLE_3D
+<span class="lineNum">    1074 </span><span class="lineNoCov">          0 :         if (info-&gt;mesh_outline) mesh_free(info-&gt;mesh_outline);</span>
+<span class="lineNum">    1075 </span>            : #endif
+<span class="lineNum">    1076 </span><span class="lineNoCov">          0 :         gf_free(info);</span>
+<span class="lineNum">    1077 </span><span class="lineNoCov">          0 : }</span>
+<a name="1078"><span class="lineNum">    1078 </span>            : </a>
+<span class="lineNum">    1079 </span>            : 
+<span class="lineNum">    1080 </span>            : StrikeInfo2D *drawable_get_strikeinfo(GF_Compositor *compositor, Drawable *drawable, DrawAspect2D *asp, GF_Node *appear, GF_Path *path, u32 svg_flags, GF_TraverseState *tr_state)
+<span class="lineNum">    1081 </span>            : {
+<span class="lineNum">    1082 </span>            :         StrikeInfo2D *si, *prev;
+<span class="lineNum">    1083 </span>            :         GF_Node *lp;
+<span class="lineNum">    1084 </span>            :         Bool dirty;
+<span class="lineNum">    1085 </span><span class="lineNoCov">          0 :         if (!asp-&gt;pen_props.width) return NULL;</span>
+<span class="lineNum">    1086 </span><span class="lineNoCov">          0 :         if (path &amp;&amp; !path-&gt;n_points) return NULL;</span>
+<span class="lineNum">    1087 </span>            : 
+<span class="lineNum">    1088 </span>            :         lp = NULL;
+<span class="lineNum">    1089 </span>            : #ifndef GPAC_DISABLE_VRML
+<span class="lineNum">    1090 </span><span class="lineNoCov">          0 :         if (appear &amp;&amp; (gf_node_get_tag(appear) &lt; GF_NODE_RANGE_LAST_X3D) ) {</span>
+<span class="lineNum">    1091 </span><span class="lineNoCov">          0 :                 lp = ((M_Appearance *)appear)-&gt;material;</span>
+<span class="lineNum">    1092 </span><span class="lineNoCov">          0 :                 if (lp) lp = ((M_Material2D *) lp)-&gt;lineProps;</span>
+<span class="lineNum">    1093 </span>            :         }
+<span class="lineNum">    1094 </span>            : #endif
+<span class="lineNum">    1095 </span>            : 
+<span class="lineNum">    1096 </span>            :         prev = NULL;
+<span class="lineNum">    1097 </span><span class="lineNoCov">          0 :         si = drawable-&gt;outline;</span>
+<span class="lineNum">    1098 </span><span class="lineNoCov">          0 :         while (si) {</span>
+<span class="lineNum">    1099 </span>            :                 /*note this includes default LP (NULL)*/
+<span class="lineNum">    1100 </span><span class="lineNoCov">          0 :                 if ((si-&gt;lineProps == lp) &amp;&amp; (!path || (path==si-&gt;original)) ) break;</span>
+<span class="lineNum">    1101 </span><span class="lineNoCov">          0 :                 if (!si-&gt;lineProps) {</span>
+<span class="lineNum">    1102 </span><span class="lineNoCov">          0 :                         gf_list_del_item(compositor-&gt;strike_bank, si);</span>
+<span class="lineNum">    1103 </span><span class="lineNoCov">          0 :                         if (si-&gt;outline) gf_path_del(si-&gt;outline);</span>
+<span class="lineNum">    1104 </span>            : #ifndef GPAC_DISABLE_3D
+<span class="lineNum">    1105 </span><span class="lineNoCov">          0 :                         if (si-&gt;mesh_outline) mesh_free(si-&gt;mesh_outline);</span>
+<span class="lineNum">    1106 </span>            : #endif
+<span class="lineNum">    1107 </span><span class="lineNoCov">          0 :                         if (prev) prev-&gt;next = si-&gt;next;</span>
+<span class="lineNum">    1108 </span><span class="lineNoCov">          0 :                         else drawable-&gt;outline = si-&gt;next;</span>
+<span class="lineNum">    1109 </span><span class="lineNoCov">          0 :                         gf_free(si);</span>
+<span class="lineNum">    1110 </span><span class="lineNoCov">          0 :                         si = prev ? prev-&gt;next : drawable-&gt;outline;</span>
+<span class="lineNum">    1111 </span><span class="lineNoCov">          0 :                         continue;</span>
+<span class="lineNum">    1112 </span>            :                 }
+<span class="lineNum">    1113 </span>            :                 prev = si;
+<span class="lineNum">    1114 </span><span class="lineNoCov">          0 :                 si = si-&gt;next;</span>
+<span class="lineNum">    1115 </span>            :         }
+<span class="lineNum">    1116 </span>            :         /*not found, add*/
+<span class="lineNum">    1117 </span><span class="lineNoCov">          0 :         if (!si) {</span>
+<span class="lineNum">    1118 </span><span class="lineNoCov">          0 :                 GF_SAFEALLOC(si, StrikeInfo2D);</span>
+<span class="lineNum">    1119 </span><span class="lineNoCov">          0 :                 if (!si) {</span>
+<span class="lineNum">    1120 </span><span class="lineNoCov">          0 :                         return NULL;</span>
+<span class="lineNum">    1121 </span>            :                 }
+<span class="lineNum">    1122 </span><span class="lineNoCov">          0 :                 si-&gt;lineProps = lp;</span>
+<span class="lineNum">    1123 </span><span class="lineNoCov">          0 :                 si-&gt;drawable = drawable;</span>
+<span class="lineNum">    1124 </span>            : 
+<span class="lineNum">    1125 </span><span class="lineNoCov">          0 :                 if (drawable-&gt;outline) {</span>
+<span class="lineNum">    1126 </span>            :                         prev = drawable-&gt;outline;
+<span class="lineNum">    1127 </span><span class="lineNoCov">          0 :                         while (prev-&gt;next) prev = prev-&gt;next;</span>
+<span class="lineNum">    1128 </span><span class="lineNoCov">          0 :                         prev-&gt;next = si;</span>
+<span class="lineNum">    1129 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">    1130 </span><span class="lineNoCov">          0 :                         drawable-&gt;outline = si;</span>
+<span class="lineNum">    1131 </span>            :                 }
+<span class="lineNum">    1132 </span><span class="lineNoCov">          0 :                 gf_list_add(compositor-&gt;strike_bank, si);</span>
+<span class="lineNum">    1133 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">    1134 </span>            : 
+<span class="lineNum">    1135 </span>            :         /*3D drawing of outlines*/
+<span class="lineNum">    1136 </span>            : #ifndef GPAC_DISABLE_3D
+<span class="lineNum">    1137 </span><span class="lineNoCov">          0 :         if (tr_state &amp;&amp; !asp-&gt;line_scale) {</span>
+<span class="lineNum">    1138 </span><span class="lineNoCov">          0 :                 drawable_compute_line_scale(tr_state, asp);</span>
+<span class="lineNum">    1139 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">    1140 </span>            : #endif
+<span class="lineNum">    1141 </span>            : 
+<span class="lineNum">    1142 </span>            :         /*picking*/
+<span class="lineNum">    1143 </span><span class="lineNoCov">          0 :         if (!asp-&gt;line_scale) return si;</span>
+<span class="lineNum">    1144 </span>            : 
+<span class="lineNum">    1145 </span>            :         /*node changed or outline not build*/
+<span class="lineNum">    1146 </span>            : #ifndef GPAC_DISABLE_VRML
+<span class="lineNum">    1147 </span><span class="lineNoCov">          0 :         dirty = lp ? drawable_lineprops_dirty(lp) : 0;</span>
+<span class="lineNum">    1148 </span>            : #else
+<span class="lineNum">    1149 </span>            :         dirty = 0;
+<span class="lineNum">    1150 </span>            : #endif
+<span class="lineNum">    1151 </span>            : 
+<span class="lineNum">    1152 </span><span class="lineNoCov">          0 :         if (!si-&gt;outline || dirty || (si-&gt;line_scale != asp-&gt;line_scale) || (si-&gt;path_length != asp-&gt;pen_props.path_length) || (svg_flags &amp; CTX_SVG_OUTLINE_GEOMETRY_DIRTY)) {</span>
+<span class="lineNum">    1153 </span>            :                 u32 i;
+<span class="lineNum">    1154 </span><span class="lineNoCov">          0 :                 Fixed w = asp-&gt;pen_props.width;</span>
+<span class="lineNum">    1155 </span><span class="lineNoCov">          0 :                 Fixed dash_o = asp-&gt;pen_props.dash_offset;</span>
+<span class="lineNum">    1156 </span><span class="lineNoCov">          0 :                 si-&gt;line_scale = asp-&gt;line_scale;</span>
+<span class="lineNum">    1157 </span><span class="lineNoCov">          0 :                 if (si-&gt;outline) gf_path_del(si-&gt;outline);</span>
+<span class="lineNum">    1158 </span>            : #ifndef GPAC_DISABLE_3D
+<span class="lineNum">    1159 </span><span class="lineNoCov">          0 :                 if (si-&gt;mesh_outline) {</span>
+<span class="lineNum">    1160 </span><span class="lineNoCov">          0 :                         mesh_free(si-&gt;mesh_outline);</span>
+<span class="lineNum">    1161 </span><span class="lineNoCov">          0 :                         si-&gt;mesh_outline = NULL;</span>
+<span class="lineNum">    1162 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">    1163 </span>            : #endif
+<span class="lineNum">    1164 </span>            :                 /*apply scale whether scalable or not (if not scalable, scale is still needed for scalable zoom)*/
+<span class="lineNum">    1165 </span><span class="lineNoCov">          0 :                 asp-&gt;pen_props.width = gf_mulfix(asp-&gt;pen_props.width, asp-&gt;line_scale);</span>
+<span class="lineNum">    1166 </span><span class="lineNoCov">          0 :                 if (asp-&gt;pen_props.dash != GF_DASH_STYLE_SVG)</span>
+<span class="lineNum">    1167 </span><span class="lineNoCov">          0 :                         asp-&gt;pen_props.dash_offset = gf_mulfix(asp-&gt;pen_props.dash_offset, asp-&gt;pen_props.width);</span>
+<span class="lineNum">    1168 </span>            : 
+<span class="lineNum">    1169 </span><span class="lineNoCov">          0 :                 if (asp-&gt;pen_props.dash_set) {</span>
+<span class="lineNum">    1170 </span><span class="lineNoCov">          0 :                         for(i=0; i&lt;asp-&gt;pen_props.dash_set-&gt;num_dash; i++) {</span>
+<span class="lineNum">    1171 </span><span class="lineNoCov">          0 :                                 asp-&gt;pen_props.dash_set-&gt;dashes[i] = gf_mulfix(asp-&gt;pen_props.dash_set-&gt;dashes[i], asp-&gt;line_scale);</span>
+<span class="lineNum">    1172 </span>            :                         }
+<span class="lineNum">    1173 </span>            :                 }
+<span class="lineNum">    1174 </span>            : 
+<span class="lineNum">    1175 </span><span class="lineNoCov">          0 :                 if (path) {</span>
+<span class="lineNum">    1176 </span><span class="lineNoCov">          0 :                         si-&gt;outline = gf_path_get_outline(path, asp-&gt;pen_props);</span>
+<span class="lineNum">    1177 </span><span class="lineNoCov">          0 :                         si-&gt;original = path;</span>
+<span class="lineNum">    1178 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">    1179 </span><span class="lineNoCov">          0 :                         si-&gt;outline = gf_path_get_outline(drawable-&gt;path, asp-&gt;pen_props);</span>
+<span class="lineNum">    1180 </span>            :                 }
+<span class="lineNum">    1181 </span>            :                 /*restore*/
+<span class="lineNum">    1182 </span><span class="lineNoCov">          0 :                 asp-&gt;pen_props.width = w;</span>
+<span class="lineNum">    1183 </span><span class="lineNoCov">          0 :                 asp-&gt;pen_props.dash_offset = dash_o;</span>
+<span class="lineNum">    1184 </span><span class="lineNoCov">          0 :                 if (asp-&gt;pen_props.dash_set) {</span>
+<span class="lineNum">    1185 </span><span class="lineNoCov">          0 :                         for(i=0; i&lt;asp-&gt;pen_props.dash_set-&gt;num_dash; i++) {</span>
+<span class="lineNum">    1186 </span><span class="lineNoCov">          0 :                                 asp-&gt;pen_props.dash_set-&gt;dashes[i] = gf_divfix(asp-&gt;pen_props.dash_set-&gt;dashes[i], asp-&gt;line_scale);</span>
+<span class="lineNum">    1187 </span>            :                         }
+<span class="lineNum">    1188 </span>            :                 }
+<span class="lineNum">    1189 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">    1190 </span>            : 
+<span class="lineNum">    1191 </span><span class="lineNoCov">          0 :         return si;</span>
+<a name="1192"><span class="lineNum">    1192 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">    1193 </span>            : 
+<span class="lineNum">    1194 </span>            : void drawable_reset_path_outline(Drawable *st)
+<span class="lineNum">    1195 </span>            : {
+<span class="lineNum">    1196 </span><span class="lineCov">         44 :         StrikeInfo2D *si = st-&gt;outline;</span>
+<span class="lineNum">    1197 </span><span class="lineCov">         44 :         while (si) {</span>
+<span class="lineNum">    1198 </span><span class="lineNoCov">          0 :                 if (si-&gt;outline) gf_path_del(si-&gt;outline);</span>
+<span class="lineNum">    1199 </span><span class="lineNoCov">          0 :                 si-&gt;outline = NULL;</span>
+<span class="lineNum">    1200 </span>            : #ifndef GPAC_DISABLE_3D
+<span class="lineNum">    1201 </span><span class="lineNoCov">          0 :                 if (si-&gt;mesh_outline) mesh_free(si-&gt;mesh_outline);</span>
+<span class="lineNum">    1202 </span><span class="lineNoCov">          0 :                 si-&gt;mesh_outline = NULL;</span>
+<span class="lineNum">    1203 </span>            : #endif
+<span class="lineNum">    1204 </span><span class="lineNoCov">          0 :                 si-&gt;original = NULL;</span>
+<span class="lineNum">    1205 </span><span class="lineNoCov">          0 :                 si = si-&gt;next;</span>
+<span class="lineNum">    1206 </span>            :         }
+<span class="lineNum">    1207 </span>            : #ifndef GPAC_DISABLE_3D
+<span class="lineNum">    1208 </span><span class="lineCov">         22 :         if (st-&gt;mesh) {</span>
+<span class="lineNum">    1209 </span><span class="lineNoCov">          0 :                 mesh_free(st-&gt;mesh);</span>
+<span class="lineNum">    1210 </span><span class="lineNoCov">          0 :                 st-&gt;mesh = NULL;</span>
+<span class="lineNum">    1211 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">    1212 </span>            : #endif
+<a name="1213"><span class="lineNum">    1213 </span><span class="lineCov">         22 : }</span></a>
+<span class="lineNum">    1214 </span>            : 
+<span class="lineNum">    1215 </span>            : void drawable_reset_path(Drawable *st)
+<span class="lineNum">    1216 </span>            : {
+<span class="lineNum">    1217 </span><span class="lineCov">         44 :         drawable_reset_path_outline(st);</span>
+<span class="lineNum">    1218 </span><span class="lineCov">         44 :         if (st-&gt;path) gf_path_reset(st-&gt;path);</span>
+<span class="lineNum">    1219 </span>            : #ifndef GPAC_DISABLE_3D
+<span class="lineNum">    1220 </span><span class="lineCov">         22 :         if (st-&gt;mesh) {</span>
+<span class="lineNum">    1221 </span><span class="lineNoCov">          0 :                 mesh_free(st-&gt;mesh);</span>
+<span class="lineNum">    1222 </span><span class="lineNoCov">          0 :                 st-&gt;mesh = NULL;</span>
+<span class="lineNum">    1223 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">    1224 </span>            : #endif
+<span class="lineNum">    1225 </span><span class="lineCov">         22 : }</span>
+<span class="lineNum">    1226 </span>            : 
+<a name="1227"><span class="lineNum">    1227 </span>            : #ifndef GPAC_DISABLE_VRML</a>
+<span class="lineNum">    1228 </span>            : 
+<span class="lineNum">    1229 </span>            : static void DestroyLineProps(GF_Node *n, void *rs, Bool is_destroy)
+<span class="lineNum">    1230 </span>            : {
+<span class="lineNum">    1231 </span>            :         StrikeInfo2D *si, *cur, *prev;
+<span class="lineNum">    1232 </span><span class="lineCov">          4 :         u32 i;</span>
+<span class="lineNum">    1233 </span>            :         LinePropStack *st;
+<span class="lineNum">    1234 </span><span class="lineCov">          2 :         if (!is_destroy) return;</span>
+<span class="lineNum">    1235 </span>            : 
+<span class="lineNum">    1236 </span><span class="lineCov">          2 :         st = (LinePropStack *)gf_node_get_private(n);</span>
+<span class="lineNum">    1237 </span><span class="lineCov">          2 :         i = 0;</span>
+<span class="lineNum">    1238 </span>            : 
+<span class="lineNum">    1239 </span><span class="lineCov">          4 :         while ((si = (StrikeInfo2D*)gf_list_enum(st-&gt;compositor-&gt;strike_bank, &amp;i))) {</span>
+<span class="lineNum">    1240 </span><span class="lineNoCov">          0 :                 if (si-&gt;lineProps == n) {</span>
+<span class="lineNum">    1241 </span>            :                         /*remove from node*/
+<span class="lineNum">    1242 </span><span class="lineNoCov">          0 :                         if (si-&gt;drawable) {</span>
+<span class="lineNum">    1243 </span>            :                                 assert(si-&gt;drawable-&gt;outline);
+<span class="lineNum">    1244 </span><span class="lineNoCov">          0 :                                 cur = si-&gt;drawable-&gt;outline;</span>
+<span class="lineNum">    1245 </span>            :                                 prev = NULL;
+<span class="lineNum">    1246 </span><span class="lineNoCov">          0 :                                 while (cur) {</span>
+<span class="lineNum">    1247 </span><span class="lineNoCov">          0 :                                         if (cur!=si) {</span>
+<span class="lineNum">    1248 </span>            :                                                 prev = cur;
+<span class="lineNum">    1249 </span><span class="lineNoCov">          0 :                                                 cur = cur-&gt;next;</span>
+<span class="lineNum">    1250 </span><span class="lineNoCov">          0 :                                                 continue;</span>
+<span class="lineNum">    1251 </span>            :                                         }
+<span class="lineNum">    1252 </span><span class="lineNoCov">          0 :                                         if (prev) prev-&gt;next = cur-&gt;next;</span>
+<span class="lineNum">    1253 </span><span class="lineNoCov">          0 :                                         else si-&gt;drawable-&gt;outline = cur-&gt;next;</span>
+<span class="lineNum">    1254 </span>            :                                         break;
+<span class="lineNum">    1255 </span>            :                                 }
+<span class="lineNum">    1256 </span>            :                         }
+<span class="lineNum">    1257 </span><span class="lineNoCov">          0 :                         i--;</span>
+<span class="lineNum">    1258 </span><span class="lineNoCov">          0 :                         gf_list_rem(st-&gt;compositor-&gt;strike_bank, i);</span>
+<span class="lineNum">    1259 </span><span class="lineNoCov">          0 :                         delete_strikeinfo2d(si);</span>
+<span class="lineNum">    1260 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">    1261 </span>            :         }
+<span class="lineNum">    1262 </span>            : 
+<span class="lineNum">    1263 </span><span class="lineCov">          2 :         gf_free(st);</span>
+<span class="lineNum">    1264 </span>            : 
+<a name="1265"><span class="lineNum">    1265 </span><span class="lineCov">          4 : }</span></a>
+<span class="lineNum">    1266 </span>            : 
+<span class="lineNum">    1267 </span>            : void compositor_init_lineprops(GF_Compositor *compositor, GF_Node *node)
+<span class="lineNum">    1268 </span>            : {
+<span class="lineNum">    1269 </span>            :         LinePropStack *st;
+<span class="lineNum">    1270 </span><span class="lineCov">          6 :         GF_SAFEALLOC(st, LinePropStack);</span>
+<span class="lineNum">    1271 </span><span class="lineCov">          2 :         if (!st) {</span>
+<span class="lineNum">    1272 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_COMPOSE, (&quot;[Compositor] Failed to allocate line properties stack\n&quot;));</span>
+<span class="lineNum">    1273 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">    1274 </span>            :         }
+<span class="lineNum">    1275 </span><span class="lineCov">          2 :         st-&gt;compositor = compositor;</span>
+<span class="lineNum">    1276 </span><span class="lineCov">          2 :         st-&gt;last_mod_time = 0;</span>
+<span class="lineNum">    1277 </span><span class="lineCov">          2 :         gf_node_set_private(node, st);</span>
+<span class="lineNum">    1278 </span><span class="lineCov">          2 :         gf_node_set_callback_function(node, DestroyLineProps);</span>
+<span class="lineNum">    1279 </span><span class="lineCov">          4 : }</span>
+<span class="lineNum">    1280 </span>            : 
+<span class="lineNum">    1281 </span>            : #endif /*GPAC_DISABLE_VRML*/
+<span class="lineNum">    1282 </span>            : 
+<span class="lineNum">    1283 </span>            : 
+<span class="lineNum">    1284 </span>            : #ifdef GPAC_DISABLE_SVG
+<span class="lineNum">    1285 </span>            : 
+<span class="lineNum">    1286 </span>            : Bool drawable_get_aspect_2d_svg(GF_Node *node, DrawAspect2D *asp, GF_TraverseState *tr_state)
+<span class="lineNum">    1287 </span>            : {
+<span class="lineNum">    1288 </span>            :         return 0;
+<span class="lineNum">    1289 </span>            : }
+<span class="lineNum">    1290 </span>            : 
+<a name="1291"><span class="lineNum">    1291 </span>            : #else</a>
+<span class="lineNum">    1292 </span>            : 
+<span class="lineNum">    1293 </span>            : Bool drawable_get_aspect_2d_svg(GF_Node *node, DrawAspect2D *asp, GF_TraverseState *tr_state)
+<span class="lineNum">    1294 </span>            : {
+<span class="lineNum">    1295 </span>            :         Bool ret = 0;
+<span class="lineNum">    1296 </span><span class="lineNoCov">          0 :         SVGPropertiesPointers *props = tr_state-&gt;svg_props;</span>
+<span class="lineNum">    1297 </span>            :         Fixed clamped_opacity = FIX_ONE;
+<span class="lineNum">    1298 </span>            :         Fixed clamped_solid_opacity = FIX_ONE;
+<span class="lineNum">    1299 </span><span class="lineNoCov">          0 :         Fixed clamped_fill_opacity = (props-&gt;fill_opacity-&gt;value &lt; 0 ? 0 : (props-&gt;fill_opacity-&gt;value &gt; FIX_ONE ? FIX_ONE : props-&gt;fill_opacity-&gt;value));</span>
+<span class="lineNum">    1300 </span><span class="lineNoCov">          0 :         Fixed clamped_stroke_opacity = (props-&gt;stroke_opacity-&gt;value &lt; 0 ? 0 : (props-&gt;stroke_opacity-&gt;value &gt; FIX_ONE ? FIX_ONE : props-&gt;stroke_opacity-&gt;value));</span>
+<span class="lineNum">    1301 </span>            : 
+<span class="lineNum">    1302 </span><span class="lineNoCov">          0 :         if (props-&gt;opacity) {</span>
+<span class="lineNum">    1303 </span><span class="lineNoCov">          0 :                 clamped_opacity = (props-&gt;opacity-&gt;value &lt; 0 ? 0 : (props-&gt;opacity-&gt;value &gt; FIX_ONE ? FIX_ONE : props-&gt;opacity-&gt;value));</span>
+<span class="lineNum">    1304 </span><span class="lineNoCov">          0 :                 if (clamped_opacity!=FIX_ONE) {</span>
+<span class="lineNum">    1305 </span><span class="lineNoCov">          0 :                         clamped_fill_opacity = gf_mulfix(clamped_fill_opacity, clamped_opacity);</span>
+<span class="lineNum">    1306 </span><span class="lineNoCov">          0 :                         clamped_stroke_opacity = gf_mulfix(clamped_stroke_opacity, clamped_opacity);</span>
+<span class="lineNum">    1307 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">    1308 </span>            :         }
+<span class="lineNum">    1309 </span><span class="lineNoCov">          0 :         asp-&gt;fill_color = 0;</span>
+<span class="lineNum">    1310 </span>            : 
+<span class="lineNum">    1311 </span><span class="lineNoCov">          0 :         if (props-&gt;fill-&gt;type==SVG_PAINT_URI) {</span>
+<span class="lineNum">    1312 </span><span class="lineNoCov">          0 :                 if (props-&gt;fill-&gt;iri.type != XMLRI_ELEMENTID) {</span>
+<span class="lineNum">    1313 </span>            :                         /* trying to resolve the IRI to the Paint Server */
+<span class="lineNum">    1314 </span>            :                         XMLRI *iri = &amp;props-&gt;fill-&gt;iri;
+<span class="lineNum">    1315 </span><span class="lineNoCov">          0 :                         GF_SceneGraph *sg = gf_node_get_graph(node);</span>
+<span class="lineNum">    1316 </span><span class="lineNoCov">          0 :                         GF_Node *n = gf_sg_find_node_by_name(sg, &amp;(iri-&gt;string[1]));</span>
+<span class="lineNum">    1317 </span><span class="lineNoCov">          0 :                         if (n) {</span>
+<span class="lineNum">    1318 </span><span class="lineNoCov">          0 :                                 iri-&gt;type = XMLRI_ELEMENTID;</span>
+<span class="lineNum">    1319 </span><span class="lineNoCov">          0 :                                 iri-&gt;target = n;</span>
+<span class="lineNum">    1320 </span><span class="lineNoCov">          0 :                                 gf_node_register_iri(sg, iri);</span>
+<span class="lineNum">    1321 </span><span class="lineNoCov">          0 :                                 gf_free(iri-&gt;string);</span>
+<span class="lineNum">    1322 </span><span class="lineNoCov">          0 :                                 iri-&gt;string = NULL;</span>
+<span class="lineNum">    1323 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">    1324 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">    1325 </span>            :                 /* If paint server not found, paint is equivalent to none */
+<span class="lineNum">    1326 </span><span class="lineNoCov">          0 :                 if (props-&gt;fill-&gt;iri.type == XMLRI_ELEMENTID) {</span>
+<span class="lineNum">    1327 </span><span class="lineNoCov">          0 :                         asp-&gt;fill_color = GF_COL_ARGB_FIXED(clamped_opacity, 0, 0, 0);</span>
+<span class="lineNum">    1328 </span><span class="lineNoCov">          0 :                         switch (gf_node_get_tag((GF_Node *)props-&gt;fill-&gt;iri.target)) {</span>
+<span class="lineNum">    1329 </span>            :                         case TAG_SVG_solidColor:
+<span class="lineNum">    1330 </span>            :                         {
+<span class="lineNum">    1331 </span><span class="lineNoCov">          0 :                                 SVGAllAttributes all_atts;</span>
+<span class="lineNum">    1332 </span><span class="lineNoCov">          0 :                                 gf_svg_flatten_attributes((SVG_Element*)props-&gt;fill-&gt;iri.target, &amp;all_atts);</span>
+<span class="lineNum">    1333 </span>            : 
+<span class="lineNum">    1334 </span><span class="lineNoCov">          0 :                                 gf_node_traverse(props-&gt;fill-&gt;iri.target, tr_state);</span>
+<span class="lineNum">    1335 </span>            : 
+<span class="lineNum">    1336 </span><span class="lineNoCov">          0 :                                 ret += compositor_svg_solid_color_dirty(tr_state-&gt;visual-&gt;compositor, props-&gt;fill-&gt;iri.target);</span>
+<span class="lineNum">    1337 </span>            : 
+<span class="lineNum">    1338 </span><span class="lineNoCov">          0 :                                 if (all_atts.solid_color) {</span>
+<span class="lineNum">    1339 </span><span class="lineNoCov">          0 :                                         if (all_atts.solid_opacity) {</span>
+<span class="lineNum">    1340 </span><span class="lineNoCov">          0 :                                                 Fixed val = all_atts.solid_opacity-&gt;value;</span>
+<span class="lineNum">    1341 </span><span class="lineNoCov">          0 :                                                 clamped_solid_opacity = MIN(FIX_ONE, MAX(0, val) );</span>
+<span class="lineNum">    1342 </span><span class="lineNoCov">          0 :                                                 clamped_solid_opacity = gf_mulfix(clamped_solid_opacity, clamped_opacity);</span>
+<span class="lineNum">    1343 </span><span class="lineNoCov">          0 :                                         }</span>
+<span class="lineNum">    1344 </span><span class="lineNoCov">          0 :                                         asp-&gt;fill_color = GF_COL_ARGB_FIXED(clamped_solid_opacity, all_atts.solid_color-&gt;color.red, all_atts.solid_color-&gt;color.green, all_atts.solid_color-&gt;color.blue);</span>
+<span class="lineNum">    1345 </span><span class="lineNoCov">          0 :                                 }</span>
+<span class="lineNum">    1346 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">    1347 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1348 </span>            :                         case TAG_SVG_linearGradient:
+<span class="lineNum">    1349 </span>            :                         case TAG_SVG_radialGradient:
+<span class="lineNum">    1350 </span><span class="lineNoCov">          0 :                                 asp-&gt;fill_texture = gf_sc_texture_get_handler((GF_Node *)props-&gt;fill-&gt;iri.target);</span>
+<span class="lineNum">    1351 </span><span class="lineNoCov">          0 :                                 break;</span>
+<span class="lineNum">    1352 </span>            :                         /*FIXME*/
+<span class="lineNum">    1353 </span>            :                         default:
+<span class="lineNum">    1354 </span>            :                                 break;
+<span class="lineNum">    1355 </span>            :                         }
+<span class="lineNum">    1356 </span>            :                 }
+<span class="lineNum">    1357 </span><span class="lineNoCov">          0 :         } else if (props-&gt;fill-&gt;type == SVG_PAINT_COLOR) {</span>
+<span class="lineNum">    1358 </span><span class="lineNoCov">          0 :                 if (props-&gt;fill-&gt;color.type == SVG_COLOR_CURRENTCOLOR) {</span>
+<span class="lineNum">    1359 </span><span class="lineNoCov">          0 :                         asp-&gt;fill_color = GF_COL_ARGB_FIXED(clamped_fill_opacity, props-&gt;color-&gt;color.red, props-&gt;color-&gt;color.green, props-&gt;color-&gt;color.blue);</span>
+<span class="lineNum">    1360 </span><span class="lineNoCov">          0 :                 } else if (props-&gt;fill-&gt;color.type == SVG_COLOR_RGBCOLOR) {</span>
+<span class="lineNum">    1361 </span><span class="lineNoCov">          0 :                         asp-&gt;fill_color = GF_COL_ARGB_FIXED(clamped_fill_opacity, props-&gt;fill-&gt;color.red, props-&gt;fill-&gt;color.green, props-&gt;fill-&gt;color.blue);</span>
+<span class="lineNum">    1362 </span><span class="lineNoCov">          0 :                 } else if (props-&gt;fill-&gt;color.type &gt;= SVG_COLOR_ACTIVE_BORDER) {</span>
+<span class="lineNum">    1363 </span><span class="lineNoCov">          0 :                         asp-&gt;fill_color = tr_state-&gt;visual-&gt;compositor-&gt;sys_colors[props-&gt;fill-&gt;color.type - 3];</span>
+<span class="lineNum">    1364 </span><span class="lineNoCov">          0 :                         asp-&gt;fill_color |= ((u32) (clamped_fill_opacity*255) ) &lt;&lt; 24;</span>
+<span class="lineNum">    1365 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">    1366 </span>            :         }
+<span class="lineNum">    1367 </span><span class="lineNoCov">          0 :         if (!tr_state-&gt;color_mat.identity)</span>
+<span class="lineNum">    1368 </span><span class="lineNoCov">          0 :                 asp-&gt;fill_color = gf_cmx_apply(&amp;tr_state-&gt;color_mat, asp-&gt;fill_color);</span>
+<span class="lineNum">    1369 </span>            : 
+<span class="lineNum">    1370 </span><span class="lineNoCov">          0 :         asp-&gt;line_color = 0;</span>
+<span class="lineNum">    1371 </span><span class="lineNoCov">          0 :         asp-&gt;pen_props.width = (props-&gt;stroke-&gt;type != SVG_PAINT_NONE) ? props-&gt;stroke_width-&gt;value : 0;</span>
+<span class="lineNum">    1372 </span><span class="lineNoCov">          0 :         if (props-&gt;stroke-&gt;type==SVG_PAINT_URI) {</span>
+<span class="lineNum">    1373 </span><span class="lineNoCov">          0 :                 if (props-&gt;stroke-&gt;iri.type != XMLRI_ELEMENTID) {</span>
+<span class="lineNum">    1374 </span>            :                         /* trying to resolve the IRI to the Paint Server */
+<span class="lineNum">    1375 </span>            :                         XMLRI *iri = &amp;props-&gt;stroke-&gt;iri;
+<span class="lineNum">    1376 </span><span class="lineNoCov">          0 :                         GF_SceneGraph *sg = gf_node_get_graph(node);</span>
+<span class="lineNum">    1377 </span><span class="lineNoCov">          0 :                         GF_Node *n = gf_sg_find_node_by_name(sg, &amp;(iri-&gt;string[1]));</span>
+<span class="lineNum">    1378 </span><span class="lineNoCov">          0 :                         if (n) {</span>
+<span class="lineNum">    1379 </span><span class="lineNoCov">          0 :                                 iri-&gt;type = XMLRI_ELEMENTID;</span>
+<span class="lineNum">    1380 </span><span class="lineNoCov">          0 :                                 iri-&gt;target = n;</span>
+<span class="lineNum">    1381 </span><span class="lineNoCov">          0 :                                 gf_node_register_iri(sg, iri);</span>
+<span class="lineNum">    1382 </span><span class="lineNoCov">          0 :                                 gf_free(iri-&gt;string);</span>
+<span class="lineNum">    1383 </span><span class="lineNoCov">          0 :                                 iri-&gt;string = NULL;</span>
+<span class="lineNum">    1384 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">    1385 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">    1386 </span>            :                 /* Paint server not found, stroke is equivalent to none */
+<span class="lineNum">    1387 </span><span class="lineNoCov">          0 :                 if ((props-&gt;stroke-&gt;iri.type == XMLRI_ELEMENTID) &amp;&amp; props-&gt;stroke-&gt;iri.target) {</span>
+<span class="lineNum">    1388 </span><span class="lineNoCov">          0 :                         switch (gf_node_get_tag((GF_Node *)props-&gt;stroke-&gt;iri.target)) {</span>
+<span class="lineNum">    1389 </span>            :                         case TAG_SVG_solidColor:
+<span class="lineNum">    1390 </span>            :                         {
+<span class="lineNum">    1391 </span><span class="lineNoCov">          0 :                                 SVGAllAttributes all_atts;</span>
+<span class="lineNum">    1392 </span><span class="lineNoCov">          0 :                                 gf_svg_flatten_attributes((SVG_Element*)props-&gt;stroke-&gt;iri.target, &amp;all_atts);</span>
+<span class="lineNum">    1393 </span>            : 
+<span class="lineNum">    1394 </span><span class="lineNoCov">          0 :                                 gf_node_traverse(props-&gt;stroke-&gt;iri.target, tr_state);</span>
+<span class="lineNum">    1395 </span>            : 
+<span class="lineNum">    1396 </span><span class="lineNoCov">          0 :                                 ret += compositor_svg_solid_color_dirty(tr_state-&gt;visual-&gt;compositor, props-&gt;stroke-&gt;iri.target);</span>
+<span class="lineNum">    1397 </span>            : 
+<span class="lineNum">    1398 </span><span class="lineNoCov">          0 :                                 if (all_atts.solid_color) {</span>
+<span class="lineNum">    1399 </span><span class="lineNoCov">          0 :                                         if (all_atts.solid_opacity) {</span>
+<span class="lineNum">    1400 </span><span class="lineNoCov">          0 :                                                 Fixed val = all_atts.solid_opacity-&gt;value;</span>
+<span class="lineNum">    1401 </span><span class="lineNoCov">          0 :                                                 clamped_solid_opacity = MIN(FIX_ONE, MAX(0, val) );</span>
+<span class="lineNum">    1402 </span><span class="lineNoCov">          0 :                                         }</span>
+<span class="lineNum">    1403 </span><span class="lineNoCov">          0 :                                         asp-&gt;line_color = GF_COL_ARGB_FIXED(clamped_solid_opacity, all_atts.solid_color-&gt;color.red, all_atts.solid_color-&gt;color.green, all_atts.solid_color-&gt;color.blue);</span>
+<span class="lineNum">    1404 </span><span class="lineNoCov">          0 :                                 }</span>
+<span class="lineNum">    1405 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">    1406 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1407 </span>            :                         case TAG_SVG_linearGradient:
+<span class="lineNum">    1408 </span>            :                         case TAG_SVG_radialGradient:
+<span class="lineNum">    1409 </span><span class="lineNoCov">          0 :                                 asp-&gt;line_texture = gf_sc_texture_get_handler((GF_Node *)props-&gt;stroke-&gt;iri.target);</span>
+<span class="lineNum">    1410 </span><span class="lineNoCov">          0 :                                 break;</span>
+<span class="lineNum">    1411 </span>            :                         default:
+<span class="lineNum">    1412 </span>            :                                 break;
+<span class="lineNum">    1413 </span>            :                         }
+<span class="lineNum">    1414 </span>            :                 }
+<span class="lineNum">    1415 </span><span class="lineNoCov">          0 :         } else if (props-&gt;stroke-&gt;type == SVG_PAINT_COLOR) {</span>
+<span class="lineNum">    1416 </span><span class="lineNoCov">          0 :                 if (props-&gt;stroke-&gt;color.type == SVG_COLOR_CURRENTCOLOR) {</span>
+<span class="lineNum">    1417 </span><span class="lineNoCov">          0 :                         asp-&gt;line_color = GF_COL_ARGB_FIXED(clamped_stroke_opacity, props-&gt;color-&gt;color.red, props-&gt;color-&gt;color.green, props-&gt;color-&gt;color.blue);</span>
+<span class="lineNum">    1418 </span><span class="lineNoCov">          0 :                 } else if (props-&gt;stroke-&gt;color.type == SVG_COLOR_RGBCOLOR) {</span>
+<span class="lineNum">    1419 </span><span class="lineNoCov">          0 :                         asp-&gt;line_color = GF_COL_ARGB_FIXED(clamped_stroke_opacity, props-&gt;stroke-&gt;color.red, props-&gt;stroke-&gt;color.green, props-&gt;stroke-&gt;color.blue);</span>
+<span class="lineNum">    1420 </span><span class="lineNoCov">          0 :                 } else if (props-&gt;stroke-&gt;color.type &gt;= SVG_COLOR_ACTIVE_BORDER) {</span>
+<span class="lineNum">    1421 </span><span class="lineNoCov">          0 :                         asp-&gt;line_color = tr_state-&gt;visual-&gt;compositor-&gt;sys_colors[SVG_COLOR_ACTIVE_BORDER - 3];</span>
+<span class="lineNum">    1422 </span><span class="lineNoCov">          0 :                         asp-&gt;line_color |= ((u32) (clamped_stroke_opacity*255)) &lt;&lt; 24;</span>
+<span class="lineNum">    1423 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">    1424 </span>            :         }
+<span class="lineNum">    1425 </span><span class="lineNoCov">          0 :         if (!tr_state-&gt;color_mat.identity)</span>
+<span class="lineNum">    1426 </span><span class="lineNoCov">          0 :                 asp-&gt;line_color = gf_cmx_apply(&amp;tr_state-&gt;color_mat, asp-&gt;line_color);</span>
+<span class="lineNum">    1427 </span>            : 
+<span class="lineNum">    1428 </span><span class="lineNoCov">          0 :         if (props-&gt;stroke_dasharray-&gt;type != SVG_STROKEDASHARRAY_NONE) {</span>
+<span class="lineNum">    1429 </span><span class="lineNoCov">          0 :                 asp-&gt;pen_props.dash = GF_DASH_STYLE_SVG;</span>
+<span class="lineNum">    1430 </span><span class="lineNoCov">          0 :                 asp-&gt;pen_props.dash_offset = props-&gt;stroke_dashoffset-&gt;value;</span>
+<span class="lineNum">    1431 </span><span class="lineNoCov">          0 :                 asp-&gt;pen_props.dash_set = (GF_DashSettings *) &amp;(props-&gt;stroke_dasharray-&gt;array);</span>
+<span class="lineNum">    1432 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">    1433 </span><span class="lineNoCov">          0 :         asp-&gt;line_scale = (props-&gt;vector_effect &amp;&amp; (*props-&gt;vector_effect == SVG_VECTOREFFECT_NONSCALINGSTROKE)) ? 0 : FIX_ONE;</span>
+<span class="lineNum">    1434 </span>            : 
+<span class="lineNum">    1435 </span><span class="lineNoCov">          0 :         asp-&gt;pen_props.cap = (u8) *props-&gt;stroke_linecap;</span>
+<span class="lineNum">    1436 </span><span class="lineNoCov">          0 :         asp-&gt;pen_props.join = (u8) *props-&gt;stroke_linejoin;</span>
+<span class="lineNum">    1437 </span><span class="lineNoCov">          0 :         asp-&gt;pen_props.miterLimit = props-&gt;stroke_miterlimit-&gt;value;</span>
+<span class="lineNum">    1438 </span>            : 
+<span class="lineNum">    1439 </span><span class="lineNoCov">          0 :         if (!tr_state-&gt;color_mat.identity) {</span>
+<span class="lineNum">    1440 </span><span class="lineNoCov">          0 :                 asp-&gt;fill_color = gf_cmx_apply(&amp;tr_state-&gt;color_mat, asp-&gt;fill_color);</span>
+<span class="lineNum">    1441 </span><span class="lineNoCov">          0 :                 asp-&gt;line_color = gf_cmx_apply(&amp;tr_state-&gt;color_mat, asp-&gt;line_color);</span>
+<span class="lineNum">    1442 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">    1443 </span><span class="lineNoCov">          0 :         return ret;</span>
+<a name="1444"><span class="lineNum">    1444 </span>            : }</a>
+<span class="lineNum">    1445 </span>            : 
+<span class="lineNum">    1446 </span>            : static Bool svg_appearance_flag_dirty(u32 flags)
+<span class="lineNum">    1447 </span>            : {
+<span class="lineNum">    1448 </span>            : #if 1
+<span class="lineNum">    1449 </span>            :         /* fill-related */
+<span class="lineNum">    1450 </span><span class="lineNoCov">          0 :         if (flags &amp; GF_SG_SVG_FILL_DIRTY)                           return 1;</span>
+<span class="lineNum">    1451 </span><span class="lineNoCov">          0 :         if (flags &amp; GF_SG_SVG_FILLOPACITY_DIRTY)            return 1;</span>
+<span class="lineNum">    1452 </span><span class="lineNoCov">          0 :         if (flags &amp; GF_SG_SVG_FILLRULE_DIRTY)                       return 1;</span>
+<span class="lineNum">    1453 </span>            : 
+<span class="lineNum">    1454 </span>            :         /* stroke-related */
+<span class="lineNum">    1455 </span><span class="lineNoCov">          0 :         if (flags &amp; GF_SG_SVG_STROKE_DIRTY)                         return 1;</span>
+<span class="lineNum">    1456 </span><span class="lineNoCov">          0 :         if (flags &amp; GF_SG_SVG_STROKEDASHARRAY_DIRTY)        return 1;</span>
+<span class="lineNum">    1457 </span><span class="lineNoCov">          0 :         if (flags &amp; GF_SG_SVG_STROKEDASHOFFSET_DIRTY)       return 1;</span>
+<span class="lineNum">    1458 </span><span class="lineNoCov">          0 :         if (flags &amp; GF_SG_SVG_STROKELINECAP_DIRTY)          return 1;</span>
+<span class="lineNum">    1459 </span><span class="lineNoCov">          0 :         if (flags &amp; GF_SG_SVG_STROKELINEJOIN_DIRTY)         return 1;</span>
+<span class="lineNum">    1460 </span><span class="lineNoCov">          0 :         if (flags &amp; GF_SG_SVG_STROKEMITERLIMIT_DIRTY)       return 1;</span>
+<span class="lineNum">    1461 </span><span class="lineNoCov">          0 :         if (flags &amp; GF_SG_SVG_STROKEOPACITY_DIRTY)          return 1;</span>
+<span class="lineNum">    1462 </span><span class="lineNoCov">          0 :         if (flags &amp; GF_SG_SVG_STROKEWIDTH_DIRTY)            return 1;</span>
+<span class="lineNum">    1463 </span><span class="lineNoCov">          0 :         if (flags &amp; GF_SG_SVG_VECTOREFFECT_DIRTY)           return 1;</span>
+<span class="lineNum">    1464 </span>            : 
+<span class="lineNum">    1465 </span>            :         /* gradients stops and solidcolor do not affect appearance directly */
+<span class="lineNum">    1466 </span><span class="lineNoCov">          0 :         return 0;</span>
+<span class="lineNum">    1467 </span>            : #else
+<span class="lineNum">    1468 </span>            :         if (flags &amp;
+<span class="lineNum">    1469 </span>            :                 (GF_SG_SVG_FILL_DIRTY | GF_SG_SVG_FILLOPACITY_DIRTY | GF_SG_SVG_FILLRULE_DIRTY
+<span class="lineNum">    1470 </span>            :                  | GF_SG_SVG_STROKE_DIRTY | GF_SG_SVG_STROKEDASHARRAY_DIRTY
+<span class="lineNum">    1471 </span>            :                  | GF_SG_SVG_STROKEDASHOFFSET_DIRTY | GF_SG_SVG_STROKELINECAP_DIRTY
+<span class="lineNum">    1472 </span>            :                  | GF_SG_SVG_STROKELINEJOIN_DIRTY | GF_SG_SVG_STROKEMITERLIMIT_DIRTY
+<span class="lineNum">    1473 </span>            :                  | GF_SG_SVG_STROKEOPACITY_DIRTY | GF_SG_SVG_STROKEWIDTH_DIRTY
+<span class="lineNum">    1474 </span>            :                  | GF_SG_SVG_VECTOREFFECT_DIRTY) )
+<span class="lineNum">    1475 </span>            :                 return 1;
+<span class="lineNum">    1476 </span>            :         return 0;
+<span class="lineNum">    1477 </span>            : #endif
+<a name="1478"><span class="lineNum">    1478 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">    1479 </span>            : 
+<span class="lineNum">    1480 </span>            : DrawableContext *drawable_init_context_svg(Drawable *drawable, GF_TraverseState *tr_state)
+<span class="lineNum">    1481 </span>            : {
+<span class="lineNum">    1482 </span>            :         DrawableContext *ctx;
+<span class="lineNum">    1483 </span>            :         assert(tr_state-&gt;visual);
+<span class="lineNum">    1484 </span>            : 
+<span class="lineNum">    1485 </span>            : #ifndef GPAC_DISABLE_VRML
+<span class="lineNum">    1486 </span>            :         /*setup SVG based on override appearance node */
+<span class="lineNum">    1487 </span><span class="lineNoCov">          0 :         if (tr_state-&gt;override_appearance) {</span>
+<span class="lineNum">    1488 </span><span class="lineNoCov">          0 :                 return drawable_init_context_mpeg4(drawable, tr_state);</span>
+<span class="lineNum">    1489 </span>            :         }
+<span class="lineNum">    1490 </span>            : #endif
+<span class="lineNum">    1491 </span>            : 
+<span class="lineNum">    1492 </span>            :         /*switched-off geometry nodes are not drawn*/
+<span class="lineNum">    1493 </span><span class="lineNoCov">          0 :         if (tr_state-&gt;switched_off) return NULL;</span>
+<span class="lineNum">    1494 </span>            : 
+<span class="lineNum">    1495 </span>            :         //Get a empty context from the current visual
+<span class="lineNum">    1496 </span><span class="lineNoCov">          0 :         ctx = visual_2d_get_drawable_context(tr_state-&gt;visual);</span>
+<span class="lineNum">    1497 </span><span class="lineNoCov">          0 :         if (!ctx) return NULL;</span>
+<span class="lineNum">    1498 </span>            : 
+<span class="lineNum">    1499 </span><span class="lineNoCov">          0 :         gf_mx2d_copy(ctx-&gt;transform, tr_state-&gt;transform);</span>
+<span class="lineNum">    1500 </span>            : 
+<span class="lineNum">    1501 </span><span class="lineNoCov">          0 :         ctx-&gt;drawable = drawable;</span>
+<span class="lineNum">    1502 </span>            : 
+<span class="lineNum">    1503 </span><span class="lineNoCov">          0 :         if (tr_state-&gt;invalidate_all || svg_appearance_flag_dirty(tr_state-&gt;svg_flags)) {</span>
+<span class="lineNum">    1504 </span><span class="lineNoCov">          0 :                 ctx-&gt;flags |= CTX_APP_DIRTY;</span>
+<span class="lineNum">    1505 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_DEBUG, GF_LOG_COMPOSE, (&quot;Node %s dirty - invalidating\n&quot;, gf_node_get_log_name(drawable-&gt;node) ));</span>
+<span class="lineNum">    1506 </span>            :         }
+<span class="lineNum">    1507 </span><span class="lineNoCov">          0 :         if (tr_state-&gt;svg_flags &amp; (GF_SG_SVG_STROKEDASHARRAY_DIRTY |</span>
+<span class="lineNum">    1508 </span>            :                                    GF_SG_SVG_STROKEDASHOFFSET_DIRTY |
+<span class="lineNum">    1509 </span>            :                                    GF_SG_SVG_STROKELINECAP_DIRTY |
+<span class="lineNum">    1510 </span>            :                                    GF_SG_SVG_STROKELINEJOIN_DIRTY |
+<span class="lineNum">    1511 </span>            :                                    GF_SG_SVG_STROKEMITERLIMIT_DIRTY |
+<span class="lineNum">    1512 </span>            :                                    GF_SG_SVG_STROKEWIDTH_DIRTY |
+<span class="lineNum">    1513 </span>            :                                    GF_SG_SVG_VECTOREFFECT_DIRTY ))
+<span class="lineNum">    1514 </span><span class="lineNoCov">          0 :                 ctx-&gt;flags |= CTX_SVG_OUTLINE_GEOMETRY_DIRTY;</span>
+<span class="lineNum">    1515 </span>            : 
+<span class="lineNum">    1516 </span><span class="lineNoCov">          0 :         ctx-&gt;aspect.fill_texture = NULL;</span>
+<span class="lineNum">    1517 </span>            : 
+<span class="lineNum">    1518 </span>            :         /*FIXME - only needed for texture*/
+<span class="lineNum">    1519 </span><span class="lineNoCov">          0 :         if (!tr_state-&gt;color_mat.identity) {</span>
+<span class="lineNum">    1520 </span><span class="lineNoCov">          0 :                 GF_SAFEALLOC(ctx-&gt;col_mat, GF_ColorMatrix);</span>
+<span class="lineNum">    1521 </span><span class="lineNoCov">          0 :                 gf_cmx_copy(ctx-&gt;col_mat, &amp;tr_state-&gt;color_mat);</span>
+<span class="lineNum">    1522 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">    1523 </span>            : 
+<span class="lineNum">    1524 </span><span class="lineNoCov">          0 :         switch (gf_node_get_tag(ctx-&gt;drawable-&gt;node) ) {</span>
+<span class="lineNum">    1525 </span>            :         case TAG_SVG_image:
+<span class="lineNum">    1526 </span>            :         case TAG_SVG_video:
+<span class="lineNum">    1527 </span><span class="lineNoCov">          0 :                 ctx-&gt;aspect.fill_texture = gf_sc_texture_get_handler(ctx-&gt;drawable-&gt;node);</span>
+<span class="lineNum">    1528 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">    1529 </span>            :         case TAG_SVG_line:
+<span class="lineNum">    1530 </span>            :         case TAG_SVG_polyline:
+<span class="lineNum">    1531 </span>            :                 break;
+<span class="lineNum">    1532 </span>            :         default:
+<span class="lineNum">    1533 </span>            :                 break;
+<span class="lineNum">    1534 </span>            :         }
+<span class="lineNum">    1535 </span>            : 
+<span class="lineNum">    1536 </span><span class="lineNoCov">          0 :         if (drawable_get_aspect_2d_svg(drawable-&gt;node, &amp;ctx-&gt;aspect, tr_state))</span>
+<span class="lineNum">    1537 </span><span class="lineNoCov">          0 :                 ctx-&gt;flags |= CTX_APP_DIRTY;</span>
+<span class="lineNum">    1538 </span>            : 
+<span class="lineNum">    1539 </span><span class="lineNoCov">          0 :         if (ctx-&gt;drawable-&gt;path) {</span>
+<span class="lineNum">    1540 </span><span class="lineNoCov">          0 :                 if (*tr_state-&gt;svg_props-&gt;fill_rule == SVG_FILLRULE_NONZERO) {</span>
+<span class="lineNum">    1541 </span><span class="lineNoCov">          0 :                         ctx-&gt;drawable-&gt;path-&gt;flags |= GF_PATH_FILL_ZERO_NONZERO;</span>
+<span class="lineNum">    1542 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">    1543 </span><span class="lineNoCov">          0 :                         ctx-&gt;drawable-&gt;path-&gt;flags &amp;= ~GF_PATH_FILL_ZERO_NONZERO;</span>
+<span class="lineNum">    1544 </span>            :                 }
+<span class="lineNum">    1545 </span>            :         }
+<span class="lineNum">    1546 </span>            : 
+<span class="lineNum">    1547 </span><span class="lineNoCov">          0 :         drawable_check_texture_dirty(ctx, drawable, tr_state);</span>
+<span class="lineNum">    1548 </span>            : 
+<span class="lineNum">    1549 </span>            :         /*we are drawing on a centered coord surface, remember to flip the texture*/
+<span class="lineNum">    1550 </span><span class="lineNoCov">          0 :         if (tr_state-&gt;fliped_coords)</span>
+<span class="lineNum">    1551 </span><span class="lineNoCov">          0 :                 ctx-&gt;flags |= CTX_FLIPED_COORDS;</span>
+<span class="lineNum">    1552 </span>            : 
+<span class="lineNum">    1553 </span>            : 
+<span class="lineNum">    1554 </span>            : #ifdef GF_SR_USE_DEPTH
+<span class="lineNum">    1555 </span><span class="lineNoCov">          0 :         ctx-&gt;depth_gain=tr_state-&gt;depth_gain;</span>
+<span class="lineNum">    1556 </span><span class="lineNoCov">          0 :         ctx-&gt;depth_offset=tr_state-&gt;depth_offset;</span>
+<span class="lineNum">    1557 </span>            : #endif
+<span class="lineNum">    1558 </span>            : 
+<span class="lineNum">    1559 </span><span class="lineNoCov">          0 :         return ctx;</span>
+<span class="lineNum">    1560 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">    1561 </span>            : 
+<span class="lineNum">    1562 </span>            : 
+<span class="lineNum">    1563 </span>            : 
+<span class="lineNum">    1564 </span>            : #endif  //SVG
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

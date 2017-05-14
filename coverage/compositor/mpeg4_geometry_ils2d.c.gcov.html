@@ -1,0 +1,389 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - compositor/mpeg4_geometry_ils2d.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">compositor</a> - mpeg4_geometry_ils2d.c<span style="font-size: 80%;"> (source / <a href="mpeg4_geometry_ils2d.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">174</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-05-14 22:31:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *                      GPAC - Multimedia Framework C SDK
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *                      Authors: Jean Le Feuvre
+<span class="lineNum">       5 </span>            :  *                      Copyright (c) Telecom ParisTech 2000-2012
+<span class="lineNum">       6 </span>            :  *                                      All rights reserved
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  *  This file is part of GPAC / Scene Compositor sub-project
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  *  GPAC is free software; you can redistribute it and/or modify
+<span class="lineNum">      11 </span>            :  *  it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">      12 </span>            :  *  the Free Software Foundation; either version 2, or (at your option)
+<span class="lineNum">      13 </span>            :  *  any later version.
+<span class="lineNum">      14 </span>            :  *
+<span class="lineNum">      15 </span>            :  *  GPAC is distributed in the hope that it will be useful,
+<span class="lineNum">      16 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      17 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      18 </span>            :  *  GNU Lesser General Public License for more details.
+<span class="lineNum">      19 </span>            :  *
+<span class="lineNum">      20 </span>            :  *  You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      21 </span>            :  *  License along with this library; see the file COPYING.  If not, write to
+<span class="lineNum">      22 </span>            :  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+<span class="lineNum">      23 </span>            :  *
+<span class="lineNum">      24 </span>            :  */
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : 
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span>            : #include &quot;nodes_stacks.h&quot;
+<span class="lineNum">      29 </span>            : #include &quot;visual_manager.h&quot;
+<span class="lineNum">      30 </span>            : 
+<a name="31"><span class="lineNum">      31 </span>            : #ifndef GPAC_DISABLE_VRML</a>
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span>            : static void ils2d_check_changes(GF_Node *node, Drawable *stack, GF_TraverseState *tr_state)
+<span class="lineNum">      34 </span>            : {
+<span class="lineNum">      35 </span>            :         u32 i;
+<span class="lineNum">      36 </span>            :         Bool started;
+<span class="lineNum">      37 </span>            :         SFVec2f *pts;
+<span class="lineNum">      38 </span>            :         M_IndexedLineSet2D *ils2D;
+<span class="lineNum">      39 </span>            :         M_Coordinate2D *coord;
+<span class="lineNum">      40 </span>            : 
+<span class="lineNum">      41 </span><span class="lineNoCov">          0 :         if (! gf_node_dirty_get(node)) return;</span>
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span><span class="lineNoCov">          0 :         drawable_reset_path(stack);</span>
+<span class="lineNum">      44 </span><span class="lineNoCov">          0 :         gf_node_dirty_clear(node, 0);</span>
+<span class="lineNum">      45 </span><span class="lineNoCov">          0 :         drawable_mark_modified(stack, tr_state);</span>
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span><span class="lineNoCov">          0 :         ils2D = (M_IndexedLineSet2D *)node;</span>
+<span class="lineNum">      48 </span><span class="lineNoCov">          0 :         coord = (M_Coordinate2D *)ils2D-&gt;coord;</span>
+<span class="lineNum">      49 </span>            : 
+<span class="lineNum">      50 </span><span class="lineNoCov">          0 :         pts = coord-&gt;point.vals;</span>
+<span class="lineNum">      51 </span><span class="lineNoCov">          0 :         if (ils2D-&gt;coordIndex.count &gt; 0) {</span>
+<span class="lineNum">      52 </span>            :                 started = 0;
+<span class="lineNum">      53 </span><span class="lineNoCov">          0 :                 for (i=0; i &lt; ils2D-&gt;coordIndex.count; i++) {</span>
+<span class="lineNum">      54 </span>            :                         /*NO close on ILS2D*/
+<span class="lineNum">      55 </span><span class="lineNoCov">          0 :                         if (ils2D-&gt;coordIndex.vals[i] == -1) {</span>
+<span class="lineNum">      56 </span>            :                                 started = 0;
+<span class="lineNum">      57 </span><span class="lineNoCov">          0 :                         } else if (!started) {</span>
+<span class="lineNum">      58 </span>            :                                 started = 1;
+<span class="lineNum">      59 </span><span class="lineNoCov">          0 :                                 gf_path_add_move_to(stack-&gt;path, pts[ils2D-&gt;coordIndex.vals[i]].x, pts[ils2D-&gt;coordIndex.vals[i]].y);</span>
+<span class="lineNum">      60 </span><span class="lineNoCov">          0 :                         } else {</span>
+<span class="lineNum">      61 </span><span class="lineNoCov">          0 :                                 gf_path_add_line_to(stack-&gt;path, pts[ils2D-&gt;coordIndex.vals[i]].x, pts[ils2D-&gt;coordIndex.vals[i]].y);</span>
+<span class="lineNum">      62 </span>            :                         }
+<span class="lineNum">      63 </span>            :                 }
+<span class="lineNum">      64 </span><span class="lineNoCov">          0 :         } else if (coord-&gt;point.count) {</span>
+<span class="lineNum">      65 </span><span class="lineNoCov">          0 :                 gf_path_add_move_to(stack-&gt;path, pts[0].x, pts[0].y);</span>
+<span class="lineNum">      66 </span><span class="lineNoCov">          0 :                 for (i=1; i &lt; coord-&gt;point.count; i++) {</span>
+<span class="lineNum">      67 </span><span class="lineNoCov">          0 :                         gf_path_add_line_to(stack-&gt;path, pts[i].x, pts[i].y);</span>
+<span class="lineNum">      68 </span>            :                 }
+<span class="lineNum">      69 </span>            :         }
+<span class="lineNum">      70 </span><span class="lineNoCov">          0 :         stack-&gt;path-&gt;flags |= GF_PATH_FILL_ZERO_NONZERO;</span>
+<a name="71"><span class="lineNum">      71 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      72 </span>            : 
+<span class="lineNum">      73 </span>            : static void ILS2D_Draw(GF_Node *node, GF_TraverseState *tr_state)
+<span class="lineNum">      74 </span>            : {
+<span class="lineNum">      75 </span>            :         GF_Path *path;
+<span class="lineNum">      76 </span>            :         SFVec2f *pts;
+<span class="lineNum">      77 </span>            :         SFColor col;
+<span class="lineNum">      78 </span>            :         Fixed alpha;
+<span class="lineNum">      79 </span>            :         u32 i, count, col_ind, ind, end_at;
+<span class="lineNum">      80 </span><span class="lineNoCov">          0 :         u32 linear[2], *colors;</span>
+<span class="lineNum">      81 </span>            :         SFVec2f start, end;
+<span class="lineNum">      82 </span>            :         u32 j, num_col;
+<span class="lineNum">      83 </span>            :         GF_STENCIL grad;
+<span class="lineNum">      84 </span>            :         GF_Raster2D *raster;
+<span class="lineNum">      85 </span><span class="lineNoCov">          0 :         DrawableContext *ctx = tr_state-&gt;ctx;</span>
+<span class="lineNum">      86 </span><span class="lineNoCov">          0 :         M_IndexedLineSet2D *ils2D = (M_IndexedLineSet2D *)node;</span>
+<span class="lineNum">      87 </span><span class="lineNoCov">          0 :         M_Coordinate2D *coord = (M_Coordinate2D*) ils2D-&gt;coord;</span>
+<span class="lineNum">      88 </span><span class="lineNoCov">          0 :         M_Color *color = (M_Color *) ils2D-&gt;color;</span>
+<span class="lineNum">      89 </span>            : 
+<span class="lineNum">      90 </span>            :         end.x = end.y = 0;
+<span class="lineNum">      91 </span><span class="lineNoCov">          0 :         if (!coord-&gt;point.count) return;</span>
+<span class="lineNum">      92 </span>            : 
+<span class="lineNum">      93 </span><span class="lineNoCov">          0 :         if (! ils2D-&gt;color) {</span>
+<span class="lineNum">      94 </span>            :                 /*no texturing*/
+<span class="lineNum">      95 </span><span class="lineNoCov">          0 :                 visual_2d_draw_path(tr_state-&gt;visual, ctx-&gt;drawable-&gt;path, ctx, NULL, NULL, tr_state);</span>
+<span class="lineNum">      96 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">      97 </span>            :         }
+<span class="lineNum">      98 </span>            : 
+<span class="lineNum">      99 </span><span class="lineNoCov">          0 :         alpha = INT2FIX(GF_COL_A(ctx-&gt;aspect.line_color)) / 255;</span>
+<span class="lineNum">     100 </span><span class="lineNoCov">          0 :         pts = coord-&gt;point.vals;</span>
+<span class="lineNum">     101 </span>            : 
+<span class="lineNum">     102 </span><span class="lineNoCov">          0 :         if (!ils2D-&gt;colorPerVertex || (color-&gt;color.count&lt;2) ) {</span>
+<span class="lineNum">     103 </span>            :                 count = 0;
+<span class="lineNum">     104 </span><span class="lineNoCov">          0 :                 end_at = ils2D-&gt;coordIndex.count;</span>
+<span class="lineNum">     105 </span><span class="lineNoCov">          0 :                 if (!end_at) end_at = coord-&gt;point.count;</span>
+<span class="lineNum">     106 </span><span class="lineNoCov">          0 :                 ind = ils2D-&gt;coordIndex.count ? ils2D-&gt;coordIndex.vals[0] : 0;</span>
+<span class="lineNum">     107 </span>            :                 i=1;
+<span class="lineNum">     108 </span><span class="lineNoCov">          0 :                 path = gf_path_new();</span>
+<span class="lineNum">     109 </span><span class="lineNoCov">          0 :                 gf_path_add_move_to(path, pts[ind].x, pts[ind].y);</span>
+<span class="lineNum">     110 </span>            : 
+<span class="lineNum">     111 </span><span class="lineNoCov">          0 :                 for (; i&lt;=end_at; i++) {</span>
+<span class="lineNum">     112 </span><span class="lineNoCov">          0 :                         if ((i==end_at) || (ils2D-&gt;coordIndex.count &amp;&amp; ils2D-&gt;coordIndex.vals[i] == -1)) {</span>
+<span class="lineNum">     113 </span>            : 
+<span class="lineNum">     114 </span>            :                                 /*draw current*/
+<span class="lineNum">     115 </span><span class="lineNoCov">          0 :                                 col_ind = (ils2D-&gt;colorIndex.count &amp;&amp; (ils2D-&gt;colorIndex.vals[count]&gt;=0) ) ? (u32) ils2D-&gt;colorIndex.vals[count] : count;</span>
+<span class="lineNum">     116 </span><span class="lineNoCov">          0 :                                 if (col_ind&gt;=color-&gt;color.count) col_ind=color-&gt;color.count-1;</span>
+<span class="lineNum">     117 </span><span class="lineNoCov">          0 :                                 col = color-&gt;color.vals[col_ind];</span>
+<span class="lineNum">     118 </span><span class="lineNoCov">          0 :                                 ctx-&gt;aspect.line_color = GF_COL_ARGB_FIXED(alpha, col.red, col.green, col.blue);</span>
+<span class="lineNum">     119 </span>            : 
+<span class="lineNum">     120 </span><span class="lineNoCov">          0 :                                 visual_2d_draw_path(tr_state-&gt;visual, path, ctx, NULL, NULL, tr_state);</span>
+<span class="lineNum">     121 </span>            : 
+<span class="lineNum">     122 </span><span class="lineNoCov">          0 :                                 i++;</span>
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 :                                 if (i&gt;=end_at) break;</span>
+<span class="lineNum">     124 </span><span class="lineNoCov">          0 :                                 gf_path_reset(path);</span>
+<span class="lineNum">     125 </span>            : 
+<span class="lineNum">     126 </span><span class="lineNoCov">          0 :                                 ind = (ils2D-&gt;coordIndex.count &amp;&amp; (ils2D-&gt;coordIndex.vals[i]&gt;=0)) ? (u32) ils2D-&gt;coordIndex.vals[i] : i;</span>
+<span class="lineNum">     127 </span><span class="lineNoCov">          0 :                                 gf_path_add_move_to(path, pts[ind].x, pts[ind].y);</span>
+<span class="lineNum">     128 </span>            : 
+<span class="lineNum">     129 </span><span class="lineNoCov">          0 :                                 if (ils2D-&gt;coordIndex.count) count++;</span>
+<span class="lineNum">     130 </span>            :                                 continue;
+<span class="lineNum">     131 </span>            :                         } else {
+<span class="lineNum">     132 </span><span class="lineNoCov">          0 :                                 ind = (ils2D-&gt;coordIndex.count &amp;&amp; (ils2D-&gt;coordIndex.vals[i]&gt;=0) ) ? (u32) ils2D-&gt;coordIndex.vals[i] : i;</span>
+<span class="lineNum">     133 </span><span class="lineNoCov">          0 :                                 gf_path_add_line_to(path, pts[ind].x, pts[ind].y);</span>
+<span class="lineNum">     134 </span>            :                         }
+<span class="lineNum">     135 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     136 </span><span class="lineNoCov">          0 :                 gf_path_del(path);</span>
+<span class="lineNum">     137 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     138 </span>            :         }
+<span class="lineNum">     139 </span>            : 
+<span class="lineNum">     140 </span>            :         raster = NULL;
+<span class="lineNum">     141 </span><span class="lineNoCov">          0 :         end_at = ils2D-&gt;coordIndex.count;</span>
+<span class="lineNum">     142 </span><span class="lineNoCov">          0 :         if (!end_at) end_at = coord-&gt;point.count;</span>
+<span class="lineNum">     143 </span>            : 
+<span class="lineNum">     144 </span>            :         col_ind = 0;
+<span class="lineNum">     145 </span>            :         i=0;
+<span class="lineNum">     146 </span><span class="lineNoCov">          0 :         path = gf_path_new();</span>
+<span class="lineNum">     147 </span><span class="lineNoCov">          0 :         while (1) {</span>
+<span class="lineNum">     148 </span><span class="lineNoCov">          0 :                 gf_path_reset(path);</span>
+<span class="lineNum">     149 </span><span class="lineNoCov">          0 :                 ind = (ils2D-&gt;coordIndex.count &amp;&amp; (ils2D-&gt;coordIndex.vals[i]&gt;=0)) ? (u32) ils2D-&gt;coordIndex.vals[i] : i;</span>
+<span class="lineNum">     150 </span><span class="lineNoCov">          0 :                 start = pts[ind];</span>
+<span class="lineNum">     151 </span>            :                 num_col = 1;
+<span class="lineNum">     152 </span><span class="lineNoCov">          0 :                 i++;</span>
+<span class="lineNum">     153 </span><span class="lineNoCov">          0 :                 gf_path_add_move_to(path, start.x, start.y);</span>
+<span class="lineNum">     154 </span>            : 
+<span class="lineNum">     155 </span><span class="lineNoCov">          0 :                 if (ils2D-&gt;coordIndex.count) {</span>
+<span class="lineNum">     156 </span><span class="lineNoCov">          0 :                         while (ils2D-&gt;coordIndex.vals[i] != -1) {</span>
+<span class="lineNum">     157 </span><span class="lineNoCov">          0 :                                 end = pts[ils2D-&gt;coordIndex.vals[i]];</span>
+<span class="lineNum">     158 </span><span class="lineNoCov">          0 :                                 gf_path_add_line_to(path, end.x, end.y);</span>
+<span class="lineNum">     159 </span><span class="lineNoCov">          0 :                                 i++;</span>
+<span class="lineNum">     160 </span><span class="lineNoCov">          0 :                                 num_col++;</span>
+<span class="lineNum">     161 </span><span class="lineNoCov">          0 :                                 if (i &gt;= ils2D-&gt;coordIndex.count) break;</span>
+<span class="lineNum">     162 </span>            :                         }
+<span class="lineNum">     163 </span>            :                 } else {
+<span class="lineNum">     164 </span><span class="lineNoCov">          0 :                         while (i&lt;end_at) {</span>
+<span class="lineNum">     165 </span><span class="lineNoCov">          0 :                                 end = pts[i];</span>
+<span class="lineNum">     166 </span><span class="lineNoCov">          0 :                                 gf_path_add_line_to(path, end.x, end.y);</span>
+<span class="lineNum">     167 </span><span class="lineNoCov">          0 :                                 i++;</span>
+<span class="lineNum">     168 </span><span class="lineNoCov">          0 :                                 num_col++;</span>
+<span class="lineNum">     169 </span>            :                         }
+<span class="lineNum">     170 </span>            :                 }
+<span class="lineNum">     171 </span>            : 
+<span class="lineNum">     172 </span><span class="lineNoCov">          0 :                 raster = tr_state-&gt;visual-&gt;compositor-&gt;rasterizer;</span>
+<span class="lineNum">     173 </span>            :                 /*use linear gradient*/
+<span class="lineNum">     174 </span><span class="lineNoCov">          0 :                 if (num_col==2) {</span>
+<span class="lineNum">     175 </span><span class="lineNoCov">          0 :                         Fixed pos[2];</span>
+<span class="lineNum">     176 </span><span class="lineNoCov">          0 :                         grad = raster-&gt;stencil_new(raster, GF_STENCIL_LINEAR_GRADIENT);</span>
+<span class="lineNum">     177 </span><span class="lineNoCov">          0 :                         if (ils2D-&gt;colorIndex.count) {</span>
+<span class="lineNum">     178 </span><span class="lineNoCov">          0 :                                 col = color-&gt;color.vals[ils2D-&gt;colorIndex.vals[col_ind]];</span>
+<span class="lineNum">     179 </span><span class="lineNoCov">          0 :                                 linear[0] = GF_COL_ARGB_FIXED(alpha, col.red, col.green, col.blue);</span>
+<span class="lineNum">     180 </span><span class="lineNoCov">          0 :                                 col = color-&gt;color.vals[ils2D-&gt;colorIndex.vals[col_ind+1]];</span>
+<span class="lineNum">     181 </span><span class="lineNoCov">          0 :                                 linear[1] = GF_COL_ARGB_FIXED(alpha, col.red, col.green, col.blue);</span>
+<span class="lineNum">     182 </span><span class="lineNoCov">          0 :                         } else if (ils2D-&gt;coordIndex.count) {</span>
+<span class="lineNum">     183 </span><span class="lineNoCov">          0 :                                 col = color-&gt;color.vals[ils2D-&gt;coordIndex.vals[col_ind]];</span>
+<span class="lineNum">     184 </span><span class="lineNoCov">          0 :                                 linear[0] = GF_COL_ARGB_FIXED(alpha, col.red, col.green, col.blue);</span>
+<span class="lineNum">     185 </span><span class="lineNoCov">          0 :                                 col = color-&gt;color.vals[ils2D-&gt;coordIndex.vals[col_ind+1]];</span>
+<span class="lineNum">     186 </span><span class="lineNoCov">          0 :                                 linear[1] = GF_COL_ARGB_FIXED(alpha, col.red, col.green, col.blue);</span>
+<span class="lineNum">     187 </span><span class="lineNoCov">          0 :                         } else {</span>
+<span class="lineNum">     188 </span><span class="lineNoCov">          0 :                                 col = color-&gt;color.vals[col_ind];</span>
+<span class="lineNum">     189 </span><span class="lineNoCov">          0 :                                 linear[0] = GF_COL_ARGB_FIXED(alpha, col.red, col.green, col.blue);</span>
+<span class="lineNum">     190 </span><span class="lineNoCov">          0 :                                 col = color-&gt;color.vals[col_ind+1];</span>
+<span class="lineNum">     191 </span><span class="lineNoCov">          0 :                                 linear[1] = GF_COL_ARGB_FIXED(alpha, col.red, col.green, col.blue);</span>
+<span class="lineNum">     192 </span>            :                         }
+<span class="lineNum">     193 </span><span class="lineNoCov">          0 :                         pos[0] = 0;</span>
+<span class="lineNum">     194 </span><span class="lineNoCov">          0 :                         pos[1] = FIX_ONE;</span>
+<span class="lineNum">     195 </span><span class="lineNoCov">          0 :                         raster-&gt;stencil_set_linear_gradient(grad, start.x, start.y, end.x, end.y);</span>
+<span class="lineNum">     196 </span><span class="lineNoCov">          0 :                         raster-&gt;stencil_set_gradient_interpolation(grad, pos, linear, 2);</span>
+<span class="lineNum">     197 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     198 </span><span class="lineNoCov">          0 :                         grad = raster-&gt;stencil_new(raster, GF_STENCIL_VERTEX_GRADIENT);</span>
+<span class="lineNum">     199 </span><span class="lineNoCov">          0 :                         if (grad) {</span>
+<span class="lineNum">     200 </span><span class="lineNoCov">          0 :                                 raster-&gt;stencil_set_vertex_path(grad, path);</span>
+<span class="lineNum">     201 </span>            : 
+<span class="lineNum">     202 </span><span class="lineNoCov">          0 :                                 colors = (u32*)gf_malloc(sizeof(u32) * num_col);</span>
+<span class="lineNum">     203 </span><span class="lineNoCov">          0 :                                 for (j=0; j&lt;num_col; j++) {</span>
+<span class="lineNum">     204 </span><span class="lineNoCov">          0 :                                         if (ils2D-&gt;colorIndex.count&gt;0) {</span>
+<span class="lineNum">     205 </span><span class="lineNoCov">          0 :                                                 col = color-&gt;color.vals[ils2D-&gt;colorIndex.vals[col_ind+j]];</span>
+<span class="lineNum">     206 </span><span class="lineNoCov">          0 :                                         } else if (ils2D-&gt;coordIndex.count) {</span>
+<span class="lineNum">     207 </span><span class="lineNoCov">          0 :                                                 col = color-&gt;color.vals[ils2D-&gt;coordIndex.vals[col_ind+j]];</span>
+<span class="lineNum">     208 </span><span class="lineNoCov">          0 :                                         } else {</span>
+<span class="lineNum">     209 </span><span class="lineNoCov">          0 :                                                 col = color-&gt;color.vals[col_ind+j];</span>
+<span class="lineNum">     210 </span>            :                                         }
+<span class="lineNum">     211 </span><span class="lineNoCov">          0 :                                         colors[j] = GF_COL_ARGB_FIXED(alpha, col.red, col.green, col.blue);</span>
+<span class="lineNum">     212 </span>            :                                 }
+<span class="lineNum">     213 </span><span class="lineNoCov">          0 :                                 raster-&gt;stencil_set_vertex_colors(grad, colors, num_col);</span>
+<span class="lineNum">     214 </span><span class="lineNoCov">          0 :                                 gf_free(colors);</span>
+<span class="lineNum">     215 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     216 </span>            :                 }
+<span class="lineNum">     217 </span><span class="lineNoCov">          0 :                 raster-&gt;stencil_set_matrix(grad, &amp;ctx-&gt;transform);</span>
+<span class="lineNum">     218 </span><span class="lineNoCov">          0 :                 visual_2d_draw_path(tr_state-&gt;visual, path, ctx, NULL, grad, tr_state);</span>
+<span class="lineNum">     219 </span><span class="lineNoCov">          0 :                 if (grad) raster-&gt;stencil_delete(grad);</span>
+<span class="lineNum">     220 </span>            : 
+<span class="lineNum">     221 </span><span class="lineNoCov">          0 :                 i ++;</span>
+<span class="lineNum">     222 </span><span class="lineNoCov">          0 :                 col_ind += num_col + 1;</span>
+<span class="lineNum">     223 </span><span class="lineNoCov">          0 :                 if (i &gt;= ils2D-&gt;coordIndex.count) break;</span>
+<span class="lineNum">     224 </span><span class="lineNoCov">          0 :                 ctx-&gt;flags &amp;= ~CTX_PATH_STROKE;</span>
+<span class="lineNum">     225 </span>            :         }
+<span class="lineNum">     226 </span><span class="lineNoCov">          0 :         gf_path_del(path);</span>
+<span class="lineNum">     227 </span><span class="lineNoCov">          0 : }</span>
+<a name="228"><span class="lineNum">     228 </span>            : </a>
+<span class="lineNum">     229 </span>            : 
+<span class="lineNum">     230 </span>            : static void TraverseILS2D(GF_Node *node, void *rs, Bool is_destroy)
+<span class="lineNum">     231 </span>            : {
+<span class="lineNum">     232 </span>            :         DrawableContext *ctx;
+<span class="lineNum">     233 </span><span class="lineNoCov">          0 :         M_IndexedLineSet2D *ils2D = (M_IndexedLineSet2D *)node;</span>
+<span class="lineNum">     234 </span><span class="lineNoCov">          0 :         Drawable *stack = (Drawable *)gf_node_get_private(node);</span>
+<span class="lineNum">     235 </span><span class="lineNoCov">          0 :         GF_TraverseState *tr_state = (GF_TraverseState *)rs;</span>
+<span class="lineNum">     236 </span>            : 
+<span class="lineNum">     237 </span><span class="lineNoCov">          0 :         if (is_destroy) {</span>
+<span class="lineNum">     238 </span><span class="lineNoCov">          0 :                 drawable_node_del(node);</span>
+<span class="lineNum">     239 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     240 </span>            :         }
+<span class="lineNum">     241 </span>            : 
+<span class="lineNum">     242 </span><span class="lineNoCov">          0 :         if (!ils2D-&gt;coord) return;</span>
+<span class="lineNum">     243 </span>            : 
+<span class="lineNum">     244 </span><span class="lineNoCov">          0 :         ils2d_check_changes(node, stack, tr_state);</span>
+<span class="lineNum">     245 </span>            : 
+<span class="lineNum">     246 </span><span class="lineNoCov">          0 :         switch (tr_state-&gt;traversing_mode) {</span>
+<span class="lineNum">     247 </span>            :         case TRAVERSE_DRAW_2D:
+<span class="lineNum">     248 </span><span class="lineNoCov">          0 :                 ILS2D_Draw(node, tr_state);</span>
+<span class="lineNum">     249 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     250 </span>            : #ifndef GPAC_DISABLE_3D
+<span class="lineNum">     251 </span>            :         case TRAVERSE_DRAW_3D:
+<span class="lineNum">     252 </span><span class="lineNoCov">          0 :                 if (!stack-&gt;mesh) {</span>
+<span class="lineNum">     253 </span><span class="lineNoCov">          0 :                         stack-&gt;mesh = new_mesh();</span>
+<span class="lineNum">     254 </span><span class="lineNoCov">          0 :                         mesh_new_ils(stack-&gt;mesh, ils2D-&gt;coord, &amp;ils2D-&gt;coordIndex, ils2D-&gt;color, &amp;ils2D-&gt;colorIndex, ils2D-&gt;colorPerVertex, 0);</span>
+<span class="lineNum">     255 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     256 </span><span class="lineNoCov">          0 :                 if (ils2D-&gt;color) {</span>
+<span class="lineNum">     257 </span><span class="lineNoCov">          0 :                         DrawAspect2D asp;</span>
+<span class="lineNum">     258 </span><span class="lineNoCov">          0 :                         memset(&amp;asp, 0, sizeof(DrawAspect2D));</span>
+<span class="lineNum">     259 </span><span class="lineNoCov">          0 :                         drawable_get_aspect_2d_mpeg4(node, &amp;asp, tr_state);</span>
+<span class="lineNum">     260 </span>            : 
+<span class="lineNum">     261 </span><span class="lineNoCov">          0 :                         visual_3d_mesh_strike(tr_state, stack-&gt;mesh, asp.pen_props.width, asp.line_scale, asp.pen_props.dash);</span>
+<span class="lineNum">     262 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     263 </span><span class="lineNoCov">          0 :                         visual_3d_draw_2d(stack, tr_state);</span>
+<span class="lineNum">     264 </span>            :                 }
+<span class="lineNum">     265 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     266 </span>            : #endif
+<span class="lineNum">     267 </span>            :         case TRAVERSE_PICK:
+<span class="lineNum">     268 </span><span class="lineNoCov">          0 :                 vrml_drawable_pick(stack, tr_state);</span>
+<span class="lineNum">     269 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     270 </span>            :         case TRAVERSE_GET_BOUNDS:
+<span class="lineNum">     271 </span><span class="lineNoCov">          0 :                 gf_path_get_bounds(stack-&gt;path, &amp;tr_state-&gt;bounds);</span>
+<span class="lineNum">     272 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     273 </span>            :         case TRAVERSE_SORT:
+<span class="lineNum">     274 </span>            : #ifndef GPAC_DISABLE_3D
+<span class="lineNum">     275 </span><span class="lineNoCov">          0 :                 if (tr_state-&gt;visual-&gt;type_3d) return;</span>
+<span class="lineNum">     276 </span>            : #endif
+<span class="lineNum">     277 </span>            : 
+<span class="lineNum">     278 </span><span class="lineNoCov">          0 :                 ctx = drawable_init_context_mpeg4(stack, tr_state);</span>
+<span class="lineNum">     279 </span><span class="lineNoCov">          0 :                 if (!ctx) return;</span>
+<span class="lineNum">     280 </span>            :                 /*ILS2D are NEVER filled*/
+<span class="lineNum">     281 </span><span class="lineNoCov">          0 :                 ctx-&gt;aspect.fill_color &amp;= 0x00FFFFFF;</span>
+<span class="lineNum">     282 </span><span class="lineNoCov">          0 :                 drawable_finalize_sort(ctx, tr_state, NULL);</span>
+<span class="lineNum">     283 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     284 </span>            :         default:
+<span class="lineNum">     285 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     286 </span>            :         }
+<a name="287"><span class="lineNum">     287 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     288 </span>            : 
+<span class="lineNum">     289 </span>            : static void ILS2D_SetColorIndex(GF_Node *node, GF_Route *route)
+<span class="lineNum">     290 </span>            : {
+<span class="lineNum">     291 </span><span class="lineNoCov">          0 :         M_IndexedLineSet2D *ils2D = (M_IndexedLineSet2D *)node;</span>
+<span class="lineNum">     292 </span><span class="lineNoCov">          0 :         gf_sg_vrml_field_copy(&amp;ils2D-&gt;colorIndex, &amp;ils2D-&gt;set_colorIndex, GF_SG_VRML_MFINT32);</span>
+<span class="lineNum">     293 </span><span class="lineNoCov">          0 :         gf_sg_vrml_mf_reset(&amp;ils2D-&gt;set_colorIndex, GF_SG_VRML_MFINT32);</span>
+<a name="294"><span class="lineNum">     294 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     295 </span>            : 
+<span class="lineNum">     296 </span>            : static void ILS2D_SetCoordIndex(GF_Node *node, GF_Route *route)
+<span class="lineNum">     297 </span>            : {
+<span class="lineNum">     298 </span><span class="lineNoCov">          0 :         M_IndexedLineSet2D *ils2D = (M_IndexedLineSet2D *)node;</span>
+<span class="lineNum">     299 </span><span class="lineNoCov">          0 :         gf_sg_vrml_field_copy(&amp;ils2D-&gt;coordIndex, &amp;ils2D-&gt;set_coordIndex, GF_SG_VRML_MFINT32);</span>
+<span class="lineNum">     300 </span><span class="lineNoCov">          0 :         gf_sg_vrml_mf_reset(&amp;ils2D-&gt;set_coordIndex, GF_SG_VRML_MFINT32);</span>
+<a name="301"><span class="lineNum">     301 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     302 </span>            : 
+<span class="lineNum">     303 </span>            : void compositor_init_indexed_line_set2d(GF_Compositor *compositor, GF_Node *node)
+<span class="lineNum">     304 </span>            : {
+<span class="lineNum">     305 </span><span class="lineNoCov">          0 :         M_IndexedLineSet2D *ils2D = (M_IndexedLineSet2D *)node;</span>
+<span class="lineNum">     306 </span><span class="lineNoCov">          0 :         Drawable *stack = drawable_stack_new(compositor, node);</span>
+<span class="lineNum">     307 </span><span class="lineNoCov">          0 :         stack-&gt;flags = DRAWABLE_USE_TRAVERSE_DRAW;</span>
+<span class="lineNum">     308 </span><span class="lineNoCov">          0 :         gf_node_set_callback_function(node, TraverseILS2D);</span>
+<span class="lineNum">     309 </span><span class="lineNoCov">          0 :         ils2D-&gt;on_set_colorIndex = ILS2D_SetColorIndex;</span>
+<span class="lineNum">     310 </span><span class="lineNoCov">          0 :         ils2D-&gt;on_set_coordIndex = ILS2D_SetCoordIndex;</span>
+<span class="lineNum">     311 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     312 </span>            : 
+<span class="lineNum">     313 </span>            : #endif /*GPAC_DISABLE_VRML*/
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

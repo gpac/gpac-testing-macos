@@ -1,0 +1,960 @@
+*** mp4box-lang logs (GPAC version 0.6.2-DEV-revUNKNOWN-HEAD ) - test date 14/05/2017 22:28:18 ***
+
+
+*** Subtest "all-2-char": executing "MP4Box -noprog -for-test  -mem-track -lang all=en /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving to /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "": executing "MP4Box -noprog -for-test  -mem-track -lang all=en-US /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving to /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "-info": executing "MP4Box -noprog -for-test  -mem-track -info /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+* Movie Info *
+	Timescale 600 - 2 tracks
+	Computed Duration 00:00:02.786 - Indicated Duration 00:00:02.786
+	Fragmented File: no
+	File suitable for progressive download (moov before mdat)
+	File Brand isom - version 1
+		Compatible brands: isom
+	Created: UNKNOWN DATE	Modified: UNKNOWN DATE
+File has root IOD (9 bytes)
+Scene PL 0xff - Graphics PL 0xff - OD PL 0xff
+Visual PL: No visual capability required (0xff)
+Audio PL: AAC Profile @ Level 2 (0x29)
+No streams included in root OD
+
+Track # 1 Info - TrackID 1 - TimeScale 1000
+Media Duration 00:00:02.787 - Indicated Duration 00:00:02.787
+Media Info: Language "English (en-US)" - Type "text:tx3g" - 2 samples
+Unknown Text Stream
+ Size 400 x 60 - Translation X=0 Y=0 - Layer 0
+	RFC6381 Codec Parameters: tx3g
+	All samples are sync
+
+Track # 2 Info - TrackID 2 - TimeScale 48000
+Media Duration 00:00:01.002 - Indicated Duration 00:00:01.002
+Media Info: Language "English (en-US)" - Type "soun:mp4a" - 47 samples
+MPEG-4 Config: Audio Stream - ObjectTypeIndication 0x40
+MPEG-4 Audio AAC LC - 2 Channel(s) - SampleRate 48000
+Self-synchronized
+	RFC6381 Codec Parameters: mp4a.40.2
+	All samples are sync
+
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "-diso": executing "MP4Box -noprog -for-test  -mem-track -diso /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/out_info.xml" ***
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "all-twice": executing "MP4Box -noprog -for-test  -mem-track -lang all=fr-FR /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving to /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "all-twice-info": executing "MP4Box -noprog -for-test  -mem-track -info /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+* Movie Info *
+	Timescale 600 - 2 tracks
+	Computed Duration 00:00:02.786 - Indicated Duration 00:00:02.786
+	Fragmented File: no
+	File suitable for progressive download (moov before mdat)
+	File Brand isom - version 1
+		Compatible brands: isom
+	Created: UNKNOWN DATE	Modified: UNKNOWN DATE
+File has root IOD (9 bytes)
+Scene PL 0xff - Graphics PL 0xff - OD PL 0xff
+Visual PL: No visual capability required (0xff)
+Audio PL: AAC Profile @ Level 2 (0x29)
+No streams included in root OD
+
+Track # 1 Info - TrackID 1 - TimeScale 1000
+Media Duration 00:00:02.787 - Indicated Duration 00:00:02.787
+Media Info: Language "French (fr-FR)" - Type "text:tx3g" - 2 samples
+Unknown Text Stream
+ Size 400 x 60 - Translation X=0 Y=0 - Layer 0
+	RFC6381 Codec Parameters: tx3g
+	All samples are sync
+
+Track # 2 Info - TrackID 2 - TimeScale 48000
+Media Duration 00:00:01.002 - Indicated Duration 00:00:01.002
+Media Info: Language "French (fr-FR)" - Type "soun:mp4a" - 47 samples
+MPEG-4 Config: Audio Stream - ObjectTypeIndication 0x40
+MPEG-4 Audio AAC LC - 2 Channel(s) - SampleRate 48000
+Self-synchronized
+	RFC6381 Codec Parameters: mp4a.40.2
+	All samples are sync
+
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "all-twice-diso": executing "MP4Box -noprog -for-test  -mem-track -diso /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/out_info.xml" ***
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "2-char": executing "MP4Box -noprog -for-test  -mem-track -lang en /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving to /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "2-char-info": executing "MP4Box -noprog -for-test  -mem-track -info /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+* Movie Info *
+	Timescale 600 - 2 tracks
+	Computed Duration 00:00:02.786 - Indicated Duration 00:00:02.786
+	Fragmented File: no
+	File suitable for progressive download (moov before mdat)
+	File Brand isom - version 1
+		Compatible brands: isom
+	Created: UNKNOWN DATE	Modified: UNKNOWN DATE
+File has root IOD (9 bytes)
+Scene PL 0xff - Graphics PL 0xff - OD PL 0xff
+Visual PL: No visual capability required (0xff)
+Audio PL: AAC Profile @ Level 2 (0x29)
+No streams included in root OD
+
+Track # 1 Info - TrackID 1 - TimeScale 1000
+Media Duration 00:00:02.787 - Indicated Duration 00:00:02.787
+Media Info: Language "English (en)" - Type "text:tx3g" - 2 samples
+Unknown Text Stream
+ Size 400 x 60 - Translation X=0 Y=0 - Layer 0
+	RFC6381 Codec Parameters: tx3g
+	All samples are sync
+
+Track # 2 Info - TrackID 2 - TimeScale 48000
+Media Duration 00:00:01.002 - Indicated Duration 00:00:01.002
+Media Info: Language "English (en)" - Type "soun:mp4a" - 47 samples
+MPEG-4 Config: Audio Stream - ObjectTypeIndication 0x40
+MPEG-4 Audio AAC LC - 2 Channel(s) - SampleRate 48000
+Self-synchronized
+	RFC6381 Codec Parameters: mp4a.40.2
+	All samples are sync
+
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "2-char-diso": executing "MP4Box -noprog -for-test  -mem-track -diso /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/out_info.xml" ***
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "3-char": executing "MP4Box -noprog -for-test  -mem-track -lang eng /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving to /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "all-2-char-info": executing "MP4Box -noprog -for-test  -mem-track -info /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+* Movie Info *
+	Timescale 600 - 2 tracks
+	Computed Duration 00:00:02.786 - Indicated Duration 00:00:02.786
+	Fragmented File: no
+	File suitable for progressive download (moov before mdat)
+	File Brand isom - version 1
+		Compatible brands: isom
+	Created: UNKNOWN DATE	Modified: UNKNOWN DATE
+File has root IOD (9 bytes)
+Scene PL 0xff - Graphics PL 0xff - OD PL 0xff
+Visual PL: No visual capability required (0xff)
+Audio PL: AAC Profile @ Level 2 (0x29)
+No streams included in root OD
+
+Track # 1 Info - TrackID 1 - TimeScale 1000
+Media Duration 00:00:02.787 - Indicated Duration 00:00:02.787
+Media Info: Language "English (en)" - Type "text:tx3g" - 2 samples
+Unknown Text Stream
+ Size 400 x 60 - Translation X=0 Y=0 - Layer 0
+	RFC6381 Codec Parameters: tx3g
+	All samples are sync
+
+Track # 2 Info - TrackID 2 - TimeScale 48000
+Media Duration 00:00:01.002 - Indicated Duration 00:00:01.002
+Media Info: Language "English (en)" - Type "soun:mp4a" - 47 samples
+MPEG-4 Config: Audio Stream - ObjectTypeIndication 0x40
+MPEG-4 Audio AAC LC - 2 Channel(s) - SampleRate 48000
+Self-synchronized
+	RFC6381 Codec Parameters: mp4a.40.2
+	All samples are sync
+
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "3-char-info": executing "MP4Box -noprog -for-test  -mem-track -info /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+* Movie Info *
+	Timescale 600 - 2 tracks
+	Computed Duration 00:00:02.786 - Indicated Duration 00:00:02.786
+	Fragmented File: no
+	File suitable for progressive download (moov before mdat)
+	File Brand isom - version 1
+		Compatible brands: isom
+	Created: UNKNOWN DATE	Modified: UNKNOWN DATE
+File has root IOD (9 bytes)
+Scene PL 0xff - Graphics PL 0xff - OD PL 0xff
+Visual PL: No visual capability required (0xff)
+Audio PL: AAC Profile @ Level 2 (0x29)
+No streams included in root OD
+
+Track # 1 Info - TrackID 1 - TimeScale 1000
+Media Duration 00:00:02.787 - Indicated Duration 00:00:02.787
+Media Info: Language "English (eng)" - Type "text:tx3g" - 2 samples
+Unknown Text Stream
+ Size 400 x 60 - Translation X=0 Y=0 - Layer 0
+	RFC6381 Codec Parameters: tx3g
+	All samples are sync
+
+Track # 2 Info - TrackID 2 - TimeScale 48000
+Media Duration 00:00:01.002 - Indicated Duration 00:00:01.002
+Media Info: Language "English (eng)" - Type "soun:mp4a" - 47 samples
+MPEG-4 Config: Audio Stream - ObjectTypeIndication 0x40
+MPEG-4 Audio AAC LC - 2 Channel(s) - SampleRate 48000
+Self-synchronized
+	RFC6381 Codec Parameters: mp4a.40.2
+	All samples are sync
+
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "3-char-diso": executing "MP4Box -noprog -for-test  -mem-track -diso /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/out_info.xml" ***
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "2-2-char": executing "MP4Box -noprog -for-test  -mem-track -lang en-US /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving to /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "2-2-char-info": executing "MP4Box -noprog -for-test  -mem-track -info /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+* Movie Info *
+	Timescale 600 - 2 tracks
+	Computed Duration 00:00:02.786 - Indicated Duration 00:00:02.786
+	Fragmented File: no
+	File suitable for progressive download (moov before mdat)
+	File Brand isom - version 1
+		Compatible brands: isom
+	Created: UNKNOWN DATE	Modified: UNKNOWN DATE
+File has root IOD (9 bytes)
+Scene PL 0xff - Graphics PL 0xff - OD PL 0xff
+Visual PL: No visual capability required (0xff)
+Audio PL: AAC Profile @ Level 2 (0x29)
+No streams included in root OD
+
+Track # 1 Info - TrackID 1 - TimeScale 1000
+Media Duration 00:00:02.787 - Indicated Duration 00:00:02.787
+Media Info: Language "English (en-US)" - Type "text:tx3g" - 2 samples
+Unknown Text Stream
+ Size 400 x 60 - Translation X=0 Y=0 - Layer 0
+	RFC6381 Codec Parameters: tx3g
+	All samples are sync
+
+Track # 2 Info - TrackID 2 - TimeScale 48000
+Media Duration 00:00:01.002 - Indicated Duration 00:00:01.002
+Media Info: Language "English (en-US)" - Type "soun:mp4a" - 47 samples
+MPEG-4 Config: Audio Stream - ObjectTypeIndication 0x40
+MPEG-4 Audio AAC LC - 2 Channel(s) - SampleRate 48000
+Self-synchronized
+	RFC6381 Codec Parameters: mp4a.40.2
+	All samples are sync
+
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "2-2-char-diso": executing "MP4Box -noprog -for-test  -mem-track -diso /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/out_info.xml" ***
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "track-2-char": executing "MP4Box -noprog -for-test  -mem-track -lang 1=en /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving to /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "track-2-char-info": executing "MP4Box -noprog -for-test  -mem-track -info /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+* Movie Info *
+	Timescale 600 - 2 tracks
+	Computed Duration 00:00:02.786 - Indicated Duration 00:00:02.786
+	Fragmented File: no
+	File suitable for progressive download (moov before mdat)
+	File Brand isom - version 1
+		Compatible brands: isom
+	Created: UNKNOWN DATE	Modified: UNKNOWN DATE
+File has root IOD (9 bytes)
+Scene PL 0xff - Graphics PL 0xff - OD PL 0xff
+Visual PL: No visual capability required (0xff)
+Audio PL: AAC Profile @ Level 2 (0x29)
+No streams included in root OD
+
+Track # 1 Info - TrackID 1 - TimeScale 1000
+Media Duration 00:00:02.787 - Indicated Duration 00:00:02.787
+Media Info: Language "English (en)" - Type "text:tx3g" - 2 samples
+Unknown Text Stream
+ Size 400 x 60 - Translation X=0 Y=0 - Layer 0
+	RFC6381 Codec Parameters: tx3g
+	All samples are sync
+
+Track # 2 Info - TrackID 2 - TimeScale 48000
+Media Duration 00:00:01.002 - Indicated Duration 00:00:01.002
+Media Info: Language "Undetermined (und)" - Type "soun:mp4a" - 47 samples
+MPEG-4 Config: Audio Stream - ObjectTypeIndication 0x40
+MPEG-4 Audio AAC LC - 2 Channel(s) - SampleRate 48000
+Self-synchronized
+	RFC6381 Codec Parameters: mp4a.40.2
+	All samples are sync
+
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "track-2-char-diso": executing "MP4Box -noprog -for-test  -mem-track -diso /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/out_info.xml" ***
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "track-3-char": executing "MP4Box -noprog -for-test  -mem-track -lang 1=eng /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving to /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "track-3-char-info": executing "MP4Box -noprog -for-test  -mem-track -info /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+* Movie Info *
+	Timescale 600 - 2 tracks
+	Computed Duration 00:00:02.786 - Indicated Duration 00:00:02.786
+	Fragmented File: no
+	File suitable for progressive download (moov before mdat)
+	File Brand isom - version 1
+		Compatible brands: isom
+	Created: UNKNOWN DATE	Modified: UNKNOWN DATE
+File has root IOD (9 bytes)
+Scene PL 0xff - Graphics PL 0xff - OD PL 0xff
+Visual PL: No visual capability required (0xff)
+Audio PL: AAC Profile @ Level 2 (0x29)
+No streams included in root OD
+
+Track # 1 Info - TrackID 1 - TimeScale 1000
+Media Duration 00:00:02.787 - Indicated Duration 00:00:02.787
+Media Info: Language "English (eng)" - Type "text:tx3g" - 2 samples
+Unknown Text Stream
+ Size 400 x 60 - Translation X=0 Y=0 - Layer 0
+	RFC6381 Codec Parameters: tx3g
+	All samples are sync
+
+Track # 2 Info - TrackID 2 - TimeScale 48000
+Media Duration 00:00:01.002 - Indicated Duration 00:00:01.002
+Media Info: Language "Undetermined (und)" - Type "soun:mp4a" - 47 samples
+MPEG-4 Config: Audio Stream - ObjectTypeIndication 0x40
+MPEG-4 Audio AAC LC - 2 Channel(s) - SampleRate 48000
+Self-synchronized
+	RFC6381 Codec Parameters: mp4a.40.2
+	All samples are sync
+
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "all-2-char-diso": executing "MP4Box -noprog -for-test  -mem-track -diso /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/out_info.xml" ***
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "track-3-char-diso": executing "MP4Box -noprog -for-test  -mem-track -diso /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/out_info.xml" ***
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "track-2-2-char": executing "MP4Box -noprog -for-test  -mem-track -lang 1=en-US /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving to /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "track-2-2-char-info": executing "MP4Box -noprog -for-test  -mem-track -info /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+* Movie Info *
+	Timescale 600 - 2 tracks
+	Computed Duration 00:00:02.786 - Indicated Duration 00:00:02.786
+	Fragmented File: no
+	File suitable for progressive download (moov before mdat)
+	File Brand isom - version 1
+		Compatible brands: isom
+	Created: UNKNOWN DATE	Modified: UNKNOWN DATE
+File has root IOD (9 bytes)
+Scene PL 0xff - Graphics PL 0xff - OD PL 0xff
+Visual PL: No visual capability required (0xff)
+Audio PL: AAC Profile @ Level 2 (0x29)
+No streams included in root OD
+
+Track # 1 Info - TrackID 1 - TimeScale 1000
+Media Duration 00:00:02.787 - Indicated Duration 00:00:02.787
+Media Info: Language "English (en-US)" - Type "text:tx3g" - 2 samples
+Unknown Text Stream
+ Size 400 x 60 - Translation X=0 Y=0 - Layer 0
+	RFC6381 Codec Parameters: tx3g
+	All samples are sync
+
+Track # 2 Info - TrackID 2 - TimeScale 48000
+Media Duration 00:00:01.002 - Indicated Duration 00:00:01.002
+Media Info: Language "Undetermined (und)" - Type "soun:mp4a" - 47 samples
+MPEG-4 Config: Audio Stream - ObjectTypeIndication 0x40
+MPEG-4 Audio AAC LC - 2 Channel(s) - SampleRate 48000
+Self-synchronized
+	RFC6381 Codec Parameters: mp4a.40.2
+	All samples are sync
+
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "track-2-2-char-diso": executing "MP4Box -noprog -for-test  -mem-track -diso /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/out_info.xml" ***
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "": executing "MP4Box -noprog -for-test  -mem-track -lang 1=en-US /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving to /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "-info": executing "MP4Box -noprog -for-test  -mem-track -info /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+* Movie Info *
+	Timescale 600 - 2 tracks
+	Computed Duration 00:00:02.786 - Indicated Duration 00:00:02.786
+	Fragmented File: no
+	File suitable for progressive download (moov before mdat)
+	File Brand isom - version 1
+		Compatible brands: isom
+	Created: UNKNOWN DATE	Modified: UNKNOWN DATE
+File has root IOD (9 bytes)
+Scene PL 0xff - Graphics PL 0xff - OD PL 0xff
+Visual PL: No visual capability required (0xff)
+Audio PL: AAC Profile @ Level 2 (0x29)
+No streams included in root OD
+
+Track # 1 Info - TrackID 1 - TimeScale 1000
+Media Duration 00:00:02.787 - Indicated Duration 00:00:02.787
+Media Info: Language "English (en-US)" - Type "text:tx3g" - 2 samples
+Unknown Text Stream
+ Size 400 x 60 - Translation X=0 Y=0 - Layer 0
+	RFC6381 Codec Parameters: tx3g
+	All samples are sync
+
+Track # 2 Info - TrackID 2 - TimeScale 48000
+Media Duration 00:00:01.002 - Indicated Duration 00:00:01.002
+Media Info: Language "Undetermined (und)" - Type "soun:mp4a" - 47 samples
+MPEG-4 Config: Audio Stream - ObjectTypeIndication 0x40
+MPEG-4 Audio AAC LC - 2 Channel(s) - SampleRate 48000
+Self-synchronized
+	RFC6381 Codec Parameters: mp4a.40.2
+	All samples are sync
+
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "-diso": executing "MP4Box -noprog -for-test  -mem-track -diso /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/out_info.xml" ***
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "second-track": executing "MP4Box -noprog -for-test  -mem-track -lang 2=en-US /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "second-track-info": executing "MP4Box -noprog -for-test  -mem-track -info /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+* Movie Info *
+	Timescale 600 - 2 tracks
+	Computed Duration 00:00:02.786 - Indicated Duration 00:00:02.786
+	Fragmented File: no
+	File suitable for progressive download (moov before mdat)
+	File Brand isom - version 1
+		Compatible brands: isom
+	Created: UNKNOWN DATE	Modified: UNKNOWN DATE
+File has root IOD (9 bytes)
+Scene PL 0xff - Graphics PL 0xff - OD PL 0xff
+Visual PL: No visual capability required (0xff)
+Audio PL: AAC Profile @ Level 2 (0x29)
+No streams included in root OD
+
+Track # 1 Info - TrackID 1 - TimeScale 1000
+Media Duration 00:00:02.787 - Indicated Duration 00:00:02.787
+Media Info: Language "English (en-US)" - Type "text:tx3g" - 2 samples
+Unknown Text Stream
+ Size 400 x 60 - Translation X=0 Y=0 - Layer 0
+	RFC6381 Codec Parameters: tx3g
+	All samples are sync
+
+Track # 2 Info - TrackID 2 - TimeScale 48000
+Media Duration 00:00:01.002 - Indicated Duration 00:00:01.002
+Media Info: Language "English (en-US)" - Type "soun:mp4a" - 47 samples
+MPEG-4 Config: Audio Stream - ObjectTypeIndication 0x40
+MPEG-4 Audio AAC LC - 2 Channel(s) - SampleRate 48000
+Self-synchronized
+	RFC6381 Codec Parameters: mp4a.40.2
+	All samples are sync
+
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "second-track-diso": executing "MP4Box -noprog -for-test  -mem-track -diso /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/out_info.xml" ***
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "all-3-char": executing "MP4Box -noprog -for-test  -mem-track -lang all=eng /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving to /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "": executing "MP4Box -noprog -for-test  -mem-track -lang en-US /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving to /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "-info": executing "MP4Box -noprog -for-test  -mem-track -info /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+* Movie Info *
+	Timescale 600 - 2 tracks
+	Computed Duration 00:00:02.786 - Indicated Duration 00:00:02.786
+	Fragmented File: no
+	File suitable for progressive download (moov before mdat)
+	File Brand isom - version 1
+		Compatible brands: isom
+	Created: UNKNOWN DATE	Modified: UNKNOWN DATE
+File has root IOD (9 bytes)
+Scene PL 0xff - Graphics PL 0xff - OD PL 0xff
+Visual PL: No visual capability required (0xff)
+Audio PL: AAC Profile @ Level 2 (0x29)
+No streams included in root OD
+
+Track # 1 Info - TrackID 1 - TimeScale 1000
+Media Duration 00:00:02.787 - Indicated Duration 00:00:02.787
+Media Info: Language "English (en-US)" - Type "text:tx3g" - 2 samples
+Unknown Text Stream
+ Size 400 x 60 - Translation X=0 Y=0 - Layer 0
+	RFC6381 Codec Parameters: tx3g
+	All samples are sync
+
+Track # 2 Info - TrackID 2 - TimeScale 48000
+Media Duration 00:00:01.002 - Indicated Duration 00:00:01.002
+Media Info: Language "English (en-US)" - Type "soun:mp4a" - 47 samples
+MPEG-4 Config: Audio Stream - ObjectTypeIndication 0x40
+MPEG-4 Audio AAC LC - 2 Channel(s) - SampleRate 48000
+Self-synchronized
+	RFC6381 Codec Parameters: mp4a.40.2
+	All samples are sync
+
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "-diso": executing "MP4Box -noprog -for-test  -mem-track -diso /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/out_info.xml" ***
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "copy": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4 -new /Users/travis/build/gpac/gpac/tests/results/temp/out2.mp4" ***
+[32mIsoMedia import output.mp4 - track ID 1 - media type "text:tx3g"
+[0m[32mIsoMedia import output.mp4 - track ID 2 - Audio (SR 48000 - 2 channels)
+[0mSaving /Users/travis/build/gpac/gpac/tests/results/temp/out2.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "copy-info": executing "MP4Box -noprog -for-test  -mem-track -info /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+* Movie Info *
+	Timescale 600 - 2 tracks
+	Computed Duration 00:00:02.786 - Indicated Duration 00:00:02.786
+	Fragmented File: no
+	File suitable for progressive download (moov before mdat)
+	File Brand isom - version 1
+		Compatible brands: isom
+	Created: UNKNOWN DATE	Modified: UNKNOWN DATE
+File has root IOD (9 bytes)
+Scene PL 0xff - Graphics PL 0xff - OD PL 0xff
+Visual PL: No visual capability required (0xff)
+Audio PL: AAC Profile @ Level 2 (0x29)
+No streams included in root OD
+
+Track # 1 Info - TrackID 1 - TimeScale 1000
+Media Duration 00:00:02.787 - Indicated Duration 00:00:02.787
+Media Info: Language "English (en-US)" - Type "text:tx3g" - 2 samples
+Unknown Text Stream
+ Size 400 x 60 - Translation X=0 Y=0 - Layer 0
+	RFC6381 Codec Parameters: tx3g
+	All samples are sync
+
+Track # 2 Info - TrackID 2 - TimeScale 48000
+Media Duration 00:00:01.002 - Indicated Duration 00:00:01.002
+Media Info: Language "English (en-US)" - Type "soun:mp4a" - 47 samples
+MPEG-4 Config: Audio Stream - ObjectTypeIndication 0x40
+MPEG-4 Audio AAC LC - 2 Channel(s) - SampleRate 48000
+Self-synchronized
+	RFC6381 Codec Parameters: mp4a.40.2
+	All samples are sync
+
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "copy-diso": executing "MP4Box -noprog -for-test  -mem-track -diso /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/out_info.xml" ***
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "param-2-char": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4#1:lang=en -new /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+[32mIsoMedia import file.mp4 - track ID 1 - media type "text:tx3g"
+[0mSaving /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "param-2-char-info": executing "MP4Box -noprog -for-test  -mem-track -info /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+* Movie Info *
+	Timescale 600 - 1 track
+	Computed Duration 00:00:02.786 - Indicated Duration 00:00:02.786
+	Fragmented File: no
+	File suitable for progressive download (moov before mdat)
+	File Brand isom - version 1
+		Compatible brands: isom
+	Created: UNKNOWN DATE	Modified: UNKNOWN DATE
+File has no MPEG4 IOD/OD
+
+Track # 1 Info - TrackID 1 - TimeScale 1000
+Media Duration 00:00:02.787 - Indicated Duration 00:00:02.787
+Media Info: Language "English (en)" - Type "text:tx3g" - 2 samples
+Unknown Text Stream
+ Size 400 x 60 - Translation X=0 Y=0 - Layer 0
+	RFC6381 Codec Parameters: tx3g
+	All samples are sync
+
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "param-2-char-diso": executing "MP4Box -noprog -for-test  -mem-track -diso /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/out_info.xml" ***
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "": executing "MP4Box -noprog -for-test  -mem-track -info /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+* Movie Info *
+	Timescale 600 - 1 track
+	Computed Duration 00:00:02.786 - Indicated Duration 00:00:02.786
+	Fragmented File: no
+	File suitable for progressive download (moov before mdat)
+	File Brand isom - version 1
+		Compatible brands: isom
+	Created: UNKNOWN DATE	Modified: UNKNOWN DATE
+File has no MPEG4 IOD/OD
+
+Track # 1 Info - TrackID 1 - TimeScale 1000
+Media Duration 00:00:02.787 - Indicated Duration 00:00:02.787
+Media Info: Language "English (en)" - Type "text:tx3g" - 2 samples
+Unknown Text Stream
+ Size 400 x 60 - Translation X=0 Y=0 - Layer 0
+	RFC6381 Codec Parameters: tx3g
+	All samples are sync
+
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "all-3-char-info": executing "MP4Box -noprog -for-test  -mem-track -info /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+* Movie Info *
+	Timescale 600 - 2 tracks
+	Computed Duration 00:00:02.786 - Indicated Duration 00:00:02.786
+	Fragmented File: no
+	File suitable for progressive download (moov before mdat)
+	File Brand isom - version 1
+		Compatible brands: isom
+	Created: UNKNOWN DATE	Modified: UNKNOWN DATE
+File has root IOD (9 bytes)
+Scene PL 0xff - Graphics PL 0xff - OD PL 0xff
+Visual PL: No visual capability required (0xff)
+Audio PL: AAC Profile @ Level 2 (0x29)
+No streams included in root OD
+
+Track # 1 Info - TrackID 1 - TimeScale 1000
+Media Duration 00:00:02.787 - Indicated Duration 00:00:02.787
+Media Info: Language "English (eng)" - Type "text:tx3g" - 2 samples
+Unknown Text Stream
+ Size 400 x 60 - Translation X=0 Y=0 - Layer 0
+	RFC6381 Codec Parameters: tx3g
+	All samples are sync
+
+Track # 2 Info - TrackID 2 - TimeScale 48000
+Media Duration 00:00:01.002 - Indicated Duration 00:00:01.002
+Media Info: Language "English (eng)" - Type "soun:mp4a" - 47 samples
+MPEG-4 Config: Audio Stream - ObjectTypeIndication 0x40
+MPEG-4 Audio AAC LC - 2 Channel(s) - SampleRate 48000
+Self-synchronized
+	RFC6381 Codec Parameters: mp4a.40.2
+	All samples are sync
+
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "-info": executing "MP4Box -noprog -for-test  -mem-track -info /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+* Movie Info *
+	Timescale 600 - 1 track
+	Computed Duration 00:00:02.786 - Indicated Duration 00:00:02.786
+	Fragmented File: no
+	File suitable for progressive download (moov before mdat)
+	File Brand isom - version 1
+		Compatible brands: isom
+	Created: UNKNOWN DATE	Modified: UNKNOWN DATE
+File has no MPEG4 IOD/OD
+
+Track # 1 Info - TrackID 1 - TimeScale 1000
+Media Duration 00:00:02.787 - Indicated Duration 00:00:02.787
+Media Info: Language "English (en)" - Type "text:tx3g" - 2 samples
+Unknown Text Stream
+ Size 400 x 60 - Translation X=0 Y=0 - Layer 0
+	RFC6381 Codec Parameters: tx3g
+	All samples are sync
+
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "-diso": executing "MP4Box -noprog -for-test  -mem-track -diso /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/out_info.xml" ***
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "param-3-char": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4#1:lang=eng -new /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+[32mIsoMedia import file.mp4 - track ID 1 - media type "text:tx3g"
+[0mSaving /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "param-3-char-info": executing "MP4Box -noprog -for-test  -mem-track -info /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+* Movie Info *
+	Timescale 600 - 1 track
+	Computed Duration 00:00:02.786 - Indicated Duration 00:00:02.786
+	Fragmented File: no
+	File suitable for progressive download (moov before mdat)
+	File Brand isom - version 1
+		Compatible brands: isom
+	Created: UNKNOWN DATE	Modified: UNKNOWN DATE
+File has no MPEG4 IOD/OD
+
+Track # 1 Info - TrackID 1 - TimeScale 1000
+Media Duration 00:00:02.787 - Indicated Duration 00:00:02.787
+Media Info: Language "English (eng)" - Type "text:tx3g" - 2 samples
+Unknown Text Stream
+ Size 400 x 60 - Translation X=0 Y=0 - Layer 0
+	RFC6381 Codec Parameters: tx3g
+	All samples are sync
+
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "param-3-char-diso": executing "MP4Box -noprog -for-test  -mem-track -diso /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/out_info.xml" ***
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "param-2-2-char": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4#1:lang=en-US -new /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+[32mIsoMedia import file.mp4 - track ID 1 - media type "text:tx3g"
+[0mSaving /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "param-2-2-char-info": executing "MP4Box -noprog -for-test  -mem-track -info /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+* Movie Info *
+	Timescale 600 - 1 track
+	Computed Duration 00:00:02.786 - Indicated Duration 00:00:02.786
+	Fragmented File: no
+	File suitable for progressive download (moov before mdat)
+	File Brand isom - version 1
+		Compatible brands: isom
+	Created: UNKNOWN DATE	Modified: UNKNOWN DATE
+File has no MPEG4 IOD/OD
+
+Track # 1 Info - TrackID 1 - TimeScale 1000
+Media Duration 00:00:02.787 - Indicated Duration 00:00:02.787
+Media Info: Language "English (en-US)" - Type "text:tx3g" - 2 samples
+Unknown Text Stream
+ Size 400 x 60 - Translation X=0 Y=0 - Layer 0
+	RFC6381 Codec Parameters: tx3g
+	All samples are sync
+
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "param-2-2-char-diso": executing "MP4Box -noprog -for-test  -mem-track -diso /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/out_info.xml" ***
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "param-twice": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4#1:lang=fr-FR:lang=en-US -new /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+[32mIsoMedia import file.mp4 - track ID 1 - media type "text:tx3g"
+[0mSaving /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "param-twice-info": executing "MP4Box -noprog -for-test  -mem-track -info /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+* Movie Info *
+	Timescale 600 - 1 track
+	Computed Duration 00:00:02.786 - Indicated Duration 00:00:02.786
+	Fragmented File: no
+	File suitable for progressive download (moov before mdat)
+	File Brand isom - version 1
+		Compatible brands: isom
+	Created: UNKNOWN DATE	Modified: UNKNOWN DATE
+File has no MPEG4 IOD/OD
+
+Track # 1 Info - TrackID 1 - TimeScale 1000
+Media Duration 00:00:02.787 - Indicated Duration 00:00:02.787
+Media Info: Language "English (en-US)" - Type "text:tx3g" - 2 samples
+Unknown Text Stream
+ Size 400 x 60 - Translation X=0 Y=0 - Layer 0
+	RFC6381 Codec Parameters: tx3g
+	All samples are sync
+
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "all-3-char-diso": executing "MP4Box -noprog -for-test  -mem-track -diso /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/out_info.xml" ***
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "param-twice-diso": executing "MP4Box -noprog -for-test  -mem-track -diso /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/out_info.xml" ***
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "all-2-2-char": executing "MP4Box -noprog -for-test  -mem-track -lang all=en-US /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving to /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "all-2-2-char-info": executing "MP4Box -noprog -for-test  -mem-track -info /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+* Movie Info *
+	Timescale 600 - 2 tracks
+	Computed Duration 00:00:02.786 - Indicated Duration 00:00:02.786
+	Fragmented File: no
+	File suitable for progressive download (moov before mdat)
+	File Brand isom - version 1
+		Compatible brands: isom
+	Created: UNKNOWN DATE	Modified: UNKNOWN DATE
+File has root IOD (9 bytes)
+Scene PL 0xff - Graphics PL 0xff - OD PL 0xff
+Visual PL: No visual capability required (0xff)
+Audio PL: AAC Profile @ Level 2 (0x29)
+No streams included in root OD
+
+Track # 1 Info - TrackID 1 - TimeScale 1000
+Media Duration 00:00:02.787 - Indicated Duration 00:00:02.787
+Media Info: Language "English (en-US)" - Type "text:tx3g" - 2 samples
+Unknown Text Stream
+ Size 400 x 60 - Translation X=0 Y=0 - Layer 0
+	RFC6381 Codec Parameters: tx3g
+	All samples are sync
+
+Track # 2 Info - TrackID 2 - TimeScale 48000
+Media Duration 00:00:01.002 - Indicated Duration 00:00:01.002
+Media Info: Language "English (en-US)" - Type "soun:mp4a" - 47 samples
+MPEG-4 Config: Audio Stream - ObjectTypeIndication 0x40
+MPEG-4 Audio AAC LC - 2 Channel(s) - SampleRate 48000
+Self-synchronized
+	RFC6381 Codec Parameters: mp4a.40.2
+	All samples are sync
+
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "all-2-2-char-diso": executing "MP4Box -noprog -for-test  -mem-track -diso /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/out_info.xml" ***
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m

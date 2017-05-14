@@ -1,0 +1,113 @@
+*** meta logs (GPAC version 0.6.2-DEV-revUNKNOWN-HEAD ) - test date 14/05/2017 22:24:03 ***
+
+
+*** Subtest "set0": executing "MP4Box -noprog -for-test  -mem-track -set-meta Metadata:id=0 /Users/travis/build/gpac/gpac/tests/external_media/item/counter_noItems1.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4" ***
+Saving to /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "remove-item1": executing "MP4Box -noprog -for-test  -mem-track -rem-item 1 /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4" ***
+Saving /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "remove-item2": executing "MP4Box -noprog -for-test  -mem-track -rem-item 2 /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4" ***
+Saving /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "remove-item3": executing "MP4Box -noprog -for-test  -mem-track -rem-item 3 /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4" ***
+Saving /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "remove-item4": executing "MP4Box -noprog -for-test  -mem-track -rem-item 4 /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4" ***
+Saving /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "set-meta-XML-data": executing "MP4Box -noprog -for-test  -mem-track -set-meta XML -set-xml /Users/travis/build/gpac/gpac/tests/external_media/item/file.xml:id=1 /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4" ***
+Saving /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "dump-meta-XML-data": executing "MP4Box -noprog -for-test  -mem-track -dump-xml /Users/travis/build/gpac/gpac/tests/results/temp/file1.xml:id=1 /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4" ***
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "remove-meta-XML-data": executing "MP4Box -noprog -for-test  -mem-track -rem-xml id=1 /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4" ***
+No meta box in input file
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "set1": executing "MP4Box -noprog -for-test  -mem-track -set-meta Metadata:id=1 /Users/travis/build/gpac/gpac/tests/external_media/item/counter_noItems2.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4" ***
+Saving to /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "set2": executing "MP4Box -noprog -for-test  -mem-track -set-meta Metadata /Users/travis/build/gpac/gpac/tests/external_media/item/counter_noItems.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4" ***
+Saving to /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "add-items": executing "MP4Box -noprog -for-test  -mem-track -add-item /Users/travis/build/gpac/gpac/tests/external_media/item/file.html:mime=html:id=1 -add-item /Users/travis/build/gpac/gpac/tests/external_media/item/file.css:mime=css:id=2 -add-item /Users/travis/build/gpac/gpac/tests/external_media/item/file.js:mime=javascript:id=3 -add-item /Users/travis/build/gpac/gpac/tests/external_media/item/file.svg:mime=svg:id=4 /Users/travis/build/gpac/gpac/tests/external_media/item/counter_noItems.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4" ***
+Saving to /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "set-primary": executing "MP4Box -noprog -for-test  -mem-track -set-primary id=2 /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4" ***
+Saving /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "dump-item1": executing "MP4Box -noprog -for-test  -mem-track /Users/travis/build/gpac/gpac/tests/external_media/item/counter_noItems.mp4 -dump-item 1:path=/Users/travis/build/gpac/gpac/tests/results/temp/file1.html" ***
+No meta box in input file
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "dump-item2": executing "MP4Box -noprog -for-test  -mem-track /Users/travis/build/gpac/gpac/tests/external_media/item/counter_noItems.mp4 -dump-item 2:path=/Users/travis/build/gpac/gpac/tests/results/temp/file1.css" ***
+No meta box in input file
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "dump-item3": executing "MP4Box -noprog -for-test  -mem-track /Users/travis/build/gpac/gpac/tests/external_media/item/counter_noItems.mp4 -dump-item 3:path=/Users/travis/build/gpac/gpac/tests/results/temp/file1.js" ***
+No meta box in input file
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "dump-item4": executing "MP4Box -noprog -for-test  -mem-track /Users/travis/build/gpac/gpac/tests/external_media/item/counter_noItems.mp4 -dump-item 4:path=/Users/travis/build/gpac/gpac/tests/results/temp/file1.svg" ***
+No meta box in input file
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m

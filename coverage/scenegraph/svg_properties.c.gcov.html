@@ -1,0 +1,1520 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - scenegraph/svg_properties.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">scenegraph</a> - svg_properties.c<span style="font-size: 80%;"> (source / <a href="svg_properties.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">257</td>
+            <td class="headerCovTableEntry">899</td>
+            <td class="headerCovTableEntryLo">28.6 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-05-14 22:31:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntryLo">11.1 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *                                      GPAC Multimedia Framework
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *                      Authors: Cyril Concolato, Jean Le Feuvre
+<span class="lineNum">       5 </span>            :  *                      Copyright (c) Telecom ParisTech 2004-2012
+<span class="lineNum">       6 </span>            :  *                                      All rights reserved
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  *  This file is part of GPAC / SVG Loader module
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  *  GPAC is free software; you can redistribute it and/or modify
+<span class="lineNum">      11 </span>            :  *  it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">      12 </span>            :  *  the Free Software Foundation; either version 2, or (at your option)
+<span class="lineNum">      13 </span>            :  *  any later version.
+<span class="lineNum">      14 </span>            :  *
+<span class="lineNum">      15 </span>            :  *  GPAC is distributed in the hope that it will be useful,
+<span class="lineNum">      16 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      17 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      18 </span>            :  *  GNU Lesser General Public License for more details.
+<span class="lineNum">      19 </span>            :  *
+<span class="lineNum">      20 </span>            :  *  You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      21 </span>            :  *  License along with this library; see the file COPYING.  If not, write to
+<span class="lineNum">      22 </span>            :  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+<span class="lineNum">      23 </span>            :  *
+<span class="lineNum">      24 </span>            :  */
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : #include &lt;gpac/scenegraph_svg.h&gt;
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span>            : #ifndef GPAC_DISABLE_SVG
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : #include &lt;gpac/internal/scenegraph_dev.h&gt;
+<span class="lineNum">      31 </span>            : #include &lt;gpac/nodes_svg.h&gt;
+<span class="lineNum">      32 </span>            : /*
+<span class="lineNum">      33 </span>            :         Initialization of properties at the top level before any rendering
+<span class="lineNum">      34 </span>            :         The value shall not use the 'inherit' value, it uses the initial value.
+<span class="lineNum">      35 </span>            :     The property values are then updated when going down the tree using svg_properties_apply
+<a name="36"><span class="lineNum">      36 </span>            : */</a>
+<span class="lineNum">      37 </span>            : GF_EXPORT
+<span class="lineNum">      38 </span>            : void gf_svg_properties_init_pointers(SVGPropertiesPointers *svg_props)
+<span class="lineNum">      39 </span>            : {
+<span class="lineNum">      40 </span><span class="lineNoCov">          0 :         if (!svg_props) return;</span>
+<span class="lineNum">      41 </span>            : 
+<span class="lineNum">      42 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(svg_props-&gt;audio_level, SVG_Number);</span>
+<span class="lineNum">      43 </span><span class="lineNoCov">          0 :         if (svg_props-&gt;audio_level) {</span>
+<span class="lineNum">      44 </span><span class="lineNoCov">          0 :                 svg_props-&gt;audio_level-&gt;type = SVG_NUMBER_VALUE;</span>
+<span class="lineNum">      45 </span><span class="lineNoCov">          0 :                 svg_props-&gt;audio_level-&gt;value = FIX_ONE;</span>
+<span class="lineNum">      46 </span><span class="lineNoCov">          0 :                 svg_props-&gt;computed_audio_level = FIX_ONE;</span>
+<span class="lineNum">      47 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">      48 </span>            :         
+<span class="lineNum">      49 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(svg_props-&gt;color, SVG_Paint);</span>
+<span class="lineNum">      50 </span><span class="lineNoCov">          0 :         if (svg_props-&gt;color) {</span>
+<span class="lineNum">      51 </span><span class="lineNoCov">          0 :                 svg_props-&gt;color-&gt;type = SVG_PAINT_COLOR;</span>
+<span class="lineNum">      52 </span><span class="lineNoCov">          0 :                 svg_props-&gt;color-&gt;color.type = SVG_COLOR_RGBCOLOR;</span>
+<span class="lineNum">      53 </span>            :                 /* svg_props-&gt;color-&gt;red, green, blue set to zero, so initial value for color property is black */
+<span class="lineNum">      54 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">      55 </span>            :         
+<span class="lineNum">      56 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(svg_props-&gt;color_rendering, SVG_RenderingHint);</span>
+<span class="lineNum">      57 </span><span class="lineNoCov">          0 :         if (svg_props-&gt;color_rendering) *svg_props-&gt;color_rendering = SVG_RENDERINGHINT_AUTO;</span>
+<span class="lineNum">      58 </span>            : 
+<span class="lineNum">      59 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(svg_props-&gt;display, SVG_Display);</span>
+<span class="lineNum">      60 </span><span class="lineNoCov">          0 :         if (svg_props-&gt;display) *svg_props-&gt;display = SVG_DISPLAY_INLINE;</span>
+<span class="lineNum">      61 </span>            : 
+<span class="lineNum">      62 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(svg_props-&gt;display_align, SVG_DisplayAlign);</span>
+<span class="lineNum">      63 </span><span class="lineNoCov">          0 :         if (svg_props-&gt;display_align) *svg_props-&gt;display_align = SVG_DISPLAYALIGN_AUTO;</span>
+<span class="lineNum">      64 </span>            : 
+<span class="lineNum">      65 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(svg_props-&gt;fill, SVG_Paint);</span>
+<span class="lineNum">      66 </span><span class="lineNoCov">          0 :         if (svg_props-&gt;fill) {</span>
+<span class="lineNum">      67 </span><span class="lineNoCov">          0 :                 svg_props-&gt;fill-&gt;type = SVG_PAINT_COLOR;</span>
+<span class="lineNum">      68 </span><span class="lineNoCov">          0 :                 svg_props-&gt;fill-&gt;color.type = SVG_COLOR_RGBCOLOR;</span>
+<span class="lineNum">      69 </span>            :                 /* svg_props-&gt;fill-&gt;color.red, green, blue set to zero, so initial value for fill color is black */
+<span class="lineNum">      70 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">      71 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(svg_props-&gt;fill_opacity, SVG_Number);</span>
+<span class="lineNum">      72 </span><span class="lineNoCov">          0 :         if (svg_props-&gt;fill_opacity) {</span>
+<span class="lineNum">      73 </span><span class="lineNoCov">          0 :                 svg_props-&gt;fill_opacity-&gt;type = SVG_NUMBER_VALUE;</span>
+<span class="lineNum">      74 </span><span class="lineNoCov">          0 :                 svg_props-&gt;fill_opacity-&gt;value = FIX_ONE;</span>
+<span class="lineNum">      75 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">      76 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(svg_props-&gt;fill_rule, SVG_FillRule);</span>
+<span class="lineNum">      77 </span><span class="lineNoCov">          0 :         if (svg_props-&gt;fill_rule) *svg_props-&gt;fill_rule = SVG_FILLRULE_NONZERO;</span>
+<span class="lineNum">      78 </span>            : 
+<span class="lineNum">      79 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(svg_props-&gt;font_family, SVG_FontFamily);</span>
+<span class="lineNum">      80 </span><span class="lineNoCov">          0 :         if (svg_props-&gt;font_family) {</span>
+<span class="lineNum">      81 </span><span class="lineNoCov">          0 :                 svg_props-&gt;font_family-&gt;type = SVG_FONTFAMILY_VALUE;</span>
+<span class="lineNum">      82 </span><span class="lineNoCov">          0 :                 svg_props-&gt;font_family-&gt;value = gf_strdup(&quot;Arial&quot;);</span>
+<span class="lineNum">      83 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">      84 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(svg_props-&gt;font_size, SVG_FontSize);</span>
+<span class="lineNum">      85 </span><span class="lineNoCov">          0 :         if (svg_props-&gt;font_size) {</span>
+<span class="lineNum">      86 </span><span class="lineNoCov">          0 :                 svg_props-&gt;font_size-&gt;type = SVG_NUMBER_VALUE;</span>
+<span class="lineNum">      87 </span><span class="lineNoCov">          0 :                 svg_props-&gt;font_size-&gt;value = 12*FIX_ONE;</span>
+<span class="lineNum">      88 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">      89 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(svg_props-&gt;font_style, SVG_FontStyle);</span>
+<span class="lineNum">      90 </span><span class="lineNoCov">          0 :         if (svg_props-&gt;font_style) *svg_props-&gt;font_style = SVG_FONTSTYLE_NORMAL;</span>
+<span class="lineNum">      91 </span>            : 
+<span class="lineNum">      92 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(svg_props-&gt;font_variant, SVG_FontVariant);</span>
+<span class="lineNum">      93 </span><span class="lineNoCov">          0 :         if (svg_props-&gt;font_variant) *svg_props-&gt;font_variant = SVG_FONTVARIANT_NORMAL;</span>
+<span class="lineNum">      94 </span>            : 
+<span class="lineNum">      95 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(svg_props-&gt;font_weight, SVG_FontWeight);</span>
+<span class="lineNum">      96 </span><span class="lineNoCov">          0 :         if (svg_props-&gt;font_weight) *svg_props-&gt;font_weight = SVG_FONTWEIGHT_NORMAL;</span>
+<span class="lineNum">      97 </span>            : 
+<span class="lineNum">      98 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(svg_props-&gt;image_rendering, SVG_RenderingHint);</span>
+<span class="lineNum">      99 </span><span class="lineNoCov">          0 :         if (svg_props-&gt;image_rendering) *svg_props-&gt;image_rendering = SVG_RENDERINGHINT_AUTO;</span>
+<span class="lineNum">     100 </span>            : 
+<span class="lineNum">     101 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(svg_props-&gt;line_increment, SVG_Number);</span>
+<span class="lineNum">     102 </span><span class="lineNoCov">          0 :         if (svg_props-&gt;line_increment) svg_props-&gt;line_increment-&gt;type = SVG_NUMBER_AUTO;</span>
+<span class="lineNum">     103 </span>            : 
+<span class="lineNum">     104 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(svg_props-&gt;opacity, SVG_Number);</span>
+<span class="lineNum">     105 </span><span class="lineNoCov">          0 :         if (svg_props-&gt;opacity) {</span>
+<span class="lineNum">     106 </span><span class="lineNoCov">          0 :                 svg_props-&gt;opacity-&gt;type = SVG_NUMBER_VALUE;</span>
+<span class="lineNum">     107 </span><span class="lineNoCov">          0 :                 svg_props-&gt;opacity-&gt;value = FIX_ONE;</span>
+<span class="lineNum">     108 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     109 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(svg_props-&gt;pointer_events, SVG_PointerEvents);</span>
+<span class="lineNum">     110 </span><span class="lineNoCov">          0 :         if (svg_props-&gt;pointer_events) *svg_props-&gt;pointer_events = SVG_POINTEREVENTS_VISIBLEPAINTED;</span>
+<span class="lineNum">     111 </span>            : 
+<span class="lineNum">     112 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(svg_props-&gt;shape_rendering, SVG_RenderingHint);</span>
+<span class="lineNum">     113 </span><span class="lineNoCov">          0 :         if (svg_props-&gt;shape_rendering) *svg_props-&gt;shape_rendering = SVG_RENDERINGHINT_AUTO;</span>
+<span class="lineNum">     114 </span>            : 
+<span class="lineNum">     115 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(svg_props-&gt;solid_color, SVG_Paint);</span>
+<span class="lineNum">     116 </span><span class="lineNoCov">          0 :         if (svg_props-&gt;solid_color) {</span>
+<span class="lineNum">     117 </span><span class="lineNoCov">          0 :                 svg_props-&gt;solid_color-&gt;type = SVG_PAINT_COLOR;</span>
+<span class="lineNum">     118 </span><span class="lineNoCov">          0 :                 svg_props-&gt;solid_color-&gt;color.type = SVG_COLOR_RGBCOLOR;</span>
+<span class="lineNum">     119 </span>            :                 /* svg_props-&gt;solid_color-&gt;color.red, green, blue set to zero, so initial value for solid_color is black */
+<span class="lineNum">     120 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     121 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(svg_props-&gt;solid_opacity, SVG_Number);</span>
+<span class="lineNum">     122 </span><span class="lineNoCov">          0 :         if (svg_props-&gt;solid_opacity) {</span>
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 :                 svg_props-&gt;solid_opacity-&gt;type = SVG_NUMBER_VALUE;</span>
+<span class="lineNum">     124 </span><span class="lineNoCov">          0 :                 svg_props-&gt;solid_opacity-&gt;value = FIX_ONE;</span>
+<span class="lineNum">     125 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     126 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(svg_props-&gt;stop_color, SVG_Paint);</span>
+<span class="lineNum">     127 </span><span class="lineNoCov">          0 :         if (svg_props-&gt;stop_color) {</span>
+<span class="lineNum">     128 </span><span class="lineNoCov">          0 :                 svg_props-&gt;stop_color-&gt;type = SVG_PAINT_COLOR;</span>
+<span class="lineNum">     129 </span><span class="lineNoCov">          0 :                 svg_props-&gt;stop_color-&gt;color.type = SVG_COLOR_RGBCOLOR;</span>
+<span class="lineNum">     130 </span>            :                 /* svg_props-&gt;stop_color-&gt;color.red, green, blue set to zero, so initial value for stop_color is black */
+<span class="lineNum">     131 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     132 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(svg_props-&gt;stop_opacity, SVG_Number);</span>
+<span class="lineNum">     133 </span><span class="lineNoCov">          0 :         if (svg_props-&gt;stop_opacity) {</span>
+<span class="lineNum">     134 </span><span class="lineNoCov">          0 :                 svg_props-&gt;stop_opacity-&gt;type = SVG_NUMBER_VALUE;</span>
+<span class="lineNum">     135 </span><span class="lineNoCov">          0 :                 svg_props-&gt;stop_opacity-&gt;value = FIX_ONE;</span>
+<span class="lineNum">     136 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     137 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(svg_props-&gt;stroke, SVG_Paint);</span>
+<span class="lineNum">     138 </span><span class="lineNoCov">          0 :         if (svg_props-&gt;stroke) {</span>
+<span class="lineNum">     139 </span><span class="lineNoCov">          0 :                 svg_props-&gt;stroke-&gt;type = SVG_PAINT_NONE;</span>
+<span class="lineNum">     140 </span><span class="lineNoCov">          0 :                 svg_props-&gt;stroke-&gt;color.type = SVG_COLOR_RGBCOLOR;</span>
+<span class="lineNum">     141 </span>            :                 /* svg_props-&gt;stroke-&gt;color.red, green, blue set to zero, so initial value for stroke color is black */
+<span class="lineNum">     142 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     143 </span>            :         
+<span class="lineNum">     144 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(svg_props-&gt;stroke_dasharray, SVG_StrokeDashArray);</span>
+<span class="lineNum">     145 </span><span class="lineNoCov">          0 :         if (svg_props-&gt;stroke_dasharray) svg_props-&gt;stroke_dasharray-&gt;type = SVG_STROKEDASHARRAY_NONE;</span>
+<span class="lineNum">     146 </span>            : 
+<span class="lineNum">     147 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(svg_props-&gt;stroke_dashoffset , SVG_Length);</span>
+<span class="lineNum">     148 </span><span class="lineNoCov">          0 :         if (svg_props-&gt;stroke_dashoffset) {</span>
+<span class="lineNum">     149 </span><span class="lineNoCov">          0 :                 svg_props-&gt;stroke_dashoffset-&gt;type = SVG_NUMBER_VALUE;</span>
+<span class="lineNum">     150 </span><span class="lineNoCov">          0 :                 svg_props-&gt;stroke_dashoffset-&gt;value = 0;</span>
+<span class="lineNum">     151 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     152 </span>            :         
+<span class="lineNum">     153 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(svg_props-&gt;stroke_linecap, SVG_StrokeLineCap);</span>
+<span class="lineNum">     154 </span><span class="lineNoCov">          0 :         if (svg_props-&gt;stroke_linecap) *svg_props-&gt;stroke_linecap = SVG_STROKELINECAP_BUTT;</span>
+<span class="lineNum">     155 </span>            : 
+<span class="lineNum">     156 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(svg_props-&gt;stroke_linejoin, SVG_StrokeLineJoin);</span>
+<span class="lineNum">     157 </span><span class="lineNoCov">          0 :         if (svg_props-&gt;stroke_linejoin) *svg_props-&gt;stroke_linejoin = SVG_STROKELINEJOIN_MITER;</span>
+<span class="lineNum">     158 </span>            : 
+<span class="lineNum">     159 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(svg_props-&gt;stroke_miterlimit, SVG_Number);</span>
+<span class="lineNum">     160 </span><span class="lineNoCov">          0 :         if (svg_props-&gt;stroke_miterlimit) {</span>
+<span class="lineNum">     161 </span><span class="lineNoCov">          0 :                 svg_props-&gt;stroke_miterlimit-&gt;type = SVG_NUMBER_VALUE;</span>
+<span class="lineNum">     162 </span><span class="lineNoCov">          0 :                 svg_props-&gt;stroke_miterlimit-&gt;value = 4*FIX_ONE;</span>
+<span class="lineNum">     163 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     164 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(svg_props-&gt;stroke_opacity, SVG_Number);</span>
+<span class="lineNum">     165 </span><span class="lineNoCov">          0 :         if (svg_props-&gt;stroke_opacity) {</span>
+<span class="lineNum">     166 </span><span class="lineNoCov">          0 :                 svg_props-&gt;stroke_opacity-&gt;type = SVG_NUMBER_VALUE;</span>
+<span class="lineNum">     167 </span><span class="lineNoCov">          0 :                 svg_props-&gt;stroke_opacity-&gt;value = FIX_ONE;</span>
+<span class="lineNum">     168 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     169 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(svg_props-&gt;stroke_width, SVG_Length);</span>
+<span class="lineNum">     170 </span><span class="lineNoCov">          0 :         if (svg_props-&gt;stroke_width) {</span>
+<span class="lineNum">     171 </span><span class="lineNoCov">          0 :                 svg_props-&gt;stroke_width-&gt;type = SVG_NUMBER_VALUE;</span>
+<span class="lineNum">     172 </span><span class="lineNoCov">          0 :                 svg_props-&gt;stroke_width-&gt;value = FIX_ONE;</span>
+<span class="lineNum">     173 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     174 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(svg_props-&gt;text_align, SVG_TextAlign);</span>
+<span class="lineNum">     175 </span><span class="lineNoCov">          0 :         if (svg_props-&gt;text_align) *svg_props-&gt;text_align = SVG_TEXTALIGN_START;</span>
+<span class="lineNum">     176 </span>            : 
+<span class="lineNum">     177 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(svg_props-&gt;text_anchor, SVG_TextAnchor);</span>
+<span class="lineNum">     178 </span><span class="lineNoCov">          0 :         if (svg_props-&gt;text_anchor) *svg_props-&gt;text_anchor = SVG_TEXTANCHOR_START;</span>
+<span class="lineNum">     179 </span>            : 
+<span class="lineNum">     180 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(svg_props-&gt;text_rendering, SVG_RenderingHint);</span>
+<span class="lineNum">     181 </span><span class="lineNoCov">          0 :         if (svg_props-&gt;text_rendering) *svg_props-&gt;text_rendering = SVG_RENDERINGHINT_AUTO;</span>
+<span class="lineNum">     182 </span>            : 
+<span class="lineNum">     183 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(svg_props-&gt;vector_effect, SVG_VectorEffect);</span>
+<span class="lineNum">     184 </span><span class="lineNoCov">          0 :         if (svg_props-&gt;vector_effect) *svg_props-&gt;vector_effect = SVG_VECTOREFFECT_NONE;</span>
+<span class="lineNum">     185 </span>            : 
+<span class="lineNum">     186 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(svg_props-&gt;viewport_fill, SVG_Paint);</span>
+<span class="lineNum">     187 </span><span class="lineNoCov">          0 :         if (svg_props-&gt;viewport_fill) svg_props-&gt;viewport_fill-&gt;type = SVG_PAINT_NONE;</span>
+<span class="lineNum">     188 </span>            : 
+<span class="lineNum">     189 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(svg_props-&gt;viewport_fill_opacity, SVG_Number);</span>
+<span class="lineNum">     190 </span><span class="lineNoCov">          0 :         if (svg_props-&gt;viewport_fill_opacity) {</span>
+<span class="lineNum">     191 </span><span class="lineNoCov">          0 :                 svg_props-&gt;viewport_fill_opacity-&gt;type = SVG_NUMBER_VALUE;</span>
+<span class="lineNum">     192 </span><span class="lineNoCov">          0 :                 svg_props-&gt;viewport_fill_opacity-&gt;value = FIX_ONE;</span>
+<span class="lineNum">     193 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     194 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(svg_props-&gt;visibility, SVG_Visibility);</span>
+<span class="lineNum">     195 </span><span class="lineNoCov">          0 :         if (svg_props-&gt;visibility) *svg_props-&gt;visibility = SVG_VISIBILITY_VISIBLE;</span>
+<span class="lineNum">     196 </span>            : 
+<span class="lineNum">     197 </span><span class="lineNoCov">          0 : }</span>
+<a name="198"><span class="lineNum">     198 </span>            : </a>
+<span class="lineNum">     199 </span>            : GF_EXPORT
+<span class="lineNum">     200 </span>            : void gf_svg_properties_reset_pointers(SVGPropertiesPointers *svg_props)
+<span class="lineNum">     201 </span>            : {
+<span class="lineNum">     202 </span><span class="lineNoCov">          0 :         if (!svg_props) return;</span>
+<span class="lineNum">     203 </span><span class="lineNoCov">          0 :         if(svg_props-&gt;audio_level) gf_free(svg_props-&gt;audio_level);</span>
+<span class="lineNum">     204 </span><span class="lineNoCov">          0 :         gf_svg_delete_paint(NULL, svg_props-&gt;color);</span>
+<span class="lineNum">     205 </span><span class="lineNoCov">          0 :         if(svg_props-&gt;color_rendering) gf_free(svg_props-&gt;color_rendering);</span>
+<span class="lineNum">     206 </span><span class="lineNoCov">          0 :         if(svg_props-&gt;display) gf_free(svg_props-&gt;display);</span>
+<span class="lineNum">     207 </span><span class="lineNoCov">          0 :         if(svg_props-&gt;display_align) gf_free(svg_props-&gt;display_align);</span>
+<span class="lineNum">     208 </span><span class="lineNoCov">          0 :         gf_svg_delete_paint(NULL, svg_props-&gt;fill);</span>
+<span class="lineNum">     209 </span><span class="lineNoCov">          0 :         if(svg_props-&gt;fill_opacity) gf_free(svg_props-&gt;fill_opacity);</span>
+<span class="lineNum">     210 </span><span class="lineNoCov">          0 :         if(svg_props-&gt;fill_rule) gf_free(svg_props-&gt;fill_rule);</span>
+<span class="lineNum">     211 </span><span class="lineNoCov">          0 :         if(svg_props-&gt;font_family) {</span>
+<span class="lineNum">     212 </span><span class="lineNoCov">          0 :                 if (svg_props-&gt;font_family-&gt;value) gf_free(svg_props-&gt;font_family-&gt;value);</span>
+<span class="lineNum">     213 </span><span class="lineNoCov">          0 :                 gf_free(svg_props-&gt;font_family);</span>
+<span class="lineNum">     214 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     215 </span><span class="lineNoCov">          0 :         if(svg_props-&gt;font_size) gf_free(svg_props-&gt;font_size);</span>
+<span class="lineNum">     216 </span><span class="lineNoCov">          0 :         if(svg_props-&gt;font_style) gf_free(svg_props-&gt;font_style);</span>
+<span class="lineNum">     217 </span><span class="lineNoCov">          0 :         if(svg_props-&gt;font_variant) gf_free(svg_props-&gt;font_variant);</span>
+<span class="lineNum">     218 </span><span class="lineNoCov">          0 :         if(svg_props-&gt;font_weight) gf_free(svg_props-&gt;font_weight);</span>
+<span class="lineNum">     219 </span><span class="lineNoCov">          0 :         if(svg_props-&gt;image_rendering) gf_free(svg_props-&gt;image_rendering);</span>
+<span class="lineNum">     220 </span><span class="lineNoCov">          0 :         if(svg_props-&gt;line_increment) gf_free(svg_props-&gt;line_increment);</span>
+<span class="lineNum">     221 </span><span class="lineNoCov">          0 :         if(svg_props-&gt;opacity) gf_free(svg_props-&gt;opacity);</span>
+<span class="lineNum">     222 </span><span class="lineNoCov">          0 :         if(svg_props-&gt;pointer_events) gf_free(svg_props-&gt;pointer_events);</span>
+<span class="lineNum">     223 </span><span class="lineNoCov">          0 :         if(svg_props-&gt;shape_rendering) gf_free(svg_props-&gt;shape_rendering);</span>
+<span class="lineNum">     224 </span><span class="lineNoCov">          0 :         gf_svg_delete_paint(NULL, svg_props-&gt;solid_color);</span>
+<span class="lineNum">     225 </span><span class="lineNoCov">          0 :         if(svg_props-&gt;solid_opacity) gf_free(svg_props-&gt;solid_opacity);</span>
+<span class="lineNum">     226 </span><span class="lineNoCov">          0 :         gf_svg_delete_paint(NULL, svg_props-&gt;stop_color);</span>
+<span class="lineNum">     227 </span><span class="lineNoCov">          0 :         if(svg_props-&gt;stop_opacity) gf_free(svg_props-&gt;stop_opacity);</span>
+<span class="lineNum">     228 </span><span class="lineNoCov">          0 :         gf_svg_delete_paint(NULL, svg_props-&gt;stroke);</span>
+<span class="lineNum">     229 </span><span class="lineNoCov">          0 :         if(svg_props-&gt;stroke_dasharray) {</span>
+<span class="lineNum">     230 </span><span class="lineNoCov">          0 :                 if (svg_props-&gt;stroke_dasharray-&gt;array.count) gf_free(svg_props-&gt;stroke_dasharray-&gt;array.vals);</span>
+<span class="lineNum">     231 </span><span class="lineNoCov">          0 :                 gf_free(svg_props-&gt;stroke_dasharray);</span>
+<span class="lineNum">     232 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     233 </span><span class="lineNoCov">          0 :         if(svg_props-&gt;stroke_dashoffset) gf_free(svg_props-&gt;stroke_dashoffset);</span>
+<span class="lineNum">     234 </span><span class="lineNoCov">          0 :         if(svg_props-&gt;stroke_linecap) gf_free(svg_props-&gt;stroke_linecap);</span>
+<span class="lineNum">     235 </span><span class="lineNoCov">          0 :         if(svg_props-&gt;stroke_linejoin) gf_free(svg_props-&gt;stroke_linejoin);</span>
+<span class="lineNum">     236 </span><span class="lineNoCov">          0 :         if(svg_props-&gt;stroke_miterlimit) gf_free(svg_props-&gt;stroke_miterlimit);</span>
+<span class="lineNum">     237 </span><span class="lineNoCov">          0 :         if(svg_props-&gt;stroke_opacity) gf_free(svg_props-&gt;stroke_opacity);</span>
+<span class="lineNum">     238 </span><span class="lineNoCov">          0 :         if(svg_props-&gt;stroke_width) gf_free(svg_props-&gt;stroke_width);</span>
+<span class="lineNum">     239 </span><span class="lineNoCov">          0 :         if(svg_props-&gt;text_align) gf_free(svg_props-&gt;text_align);</span>
+<span class="lineNum">     240 </span><span class="lineNoCov">          0 :         if(svg_props-&gt;text_anchor) gf_free(svg_props-&gt;text_anchor);</span>
+<span class="lineNum">     241 </span><span class="lineNoCov">          0 :         if(svg_props-&gt;text_rendering) gf_free(svg_props-&gt;text_rendering);</span>
+<span class="lineNum">     242 </span><span class="lineNoCov">          0 :         if(svg_props-&gt;vector_effect) gf_free(svg_props-&gt;vector_effect);</span>
+<span class="lineNum">     243 </span><span class="lineNoCov">          0 :         gf_svg_delete_paint(NULL, svg_props-&gt;viewport_fill);</span>
+<span class="lineNum">     244 </span><span class="lineNoCov">          0 :         if(svg_props-&gt;viewport_fill_opacity) gf_free(svg_props-&gt;viewport_fill_opacity);</span>
+<span class="lineNum">     245 </span><span class="lineNoCov">          0 :         if(svg_props-&gt;visibility) gf_free(svg_props-&gt;visibility);</span>
+<span class="lineNum">     246 </span><span class="lineNoCov">          0 :         memset(svg_props, 0, sizeof(SVGPropertiesPointers));</span>
+<span class="lineNum">     247 </span><span class="lineNoCov">          0 : }</span>
+<a name="248"><span class="lineNum">     248 </span>            : </a>
+<span class="lineNum">     249 </span>            : 
+<span class="lineNum">     250 </span>            : void *gf_svg_get_property_pointer_from_tag(SVGPropertiesPointers *output_property_context, u32 prop_tag)
+<span class="lineNum">     251 </span>            : {
+<span class="lineNum">     252 </span><span class="lineNoCov">          0 :         switch (prop_tag) {</span>
+<span class="lineNum">     253 </span>            :         case TAG_SVG_ATT_audio_level:
+<span class="lineNum">     254 </span><span class="lineNoCov">          0 :                 return output_property_context-&gt;audio_level;</span>
+<span class="lineNum">     255 </span>            :         case TAG_SVG_ATT_color:
+<span class="lineNum">     256 </span><span class="lineNoCov">          0 :                 return output_property_context-&gt;color;</span>
+<span class="lineNum">     257 </span>            :         case TAG_SVG_ATT_color_rendering:
+<span class="lineNum">     258 </span><span class="lineNoCov">          0 :                 return output_property_context-&gt;color_rendering;</span>
+<span class="lineNum">     259 </span>            :         case TAG_SVG_ATT_display:
+<span class="lineNum">     260 </span><span class="lineNoCov">          0 :                 return output_property_context-&gt;display;</span>
+<span class="lineNum">     261 </span>            :         case TAG_SVG_ATT_display_align:
+<span class="lineNum">     262 </span><span class="lineNoCov">          0 :                 return output_property_context-&gt;display_align;</span>
+<span class="lineNum">     263 </span>            :         case TAG_SVG_ATT_fill:
+<span class="lineNum">     264 </span><span class="lineNoCov">          0 :                 return output_property_context-&gt;fill;</span>
+<span class="lineNum">     265 </span>            :         case TAG_SVG_ATT_fill_opacity:
+<span class="lineNum">     266 </span><span class="lineNoCov">          0 :                 return output_property_context-&gt;fill_opacity;</span>
+<span class="lineNum">     267 </span>            :         case TAG_SVG_ATT_fill_rule:
+<span class="lineNum">     268 </span><span class="lineNoCov">          0 :                 return output_property_context-&gt;fill_rule;</span>
+<span class="lineNum">     269 </span>            :         case TAG_SVG_ATT_font_family:
+<span class="lineNum">     270 </span><span class="lineNoCov">          0 :                 return output_property_context-&gt;font_family;</span>
+<span class="lineNum">     271 </span>            :         case TAG_SVG_ATT_font_size:
+<span class="lineNum">     272 </span><span class="lineNoCov">          0 :                 return output_property_context-&gt;font_size;</span>
+<span class="lineNum">     273 </span>            :         case TAG_SVG_ATT_font_style:
+<span class="lineNum">     274 </span><span class="lineNoCov">          0 :                 return output_property_context-&gt;font_style;</span>
+<span class="lineNum">     275 </span>            :         case TAG_SVG_ATT_font_variant:
+<span class="lineNum">     276 </span><span class="lineNoCov">          0 :                 return output_property_context-&gt;font_variant;</span>
+<span class="lineNum">     277 </span>            :         case TAG_SVG_ATT_font_weight:
+<span class="lineNum">     278 </span><span class="lineNoCov">          0 :                 return output_property_context-&gt;font_weight;</span>
+<span class="lineNum">     279 </span>            :         case TAG_SVG_ATT_image_rendering:
+<span class="lineNum">     280 </span><span class="lineNoCov">          0 :                 return output_property_context-&gt;image_rendering;</span>
+<span class="lineNum">     281 </span>            :         case TAG_SVG_ATT_line_increment:
+<span class="lineNum">     282 </span><span class="lineNoCov">          0 :                 return output_property_context-&gt;line_increment;</span>
+<span class="lineNum">     283 </span>            :         case TAG_SVG_ATT_opacity:
+<span class="lineNum">     284 </span><span class="lineNoCov">          0 :                 return output_property_context-&gt;opacity;</span>
+<span class="lineNum">     285 </span>            :         case TAG_SVG_ATT_pointer_events:
+<span class="lineNum">     286 </span><span class="lineNoCov">          0 :                 return output_property_context-&gt;pointer_events;</span>
+<span class="lineNum">     287 </span>            :         case TAG_SVG_ATT_shape_rendering:
+<span class="lineNum">     288 </span><span class="lineNoCov">          0 :                 return output_property_context-&gt;shape_rendering;</span>
+<span class="lineNum">     289 </span>            :         case TAG_SVG_ATT_solid_color:
+<span class="lineNum">     290 </span><span class="lineNoCov">          0 :                 return output_property_context-&gt;solid_color;</span>
+<span class="lineNum">     291 </span>            :         case TAG_SVG_ATT_solid_opacity:
+<span class="lineNum">     292 </span><span class="lineNoCov">          0 :                 return output_property_context-&gt;solid_opacity;</span>
+<span class="lineNum">     293 </span>            :         case TAG_SVG_ATT_stop_color:
+<span class="lineNum">     294 </span><span class="lineNoCov">          0 :                 return output_property_context-&gt;stop_color;</span>
+<span class="lineNum">     295 </span>            :         case TAG_SVG_ATT_stop_opacity:
+<span class="lineNum">     296 </span><span class="lineNoCov">          0 :                 return output_property_context-&gt;stop_opacity;</span>
+<span class="lineNum">     297 </span>            :         case TAG_SVG_ATT_stroke:
+<span class="lineNum">     298 </span><span class="lineNoCov">          0 :                 return output_property_context-&gt;stroke;</span>
+<span class="lineNum">     299 </span>            :         case TAG_SVG_ATT_stroke_dasharray:
+<span class="lineNum">     300 </span><span class="lineNoCov">          0 :                 return output_property_context-&gt;stroke_dasharray;</span>
+<span class="lineNum">     301 </span>            :         case TAG_SVG_ATT_stroke_dashoffset:
+<span class="lineNum">     302 </span><span class="lineNoCov">          0 :                 return output_property_context-&gt;stroke_dashoffset;</span>
+<span class="lineNum">     303 </span>            :         case TAG_SVG_ATT_stroke_linecap:
+<span class="lineNum">     304 </span><span class="lineNoCov">          0 :                 return output_property_context-&gt;stroke_linecap;</span>
+<span class="lineNum">     305 </span>            :         case TAG_SVG_ATT_stroke_linejoin:
+<span class="lineNum">     306 </span><span class="lineNoCov">          0 :                 return output_property_context-&gt;stroke_linejoin;</span>
+<span class="lineNum">     307 </span>            :         case TAG_SVG_ATT_stroke_miterlimit:
+<span class="lineNum">     308 </span><span class="lineNoCov">          0 :                 return output_property_context-&gt;stroke_miterlimit;</span>
+<span class="lineNum">     309 </span>            :         case TAG_SVG_ATT_stroke_opacity:
+<span class="lineNum">     310 </span><span class="lineNoCov">          0 :                 return output_property_context-&gt;stroke_opacity;</span>
+<span class="lineNum">     311 </span>            :         case TAG_SVG_ATT_stroke_width:
+<span class="lineNum">     312 </span><span class="lineNoCov">          0 :                 return output_property_context-&gt;stroke_width;</span>
+<span class="lineNum">     313 </span>            :         case TAG_SVG_ATT_text_align:
+<span class="lineNum">     314 </span><span class="lineNoCov">          0 :                 return output_property_context-&gt;text_align;</span>
+<span class="lineNum">     315 </span>            :         case TAG_SVG_ATT_text_anchor:
+<span class="lineNum">     316 </span><span class="lineNoCov">          0 :                 return output_property_context-&gt;text_anchor;</span>
+<span class="lineNum">     317 </span>            :         case TAG_SVG_ATT_text_rendering:
+<span class="lineNum">     318 </span><span class="lineNoCov">          0 :                 return output_property_context-&gt;text_rendering;</span>
+<span class="lineNum">     319 </span>            :         case TAG_SVG_ATT_vector_effect:
+<span class="lineNum">     320 </span><span class="lineNoCov">          0 :                 return output_property_context-&gt;vector_effect;</span>
+<span class="lineNum">     321 </span>            :         case TAG_SVG_ATT_viewport_fill:
+<span class="lineNum">     322 </span><span class="lineNoCov">          0 :                 return output_property_context-&gt;viewport_fill;</span>
+<span class="lineNum">     323 </span>            :         case TAG_SVG_ATT_viewport_fill_opacity:
+<span class="lineNum">     324 </span><span class="lineNoCov">          0 :                 return output_property_context-&gt;viewport_fill_opacity;</span>
+<span class="lineNum">     325 </span>            :         case TAG_SVG_ATT_visibility:
+<span class="lineNum">     326 </span><span class="lineNoCov">          0 :                 return output_property_context-&gt;visibility;</span>
+<span class="lineNum">     327 </span>            :         default:
+<span class="lineNum">     328 </span><span class="lineNoCov">          0 :                 return NULL;</span>
+<span class="lineNum">     329 </span>            :         }
+<a name="330"><span class="lineNum">     330 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     331 </span>            : 
+<span class="lineNum">     332 </span>            : void *gf_svg_get_property_pointer(SVG_Element *elt, void *input_attribute,
+<span class="lineNum">     333 </span>            :                                   SVGPropertiesPointers *output_property_context)
+<span class="lineNum">     334 </span>            : {
+<span class="lineNum">     335 </span><span class="lineNoCov">          0 :         SVGAttribute *att = elt-&gt;attributes;</span>
+<span class="lineNum">     336 </span><span class="lineNoCov">          0 :         while (att) {</span>
+<span class="lineNum">     337 </span><span class="lineNoCov">          0 :                 if (att-&gt;data == input_attribute) break;</span>
+<span class="lineNum">     338 </span><span class="lineNoCov">          0 :                 att = att-&gt;next;</span>
+<span class="lineNum">     339 </span>            :         }
+<span class="lineNum">     340 </span><span class="lineNoCov">          0 :         if (!att) return NULL;</span>
+<span class="lineNum">     341 </span><span class="lineNoCov">          0 :         return gf_svg_get_property_pointer_from_tag(output_property_context, att-&gt;tag);</span>
+<a name="342"><span class="lineNum">     342 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     343 </span>            : 
+<span class="lineNum">     344 </span>            : Bool gf_svg_is_property(GF_Node *node, GF_FieldInfo *target_attribute)
+<span class="lineNum">     345 </span>            : {
+<span class="lineNum">     346 </span><span class="lineNoCov">          0 :         u32 tag = gf_node_get_tag(node);</span>
+<span class="lineNum">     347 </span>            : 
+<span class="lineNum">     348 </span><span class="lineNoCov">          0 :         if (tag &gt; GF_NODE_RANGE_LAST_VRML) {</span>
+<span class="lineNum">     349 </span><span class="lineNoCov">          0 :                 SVG_Element *e = (SVG_Element *)node;</span>
+<span class="lineNum">     350 </span><span class="lineNoCov">          0 :                 SVGAttribute *att = e-&gt;attributes;</span>
+<span class="lineNum">     351 </span><span class="lineNoCov">          0 :                 while (att) {</span>
+<span class="lineNum">     352 </span><span class="lineNoCov">          0 :                         if (att-&gt;data == target_attribute-&gt;far_ptr) break;</span>
+<span class="lineNum">     353 </span><span class="lineNoCov">          0 :                         att = att-&gt;next;</span>
+<span class="lineNum">     354 </span>            :                 }
+<span class="lineNum">     355 </span><span class="lineNoCov">          0 :                 if (!att) return 0;</span>
+<span class="lineNum">     356 </span><span class="lineNoCov">          0 :                 switch (att-&gt;tag) {</span>
+<span class="lineNum">     357 </span>            :                 case TAG_SVG_ATT_audio_level:
+<span class="lineNum">     358 </span>            :                 case TAG_SVG_ATT_color:
+<span class="lineNum">     359 </span>            :                 case TAG_SVG_ATT_color_rendering:
+<span class="lineNum">     360 </span>            :                 case TAG_SVG_ATT_display:
+<span class="lineNum">     361 </span>            :                 case TAG_SVG_ATT_display_align:
+<span class="lineNum">     362 </span>            :                 case TAG_SVG_ATT_fill:
+<span class="lineNum">     363 </span>            :                 case TAG_SVG_ATT_fill_opacity:
+<span class="lineNum">     364 </span>            :                 case TAG_SVG_ATT_fill_rule:
+<span class="lineNum">     365 </span>            :                 case TAG_SVG_ATT_font_family:
+<span class="lineNum">     366 </span>            :                 case TAG_SVG_ATT_font_size:
+<span class="lineNum">     367 </span>            :                 case TAG_SVG_ATT_font_style:
+<span class="lineNum">     368 </span>            :                 case TAG_SVG_ATT_font_variant:
+<span class="lineNum">     369 </span>            :                 case TAG_SVG_ATT_font_weight:
+<span class="lineNum">     370 </span>            :                 case TAG_SVG_ATT_image_rendering:
+<span class="lineNum">     371 </span>            :                 case TAG_SVG_ATT_line_increment:
+<span class="lineNum">     372 </span>            :                 case TAG_SVG_ATT_opacity:
+<span class="lineNum">     373 </span>            :                 case TAG_SVG_ATT_pointer_events:
+<span class="lineNum">     374 </span>            :                 case TAG_SVG_ATT_shape_rendering:
+<span class="lineNum">     375 </span>            :                 case TAG_SVG_ATT_solid_color:
+<span class="lineNum">     376 </span>            :                 case TAG_SVG_ATT_solid_opacity:
+<span class="lineNum">     377 </span>            :                 case TAG_SVG_ATT_stop_color:
+<span class="lineNum">     378 </span>            :                 case TAG_SVG_ATT_stop_opacity:
+<span class="lineNum">     379 </span>            :                 case TAG_SVG_ATT_stroke:
+<span class="lineNum">     380 </span>            :                 case TAG_SVG_ATT_stroke_dasharray:
+<span class="lineNum">     381 </span>            :                 case TAG_SVG_ATT_stroke_dashoffset:
+<span class="lineNum">     382 </span>            :                 case TAG_SVG_ATT_stroke_linecap:
+<span class="lineNum">     383 </span>            :                 case TAG_SVG_ATT_stroke_linejoin:
+<span class="lineNum">     384 </span>            :                 case TAG_SVG_ATT_stroke_miterlimit:
+<span class="lineNum">     385 </span>            :                 case TAG_SVG_ATT_stroke_opacity:
+<span class="lineNum">     386 </span>            :                 case TAG_SVG_ATT_stroke_width:
+<span class="lineNum">     387 </span>            :                 case TAG_SVG_ATT_text_align:
+<span class="lineNum">     388 </span>            :                 case TAG_SVG_ATT_text_anchor:
+<span class="lineNum">     389 </span>            :                 case TAG_SVG_ATT_text_rendering:
+<span class="lineNum">     390 </span>            :                 case TAG_SVG_ATT_vector_effect:
+<span class="lineNum">     391 </span>            :                 case TAG_SVG_ATT_viewport_fill:
+<span class="lineNum">     392 </span>            :                 case TAG_SVG_ATT_viewport_fill_opacity:
+<span class="lineNum">     393 </span>            :                 case TAG_SVG_ATT_visibility:
+<span class="lineNum">     394 </span><span class="lineNoCov">          0 :                         return 1;</span>
+<span class="lineNum">     395 </span>            :                 default:
+<span class="lineNum">     396 </span><span class="lineNoCov">          0 :                         return 0;</span>
+<span class="lineNum">     397 </span>            :                 }
+<span class="lineNum">     398 </span>            :         }
+<span class="lineNum">     399 </span>            :         else {
+<span class="lineNum">     400 </span><span class="lineNoCov">          0 :                 return 0;</span>
+<span class="lineNum">     401 </span>            :         }
+<span class="lineNum">     402 </span><span class="lineNoCov">          0 : }</span>
+<a name="403"><span class="lineNum">     403 </span>            : </a>
+<span class="lineNum">     404 </span>            : /* TODO: Check that all possibly inherited types are treated */
+<span class="lineNum">     405 </span>            : Bool gf_svg_is_inherit(GF_FieldInfo *a)
+<span class="lineNum">     406 </span>            : {
+<span class="lineNum">     407 </span><span class="lineNoCov">          0 :         if (!a-&gt;far_ptr) return 1;</span>
+<span class="lineNum">     408 </span>            : 
+<span class="lineNum">     409 </span><span class="lineNoCov">          0 :         switch (a-&gt;fieldType) {</span>
+<span class="lineNum">     410 </span>            :         case SVG_Color_datatype:
+<span class="lineNum">     411 </span><span class="lineNoCov">          0 :                 return (((SVG_Color *)a-&gt;far_ptr)-&gt;type == SVG_COLOR_INHERIT);</span>
+<span class="lineNum">     412 </span>            :                 break;
+<span class="lineNum">     413 </span>            :         case SVG_Paint_datatype:
+<span class="lineNum">     414 </span><span class="lineNoCov">          0 :                 return (((SVG_Paint *)a-&gt;far_ptr)-&gt;type == SVG_PAINT_INHERIT);</span>
+<span class="lineNum">     415 </span>            :                 break;
+<span class="lineNum">     416 </span>            :         case SVG_FontSize_datatype:
+<span class="lineNum">     417 </span>            :         case SVG_Number_datatype:
+<span class="lineNum">     418 </span><span class="lineNoCov">          0 :                 return (((SVG_Number *)a-&gt;far_ptr)-&gt;type == SVG_NUMBER_INHERIT);</span>
+<span class="lineNum">     419 </span>            :                 break;
+<span class="lineNum">     420 </span>            :         case SVG_RenderingHint_datatype:
+<span class="lineNum">     421 </span><span class="lineNoCov">          0 :                 return (*((SVG_RenderingHint *)a-&gt;far_ptr) == SVG_RENDERINGHINT_INHERIT);</span>
+<span class="lineNum">     422 </span>            :                 break;
+<span class="lineNum">     423 </span>            :         case SVG_Display_datatype:
+<span class="lineNum">     424 </span><span class="lineNoCov">          0 :                 return (*((SVG_Display *)a-&gt;far_ptr) == SVG_DISPLAY_INHERIT);</span>
+<span class="lineNum">     425 </span>            :                 break;
+<span class="lineNum">     426 </span>            :         case SVG_DisplayAlign_datatype:
+<span class="lineNum">     427 </span><span class="lineNoCov">          0 :                 return (*((SVG_DisplayAlign *)a-&gt;far_ptr) == SVG_DISPLAYALIGN_INHERIT);</span>
+<span class="lineNum">     428 </span>            :                 break;
+<span class="lineNum">     429 </span>            :         case SVG_TextAlign_datatype:
+<span class="lineNum">     430 </span><span class="lineNoCov">          0 :                 return (*((SVG_TextAlign *)a-&gt;far_ptr) == SVG_TEXTALIGN_INHERIT);</span>
+<span class="lineNum">     431 </span>            :                 break;
+<span class="lineNum">     432 </span>            :         case SVG_FillRule_datatype:
+<span class="lineNum">     433 </span><span class="lineNoCov">          0 :                 return (*((SVG_FillRule *)a-&gt;far_ptr) == SVG_FILLRULE_INHERIT);</span>
+<span class="lineNum">     434 </span>            :                 break;
+<span class="lineNum">     435 </span>            :         case SVG_FontFamily_datatype:
+<span class="lineNum">     436 </span><span class="lineNoCov">          0 :                 return (((SVG_FontFamily *)a-&gt;far_ptr)-&gt;type == SVG_FONTFAMILY_INHERIT);</span>
+<span class="lineNum">     437 </span>            :                 break;
+<span class="lineNum">     438 </span>            :         case SVG_FontStyle_datatype:
+<span class="lineNum">     439 </span><span class="lineNoCov">          0 :                 return (*((SVG_FontStyle *)a-&gt;far_ptr) == SVG_FONTSTYLE_INHERIT);</span>
+<span class="lineNum">     440 </span>            :                 break;
+<span class="lineNum">     441 </span>            :         case SVG_FontWeight_datatype:
+<span class="lineNum">     442 </span><span class="lineNoCov">          0 :                 return (*((SVG_FontWeight *)a-&gt;far_ptr) == SVG_FONTWEIGHT_INHERIT);</span>
+<span class="lineNum">     443 </span>            :                 break;
+<span class="lineNum">     444 </span>            :         case SVG_PointerEvents_datatype:
+<span class="lineNum">     445 </span><span class="lineNoCov">          0 :                 return (*((SVG_PointerEvents *)a-&gt;far_ptr) == SVG_POINTEREVENTS_INHERIT);</span>
+<span class="lineNum">     446 </span>            :                 break;
+<span class="lineNum">     447 </span>            :         case SVG_StrokeDashArray_datatype:
+<span class="lineNum">     448 </span><span class="lineNoCov">          0 :                 return (((SVG_StrokeDashArray *)a-&gt;far_ptr)-&gt;type == SVG_STROKEDASHARRAY_INHERIT);</span>
+<span class="lineNum">     449 </span>            :                 break;
+<span class="lineNum">     450 </span>            :         case SVG_StrokeLineCap_datatype:
+<span class="lineNum">     451 </span><span class="lineNoCov">          0 :                 return (*((SVG_StrokeLineCap *)a-&gt;far_ptr) == SVG_STROKELINECAP_INHERIT);</span>
+<span class="lineNum">     452 </span>            :                 break;
+<span class="lineNum">     453 </span>            :         case SVG_StrokeLineJoin_datatype:
+<span class="lineNum">     454 </span><span class="lineNoCov">          0 :                 return (*((SVG_StrokeLineJoin *)a-&gt;far_ptr) == SVG_STROKELINEJOIN_INHERIT);</span>
+<span class="lineNum">     455 </span>            :                 break;
+<span class="lineNum">     456 </span>            :         case SVG_TextAnchor_datatype:
+<span class="lineNum">     457 </span><span class="lineNoCov">          0 :                 return (*((SVG_TextAnchor *)a-&gt;far_ptr) == SVG_TEXTANCHOR_INHERIT);</span>
+<span class="lineNum">     458 </span>            :                 break;
+<span class="lineNum">     459 </span>            :         case SVG_VectorEffect_datatype:
+<span class="lineNum">     460 </span><span class="lineNoCov">          0 :                 return (*((SVG_VectorEffect *)a-&gt;far_ptr) == SVG_VECTOREFFECT_INHERIT);</span>
+<span class="lineNum">     461 </span>            :                 break;
+<span class="lineNum">     462 </span>            :         case SVG_Visibility_datatype:
+<span class="lineNum">     463 </span><span class="lineNoCov">          0 :                 return (*((SVG_Visibility *)a-&gt;far_ptr) == SVG_VISIBILITY_INHERIT);</span>
+<span class="lineNum">     464 </span>            :                 break;
+<span class="lineNum">     465 </span>            :         case SVG_Overflow_datatype:
+<span class="lineNum">     466 </span><span class="lineNoCov">          0 :                 return (*((SVG_Overflow *)a-&gt;far_ptr) == SVG_OVERFLOW_INHERIT);</span>
+<span class="lineNum">     467 </span>            :                 break;
+<span class="lineNum">     468 </span>            :         default:
+<span class="lineNum">     469 </span><span class="lineNoCov">          0 :                 return 0;</span>
+<span class="lineNum">     470 </span>            :         }
+<span class="lineNum">     471 </span><span class="lineNoCov">          0 : }</span>
+<a name="472"><span class="lineNum">     472 </span>            : </a>
+<span class="lineNum">     473 </span>            : 
+<span class="lineNum">     474 </span>            : u32 gf_svg_get_modification_flags(SVG_Element *n, GF_FieldInfo *info)
+<span class="lineNum">     475 </span>            : {
+<span class="lineNum">     476 </span>            : //      return 0xFFFFFFFF;
+<span class="lineNum">     477 </span><span class="lineNoCov">          0 :         switch (info-&gt;fieldType) {</span>
+<span class="lineNum">     478 </span>            :         case SVG_Paint_datatype:
+<span class="lineNum">     479 </span><span class="lineNoCov">          0 :                 if (info-&gt;fieldIndex == TAG_SVG_ATT_fill)    return GF_SG_SVG_FILL_DIRTY;</span>
+<span class="lineNum">     480 </span><span class="lineNoCov">          0 :                 if (info-&gt;fieldIndex == TAG_SVG_ATT_stroke) return GF_SG_SVG_STROKE_DIRTY;</span>
+<span class="lineNum">     481 </span><span class="lineNoCov">          0 :                 if (info-&gt;fieldIndex == TAG_SVG_ATT_solid_color) return GF_SG_SVG_SOLIDCOLOR_OR_OPACITY_DIRTY;</span>
+<span class="lineNum">     482 </span><span class="lineNoCov">          0 :                 if (info-&gt;fieldIndex == TAG_SVG_ATT_stop_color) return GF_SG_SVG_STOPCOLOR_OR_OPACITY_DIRTY;</span>
+<span class="lineNum">     483 </span><span class="lineNoCov">          0 :                 if (info-&gt;fieldIndex == TAG_SVG_ATT_color) return GF_SG_SVG_COLOR_DIRTY;</span>
+<span class="lineNum">     484 </span>            :                 break;
+<span class="lineNum">     485 </span>            :         case SVG_Number_datatype:
+<span class="lineNum">     486 </span><span class="lineNoCov">          0 :                 if (info-&gt;fieldIndex == TAG_SVG_ATT_opacity) return GF_SG_SVG_OPACITY_DIRTY;</span>
+<span class="lineNum">     487 </span><span class="lineNoCov">          0 :                 if (info-&gt;fieldIndex == TAG_SVG_ATT_fill_opacity) return GF_SG_SVG_FILLOPACITY_DIRTY;</span>
+<span class="lineNum">     488 </span><span class="lineNoCov">          0 :                 if (info-&gt;fieldIndex == TAG_SVG_ATT_stroke_opacity) return GF_SG_SVG_STROKEOPACITY_DIRTY;</span>
+<span class="lineNum">     489 </span><span class="lineNoCov">          0 :                 if (info-&gt;fieldIndex == TAG_SVG_ATT_solid_opacity) return GF_SG_SVG_SOLIDCOLOR_OR_OPACITY_DIRTY;</span>
+<span class="lineNum">     490 </span><span class="lineNoCov">          0 :                 if (info-&gt;fieldIndex == TAG_SVG_ATT_stop_opacity) return GF_SG_SVG_STOPCOLOR_OR_OPACITY_DIRTY;</span>
+<span class="lineNum">     491 </span><span class="lineNoCov">          0 :                 if (info-&gt;fieldIndex == TAG_SVG_ATT_line_increment) return GF_SG_SVG_LINEINCREMENT_DIRTY;</span>
+<span class="lineNum">     492 </span><span class="lineNoCov">          0 :                 if (info-&gt;fieldIndex == TAG_SVG_ATT_stroke_miterlimit) return GF_SG_SVG_STROKEMITERLIMIT_DIRTY;</span>
+<span class="lineNum">     493 </span>            :                 break;
+<span class="lineNum">     494 </span>            :         case SVG_Length_datatype:
+<span class="lineNum">     495 </span><span class="lineNoCov">          0 :                 if (info-&gt;fieldIndex == TAG_SVG_ATT_stroke_dashoffset) return GF_SG_SVG_STROKEDASHOFFSET_DIRTY;</span>
+<span class="lineNum">     496 </span><span class="lineNoCov">          0 :                 if (info-&gt;fieldIndex == TAG_SVG_ATT_stroke_width) return GF_SG_SVG_STROKEWIDTH_DIRTY;</span>
+<span class="lineNum">     497 </span>            :                 break;
+<span class="lineNum">     498 </span>            :         case SVG_DisplayAlign_datatype:
+<span class="lineNum">     499 </span><span class="lineNoCov">          0 :                 return GF_SG_SVG_DISPLAYALIGN_DIRTY;</span>
+<span class="lineNum">     500 </span>            :         case SVG_FillRule_datatype:
+<span class="lineNum">     501 </span><span class="lineNoCov">          0 :                 return GF_SG_SVG_FILLRULE_DIRTY;</span>
+<span class="lineNum">     502 </span>            :         case SVG_FontFamily_datatype:
+<span class="lineNum">     503 </span><span class="lineNoCov">          0 :                 return GF_SG_SVG_FONTFAMILY_DIRTY;</span>
+<span class="lineNum">     504 </span>            :         case SVG_FontSize_datatype:
+<span class="lineNum">     505 </span><span class="lineNoCov">          0 :                 return GF_SG_SVG_FONTSIZE_DIRTY;</span>
+<span class="lineNum">     506 </span>            :         case SVG_FontStyle_datatype:
+<span class="lineNum">     507 </span><span class="lineNoCov">          0 :                 return GF_SG_SVG_FONTSTYLE_DIRTY;</span>
+<span class="lineNum">     508 </span>            :         case SVG_FontVariant_datatype:
+<span class="lineNum">     509 </span><span class="lineNoCov">          0 :                 return GF_SG_SVG_FONTVARIANT_DIRTY;</span>
+<span class="lineNum">     510 </span>            :         case SVG_FontWeight_datatype:
+<span class="lineNum">     511 </span><span class="lineNoCov">          0 :                 return GF_SG_SVG_FONTWEIGHT_DIRTY;</span>
+<span class="lineNum">     512 </span>            :         case SVG_StrokeDashArray_datatype:
+<span class="lineNum">     513 </span><span class="lineNoCov">          0 :                 return GF_SG_SVG_STROKEDASHARRAY_DIRTY;</span>
+<span class="lineNum">     514 </span>            :         case SVG_StrokeLineCap_datatype:
+<span class="lineNum">     515 </span><span class="lineNoCov">          0 :                 return GF_SG_SVG_STROKELINECAP_DIRTY;</span>
+<span class="lineNum">     516 </span>            :         case SVG_StrokeLineJoin_datatype:
+<span class="lineNum">     517 </span><span class="lineNoCov">          0 :                 return GF_SG_SVG_STROKELINEJOIN_DIRTY;</span>
+<span class="lineNum">     518 </span>            :         case SVG_TextAlign_datatype:
+<span class="lineNum">     519 </span><span class="lineNoCov">          0 :                 return GF_SG_SVG_TEXTPOSITION_DIRTY;</span>
+<span class="lineNum">     520 </span>            :         case SVG_TextAnchor_datatype:
+<span class="lineNum">     521 </span><span class="lineNoCov">          0 :                 return GF_SG_SVG_TEXTPOSITION_DIRTY;</span>
+<span class="lineNum">     522 </span>            :         case SVG_Display_datatype:
+<span class="lineNum">     523 </span><span class="lineNoCov">          0 :                 return GF_SG_SVG_DISPLAY_DIRTY;</span>
+<span class="lineNum">     524 </span>            :         case SVG_VectorEffect_datatype:
+<span class="lineNum">     525 </span><span class="lineNoCov">          0 :                 return GF_SG_SVG_VECTOREFFECT_DIRTY;</span>
+<span class="lineNum">     526 </span>            :         }
+<span class="lineNum">     527 </span>            : 
+<span class="lineNum">     528 </span>            :         /* this is not a property but a regular attribute, the animatable attributes are at the moment:
+<span class="lineNum">     529 </span>            :                 focusable, focusHighlight, gradientUnits, nav-*, target, xlink:href, xlink:type,
+<span class="lineNum">     530 </span>            : 
+<span class="lineNum">     531 </span>            : 
+<span class="lineNum">     532 </span>            :                 the following affect the geometry of the element (some affect the positioning):
+<span class="lineNum">     533 </span>            :                 cx, cy, d, height, offset, pathLength, points, r, rx, ry, width, x, x1, x2, y, y1, y2, rotate
+<span class="lineNum">     534 </span>            : 
+<span class="lineNum">     535 </span>            :                 the following affect the positioning and are computed at each frame:
+<span class="lineNum">     536 </span>            :                 transform, motion
+<span class="lineNum">     537 </span>            :         */
+<span class="lineNum">     538 </span><span class="lineNoCov">          0 :         switch (info-&gt;fieldType) {</span>
+<span class="lineNum">     539 </span>            :         case SVG_Number_datatype:
+<span class="lineNum">     540 </span>            :         case SVG_Length_datatype:
+<span class="lineNum">     541 </span>            :         case SVG_Coordinate_datatype:
+<span class="lineNum">     542 </span>            :         case SVG_Numbers_datatype:
+<span class="lineNum">     543 </span>            :         case SVG_Points_datatype:
+<span class="lineNum">     544 </span>            :         case SVG_Coordinates_datatype:
+<span class="lineNum">     545 </span>            :         case SVG_PathData_datatype:
+<span class="lineNum">     546 </span>            :         case SVG_Rotate_datatype:
+<span class="lineNum">     547 </span><span class="lineNoCov">          0 :                 return GF_SG_SVG_GEOMETRY_DIRTY;</span>
+<span class="lineNum">     548 </span>            : 
+<span class="lineNum">     549 </span>            :         case XMLRI_datatype:
+<span class="lineNum">     550 </span><span class="lineNoCov">          0 :                 return GF_SG_SVG_XLINK_HREF_DIRTY;</span>
+<span class="lineNum">     551 </span>            :         /*for viewbox &amp; PAR, use node dirty to force recomputing of the viewbox*/
+<span class="lineNum">     552 </span>            :         case SVG_PreserveAspectRatio_datatype:
+<span class="lineNum">     553 </span>            :         case SVG_ViewBox_datatype:
+<span class="lineNum">     554 </span><span class="lineNoCov">          0 :                 return GF_SG_NODE_DIRTY;</span>
+<span class="lineNum">     555 </span>            : 
+<span class="lineNum">     556 </span>            :         //case SVG_Matrix_datatype:
+<span class="lineNum">     557 </span>            :         //case SVG_Motion_datatype:
+<span class="lineNum">     558 </span>            : 
+<span class="lineNum">     559 </span>            :         default:
+<span class="lineNum">     560 </span><span class="lineNoCov">          0 :                 return 0;</span>
+<span class="lineNum">     561 </span>            :         }
+<span class="lineNum">     562 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     563 </span>            : 
+<span class="lineNum">     564 </span>            : /* NOTE: Some properties (audio-level, display, opacity, solid*, stop*, vector-effect, viewport*)
+<span class="lineNum">     565 </span>            :          are inherited only when they are  specified with the value 'inherit'
+<span class="lineNum">     566 </span>            :          otherwise they default to their initial value
+<span class="lineNum">     567 </span>            :                  which for the function below means NULL, the compositor will take care of the rest
+<a name="568"><span class="lineNum">     568 </span>            :  */</a>
+<span class="lineNum">     569 </span>            : GF_EXPORT
+<span class="lineNum">     570 </span>            : u32 gf_svg_apply_inheritance(SVGAllAttributes *all_atts, SVGPropertiesPointers *render_svg_props)
+<span class="lineNum">     571 </span>            : {
+<span class="lineNum">     572 </span>            :         u32 inherited_flags_mask = GF_SG_NODE_DIRTY | GF_SG_CHILD_DIRTY;
+<span class="lineNum">     573 </span><span class="lineNoCov">          0 :         if(!all_atts || !render_svg_props) return ~inherited_flags_mask;</span>
+<span class="lineNum">     574 </span>            : 
+<span class="lineNum">     575 </span><span class="lineNoCov">          0 :         if (!all_atts-&gt;audio_level) {</span>
+<span class="lineNum">     576 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;audio_level = NULL;</span>
+<span class="lineNum">     577 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     578 </span><span class="lineNoCov">          0 :                 Fixed par_val = render_svg_props-&gt;computed_audio_level;</span>
+<span class="lineNum">     579 </span>            :                 Fixed val;
+<span class="lineNum">     580 </span><span class="lineNoCov">          0 :                 if (all_atts-&gt;audio_level-&gt;type != SVG_NUMBER_INHERIT) {</span>
+<span class="lineNum">     581 </span><span class="lineNoCov">          0 :                         render_svg_props-&gt;audio_level = all_atts-&gt;audio_level;</span>
+<span class="lineNum">     582 </span><span class="lineNoCov">          0 :                         val = all_atts-&gt;audio_level-&gt;value;</span>
+<span class="lineNum">     583 </span><span class="lineNoCov">          0 :                 } else if (render_svg_props-&gt;audio_level) {</span>
+<span class="lineNum">     584 </span><span class="lineNoCov">          0 :                         val = render_svg_props-&gt;audio_level-&gt;value;</span>
+<span class="lineNum">     585 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     586 </span>            :                         val = FIX_ONE;
+<span class="lineNum">     587 </span>            :                 }
+<span class="lineNum">     588 </span><span class="lineNoCov">          0 :                 par_val = MIN(FIX_ONE, MAX( par_val, 0));</span>
+<span class="lineNum">     589 </span><span class="lineNoCov">          0 :                 val = MIN(FIX_ONE, MAX( val, 0));</span>
+<span class="lineNum">     590 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;computed_audio_level = gf_mulfix(val, par_val);</span>
+<span class="lineNum">     591 </span>            :         }
+<span class="lineNum">     592 </span>            : 
+<span class="lineNum">     593 </span><span class="lineNoCov">          0 :         if (all_atts-&gt;color &amp;&amp; all_atts-&gt;color-&gt;type == SVG_PAINT_COLOR</span>
+<span class="lineNum">     594 </span><span class="lineNoCov">          0 :                 &amp;&amp; all_atts-&gt;color-&gt;color.type != SVG_COLOR_INHERIT) {</span>
+<span class="lineNum">     595 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;color = all_atts-&gt;color;</span>
+<span class="lineNum">     596 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     597 </span>            :                 inherited_flags_mask |= GF_SG_SVG_COLOR_DIRTY;
+<span class="lineNum">     598 </span>            :         }
+<span class="lineNum">     599 </span><span class="lineNoCov">          0 :         if (all_atts-&gt;color_rendering &amp;&amp; *(all_atts-&gt;color_rendering) != SVG_RENDERINGHINT_INHERIT) {</span>
+<span class="lineNum">     600 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;color_rendering = all_atts-&gt;color_rendering;</span>
+<span class="lineNum">     601 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     602 </span><span class="lineNoCov">          0 :         if (all_atts-&gt;display &amp;&amp; *(all_atts-&gt;display) != SVG_DISPLAY_INHERIT) {</span>
+<span class="lineNum">     603 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;display = all_atts-&gt;display;</span>
+<span class="lineNum">     604 </span><span class="lineNoCov">          0 :         } else if (!all_atts-&gt;display) {</span>
+<span class="lineNum">     605 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;display = NULL;</span>
+<span class="lineNum">     606 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     607 </span><span class="lineNoCov">          0 :                 inherited_flags_mask |= GF_SG_SVG_DISPLAY_DIRTY;</span>
+<span class="lineNum">     608 </span>            :         }
+<span class="lineNum">     609 </span>            : 
+<span class="lineNum">     610 </span><span class="lineNoCov">          0 :         if (all_atts-&gt;display_align &amp;&amp; *(all_atts-&gt;display_align) != SVG_DISPLAYALIGN_INHERIT) {</span>
+<span class="lineNum">     611 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;display_align = all_atts-&gt;display_align;</span>
+<span class="lineNum">     612 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     613 </span><span class="lineNoCov">          0 :                 inherited_flags_mask |= GF_SG_SVG_DISPLAYALIGN_DIRTY;</span>
+<span class="lineNum">     614 </span>            :         }
+<span class="lineNum">     615 </span><span class="lineNoCov">          0 :         if (all_atts-&gt;fill &amp;&amp; all_atts-&gt;fill-&gt;type != SVG_PAINT_INHERIT) {</span>
+<span class="lineNum">     616 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;fill = all_atts-&gt;fill;</span>
+<span class="lineNum">     617 </span><span class="lineNoCov">          0 :                 if (all_atts-&gt;fill-&gt;type == SVG_PAINT_COLOR &amp;&amp;</span>
+<span class="lineNum">     618 </span><span class="lineNoCov">          0 :                         all_atts-&gt;fill-&gt;color.type == SVG_COLOR_CURRENTCOLOR) {</span>
+<span class="lineNum">     619 </span><span class="lineNoCov">          0 :                         render_svg_props-&gt;fill = render_svg_props-&gt;color;</span>
+<span class="lineNum">     620 </span><span class="lineNoCov">          0 :                         if (inherited_flags_mask &amp; GF_SG_SVG_COLOR_DIRTY) {</span>
+<span class="lineNum">     621 </span><span class="lineNoCov">          0 :                                 inherited_flags_mask |= GF_SG_SVG_FILL_DIRTY;</span>
+<span class="lineNum">     622 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     623 </span>            :                 }
+<span class="lineNum">     624 </span>            :         } else {
+<span class="lineNum">     625 </span><span class="lineNoCov">          0 :                 inherited_flags_mask |= GF_SG_SVG_FILL_DIRTY;</span>
+<span class="lineNum">     626 </span>            :         }
+<span class="lineNum">     627 </span><span class="lineNoCov">          0 :         if (all_atts-&gt;fill_opacity &amp;&amp; all_atts-&gt;fill_opacity-&gt;type != SVG_NUMBER_INHERIT) {</span>
+<span class="lineNum">     628 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;fill_opacity = all_atts-&gt;fill_opacity;</span>
+<span class="lineNum">     629 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     630 </span><span class="lineNoCov">          0 :                 inherited_flags_mask |= GF_SG_SVG_FILLOPACITY_DIRTY;</span>
+<span class="lineNum">     631 </span>            :         }
+<span class="lineNum">     632 </span><span class="lineNoCov">          0 :         if (all_atts-&gt;fill_rule &amp;&amp; *(all_atts-&gt;fill_rule) != SVG_FILLRULE_INHERIT) {</span>
+<span class="lineNum">     633 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;fill_rule = all_atts-&gt;fill_rule;</span>
+<span class="lineNum">     634 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     635 </span><span class="lineNoCov">          0 :                 inherited_flags_mask |= GF_SG_SVG_FILLRULE_DIRTY;</span>
+<span class="lineNum">     636 </span>            :         }
+<span class="lineNum">     637 </span><span class="lineNoCov">          0 :         if (all_atts-&gt;font_family &amp;&amp; all_atts-&gt;font_family-&gt;type != SVG_FONTFAMILY_INHERIT) {</span>
+<span class="lineNum">     638 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;font_family = all_atts-&gt;font_family;</span>
+<span class="lineNum">     639 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     640 </span><span class="lineNoCov">          0 :                 inherited_flags_mask |= GF_SG_SVG_FONTFAMILY_DIRTY;</span>
+<span class="lineNum">     641 </span>            :         }
+<span class="lineNum">     642 </span><span class="lineNoCov">          0 :         if (all_atts-&gt;font_size &amp;&amp; all_atts-&gt;font_size-&gt;type != SVG_NUMBER_INHERIT) {</span>
+<span class="lineNum">     643 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;font_size = all_atts-&gt;font_size;</span>
+<span class="lineNum">     644 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     645 </span><span class="lineNoCov">          0 :                 inherited_flags_mask |= GF_SG_SVG_FONTSIZE_DIRTY;</span>
+<span class="lineNum">     646 </span>            :         }
+<span class="lineNum">     647 </span><span class="lineNoCov">          0 :         if (all_atts-&gt;font_style &amp;&amp; *(all_atts-&gt;font_style) != SVG_FONTSTYLE_INHERIT) {</span>
+<span class="lineNum">     648 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;font_style = all_atts-&gt;font_style;</span>
+<span class="lineNum">     649 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     650 </span><span class="lineNoCov">          0 :                 inherited_flags_mask |= GF_SG_SVG_FONTSTYLE_DIRTY;</span>
+<span class="lineNum">     651 </span>            :         }
+<span class="lineNum">     652 </span><span class="lineNoCov">          0 :         if (all_atts-&gt;font_variant &amp;&amp; *(all_atts-&gt;font_variant) != SVG_FONTVARIANT_INHERIT) {</span>
+<span class="lineNum">     653 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;font_variant = all_atts-&gt;font_variant;</span>
+<span class="lineNum">     654 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     655 </span><span class="lineNoCov">          0 :                 inherited_flags_mask |= GF_SG_SVG_FONTVARIANT_DIRTY;</span>
+<span class="lineNum">     656 </span>            :         }
+<span class="lineNum">     657 </span><span class="lineNoCov">          0 :         if (all_atts-&gt;font_weight &amp;&amp; *(all_atts-&gt;font_weight) != SVG_FONTWEIGHT_INHERIT) {</span>
+<span class="lineNum">     658 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;font_weight = all_atts-&gt;font_weight;</span>
+<span class="lineNum">     659 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     660 </span><span class="lineNoCov">          0 :                 inherited_flags_mask |= GF_SG_SVG_FONTWEIGHT_DIRTY;</span>
+<span class="lineNum">     661 </span>            :         }
+<span class="lineNum">     662 </span><span class="lineNoCov">          0 :         if (all_atts-&gt;image_rendering &amp;&amp; *(all_atts-&gt;image_rendering) != SVG_RENDERINGHINT_INHERIT) {</span>
+<span class="lineNum">     663 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;image_rendering = all_atts-&gt;image_rendering;</span>
+<span class="lineNum">     664 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     665 </span><span class="lineNoCov">          0 :         if (all_atts-&gt;line_increment &amp;&amp; all_atts-&gt;line_increment-&gt;type != SVG_NUMBER_INHERIT) {</span>
+<span class="lineNum">     666 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;line_increment = all_atts-&gt;line_increment;</span>
+<span class="lineNum">     667 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     668 </span><span class="lineNoCov">          0 :                 inherited_flags_mask |= GF_SG_SVG_LINEINCREMENT_DIRTY;</span>
+<span class="lineNum">     669 </span>            :         }
+<span class="lineNum">     670 </span><span class="lineNoCov">          0 :         if (all_atts-&gt;opacity &amp;&amp; all_atts-&gt;opacity-&gt;type != SVG_NUMBER_INHERIT) {</span>
+<span class="lineNum">     671 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;opacity = all_atts-&gt;opacity;</span>
+<span class="lineNum">     672 </span><span class="lineNoCov">          0 :         } else if (!all_atts-&gt;opacity) {</span>
+<span class="lineNum">     673 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;opacity = NULL;</span>
+<span class="lineNum">     674 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     675 </span><span class="lineNoCov">          0 :                 inherited_flags_mask |= GF_SG_SVG_OPACITY_DIRTY;</span>
+<span class="lineNum">     676 </span>            :         }
+<span class="lineNum">     677 </span>            : 
+<span class="lineNum">     678 </span><span class="lineNoCov">          0 :         if (all_atts-&gt;pointer_events &amp;&amp; *(all_atts-&gt;pointer_events) != SVG_POINTEREVENTS_INHERIT) {</span>
+<span class="lineNum">     679 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;pointer_events = all_atts-&gt;pointer_events;</span>
+<span class="lineNum">     680 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     681 </span><span class="lineNoCov">          0 :         if (all_atts-&gt;shape_rendering &amp;&amp; *(all_atts-&gt;shape_rendering) != SVG_RENDERINGHINT_INHERIT) {</span>
+<span class="lineNum">     682 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;shape_rendering = all_atts-&gt;shape_rendering;</span>
+<span class="lineNum">     683 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     684 </span><span class="lineNoCov">          0 :         if (all_atts-&gt;solid_color &amp;&amp; all_atts-&gt;solid_color-&gt;type != SVG_PAINT_INHERIT) {</span>
+<span class="lineNum">     685 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;solid_color = all_atts-&gt;solid_color;</span>
+<span class="lineNum">     686 </span><span class="lineNoCov">          0 :                 if (all_atts-&gt;solid_color-&gt;type == SVG_PAINT_COLOR &amp;&amp;</span>
+<span class="lineNum">     687 </span><span class="lineNoCov">          0 :                         all_atts-&gt;solid_color-&gt;color.type == SVG_COLOR_CURRENTCOLOR) {</span>
+<span class="lineNum">     688 </span><span class="lineNoCov">          0 :                         render_svg_props-&gt;solid_color = render_svg_props-&gt;color;</span>
+<span class="lineNum">     689 </span><span class="lineNoCov">          0 :                         if (inherited_flags_mask &amp; GF_SG_SVG_COLOR_DIRTY) {</span>
+<span class="lineNum">     690 </span><span class="lineNoCov">          0 :                                 inherited_flags_mask |= GF_SG_SVG_SOLIDCOLOR_OR_OPACITY_DIRTY;</span>
+<span class="lineNum">     691 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     692 </span>            :                 }
+<span class="lineNum">     693 </span><span class="lineNoCov">          0 :         } else if (!all_atts-&gt;solid_color) {</span>
+<span class="lineNum">     694 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;solid_color = NULL;</span>
+<span class="lineNum">     695 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     696 </span><span class="lineNoCov">          0 :                 inherited_flags_mask |= GF_SG_SVG_SOLIDCOLOR_OR_OPACITY_DIRTY;</span>
+<span class="lineNum">     697 </span>            :         }
+<span class="lineNum">     698 </span><span class="lineNoCov">          0 :         if (all_atts-&gt;solid_opacity &amp;&amp; all_atts-&gt;solid_opacity-&gt;type != SVG_NUMBER_INHERIT) {</span>
+<span class="lineNum">     699 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;solid_opacity = all_atts-&gt;solid_opacity;</span>
+<span class="lineNum">     700 </span><span class="lineNoCov">          0 :         } else if (!all_atts-&gt;solid_opacity) {</span>
+<span class="lineNum">     701 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;solid_opacity = NULL;</span>
+<span class="lineNum">     702 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     703 </span><span class="lineNoCov">          0 :                 inherited_flags_mask |= GF_SG_SVG_SOLIDCOLOR_OR_OPACITY_DIRTY;</span>
+<span class="lineNum">     704 </span>            :         }
+<span class="lineNum">     705 </span><span class="lineNoCov">          0 :         if (all_atts-&gt;stop_color &amp;&amp; all_atts-&gt;stop_color-&gt;type != SVG_PAINT_INHERIT) {</span>
+<span class="lineNum">     706 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;stop_color = all_atts-&gt;stop_color;</span>
+<span class="lineNum">     707 </span><span class="lineNoCov">          0 :                 if (all_atts-&gt;stop_color-&gt;type == SVG_PAINT_COLOR &amp;&amp;</span>
+<span class="lineNum">     708 </span><span class="lineNoCov">          0 :                         all_atts-&gt;stop_color-&gt;color.type == SVG_COLOR_CURRENTCOLOR) {</span>
+<span class="lineNum">     709 </span><span class="lineNoCov">          0 :                         render_svg_props-&gt;stop_color = render_svg_props-&gt;color;</span>
+<span class="lineNum">     710 </span><span class="lineNoCov">          0 :                         if (inherited_flags_mask &amp; GF_SG_SVG_COLOR_DIRTY) {</span>
+<span class="lineNum">     711 </span><span class="lineNoCov">          0 :                                 inherited_flags_mask |= GF_SG_SVG_STOPCOLOR_OR_OPACITY_DIRTY;</span>
+<span class="lineNum">     712 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     713 </span>            :                 }
+<span class="lineNum">     714 </span><span class="lineNoCov">          0 :         } else if (!all_atts-&gt;stop_color) {</span>
+<span class="lineNum">     715 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;stop_color = NULL;</span>
+<span class="lineNum">     716 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     717 </span><span class="lineNoCov">          0 :                 inherited_flags_mask |= GF_SG_SVG_STOPCOLOR_OR_OPACITY_DIRTY;</span>
+<span class="lineNum">     718 </span>            :         }
+<span class="lineNum">     719 </span><span class="lineNoCov">          0 :         if (all_atts-&gt;stop_opacity &amp;&amp; all_atts-&gt;stop_opacity-&gt;type != SVG_NUMBER_INHERIT) {</span>
+<span class="lineNum">     720 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;stop_opacity = all_atts-&gt;stop_opacity;</span>
+<span class="lineNum">     721 </span><span class="lineNoCov">          0 :         } else if (!all_atts-&gt;stop_opacity) {</span>
+<span class="lineNum">     722 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;stop_opacity = NULL;</span>
+<span class="lineNum">     723 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     724 </span><span class="lineNoCov">          0 :                 inherited_flags_mask |= GF_SG_SVG_STOPCOLOR_OR_OPACITY_DIRTY;</span>
+<span class="lineNum">     725 </span>            :         }
+<span class="lineNum">     726 </span><span class="lineNoCov">          0 :         if (all_atts-&gt;stroke &amp;&amp; all_atts-&gt;stroke-&gt;type != SVG_PAINT_INHERIT) {</span>
+<span class="lineNum">     727 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;stroke = all_atts-&gt;stroke;</span>
+<span class="lineNum">     728 </span><span class="lineNoCov">          0 :                 if (all_atts-&gt;stroke-&gt;type == SVG_PAINT_COLOR &amp;&amp;</span>
+<span class="lineNum">     729 </span><span class="lineNoCov">          0 :                         all_atts-&gt;stroke-&gt;color.type == SVG_COLOR_CURRENTCOLOR) {</span>
+<span class="lineNum">     730 </span><span class="lineNoCov">          0 :                         render_svg_props-&gt;stroke = render_svg_props-&gt;color;</span>
+<span class="lineNum">     731 </span><span class="lineNoCov">          0 :                         if (inherited_flags_mask &amp; GF_SG_SVG_COLOR_DIRTY) {</span>
+<span class="lineNum">     732 </span><span class="lineNoCov">          0 :                                 inherited_flags_mask |= GF_SG_SVG_STROKE_DIRTY;</span>
+<span class="lineNum">     733 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     734 </span>            :                 }
+<span class="lineNum">     735 </span>            :         } else {
+<span class="lineNum">     736 </span><span class="lineNoCov">          0 :                 inherited_flags_mask |= GF_SG_SVG_STROKE_DIRTY;</span>
+<span class="lineNum">     737 </span>            :         }
+<span class="lineNum">     738 </span><span class="lineNoCov">          0 :         if (all_atts-&gt;stroke_dasharray &amp;&amp; all_atts-&gt;stroke_dasharray-&gt;type != SVG_STROKEDASHARRAY_INHERIT) {</span>
+<span class="lineNum">     739 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;stroke_dasharray = all_atts-&gt;stroke_dasharray;</span>
+<span class="lineNum">     740 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     741 </span><span class="lineNoCov">          0 :                 inherited_flags_mask |= GF_SG_SVG_STROKEDASHARRAY_DIRTY;</span>
+<span class="lineNum">     742 </span>            :         }
+<span class="lineNum">     743 </span><span class="lineNoCov">          0 :         if (all_atts-&gt;stroke_dashoffset &amp;&amp; all_atts-&gt;stroke_dashoffset-&gt;type != SVG_NUMBER_INHERIT) {</span>
+<span class="lineNum">     744 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;stroke_dashoffset = all_atts-&gt;stroke_dashoffset;</span>
+<span class="lineNum">     745 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     746 </span><span class="lineNoCov">          0 :                 inherited_flags_mask |= GF_SG_SVG_STROKEDASHOFFSET_DIRTY;</span>
+<span class="lineNum">     747 </span>            :         }
+<span class="lineNum">     748 </span><span class="lineNoCov">          0 :         if (all_atts-&gt;stroke_linecap &amp;&amp; *(all_atts-&gt;stroke_linecap) != SVG_STROKELINECAP_INHERIT) {</span>
+<span class="lineNum">     749 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;stroke_linecap = all_atts-&gt;stroke_linecap;</span>
+<span class="lineNum">     750 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     751 </span><span class="lineNoCov">          0 :                 inherited_flags_mask |= GF_SG_SVG_STROKELINECAP_DIRTY;</span>
+<span class="lineNum">     752 </span>            :         }
+<span class="lineNum">     753 </span><span class="lineNoCov">          0 :         if (all_atts-&gt;stroke_linejoin &amp;&amp; *(all_atts-&gt;stroke_linejoin) != SVG_STROKELINEJOIN_INHERIT) {</span>
+<span class="lineNum">     754 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;stroke_linejoin = all_atts-&gt;stroke_linejoin;</span>
+<span class="lineNum">     755 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     756 </span><span class="lineNoCov">          0 :                 inherited_flags_mask |= GF_SG_SVG_STROKELINEJOIN_DIRTY;</span>
+<span class="lineNum">     757 </span>            :         }
+<span class="lineNum">     758 </span><span class="lineNoCov">          0 :         if (all_atts-&gt;stroke_miterlimit &amp;&amp; all_atts-&gt;stroke_miterlimit-&gt;type != SVG_NUMBER_INHERIT) {</span>
+<span class="lineNum">     759 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;stroke_miterlimit = all_atts-&gt;stroke_miterlimit;</span>
+<span class="lineNum">     760 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     761 </span><span class="lineNoCov">          0 :                 inherited_flags_mask |= GF_SG_SVG_STROKEMITERLIMIT_DIRTY;</span>
+<span class="lineNum">     762 </span>            :         }
+<span class="lineNum">     763 </span><span class="lineNoCov">          0 :         if (all_atts-&gt;stroke_opacity &amp;&amp; all_atts-&gt;stroke_opacity-&gt;type != SVG_NUMBER_INHERIT) {</span>
+<span class="lineNum">     764 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;stroke_opacity = all_atts-&gt;stroke_opacity;</span>
+<span class="lineNum">     765 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     766 </span><span class="lineNoCov">          0 :                 inherited_flags_mask |= GF_SG_SVG_STROKEOPACITY_DIRTY;</span>
+<span class="lineNum">     767 </span>            :         }
+<span class="lineNum">     768 </span><span class="lineNoCov">          0 :         if (all_atts-&gt;stroke_width &amp;&amp; all_atts-&gt;stroke_width-&gt;type != SVG_NUMBER_INHERIT) {</span>
+<span class="lineNum">     769 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;stroke_width = all_atts-&gt;stroke_width;</span>
+<span class="lineNum">     770 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     771 </span><span class="lineNoCov">          0 :                 inherited_flags_mask |= GF_SG_SVG_STROKEWIDTH_DIRTY;</span>
+<span class="lineNum">     772 </span>            :         }
+<span class="lineNum">     773 </span><span class="lineNoCov">          0 :         if (all_atts-&gt;text_align &amp;&amp; *(all_atts-&gt;text_align) != SVG_TEXTALIGN_INHERIT) {</span>
+<span class="lineNum">     774 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;text_align = all_atts-&gt;text_align;</span>
+<span class="lineNum">     775 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     776 </span><span class="lineNoCov">          0 :                 inherited_flags_mask |= GF_SG_SVG_TEXTPOSITION_DIRTY;</span>
+<span class="lineNum">     777 </span>            :         }
+<span class="lineNum">     778 </span><span class="lineNoCov">          0 :         if (all_atts-&gt;text_anchor &amp;&amp; *(all_atts-&gt;text_anchor) != SVG_TEXTANCHOR_INHERIT) {</span>
+<span class="lineNum">     779 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;text_anchor = all_atts-&gt;text_anchor;</span>
+<span class="lineNum">     780 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     781 </span><span class="lineNoCov">          0 :                 inherited_flags_mask |= GF_SG_SVG_TEXTPOSITION_DIRTY;</span>
+<span class="lineNum">     782 </span>            :         }
+<span class="lineNum">     783 </span><span class="lineNoCov">          0 :         if (all_atts-&gt;text_rendering &amp;&amp; *(all_atts-&gt;text_rendering) != SVG_RENDERINGHINT_INHERIT) {</span>
+<span class="lineNum">     784 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;text_rendering = all_atts-&gt;text_rendering;</span>
+<span class="lineNum">     785 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     786 </span><span class="lineNoCov">          0 :         if (all_atts-&gt;vector_effect &amp;&amp; *(all_atts-&gt;vector_effect) != SVG_VECTOREFFECT_INHERIT) {</span>
+<span class="lineNum">     787 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;vector_effect = all_atts-&gt;vector_effect;</span>
+<span class="lineNum">     788 </span><span class="lineNoCov">          0 :         } else if (!all_atts-&gt;vector_effect) {</span>
+<span class="lineNum">     789 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;vector_effect = NULL;</span>
+<span class="lineNum">     790 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     791 </span><span class="lineNoCov">          0 :                 inherited_flags_mask |= GF_SG_SVG_VECTOREFFECT_DIRTY;</span>
+<span class="lineNum">     792 </span>            :         }
+<span class="lineNum">     793 </span><span class="lineNoCov">          0 :         if (all_atts-&gt;viewport_fill &amp;&amp; all_atts-&gt;viewport_fill-&gt;type != SVG_PAINT_INHERIT) {</span>
+<span class="lineNum">     794 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;viewport_fill = all_atts-&gt;viewport_fill;</span>
+<span class="lineNum">     795 </span><span class="lineNoCov">          0 :         } else if (!all_atts-&gt;viewport_fill) {</span>
+<span class="lineNum">     796 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;viewport_fill = NULL;</span>
+<span class="lineNum">     797 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     798 </span><span class="lineNoCov">          0 :         if (all_atts-&gt;viewport_fill_opacity &amp;&amp; all_atts-&gt;viewport_fill_opacity-&gt;type != SVG_NUMBER_INHERIT) {</span>
+<span class="lineNum">     799 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;viewport_fill_opacity = all_atts-&gt;viewport_fill_opacity;</span>
+<span class="lineNum">     800 </span><span class="lineNoCov">          0 :         } else if (!all_atts-&gt;viewport_fill_opacity) {</span>
+<span class="lineNum">     801 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;viewport_fill_opacity = NULL;</span>
+<span class="lineNum">     802 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     803 </span><span class="lineNoCov">          0 :         if (all_atts-&gt;visibility &amp;&amp; *(all_atts-&gt;visibility) != SVG_VISIBILITY_INHERIT) {</span>
+<span class="lineNum">     804 </span><span class="lineNoCov">          0 :                 render_svg_props-&gt;visibility = all_atts-&gt;visibility;</span>
+<span class="lineNum">     805 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     806 </span><span class="lineNoCov">          0 :         return inherited_flags_mask;</span>
+<span class="lineNum">     807 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     808 </span>            : 
+<span class="lineNum">     809 </span>            : 
+<a name="810"><span class="lineNum">     810 </span>            : </a>
+<span class="lineNum">     811 </span>            : GF_EXPORT
+<span class="lineNum">     812 </span>            : void gf_svg_flatten_attributes(SVG_Element *e, SVGAllAttributes *all_atts)
+<span class="lineNum">     813 </span>            : {
+<span class="lineNum">     814 </span>            :         SVGAttribute *att;
+<span class="lineNum">     815 </span><span class="lineCov">      41204 :         memset(all_atts, 0, sizeof(SVGAllAttributes));</span>
+<span class="lineNum">     816 </span><span class="lineCov">      20602 :         if (e-&gt;sgprivate-&gt;tag &lt;= GF_NODE_FIRST_DOM_NODE_TAG) return;</span>
+<span class="lineNum">     817 </span><span class="lineCov">      20602 :         att = e-&gt;attributes;</span>
+<span class="lineNum">     818 </span><span class="lineCov">     109820 :         while (att) {</span>
+<span class="lineNum">     819 </span><span class="lineCov">      68458 :                 switch(att-&gt;tag) {</span>
+<span class="lineNum">     820 </span>            :                 case TAG_XML_ATT_id:
+<span class="lineNum">     821 </span><span class="lineNoCov">          0 :                         all_atts-&gt;xml_id = (SVG_ID *)att-&gt;data;</span>
+<span class="lineNum">     822 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     823 </span>            :                 case TAG_XML_ATT_base:
+<span class="lineNum">     824 </span><span class="lineCov">          8 :                         all_atts-&gt;xml_base = (XMLRI *)att-&gt;data;</span>
+<span class="lineNum">     825 </span><span class="lineCov">          8 :                         break;</span>
+<span class="lineNum">     826 </span>            :                 case TAG_XML_ATT_lang:
+<span class="lineNum">     827 </span><span class="lineCov">         20 :                         all_atts-&gt;xml_lang = (SVG_LanguageID *)att-&gt;data;</span>
+<span class="lineNum">     828 </span><span class="lineCov">         20 :                         break;</span>
+<span class="lineNum">     829 </span>            :                 case TAG_XML_ATT_space:
+<span class="lineNum">     830 </span><span class="lineCov">         22 :                         all_atts-&gt;xml_space = (XML_Space *)att-&gt;data;</span>
+<span class="lineNum">     831 </span><span class="lineCov">         22 :                         break;</span>
+<span class="lineNum">     832 </span>            : 
+<span class="lineNum">     833 </span>            :                 case TAG_XLINK_ATT_type:
+<span class="lineNum">     834 </span><span class="lineCov">          8 :                         all_atts-&gt;xlink_type = (SVG_String *)att-&gt;data;</span>
+<span class="lineNum">     835 </span><span class="lineCov">          8 :                         break;</span>
+<span class="lineNum">     836 </span>            :                 case TAG_XLINK_ATT_role:
+<span class="lineNum">     837 </span><span class="lineCov">          4 :                         all_atts-&gt;xlink_role = (XMLRI *)att-&gt;data;</span>
+<span class="lineNum">     838 </span><span class="lineCov">          4 :                         break;</span>
+<span class="lineNum">     839 </span>            :                 case TAG_XLINK_ATT_arcrole:
+<span class="lineNum">     840 </span><span class="lineCov">          4 :                         all_atts-&gt;xlink_arcrole = (XMLRI *)att-&gt;data;</span>
+<span class="lineNum">     841 </span><span class="lineCov">          4 :                         break;</span>
+<span class="lineNum">     842 </span>            :                 case TAG_XLINK_ATT_title:
+<span class="lineNum">     843 </span><span class="lineCov">          4 :                         all_atts-&gt;xlink_title = (SVG_String *)att-&gt;data;</span>
+<span class="lineNum">     844 </span><span class="lineCov">          4 :                         break;</span>
+<span class="lineNum">     845 </span>            :                 case TAG_XLINK_ATT_href:
+<span class="lineNum">     846 </span><span class="lineCov">        436 :                         all_atts-&gt;xlink_href = (XMLRI *)att-&gt;data;</span>
+<span class="lineNum">     847 </span><span class="lineCov">        436 :                         break;</span>
+<span class="lineNum">     848 </span>            :                 case TAG_XLINK_ATT_show:
+<span class="lineNum">     849 </span><span class="lineCov">          8 :                         all_atts-&gt;xlink_show = (SVG_String *)att-&gt;data;</span>
+<span class="lineNum">     850 </span><span class="lineCov">          8 :                         break;</span>
+<span class="lineNum">     851 </span>            :                 case TAG_XLINK_ATT_actuate:
+<span class="lineNum">     852 </span><span class="lineCov">          8 :                         all_atts-&gt;xlink_actuate = (SVG_String *)att-&gt;data;</span>
+<span class="lineNum">     853 </span><span class="lineCov">          8 :                         break;</span>
+<span class="lineNum">     854 </span>            : 
+<span class="lineNum">     855 </span>            :                 case TAG_XMLEV_ATT_event:
+<span class="lineNum">     856 </span><span class="lineCov">          2 :                         all_atts-&gt;event = (XMLEV_Event *)att-&gt;data;</span>
+<span class="lineNum">     857 </span><span class="lineCov">          2 :                         break;</span>
+<span class="lineNum">     858 </span>            :                 case TAG_XMLEV_ATT_phase:
+<span class="lineNum">     859 </span><span class="lineNoCov">          0 :                         all_atts-&gt;phase = (XMLEV_Phase *)att-&gt;data;</span>
+<span class="lineNum">     860 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     861 </span>            :                 case TAG_XMLEV_ATT_propagate:
+<span class="lineNum">     862 </span><span class="lineNoCov">          0 :                         all_atts-&gt;propagate = (XMLEV_Propagate *)att-&gt;data;</span>
+<span class="lineNum">     863 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     864 </span>            :                 case TAG_XMLEV_ATT_defaultAction:
+<span class="lineNum">     865 </span><span class="lineNoCov">          0 :                         all_atts-&gt;defaultAction = (XMLEV_DefaultAction *)att-&gt;data;</span>
+<span class="lineNum">     866 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     867 </span>            :                 case TAG_XMLEV_ATT_observer:
+<span class="lineNum">     868 </span><span class="lineNoCov">          0 :                         all_atts-&gt;observer = (XML_IDREF *)att-&gt;data;</span>
+<span class="lineNum">     869 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     870 </span>            :                 case TAG_XMLEV_ATT_target:
+<span class="lineNum">     871 </span><span class="lineCov">          2 :                         all_atts-&gt;listener_target = (XML_IDREF *)att-&gt;data;</span>
+<span class="lineNum">     872 </span><span class="lineCov">          2 :                         break;</span>
+<span class="lineNum">     873 </span>            :                 case TAG_XMLEV_ATT_handler:
+<span class="lineNum">     874 </span><span class="lineCov">          2 :                         all_atts-&gt;handler = (XMLRI *)att-&gt;data;</span>
+<span class="lineNum">     875 </span><span class="lineCov">          2 :                         break;</span>
+<span class="lineNum">     876 </span>            : 
+<span class="lineNum">     877 </span>            :                 case TAG_LSR_ATT_enabled:
+<span class="lineNum">     878 </span><span class="lineNoCov">          0 :                         all_atts-&gt;lsr_enabled = (SVG_Boolean *)att-&gt;data;</span>
+<span class="lineNum">     879 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     880 </span>            : 
+<span class="lineNum">     881 </span>            :                 case TAG_SVG_ATT_id:
+<span class="lineNum">     882 </span><span class="lineCov">       1566 :                         all_atts-&gt;id = (SVG_ID *)att-&gt;data;</span>
+<span class="lineNum">     883 </span><span class="lineCov">       1566 :                         break;</span>
+<span class="lineNum">     884 </span>            :                 case TAG_SVG_ATT__class:
+<span class="lineNum">     885 </span><span class="lineNoCov">          0 :                         all_atts-&gt;_class = (SVG_String *)att-&gt;data;</span>
+<span class="lineNum">     886 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     887 </span>            :                 case TAG_SVG_ATT_requiredFeatures:
+<span class="lineNum">     888 </span><span class="lineCov">         12 :                         all_atts-&gt;requiredFeatures = (SVG_ListOfIRI *)att-&gt;data;</span>
+<span class="lineNum">     889 </span><span class="lineCov">         12 :                         break;</span>
+<span class="lineNum">     890 </span>            :                 case TAG_SVG_ATT_requiredExtensions:
+<span class="lineNum">     891 </span><span class="lineCov">         12 :                         all_atts-&gt;requiredExtensions = (SVG_ListOfIRI *)att-&gt;data;</span>
+<span class="lineNum">     892 </span><span class="lineCov">         12 :                         break;</span>
+<span class="lineNum">     893 </span>            :                 case TAG_SVG_ATT_requiredFormats:
+<span class="lineNum">     894 </span><span class="lineCov">         12 :                         all_atts-&gt;requiredFormats = (SVG_FormatList *)att-&gt;data;</span>
+<span class="lineNum">     895 </span><span class="lineCov">         12 :                         break;</span>
+<span class="lineNum">     896 </span>            :                 case TAG_SVG_ATT_requiredFonts:
+<span class="lineNum">     897 </span><span class="lineNoCov">          0 :                         all_atts-&gt;requiredFonts = (SVG_FontList *)att-&gt;data;</span>
+<span class="lineNum">     898 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     899 </span>            :                 case TAG_SVG_ATT_systemLanguage:
+<span class="lineNum">     900 </span><span class="lineCov">         50 :                         all_atts-&gt;systemLanguage = (SVG_LanguageIDs *)att-&gt;data;</span>
+<span class="lineNum">     901 </span><span class="lineCov">         50 :                         break;</span>
+<span class="lineNum">     902 </span>            :                 case TAG_SVG_ATT_display:
+<span class="lineNum">     903 </span><span class="lineCov">         40 :                         all_atts-&gt;display = (SVG_Display *)att-&gt;data;</span>
+<span class="lineNum">     904 </span><span class="lineCov">         40 :                         break;</span>
+<span class="lineNum">     905 </span>            :                 case TAG_SVG_ATT_visibility:
+<span class="lineNum">     906 </span><span class="lineCov">         32 :                         all_atts-&gt;visibility = (SVG_Visibility *)att-&gt;data;</span>
+<span class="lineNum">     907 </span><span class="lineCov">         32 :                         break;</span>
+<span class="lineNum">     908 </span>            :                 case TAG_SVG_ATT_image_rendering:
+<span class="lineNum">     909 </span><span class="lineCov">         12 :                         all_atts-&gt;image_rendering = (SVG_RenderingHint *)att-&gt;data;</span>
+<span class="lineNum">     910 </span><span class="lineCov">         12 :                         break;</span>
+<span class="lineNum">     911 </span>            :                 case TAG_SVG_ATT_pointer_events:
+<span class="lineNum">     912 </span><span class="lineCov">         12 :                         all_atts-&gt;pointer_events = (SVG_PointerEvents *)att-&gt;data;</span>
+<span class="lineNum">     913 </span><span class="lineCov">         12 :                         break;</span>
+<span class="lineNum">     914 </span>            :                 case TAG_SVG_ATT_shape_rendering:
+<span class="lineNum">     915 </span><span class="lineCov">         12 :                         all_atts-&gt;shape_rendering = (SVG_RenderingHint *)att-&gt;data;</span>
+<span class="lineNum">     916 </span><span class="lineCov">         12 :                         break;</span>
+<span class="lineNum">     917 </span>            :                 case TAG_SVG_ATT_text_rendering:
+<span class="lineNum">     918 </span><span class="lineCov">          8 :                         all_atts-&gt;text_rendering = (SVG_RenderingHint *)att-&gt;data;</span>
+<span class="lineNum">     919 </span><span class="lineCov">          8 :                         break;</span>
+<span class="lineNum">     920 </span>            :                 case TAG_SVG_ATT_audio_level:
+<span class="lineNum">     921 </span><span class="lineCov">          8 :                         all_atts-&gt;audio_level = (SVG_Number *)att-&gt;data;</span>
+<span class="lineNum">     922 </span><span class="lineCov">          8 :                         break;</span>
+<span class="lineNum">     923 </span>            :                 case TAG_SVG_ATT_viewport_fill:
+<span class="lineNum">     924 </span><span class="lineCov">         12 :                         all_atts-&gt;viewport_fill = (SVG_Paint *)att-&gt;data;</span>
+<span class="lineNum">     925 </span><span class="lineCov">         12 :                         break;</span>
+<span class="lineNum">     926 </span>            :                 case TAG_SVG_ATT_viewport_fill_opacity:
+<span class="lineNum">     927 </span><span class="lineCov">          8 :                         all_atts-&gt;viewport_fill_opacity = (SVG_Number *)att-&gt;data;</span>
+<span class="lineNum">     928 </span><span class="lineCov">          8 :                         break;</span>
+<span class="lineNum">     929 </span>            :                 case TAG_SVG_ATT_overflow:
+<span class="lineNum">     930 </span><span class="lineCov">          8 :                         all_atts-&gt;overflow = (SVG_String *)att-&gt;data;</span>
+<span class="lineNum">     931 </span><span class="lineCov">          8 :                         break;</span>
+<span class="lineNum">     932 </span>            :                 case TAG_SVG_ATT_fill_opacity:
+<span class="lineNum">     933 </span><span class="lineCov">        156 :                         all_atts-&gt;fill_opacity = (SVG_Number *)att-&gt;data;</span>
+<span class="lineNum">     934 </span><span class="lineCov">        156 :                         break;</span>
+<span class="lineNum">     935 </span>            :                 case TAG_SVG_ATT_stroke_opacity:
+<span class="lineNum">     936 </span><span class="lineCov">        128 :                         all_atts-&gt;stroke_opacity = (SVG_Number *)att-&gt;data;</span>
+<span class="lineNum">     937 </span><span class="lineCov">        128 :                         break;</span>
+<span class="lineNum">     938 </span>            :                 case TAG_SVG_ATT_fill:
+<span class="lineNum">     939 </span><span class="lineCov">       5818 :                         all_atts-&gt;fill = (SVG_Paint *)att-&gt;data;</span>
+<span class="lineNum">     940 </span><span class="lineCov">       5818 :                         break;</span>
+<span class="lineNum">     941 </span>            :                 case TAG_SVG_ATT_filter:
+<span class="lineNum">     942 </span><span class="lineNoCov">          0 :                         all_atts-&gt;filter = (SVG_Paint *)att-&gt;data;</span>
+<span class="lineNum">     943 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     944 </span>            :                 case TAG_SVG_ATT_fill_rule:
+<span class="lineNum">     945 </span><span class="lineCov">         36 :                         all_atts-&gt;fill_rule = (SVG_FillRule *)att-&gt;data;</span>
+<span class="lineNum">     946 </span><span class="lineCov">         36 :                         break;</span>
+<span class="lineNum">     947 </span>            :                 case TAG_SVG_ATT_stroke:
+<span class="lineNum">     948 </span><span class="lineCov">       5828 :                         all_atts-&gt;stroke = (SVG_Paint *)att-&gt;data;</span>
+<span class="lineNum">     949 </span><span class="lineCov">       5828 :                         break;</span>
+<span class="lineNum">     950 </span>            :                 case TAG_SVG_ATT_stroke_dasharray:
+<span class="lineNum">     951 </span><span class="lineCov">         12 :                         all_atts-&gt;stroke_dasharray = (SVG_StrokeDashArray *)att-&gt;data;</span>
+<span class="lineNum">     952 </span><span class="lineCov">         12 :                         break;</span>
+<span class="lineNum">     953 </span>            :                 case TAG_SVG_ATT_stroke_dashoffset:
+<span class="lineNum">     954 </span><span class="lineCov">          8 :                         all_atts-&gt;stroke_dashoffset = (SVG_Length *)att-&gt;data;</span>
+<span class="lineNum">     955 </span><span class="lineCov">          8 :                         break;</span>
+<span class="lineNum">     956 </span>            :                 case TAG_SVG_ATT_stroke_linecap:
+<span class="lineNum">     957 </span><span class="lineCov">         14 :                         all_atts-&gt;stroke_linecap = (SVG_StrokeLineCap *)att-&gt;data;</span>
+<span class="lineNum">     958 </span><span class="lineCov">         14 :                         break;</span>
+<span class="lineNum">     959 </span>            :                 case TAG_SVG_ATT_stroke_linejoin:
+<span class="lineNum">     960 </span><span class="lineCov">         28 :                         all_atts-&gt;stroke_linejoin = (SVG_StrokeLineJoin *)att-&gt;data;</span>
+<span class="lineNum">     961 </span><span class="lineCov">         28 :                         break;</span>
+<span class="lineNum">     962 </span>            :                 case TAG_SVG_ATT_stroke_miterlimit:
+<span class="lineNum">     963 </span><span class="lineCov">          8 :                         all_atts-&gt;stroke_miterlimit = (SVG_Number *)att-&gt;data;</span>
+<span class="lineNum">     964 </span><span class="lineCov">          8 :                         break;</span>
+<span class="lineNum">     965 </span>            :                 case TAG_SVG_ATT_stroke_width:
+<span class="lineNum">     966 </span><span class="lineCov">        790 :                         all_atts-&gt;stroke_width = (SVG_Length *)att-&gt;data;</span>
+<span class="lineNum">     967 </span><span class="lineCov">        790 :                         break;</span>
+<span class="lineNum">     968 </span>            :                 case TAG_SVG_ATT_color:
+<span class="lineNum">     969 </span><span class="lineCov">         24 :                         all_atts-&gt;color = (SVG_Paint *)att-&gt;data;</span>
+<span class="lineNum">     970 </span><span class="lineCov">         24 :                         break;</span>
+<span class="lineNum">     971 </span>            :                 case TAG_SVG_ATT_color_rendering:
+<span class="lineNum">     972 </span><span class="lineCov">         12 :                         all_atts-&gt;color_rendering = (SVG_RenderingHint *)att-&gt;data;</span>
+<span class="lineNum">     973 </span><span class="lineCov">         12 :                         break;</span>
+<span class="lineNum">     974 </span>            :                 case TAG_SVG_ATT_vector_effect:
+<span class="lineNum">     975 </span><span class="lineCov">         12 :                         all_atts-&gt;vector_effect = (SVG_VectorEffect *)att-&gt;data;</span>
+<span class="lineNum">     976 </span><span class="lineCov">         12 :                         break;</span>
+<span class="lineNum">     977 </span>            :                 case TAG_SVG_ATT_solid_color:
+<span class="lineNum">     978 </span><span class="lineCov">         10 :                         all_atts-&gt;solid_color = (SVG_SVGColor *)att-&gt;data;</span>
+<span class="lineNum">     979 </span><span class="lineCov">         10 :                         break;</span>
+<span class="lineNum">     980 </span>            :                 case TAG_SVG_ATT_solid_opacity:
+<span class="lineNum">     981 </span><span class="lineCov">         10 :                         all_atts-&gt;solid_opacity = (SVG_Number *)att-&gt;data;</span>
+<span class="lineNum">     982 </span><span class="lineCov">         10 :                         break;</span>
+<span class="lineNum">     983 </span>            :                 case TAG_SVG_ATT_display_align:
+<span class="lineNum">     984 </span><span class="lineCov">         22 :                         all_atts-&gt;display_align = (SVG_DisplayAlign *)att-&gt;data;</span>
+<span class="lineNum">     985 </span><span class="lineCov">         22 :                         break;</span>
+<span class="lineNum">     986 </span>            :                 case TAG_SVG_ATT_line_increment:
+<span class="lineNum">     987 </span><span class="lineCov">          4 :                         all_atts-&gt;line_increment = (SVG_Number *)att-&gt;data;</span>
+<span class="lineNum">     988 </span><span class="lineCov">          4 :                         break;</span>
+<span class="lineNum">     989 </span>            :                 case TAG_SVG_ATT_stop_color:
+<span class="lineNum">     990 </span><span class="lineCov">        112 :                         all_atts-&gt;stop_color = (SVG_SVGColor *)att-&gt;data;</span>
+<span class="lineNum">     991 </span><span class="lineCov">        112 :                         break;</span>
+<span class="lineNum">     992 </span>            :                 case TAG_SVG_ATT_stop_opacity:
+<span class="lineNum">     993 </span><span class="lineCov">         72 :                         all_atts-&gt;stop_opacity = (SVG_Number *)att-&gt;data;</span>
+<span class="lineNum">     994 </span><span class="lineCov">         72 :                         break;</span>
+<span class="lineNum">     995 </span>            :                 case TAG_SVG_ATT_font_family:
+<span class="lineNum">     996 </span><span class="lineCov">         32 :                         all_atts-&gt;font_family = (SVG_FontFamily *)att-&gt;data;</span>
+<span class="lineNum">     997 </span><span class="lineCov">         32 :                         break;</span>
+<span class="lineNum">     998 </span>            :                 case TAG_SVG_ATT_font_size:
+<span class="lineNum">     999 </span><span class="lineCov">         94 :                         all_atts-&gt;font_size = (SVG_FontSize *)att-&gt;data;</span>
+<span class="lineNum">    1000 </span><span class="lineCov">         94 :                         break;</span>
+<span class="lineNum">    1001 </span>            :                 case TAG_SVG_ATT_font_style:
+<span class="lineNum">    1002 </span><span class="lineCov">         28 :                         all_atts-&gt;font_style = (SVG_FontStyle *)att-&gt;data;</span>
+<span class="lineNum">    1003 </span><span class="lineCov">         28 :                         break;</span>
+<span class="lineNum">    1004 </span>            :                 case TAG_SVG_ATT_font_variant:
+<span class="lineNum">    1005 </span><span class="lineCov">          4 :                         all_atts-&gt;font_variant = (SVG_FontVariant *)att-&gt;data;</span>
+<span class="lineNum">    1006 </span><span class="lineCov">          4 :                         break;</span>
+<span class="lineNum">    1007 </span>            :                 case TAG_SVG_ATT_font_weight:
+<span class="lineNum">    1008 </span><span class="lineCov">         62 :                         all_atts-&gt;font_weight = (SVG_FontWeight *)att-&gt;data;</span>
+<span class="lineNum">    1009 </span><span class="lineCov">         62 :                         break;</span>
+<span class="lineNum">    1010 </span>            :                 case TAG_SVG_ATT_text_anchor:
+<span class="lineNum">    1011 </span><span class="lineCov">         32 :                         all_atts-&gt;text_anchor = (SVG_TextAnchor *)att-&gt;data;</span>
+<span class="lineNum">    1012 </span><span class="lineCov">         32 :                         break;</span>
+<span class="lineNum">    1013 </span>            :                 case TAG_SVG_ATT_text_align:
+<span class="lineNum">    1014 </span><span class="lineNoCov">          0 :                         all_atts-&gt;text_align = (SVG_TextAlign *)att-&gt;data;</span>
+<span class="lineNum">    1015 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1016 </span>            :                 case TAG_SVG_ATT_text_decoration:
+<span class="lineNum">    1017 </span><span class="lineNoCov">          0 :                         all_atts-&gt;text_decoration = (SVG_String *)att-&gt;data;</span>
+<span class="lineNum">    1018 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1019 </span>            :                 case TAG_SVG_ATT_focusHighlight:
+<span class="lineNum">    1020 </span><span class="lineNoCov">          0 :                         all_atts-&gt;focusHighlight = (SVG_FocusHighlight *)att-&gt;data;</span>
+<span class="lineNum">    1021 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1022 </span>            :                 case TAG_SVG_ATT_externalResourcesRequired:
+<span class="lineNum">    1023 </span><span class="lineCov">          4 :                         all_atts-&gt;externalResourcesRequired = (SVG_Boolean *)att-&gt;data;</span>
+<span class="lineNum">    1024 </span><span class="lineCov">          4 :                         break;</span>
+<span class="lineNum">    1025 </span>            :                 case TAG_SVG_ATT_focusable:
+<span class="lineNum">    1026 </span><span class="lineCov">         22 :                         all_atts-&gt;focusable = (SVG_Focusable *)att-&gt;data;</span>
+<span class="lineNum">    1027 </span><span class="lineCov">         22 :                         break;</span>
+<span class="lineNum">    1028 </span>            :                 case TAG_SVG_ATT_nav_next:
+<span class="lineNum">    1029 </span><span class="lineCov">         22 :                         all_atts-&gt;nav_next = (SVG_Focus *)att-&gt;data;</span>
+<span class="lineNum">    1030 </span><span class="lineCov">         22 :                         break;</span>
+<span class="lineNum">    1031 </span>            :                 case TAG_SVG_ATT_nav_prev:
+<span class="lineNum">    1032 </span><span class="lineCov">         22 :                         all_atts-&gt;nav_prev = (SVG_Focus *)att-&gt;data;</span>
+<span class="lineNum">    1033 </span><span class="lineCov">         22 :                         break;</span>
+<span class="lineNum">    1034 </span>            :                 case TAG_SVG_ATT_nav_up:
+<span class="lineNum">    1035 </span><span class="lineCov">         12 :                         all_atts-&gt;nav_up = (SVG_Focus *)att-&gt;data;</span>
+<span class="lineNum">    1036 </span><span class="lineCov">         12 :                         break;</span>
+<span class="lineNum">    1037 </span>            :                 case TAG_SVG_ATT_nav_up_right:
+<span class="lineNum">    1038 </span><span class="lineCov">         12 :                         all_atts-&gt;nav_up_right = (SVG_Focus *)att-&gt;data;</span>
+<span class="lineNum">    1039 </span><span class="lineCov">         12 :                         break;</span>
+<span class="lineNum">    1040 </span>            :                 case TAG_SVG_ATT_nav_right:
+<span class="lineNum">    1041 </span><span class="lineCov">         12 :                         all_atts-&gt;nav_right = (SVG_Focus *)att-&gt;data;</span>
+<span class="lineNum">    1042 </span><span class="lineCov">         12 :                         break;</span>
+<span class="lineNum">    1043 </span>            :                 case TAG_SVG_ATT_nav_down_right:
+<span class="lineNum">    1044 </span><span class="lineCov">         12 :                         all_atts-&gt;nav_down_right = (SVG_Focus *)att-&gt;data;</span>
+<span class="lineNum">    1045 </span><span class="lineCov">         12 :                         break;</span>
+<span class="lineNum">    1046 </span>            :                 case TAG_SVG_ATT_nav_down:
+<span class="lineNum">    1047 </span><span class="lineCov">         12 :                         all_atts-&gt;nav_down = (SVG_Focus *)att-&gt;data;</span>
+<span class="lineNum">    1048 </span><span class="lineCov">         12 :                         break;</span>
+<span class="lineNum">    1049 </span>            :                 case TAG_SVG_ATT_nav_down_left:
+<span class="lineNum">    1050 </span><span class="lineCov">         12 :                         all_atts-&gt;nav_down_left = (SVG_Focus *)att-&gt;data;</span>
+<span class="lineNum">    1051 </span><span class="lineCov">         12 :                         break;</span>
+<span class="lineNum">    1052 </span>            :                 case TAG_SVG_ATT_nav_left:
+<span class="lineNum">    1053 </span><span class="lineCov">          8 :                         all_atts-&gt;nav_left = (SVG_Focus *)att-&gt;data;</span>
+<span class="lineNum">    1054 </span><span class="lineCov">          8 :                         break;</span>
+<span class="lineNum">    1055 </span>            :                 case TAG_SVG_ATT_nav_up_left:
+<span class="lineNum">    1056 </span><span class="lineCov">         12 :                         all_atts-&gt;nav_up_left = (SVG_Focus *)att-&gt;data;</span>
+<span class="lineNum">    1057 </span><span class="lineCov">         12 :                         break;</span>
+<span class="lineNum">    1058 </span>            :                 case TAG_SVG_ATT_transform:
+<span class="lineNum">    1059 </span><span class="lineCov">         42 :                         all_atts-&gt;transform = (SVG_Transform *)att-&gt;data;</span>
+<span class="lineNum">    1060 </span><span class="lineCov">         42 :                         break;</span>
+<span class="lineNum">    1061 </span>            :                 case TAG_SVG_ATT_target:
+<span class="lineNum">    1062 </span><span class="lineCov">          4 :                         all_atts-&gt;target = (SVG_String *)att-&gt;data;</span>
+<span class="lineNum">    1063 </span><span class="lineCov">          4 :                         break;</span>
+<span class="lineNum">    1064 </span>            :                 case TAG_SVG_ATT_attributeName:
+<span class="lineNum">    1065 </span><span class="lineCov">        204 :                         all_atts-&gt;attributeName = (SMIL_AttributeName *)att-&gt;data;</span>
+<span class="lineNum">    1066 </span><span class="lineCov">        204 :                         break;</span>
+<span class="lineNum">    1067 </span>            :                 case TAG_SVG_ATT_attributeType:
+<span class="lineNum">    1068 </span><span class="lineNoCov">          0 :                         all_atts-&gt;attributeType = (SMIL_AttributeType *)att-&gt;data;</span>
+<span class="lineNum">    1069 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1070 </span>            :                 case TAG_SVG_ATT_begin:
+<span class="lineNum">    1071 </span><span class="lineCov">        218 :                         all_atts-&gt;begin = (SMIL_Times *)att-&gt;data;</span>
+<span class="lineNum">    1072 </span><span class="lineCov">        218 :                         break;</span>
+<span class="lineNum">    1073 </span>            :                 case TAG_SVG_ATT_dur:
+<span class="lineNum">    1074 </span><span class="lineCov">        212 :                         all_atts-&gt;dur = (SMIL_Duration *)att-&gt;data;</span>
+<span class="lineNum">    1075 </span><span class="lineCov">        212 :                         break;</span>
+<span class="lineNum">    1076 </span>            :                 case TAG_SVG_ATT_end:
+<span class="lineNum">    1077 </span><span class="lineCov">        198 :                         all_atts-&gt;end = (SMIL_Times *)att-&gt;data;</span>
+<span class="lineNum">    1078 </span><span class="lineCov">        198 :                         break;</span>
+<span class="lineNum">    1079 </span>            :                 case TAG_SVG_ATT_repeatCount:
+<span class="lineNum">    1080 </span><span class="lineCov">         60 :                         all_atts-&gt;repeatCount = (SMIL_RepeatCount *)att-&gt;data;</span>
+<span class="lineNum">    1081 </span><span class="lineCov">         60 :                         break;</span>
+<span class="lineNum">    1082 </span>            :                 case TAG_SVG_ATT_repeatDur:
+<span class="lineNum">    1083 </span><span class="lineCov">         12 :                         all_atts-&gt;repeatDur = (SMIL_Duration *)att-&gt;data;</span>
+<span class="lineNum">    1084 </span><span class="lineCov">         12 :                         break;</span>
+<span class="lineNum">    1085 </span>            :                 case TAG_SVG_ATT_restart:
+<span class="lineNum">    1086 </span><span class="lineCov">          8 :                         all_atts-&gt;restart = (SMIL_Restart *)att-&gt;data;</span>
+<span class="lineNum">    1087 </span><span class="lineCov">          8 :                         break;</span>
+<span class="lineNum">    1088 </span>            :                 case TAG_SVG_ATT_smil_fill:
+<span class="lineNum">    1089 </span><span class="lineCov">         48 :                         all_atts-&gt;smil_fill = (SMIL_Fill *)att-&gt;data;</span>
+<span class="lineNum">    1090 </span><span class="lineCov">         48 :                         break;</span>
+<span class="lineNum">    1091 </span>            :                 case TAG_SVG_ATT_min:
+<span class="lineNum">    1092 </span><span class="lineCov">          4 :                         all_atts-&gt;min = (SMIL_Duration *)att-&gt;data;</span>
+<span class="lineNum">    1093 </span><span class="lineCov">          4 :                         break;</span>
+<span class="lineNum">    1094 </span>            :                 case TAG_SVG_ATT_max:
+<span class="lineNum">    1095 </span><span class="lineCov">          4 :                         all_atts-&gt;max = (SMIL_Duration *)att-&gt;data;</span>
+<span class="lineNum">    1096 </span><span class="lineCov">          4 :                         break;</span>
+<span class="lineNum">    1097 </span>            :                 case TAG_SVG_ATT_to:
+<span class="lineNum">    1098 </span><span class="lineCov">         54 :                         all_atts-&gt;to = (SMIL_AnimateValue *)att-&gt;data;</span>
+<span class="lineNum">    1099 </span><span class="lineCov">         54 :                         break;</span>
+<span class="lineNum">    1100 </span>            :                 case TAG_SVG_ATT_calcMode:
+<span class="lineNum">    1101 </span><span class="lineCov">         64 :                         all_atts-&gt;calcMode = (SMIL_CalcMode *)att-&gt;data;</span>
+<span class="lineNum">    1102 </span><span class="lineCov">         64 :                         break;</span>
+<span class="lineNum">    1103 </span>            :                 case TAG_SVG_ATT_values:
+<span class="lineNum">    1104 </span><span class="lineCov">        124 :                         all_atts-&gt;values = (SMIL_AnimateValues *)att-&gt;data;</span>
+<span class="lineNum">    1105 </span><span class="lineCov">        124 :                         break;</span>
+<span class="lineNum">    1106 </span>            :                 case TAG_SVG_ATT_keyTimes:
+<span class="lineNum">    1107 </span><span class="lineCov">         12 :                         all_atts-&gt;keyTimes = (SMIL_KeyTimes *)att-&gt;data;</span>
+<span class="lineNum">    1108 </span><span class="lineCov">         12 :                         break;</span>
+<span class="lineNum">    1109 </span>            :                 case TAG_SVG_ATT_keySplines:
+<span class="lineNum">    1110 </span><span class="lineCov">          4 :                         all_atts-&gt;keySplines = (SMIL_KeySplines *)att-&gt;data;</span>
+<span class="lineNum">    1111 </span><span class="lineCov">          4 :                         break;</span>
+<span class="lineNum">    1112 </span>            :                 case TAG_SVG_ATT_from:
+<span class="lineNum">    1113 </span><span class="lineCov">         48 :                         all_atts-&gt;from = (SMIL_AnimateValue *)att-&gt;data;</span>
+<span class="lineNum">    1114 </span><span class="lineCov">         48 :                         break;</span>
+<span class="lineNum">    1115 </span>            :                 case TAG_SVG_ATT_by:
+<span class="lineNum">    1116 </span><span class="lineCov">          6 :                         all_atts-&gt;by = (SMIL_AnimateValue *)att-&gt;data;</span>
+<span class="lineNum">    1117 </span><span class="lineCov">          6 :                         break;</span>
+<span class="lineNum">    1118 </span>            :                 case TAG_SVG_ATT_additive:
+<span class="lineNum">    1119 </span><span class="lineCov">         16 :                         all_atts-&gt;additive = (SMIL_Additive *)att-&gt;data;</span>
+<span class="lineNum">    1120 </span><span class="lineCov">         16 :                         break;</span>
+<span class="lineNum">    1121 </span>            :                 case TAG_SVG_ATT_accumulate:
+<span class="lineNum">    1122 </span><span class="lineCov">          4 :                         all_atts-&gt;accumulate = (SMIL_Accumulate *)att-&gt;data;</span>
+<span class="lineNum">    1123 </span><span class="lineCov">          4 :                         break;</span>
+<span class="lineNum">    1124 </span>            :                 case TAG_SVG_ATT_path:
+<span class="lineNum">    1125 </span><span class="lineCov">         12 :                         all_atts-&gt;path = (SVG_PathData *)att-&gt;data;</span>
+<span class="lineNum">    1126 </span><span class="lineCov">         12 :                         break;</span>
+<span class="lineNum">    1127 </span>            :                 case TAG_SVG_ATT_keyPoints:
+<span class="lineNum">    1128 </span><span class="lineCov">          4 :                         all_atts-&gt;keyPoints = (SMIL_KeyPoints *)att-&gt;data;</span>
+<span class="lineNum">    1129 </span><span class="lineCov">          4 :                         break;</span>
+<span class="lineNum">    1130 </span>            :                 case TAG_SVG_ATT_rotate:
+<span class="lineNum">    1131 </span><span class="lineCov">         14 :                         all_atts-&gt;rotate = (SVG_Rotate *)att-&gt;data;</span>
+<span class="lineNum">    1132 </span><span class="lineCov">         14 :                         break;</span>
+<span class="lineNum">    1133 </span>            :                 case TAG_SVG_ATT_origin:
+<span class="lineNum">    1134 </span><span class="lineNoCov">          0 :                         all_atts-&gt;origin = (SVG_String *)att-&gt;data;</span>
+<span class="lineNum">    1135 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1136 </span>            :                 case TAG_SVG_ATT_transform_type:
+<span class="lineNum">    1137 </span><span class="lineCov">         40 :                         all_atts-&gt;transform_type = (SVG_TransformType *)att-&gt;data;</span>
+<span class="lineNum">    1138 </span><span class="lineCov">         40 :                         break;</span>
+<span class="lineNum">    1139 </span>            :                 case TAG_SVG_ATT_clipBegin:
+<span class="lineNum">    1140 </span><span class="lineNoCov">          0 :                         all_atts-&gt;clipBegin = (SVG_Clock *)att-&gt;data;</span>
+<span class="lineNum">    1141 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1142 </span>            :                 case TAG_SVG_ATT_clipEnd:
+<span class="lineNum">    1143 </span><span class="lineNoCov">          0 :                         all_atts-&gt;clipEnd = (SVG_Clock *)att-&gt;data;</span>
+<span class="lineNum">    1144 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1145 </span>            :                 case TAG_SVG_ATT_syncBehavior:
+<span class="lineNum">    1146 </span><span class="lineNoCov">          0 :                         all_atts-&gt;syncBehavior = (SMIL_SyncBehavior *)att-&gt;data;</span>
+<span class="lineNum">    1147 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1148 </span>            :                 case TAG_SVG_ATT_syncTolerance:
+<span class="lineNum">    1149 </span><span class="lineNoCov">          0 :                         all_atts-&gt;syncTolerance = (SMIL_SyncTolerance *)att-&gt;data;</span>
+<span class="lineNum">    1150 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1151 </span>            :                 case TAG_SVG_ATT_syncMaster:
+<span class="lineNum">    1152 </span><span class="lineNoCov">          0 :                         all_atts-&gt;syncMaster = (SVG_Boolean *)att-&gt;data;</span>
+<span class="lineNum">    1153 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1154 </span>            :                 case TAG_SVG_ATT_syncReference:
+<span class="lineNum">    1155 </span><span class="lineNoCov">          0 :                         all_atts-&gt;syncReference = (XMLRI *)att-&gt;data;</span>
+<span class="lineNum">    1156 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1157 </span>            :                 case TAG_SVG_ATT_x:
+<span class="lineNum">    1158 </span><span class="lineCov">        190 :                         all_atts-&gt;x = (SVG_Coordinate *)att-&gt;data;</span>
+<span class="lineNum">    1159 </span><span class="lineCov">        190 :                         break;</span>
+<span class="lineNum">    1160 </span>            :                 case TAG_SVG_ATT_y:
+<span class="lineNum">    1161 </span><span class="lineCov">        194 :                         all_atts-&gt;y = (SVG_Coordinate *)att-&gt;data;</span>
+<span class="lineNum">    1162 </span><span class="lineCov">        194 :                         break;</span>
+<span class="lineNum">    1163 </span>            :                 case TAG_SVG_ATT_width:
+<span class="lineNum">    1164 </span><span class="lineCov">        444 :                         all_atts-&gt;width = (SVG_Length *)att-&gt;data;</span>
+<span class="lineNum">    1165 </span><span class="lineCov">        444 :                         break;</span>
+<span class="lineNum">    1166 </span>            :                 case TAG_SVG_ATT_height:
+<span class="lineNum">    1167 </span><span class="lineCov">        444 :                         all_atts-&gt;height = (SVG_Length *)att-&gt;data;</span>
+<span class="lineNum">    1168 </span><span class="lineCov">        444 :                         break;</span>
+<span class="lineNum">    1169 </span>            :                 case TAG_SVG_ATT_preserveAspectRatio:
+<span class="lineNum">    1170 </span><span class="lineCov">         32 :                         all_atts-&gt;preserveAspectRatio = (SVG_PreserveAspectRatio *)att-&gt;data;</span>
+<span class="lineNum">    1171 </span><span class="lineCov">         32 :                         break;</span>
+<span class="lineNum">    1172 </span>            :                 case TAG_SVG_ATT_initialVisibility:
+<span class="lineNum">    1173 </span><span class="lineNoCov">          0 :                         all_atts-&gt;initialVisibility = (SVG_InitialVisibility *)att-&gt;data;</span>
+<span class="lineNum">    1174 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1175 </span>            :                 case TAG_SVG_ATT_type:
+<span class="lineNum">    1176 </span><span class="lineCov">          8 :                         all_atts-&gt;type = (SVG_ContentType *)att-&gt;data;</span>
+<span class="lineNum">    1177 </span><span class="lineCov">          8 :                         break;</span>
+<span class="lineNum">    1178 </span>            :                 case TAG_SVG_ATT_cx:
+<span class="lineNum">    1179 </span><span class="lineCov">         90 :                         all_atts-&gt;cx = (SVG_Coordinate *)att-&gt;data;</span>
+<span class="lineNum">    1180 </span><span class="lineCov">         90 :                         break;</span>
+<span class="lineNum">    1181 </span>            :                 case TAG_SVG_ATT_cy:
+<span class="lineNum">    1182 </span><span class="lineCov">         90 :                         all_atts-&gt;cy = (SVG_Coordinate *)att-&gt;data;</span>
+<span class="lineNum">    1183 </span><span class="lineCov">         90 :                         break;</span>
+<span class="lineNum">    1184 </span>            :                 case TAG_SVG_ATT_r:
+<span class="lineNum">    1185 </span><span class="lineCov">         78 :                         all_atts-&gt;r = (SVG_Length *)att-&gt;data;</span>
+<span class="lineNum">    1186 </span><span class="lineCov">         78 :                         break;</span>
+<span class="lineNum">    1187 </span>            :                 case TAG_SVG_ATT_cursorManager_x:
+<span class="lineNum">    1188 </span><span class="lineNoCov">          0 :                         all_atts-&gt;cursorManager_x = (SVG_Length *)att-&gt;data;</span>
+<span class="lineNum">    1189 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1190 </span>            :                 case TAG_SVG_ATT_cursorManager_y:
+<span class="lineNum">    1191 </span><span class="lineNoCov">          0 :                         all_atts-&gt;cursorManager_y = (SVG_Length *)att-&gt;data;</span>
+<span class="lineNum">    1192 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1193 </span>            :                 case TAG_SVG_ATT_rx:
+<span class="lineNum">    1194 </span><span class="lineCov">         28 :                         all_atts-&gt;rx = (SVG_Length *)att-&gt;data;</span>
+<span class="lineNum">    1195 </span><span class="lineCov">         28 :                         break;</span>
+<span class="lineNum">    1196 </span>            :                 case TAG_SVG_ATT_ry:
+<span class="lineNum">    1197 </span><span class="lineCov">         28 :                         all_atts-&gt;ry = (SVG_Length *)att-&gt;data;</span>
+<span class="lineNum">    1198 </span><span class="lineCov">         28 :                         break;</span>
+<span class="lineNum">    1199 </span>            :                 case TAG_SVG_ATT_horiz_adv_x:
+<span class="lineNum">    1200 </span><span class="lineNoCov">          0 :                         all_atts-&gt;horiz_adv_x = (SVG_Number *)att-&gt;data;</span>
+<span class="lineNum">    1201 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1202 </span>            :                 case TAG_SVG_ATT_horiz_origin_x:
+<span class="lineNum">    1203 </span><span class="lineNoCov">          0 :                         all_atts-&gt;horiz_origin_x = (SVG_Number *)att-&gt;data;</span>
+<span class="lineNum">    1204 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1205 </span>            :                 case TAG_SVG_ATT_font_stretch:
+<span class="lineNum">    1206 </span><span class="lineNoCov">          0 :                         all_atts-&gt;font_stretch = (SVG_String *)att-&gt;data;</span>
+<span class="lineNum">    1207 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1208 </span>            :                 case TAG_SVG_ATT_unicode_range:
+<span class="lineNum">    1209 </span><span class="lineNoCov">          0 :                         all_atts-&gt;unicode_range = (SVG_String *)att-&gt;data;</span>
+<span class="lineNum">    1210 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1211 </span>            :                 case TAG_SVG_ATT_panose_1:
+<span class="lineNum">    1212 </span><span class="lineNoCov">          0 :                         all_atts-&gt;panose_1 = (SVG_String *)att-&gt;data;</span>
+<span class="lineNum">    1213 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1214 </span>            :                 case TAG_SVG_ATT_widths:
+<span class="lineNum">    1215 </span><span class="lineNoCov">          0 :                         all_atts-&gt;widths = (SVG_String *)att-&gt;data;</span>
+<span class="lineNum">    1216 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1217 </span>            :                 case TAG_SVG_ATT_bbox:
+<span class="lineNum">    1218 </span><span class="lineNoCov">          0 :                         all_atts-&gt;bbox = (SVG_String *)att-&gt;data;</span>
+<span class="lineNum">    1219 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1220 </span>            :                 case TAG_SVG_ATT_units_per_em:
+<span class="lineNum">    1221 </span><span class="lineNoCov">          0 :                         all_atts-&gt;units_per_em = (SVG_Number *)att-&gt;data;</span>
+<span class="lineNum">    1222 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1223 </span>            :                 case TAG_SVG_ATT_stemv:
+<span class="lineNum">    1224 </span><span class="lineNoCov">          0 :                         all_atts-&gt;stemv = (SVG_Number *)att-&gt;data;</span>
+<span class="lineNum">    1225 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1226 </span>            :                 case TAG_SVG_ATT_stemh:
+<span class="lineNum">    1227 </span><span class="lineNoCov">          0 :                         all_atts-&gt;stemh = (SVG_Number *)att-&gt;data;</span>
+<span class="lineNum">    1228 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1229 </span>            :                 case TAG_SVG_ATT_slope:
+<span class="lineNum">    1230 </span><span class="lineNoCov">          0 :                         all_atts-&gt;slope = (SVG_Number *)att-&gt;data;</span>
+<span class="lineNum">    1231 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1232 </span>            :                 case TAG_SVG_ATT_cap_height:
+<span class="lineNum">    1233 </span><span class="lineNoCov">          0 :                         all_atts-&gt;cap_height = (SVG_Number *)att-&gt;data;</span>
+<span class="lineNum">    1234 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1235 </span>            :                 case TAG_SVG_ATT_x_height:
+<span class="lineNum">    1236 </span><span class="lineNoCov">          0 :                         all_atts-&gt;x_height = (SVG_Number *)att-&gt;data;</span>
+<span class="lineNum">    1237 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1238 </span>            :                 case TAG_SVG_ATT_accent_height:
+<span class="lineNum">    1239 </span><span class="lineNoCov">          0 :                         all_atts-&gt;accent_height = (SVG_Number *)att-&gt;data;</span>
+<span class="lineNum">    1240 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1241 </span>            :                 case TAG_SVG_ATT_ascent:
+<span class="lineNum">    1242 </span><span class="lineNoCov">          0 :                         all_atts-&gt;ascent = (SVG_Number *)att-&gt;data;</span>
+<span class="lineNum">    1243 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1244 </span>            :                 case TAG_SVG_ATT_descent:
+<span class="lineNum">    1245 </span><span class="lineNoCov">          0 :                         all_atts-&gt;descent = (SVG_Number *)att-&gt;data;</span>
+<span class="lineNum">    1246 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1247 </span>            :                 case TAG_SVG_ATT_ideographic:
+<span class="lineNum">    1248 </span><span class="lineNoCov">          0 :                         all_atts-&gt;ideographic = (SVG_Number *)att-&gt;data;</span>
+<span class="lineNum">    1249 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1250 </span>            :                 case TAG_SVG_ATT_alphabetic:
+<span class="lineNum">    1251 </span><span class="lineNoCov">          0 :                         all_atts-&gt;alphabetic = (SVG_Number *)att-&gt;data;</span>
+<span class="lineNum">    1252 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1253 </span>            :                 case TAG_SVG_ATT_mathematical:
+<span class="lineNum">    1254 </span><span class="lineNoCov">          0 :                         all_atts-&gt;mathematical = (SVG_Number *)att-&gt;data;</span>
+<span class="lineNum">    1255 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1256 </span>            :                 case TAG_SVG_ATT_hanging:
+<span class="lineNum">    1257 </span><span class="lineNoCov">          0 :                         all_atts-&gt;hanging = (SVG_Number *)att-&gt;data;</span>
+<span class="lineNum">    1258 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1259 </span>            :                 case TAG_SVG_ATT_underline_position:
+<span class="lineNum">    1260 </span><span class="lineNoCov">          0 :                         all_atts-&gt;underline_position = (SVG_Number *)att-&gt;data;</span>
+<span class="lineNum">    1261 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1262 </span>            :                 case TAG_SVG_ATT_underline_thickness:
+<span class="lineNum">    1263 </span><span class="lineNoCov">          0 :                         all_atts-&gt;underline_thickness = (SVG_Number *)att-&gt;data;</span>
+<span class="lineNum">    1264 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1265 </span>            :                 case TAG_SVG_ATT_strikethrough_position:
+<span class="lineNum">    1266 </span><span class="lineNoCov">          0 :                         all_atts-&gt;strikethrough_position = (SVG_Number *)att-&gt;data;</span>
+<span class="lineNum">    1267 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1268 </span>            :                 case TAG_SVG_ATT_strikethrough_thickness:
+<span class="lineNum">    1269 </span><span class="lineNoCov">          0 :                         all_atts-&gt;strikethrough_thickness = (SVG_Number *)att-&gt;data;</span>
+<span class="lineNum">    1270 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1271 </span>            :                 case TAG_SVG_ATT_overline_position:
+<span class="lineNum">    1272 </span><span class="lineNoCov">          0 :                         all_atts-&gt;overline_position = (SVG_Number *)att-&gt;data;</span>
+<span class="lineNum">    1273 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1274 </span>            :                 case TAG_SVG_ATT_overline_thickness:
+<span class="lineNum">    1275 </span><span class="lineNoCov">          0 :                         all_atts-&gt;overline_thickness = (SVG_Number *)att-&gt;data;</span>
+<span class="lineNum">    1276 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1277 </span>            :                 case TAG_SVG_ATT_d:
+<span class="lineNum">    1278 </span><span class="lineCov">      14306 :                         all_atts-&gt;d = (SVG_PathData *)att-&gt;data;</span>
+<span class="lineNum">    1279 </span><span class="lineCov">      14306 :                         break;</span>
+<span class="lineNum">    1280 </span>            :                 case TAG_SVG_ATT_unicode:
+<span class="lineNum">    1281 </span><span class="lineNoCov">          0 :                         all_atts-&gt;unicode = (SVG_String *)att-&gt;data;</span>
+<span class="lineNum">    1282 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1283 </span>            :                 case TAG_SVG_ATT_glyph_name:
+<span class="lineNum">    1284 </span><span class="lineNoCov">          0 :                         all_atts-&gt;glyph_name = (SVG_String *)att-&gt;data;</span>
+<span class="lineNum">    1285 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1286 </span>            :                 case TAG_SVG_ATT_arabic_form:
+<span class="lineNum">    1287 </span><span class="lineNoCov">          0 :                         all_atts-&gt;arabic_form = (SVG_String *)att-&gt;data;</span>
+<span class="lineNum">    1288 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1289 </span>            :                 case TAG_SVG_ATT_lang:
+<span class="lineNum">    1290 </span><span class="lineNoCov">          0 :                         all_atts-&gt;lang = (SVG_LanguageIDs *)att-&gt;data;</span>
+<span class="lineNum">    1291 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1292 </span>            :                 case TAG_SVG_ATT_u1:
+<span class="lineNum">    1293 </span><span class="lineNoCov">          0 :                         all_atts-&gt;u1 = (SVG_String *)att-&gt;data;</span>
+<span class="lineNum">    1294 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1295 </span>            :                 case TAG_SVG_ATT_g1:
+<span class="lineNum">    1296 </span><span class="lineNoCov">          0 :                         all_atts-&gt;g1 = (SVG_String *)att-&gt;data;</span>
+<span class="lineNum">    1297 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1298 </span>            :                 case TAG_SVG_ATT_u2:
+<span class="lineNum">    1299 </span><span class="lineNoCov">          0 :                         all_atts-&gt;u2 = (SVG_String *)att-&gt;data;</span>
+<span class="lineNum">    1300 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1301 </span>            :                 case TAG_SVG_ATT_g2:
+<span class="lineNum">    1302 </span><span class="lineNoCov">          0 :                         all_atts-&gt;g2 = (SVG_String *)att-&gt;data;</span>
+<span class="lineNum">    1303 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1304 </span>            :                 case TAG_SVG_ATT_k:
+<span class="lineNum">    1305 </span><span class="lineNoCov">          0 :                         all_atts-&gt;k = (SVG_Number *)att-&gt;data;</span>
+<span class="lineNum">    1306 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1307 </span>            :                 case TAG_SVG_ATT_opacity:
+<span class="lineNum">    1308 </span><span class="lineCov">          4 :                         all_atts-&gt;opacity = (SVG_Number *)att-&gt;data;</span>
+<span class="lineNum">    1309 </span><span class="lineCov">          4 :                         break;</span>
+<span class="lineNum">    1310 </span>            :                 case TAG_SVG_ATT_x1:
+<span class="lineNum">    1311 </span><span class="lineCov">         32 :                         all_atts-&gt;x1 = (SVG_Coordinate *)att-&gt;data;</span>
+<span class="lineNum">    1312 </span><span class="lineCov">         32 :                         break;</span>
+<span class="lineNum">    1313 </span>            :                 case TAG_SVG_ATT_y1:
+<span class="lineNum">    1314 </span><span class="lineCov">         32 :                         all_atts-&gt;y1 = (SVG_Coordinate *)att-&gt;data;</span>
+<span class="lineNum">    1315 </span><span class="lineCov">         32 :                         break;</span>
+<span class="lineNum">    1316 </span>            :                 case TAG_SVG_ATT_x2:
+<span class="lineNum">    1317 </span><span class="lineCov">         32 :                         all_atts-&gt;x2 = (SVG_Coordinate *)att-&gt;data;</span>
+<span class="lineNum">    1318 </span><span class="lineCov">         32 :                         break;</span>
+<span class="lineNum">    1319 </span>            :                 case TAG_SVG_ATT_y2:
+<span class="lineNum">    1320 </span><span class="lineCov">         32 :                         all_atts-&gt;y2 = (SVG_Coordinate *)att-&gt;data;</span>
+<span class="lineNum">    1321 </span><span class="lineCov">         32 :                         break;</span>
+<span class="lineNum">    1322 </span>            :                 case TAG_SVG_ATT_gradientUnits:
+<span class="lineNum">    1323 </span><span class="lineCov">         22 :                         all_atts-&gt;gradientUnits = (SVG_GradientUnit *)att-&gt;data;</span>
+<span class="lineNum">    1324 </span><span class="lineCov">         22 :                         break;</span>
+<span class="lineNum">    1325 </span>            :                 case TAG_SVG_ATT_filterUnits:
+<span class="lineNum">    1326 </span><span class="lineNoCov">          0 :                         all_atts-&gt;focusable = (SVG_GradientUnit *)att-&gt;data;</span>
+<span class="lineNum">    1327 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1328 </span>            :                 case TAG_SVG_ATT_spreadMethod:
+<span class="lineNum">    1329 </span><span class="lineNoCov">          0 :                         all_atts-&gt;spreadMethod = (SVG_SpreadMethod *)att-&gt;data;</span>
+<span class="lineNum">    1330 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1331 </span>            :                 case TAG_SVG_ATT_gradientTransform:
+<span class="lineNum">    1332 </span><span class="lineNoCov">          0 :                         all_atts-&gt;gradientTransform = (SVG_Transform *)att-&gt;data;</span>
+<span class="lineNum">    1333 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1334 </span>            :                 case TAG_SVG_ATT_pathLength:
+<span class="lineNum">    1335 </span><span class="lineNoCov">          0 :                         all_atts-&gt;pathLength = (SVG_Number *)att-&gt;data;</span>
+<span class="lineNum">    1336 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1337 </span>            :                 case TAG_SVG_ATT_points:
+<span class="lineNum">    1338 </span><span class="lineCov">        100 :                         all_atts-&gt;points = (SVG_Points *)att-&gt;data;</span>
+<span class="lineNum">    1339 </span><span class="lineCov">        100 :                         break;</span>
+<span class="lineNum">    1340 </span>            :                 case TAG_SVG_ATT_mediaSize:
+<span class="lineNum">    1341 </span><span class="lineNoCov">          0 :                         all_atts-&gt;mediaSize = (SVG_Number *)att-&gt;data;</span>
+<span class="lineNum">    1342 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1343 </span>            :                 case TAG_SVG_ATT_mediaTime:
+<span class="lineNum">    1344 </span><span class="lineNoCov">          0 :                         all_atts-&gt;mediaTime = (SVG_String *)att-&gt;data;</span>
+<span class="lineNum">    1345 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1346 </span>            :                 case TAG_SVG_ATT_mediaCharacterEncoding:
+<span class="lineNum">    1347 </span><span class="lineNoCov">          0 :                         all_atts-&gt;mediaCharacterEncoding = (SVG_String *)att-&gt;data;</span>
+<span class="lineNum">    1348 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1349 </span>            :                 case TAG_SVG_ATT_mediaContentEncodings:
+<span class="lineNum">    1350 </span><span class="lineNoCov">          0 :                         all_atts-&gt;mediaContentEncodings = (SVG_String *)att-&gt;data;</span>
+<span class="lineNum">    1351 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1352 </span>            :                 case TAG_SVG_ATT_bandwidth:
+<span class="lineNum">    1353 </span><span class="lineNoCov">          0 :                         all_atts-&gt;bandwidth = (SVG_Number *)att-&gt;data;</span>
+<span class="lineNum">    1354 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1355 </span>            :                 case TAG_SVG_ATT_fx:
+<span class="lineNum">    1356 </span><span class="lineNoCov">          0 :                         all_atts-&gt;fx = (SVG_Coordinate *)att-&gt;data;</span>
+<span class="lineNum">    1357 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1358 </span>            :                 case TAG_SVG_ATT_fy:
+<span class="lineNum">    1359 </span><span class="lineNoCov">          0 :                         all_atts-&gt;fy = (SVG_Coordinate *)att-&gt;data;</span>
+<span class="lineNum">    1360 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1361 </span>            :                 case TAG_SVG_ATT_size:
+<span class="lineNum">    1362 </span><span class="lineNoCov">          0 :                         all_atts-&gt;size = (LASeR_Size *)att-&gt;data;</span>
+<span class="lineNum">    1363 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1364 </span>            :                 case TAG_SVG_ATT_choice:
+<span class="lineNum">    1365 </span><span class="lineCov">          4 :                         all_atts-&gt;choice = (LASeR_Choice *)att-&gt;data;</span>
+<span class="lineNum">    1366 </span><span class="lineCov">          4 :                         break;</span>
+<span class="lineNum">    1367 </span>            :                 case TAG_SVG_ATT_delta:
+<span class="lineNum">    1368 </span><span class="lineNoCov">          0 :                         all_atts-&gt;delta = (LASeR_Size *)att-&gt;data;</span>
+<span class="lineNum">    1369 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1370 </span>            :                 case TAG_SVG_ATT_offset:
+<span class="lineNum">    1371 </span><span class="lineCov">         68 :                         all_atts-&gt;offset = (SVG_Number *)att-&gt;data;</span>
+<span class="lineNum">    1372 </span><span class="lineCov">         68 :                         break;</span>
+<span class="lineNum">    1373 </span>            :                 case TAG_SVG_ATT_syncBehaviorDefault:
+<span class="lineNum">    1374 </span><span class="lineCov">          8 :                         all_atts-&gt;syncBehaviorDefault = (SMIL_SyncBehavior *)att-&gt;data;</span>
+<span class="lineNum">    1375 </span><span class="lineCov">          8 :                         break;</span>
+<span class="lineNum">    1376 </span>            :                 case TAG_SVG_ATT_syncToleranceDefault:
+<span class="lineNum">    1377 </span><span class="lineCov">          8 :                         all_atts-&gt;syncToleranceDefault = (SMIL_SyncTolerance *)att-&gt;data;</span>
+<span class="lineNum">    1378 </span><span class="lineCov">          8 :                         break;</span>
+<span class="lineNum">    1379 </span>            :                 case TAG_SVG_ATT_viewBox:
+<span class="lineNum">    1380 </span><span class="lineCov">        262 :                         all_atts-&gt;viewBox = (SVG_ViewBox *)att-&gt;data;</span>
+<span class="lineNum">    1381 </span><span class="lineCov">        262 :                         break;</span>
+<span class="lineNum">    1382 </span>            :                 case TAG_SVG_ATT_zoomAndPan:
+<span class="lineNum">    1383 </span><span class="lineCov">         66 :                         all_atts-&gt;zoomAndPan = (SVG_ZoomAndPan *)att-&gt;data;</span>
+<span class="lineNum">    1384 </span><span class="lineCov">         66 :                         break;</span>
+<span class="lineNum">    1385 </span>            :                 case TAG_SVG_ATT_version:
+<span class="lineNum">    1386 </span><span class="lineCov">         10 :                         all_atts-&gt;version = (SVG_String *)att-&gt;data;</span>
+<span class="lineNum">    1387 </span><span class="lineCov">         10 :                         break;</span>
+<span class="lineNum">    1388 </span>            :                 case TAG_SVG_ATT_baseProfile:
+<span class="lineNum">    1389 </span><span class="lineCov">         10 :                         all_atts-&gt;baseProfile = (SVG_String *)att-&gt;data;</span>
+<span class="lineNum">    1390 </span><span class="lineCov">         10 :                         break;</span>
+<span class="lineNum">    1391 </span>            :                 case TAG_SVG_ATT_contentScriptType:
+<span class="lineNum">    1392 </span><span class="lineNoCov">          0 :                         all_atts-&gt;contentScriptType = (SVG_ContentType *)att-&gt;data;</span>
+<span class="lineNum">    1393 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1394 </span>            :                 case TAG_SVG_ATT_snapshotTime:
+<span class="lineNum">    1395 </span><span class="lineCov">          4 :                         all_atts-&gt;snapshotTime = (SVG_Clock *)att-&gt;data;</span>
+<span class="lineNum">    1396 </span><span class="lineCov">          4 :                         break;</span>
+<span class="lineNum">    1397 </span>            :                 case TAG_SVG_ATT_timelineBegin:
+<span class="lineNum">    1398 </span><span class="lineCov">          4 :                         all_atts-&gt;timelineBegin = (SVG_TimelineBegin *)att-&gt;data;</span>
+<span class="lineNum">    1399 </span><span class="lineCov">          4 :                         break;</span>
+<span class="lineNum">    1400 </span>            :                 case TAG_SVG_ATT_playbackOrder:
+<span class="lineNum">    1401 </span><span class="lineCov">          4 :                         all_atts-&gt;playbackOrder = (SVG_PlaybackOrder *)att-&gt;data;</span>
+<span class="lineNum">    1402 </span><span class="lineCov">          4 :                         break;</span>
+<span class="lineNum">    1403 </span>            :                 case TAG_SVG_ATT_editable:
+<span class="lineNum">    1404 </span><span class="lineCov">         16 :                         all_atts-&gt;editable = (SVG_Boolean *)att-&gt;data;</span>
+<span class="lineNum">    1405 </span><span class="lineCov">         16 :                         break;</span>
+<span class="lineNum">    1406 </span>            :                 case TAG_SVG_ATT_text_x:
+<span class="lineNum">    1407 </span><span class="lineCov">         94 :                         all_atts-&gt;text_x = (SVG_Coordinates *)att-&gt;data;</span>
+<span class="lineNum">    1408 </span><span class="lineCov">         94 :                         break;</span>
+<span class="lineNum">    1409 </span>            :                 case TAG_SVG_ATT_text_y:
+<span class="lineNum">    1410 </span><span class="lineCov">        132 :                         all_atts-&gt;text_y = (SVG_Coordinates *)att-&gt;data;</span>
+<span class="lineNum">    1411 </span><span class="lineCov">        132 :                         break;</span>
+<span class="lineNum">    1412 </span>            :                 case TAG_SVG_ATT_text_rotate:
+<span class="lineNum">    1413 </span><span class="lineCov">          8 :                         all_atts-&gt;text_rotate = (SVG_Numbers *)att-&gt;data;</span>
+<span class="lineNum">    1414 </span><span class="lineCov">          8 :                         break;</span>
+<span class="lineNum">    1415 </span>            :                 case TAG_SVG_ATT_transformBehavior:
+<span class="lineNum">    1416 </span><span class="lineNoCov">          0 :                         all_atts-&gt;transformBehavior = (SVG_TransformBehavior *)att-&gt;data;</span>
+<span class="lineNum">    1417 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1418 </span>            :                 case TAG_SVG_ATT_overlay:
+<span class="lineNum">    1419 </span><span class="lineNoCov">          0 :                         all_atts-&gt;overlay = (SVG_Overlay *)att-&gt;data;</span>
+<span class="lineNum">    1420 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1421 </span>            :                 case TAG_SVG_ATT_fullscreen:
+<span class="lineNum">    1422 </span><span class="lineNoCov">          0 :                         all_atts-&gt;fullscreen = (SVG_Boolean *)att-&gt;data;</span>
+<span class="lineNum">    1423 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1424 </span>            :                 case TAG_SVG_ATT_motionTransform:
+<span class="lineNum">    1425 </span><span class="lineNoCov">          0 :                         all_atts-&gt;motionTransform = (SVG_Motion *)att-&gt;data;</span>
+<span class="lineNum">    1426 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1427 </span>            : 
+<span class="lineNum">    1428 </span>            :                 case TAG_GSVG_ATT_useAsPrimary:
+<span class="lineNum">    1429 </span><span class="lineNoCov">          0 :                         all_atts-&gt;gpac_useAsPrimary = (SVG_Boolean *)att-&gt;data;</span>
+<span class="lineNum">    1430 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1431 </span>            :                 case TAG_GSVG_ATT_depthOffset:
+<span class="lineNum">    1432 </span><span class="lineNoCov">          0 :                         all_atts-&gt;gpac_depthOffset = (SVG_Number *)att-&gt;data;</span>
+<span class="lineNum">    1433 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1434 </span>            :                 case TAG_GSVG_ATT_depthGain:
+<span class="lineNum">    1435 </span><span class="lineNoCov">          0 :                         all_atts-&gt;gpac_depthGain = (SVG_Number *)att-&gt;data;</span>
+<span class="lineNum">    1436 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">    1437 </span>            :                 }
+<span class="lineNum">    1438 </span>            : 
+<span class="lineNum">    1439 </span><span class="lineCov">      34308 :                 att = att-&gt;next;</span>
+<span class="lineNum">    1440 </span>            :         }
+<span class="lineNum">    1441 </span><span class="lineCov">      41204 : }</span>
+<span class="lineNum">    1442 </span>            : 
+<span class="lineNum">    1443 </span>            : #endif
+<span class="lineNum">    1444 </span>            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

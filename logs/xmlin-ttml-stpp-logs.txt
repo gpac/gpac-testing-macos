@@ -1,0 +1,26 @@
+*** xmlin-ttml-stpp logs (GPAC version 0.6.2-DEV-revUNKNOWN-HEAD ) - test date 14/05/2017 22:30:27 ***
+
+
+*** Subtest "import": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/media/xmlin4/ebu-ttd_sample.ttml -new /Users/travis/build/gpac/gpac/tests/results/temp/subt-stpp-ttml.mp4" ***
+[32mTTML Import
+[0m[33mNote: TTML import - EBU-TTD detected
+[0mSaving /Users/travis/build/gpac/gpac/tests/results/temp/subt-stpp-ttml.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "export-track": executing "MP4Box -noprog -for-test  -mem-track -raw 1 /Users/travis/build/gpac/gpac/tests/results/temp/subt-stpp-ttml.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/test.ttml" ***
+[33mExtracting XML Subtitle Stream
+[0m[31mXML Subtitles re-assembling is not supported yet.
+[0m
+	Error: Feature Not Supported
+Negative test detected, reverting to success (found "[0m[31mXML Subtitles re-assembling is not supported yet." in stderr)
+
+
+*** Subtest "export-samples": executing "MP4Box -noprog -for-test  -mem-track -raws 1 /Users/travis/build/gpac/gpac/tests/results/temp/subt-stpp-ttml.mp4" ***
+[33mExtracting Subtitle XML samples
+[0m[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m

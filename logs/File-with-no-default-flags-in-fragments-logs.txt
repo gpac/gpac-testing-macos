@@ -1,0 +1,8 @@
+*** File-with-no-default-flags-in-fragments logs (GPAC version 0.6.2-DEV-revUNKNOWN-HEAD ) - test date 14/05/2017 22:29:15 ***
+
+
+*** Subtest "mp4box-segmentation-noFragsDefault": executing "MP4Box -noprog -for-test  -mem-track -dash 1000 -segment-name mysegs_%s -url-template -no-frags-default -single-file -out /Users/travis/build/gpac/gpac/tests/results/temp/counter-bifs-10sec-bipbop_420_avc.mpd /Users/travis/build/gpac/gpac/tests/external_media/noFragsDefault/counter-bifs-10sec-160x102-bipbop_420_avc.mp4 /Users/travis/build/gpac/gpac/tests/external_media/noFragsDefault/counter-bifs-10sec-320x180-bipbop_420_avc.mp4" ***
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m

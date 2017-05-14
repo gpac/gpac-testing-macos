@@ -1,0 +1,1351 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - odf/descriptors.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">odf</a> - descriptors.c<span style="font-size: 80%;"> (source / <a href="descriptors.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">467</td>
+            <td class="headerCovTableEntry">758</td>
+            <td class="headerCovTableEntryLo">61.6 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-05-14 22:31:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">27</td>
+            <td class="headerCovTableEntry">33</td>
+            <td class="headerCovTableEntryMed">81.8 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *                      GPAC - Multimedia Framework C SDK
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *                      Authors: Jean Le Feuvre
+<span class="lineNum">       5 </span>            :  *                      Copyright (c) Telecom ParisTech 2000-2012
+<span class="lineNum">       6 </span>            :  *                                      All rights reserved
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  *  This file is part of GPAC / MPEG-4 ObjectDescriptor sub-project
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  *  GPAC is free software; you can redistribute it and/or modify
+<span class="lineNum">      11 </span>            :  *  it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">      12 </span>            :  *  the Free Software Foundation; either version 2, or (at your option)
+<span class="lineNum">      13 </span>            :  *  any later version.
+<span class="lineNum">      14 </span>            :  *
+<span class="lineNum">      15 </span>            :  *  GPAC is distributed in the hope that it will be useful,
+<span class="lineNum">      16 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      17 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      18 </span>            :  *  GNU Lesser General Public License for more details.
+<span class="lineNum">      19 </span>            :  *
+<span class="lineNum">      20 </span>            :  *  You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      21 </span>            :  *  License along with this library; see the file COPYING.  If not, write to
+<span class="lineNum">      22 </span>            :  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+<span class="lineNum">      23 </span>            :  *
+<span class="lineNum">      24 </span>            :  */
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : #include &lt;gpac/internal/odf_dev.h&gt;
+<span class="lineNum">      27 </span>            : #include &lt;gpac/constants.h&gt;
+<span class="lineNum">      28 </span>            : 
+<span class="lineNum">      29 </span>            : #ifndef GPAC_DISABLE_AV_PARSERS
+<span class="lineNum">      30 </span>            : #include &lt;gpac/avparse.h&gt;
+<span class="lineNum">      31 </span>            : #endif
+<a name="32"><span class="lineNum">      32 </span>            : </a>
+<span class="lineNum">      33 </span>            : GF_EXPORT
+<span class="lineNum">      34 </span>            : const char *gf_odf_stream_type_name(u32 streamType)
+<span class="lineNum">      35 </span>            : {
+<span class="lineNum">      36 </span><span class="lineCov">         76 :         switch (streamType) {</span>
+<span class="lineNum">      37 </span>            :         case GF_STREAM_OD:
+<span class="lineNum">      38 </span><span class="lineNoCov">          0 :                 return &quot;ObjectDescriptor&quot;;</span>
+<span class="lineNum">      39 </span>            :         case GF_STREAM_OCR:
+<span class="lineNum">      40 </span><span class="lineNoCov">          0 :                 return &quot;ClockReference&quot;;</span>
+<span class="lineNum">      41 </span>            :         case GF_STREAM_SCENE:
+<span class="lineNum">      42 </span><span class="lineNoCov">          0 :                 return &quot;SceneDescription&quot;;</span>
+<span class="lineNum">      43 </span>            :         case GF_STREAM_VISUAL:
+<span class="lineNum">      44 </span><span class="lineCov">         18 :                 return &quot;Visual&quot;;</span>
+<span class="lineNum">      45 </span>            :         case GF_STREAM_AUDIO:
+<span class="lineNum">      46 </span><span class="lineCov">         17 :                 return &quot;Audio&quot;;</span>
+<span class="lineNum">      47 </span>            :         case GF_STREAM_MPEG7:
+<span class="lineNum">      48 </span><span class="lineNoCov">          0 :                 return &quot;MPEG7&quot;;</span>
+<span class="lineNum">      49 </span>            :         case GF_STREAM_IPMP:
+<span class="lineNum">      50 </span><span class="lineNoCov">          0 :                 return &quot;IPMP&quot;;</span>
+<span class="lineNum">      51 </span>            :         case GF_STREAM_OCI:
+<span class="lineNum">      52 </span><span class="lineNoCov">          0 :                 return &quot;OCI&quot;;</span>
+<span class="lineNum">      53 </span>            :         case GF_STREAM_MPEGJ:
+<span class="lineNum">      54 </span><span class="lineNoCov">          0 :                 return &quot;MPEGJ&quot;;</span>
+<span class="lineNum">      55 </span>            :         case GF_STREAM_INTERACT:
+<span class="lineNum">      56 </span><span class="lineNoCov">          0 :                 return &quot;Interaction&quot;;</span>
+<span class="lineNum">      57 </span>            :         case GF_STREAM_FONT:
+<span class="lineNum">      58 </span><span class="lineNoCov">          0 :                 return &quot;Font&quot;;</span>
+<span class="lineNum">      59 </span>            :         case GF_STREAM_TEXT:
+<span class="lineNum">      60 </span><span class="lineCov">          3 :                 return &quot;Text&quot;;</span>
+<span class="lineNum">      61 </span>            :         case GF_STREAM_ND_SUBPIC:
+<span class="lineNum">      62 </span><span class="lineNoCov">          0 :                 return &quot;NeroDigital Subpicture&quot;;</span>
+<span class="lineNum">      63 </span>            :         default:
+<span class="lineNum">      64 </span><span class="lineNoCov">          0 :                 return &quot;Unknown&quot;;</span>
+<span class="lineNum">      65 </span>            :         }
+<span class="lineNum">      66 </span><span class="lineCov">         38 : }</span>
+<a name="67"><span class="lineNum">      67 </span>            : </a>
+<span class="lineNum">      68 </span>            : GF_EXPORT
+<span class="lineNum">      69 </span>            : u32 gf_odf_stream_type_by_name(const char *streamType)
+<span class="lineNum">      70 </span>            : {
+<span class="lineNum">      71 </span><span class="lineNoCov">          0 :         if (!streamType) return 0;</span>
+<span class="lineNum">      72 </span><span class="lineNoCov">          0 :         if (!stricmp(streamType, &quot;ObjectDescriptor&quot;)) return GF_STREAM_OD;</span>
+<span class="lineNum">      73 </span><span class="lineNoCov">          0 :         if (!stricmp(streamType, &quot;ClockReference&quot;)) return GF_STREAM_OCR;</span>
+<span class="lineNum">      74 </span><span class="lineNoCov">          0 :         if (!stricmp(streamType, &quot;SceneDescription&quot;)) return GF_STREAM_SCENE;</span>
+<span class="lineNum">      75 </span><span class="lineNoCov">          0 :         if (!stricmp(streamType, &quot;Visual&quot;)) return GF_STREAM_VISUAL;</span>
+<span class="lineNum">      76 </span><span class="lineNoCov">          0 :         if (!stricmp(streamType, &quot;Audio&quot;)) return GF_STREAM_AUDIO;</span>
+<span class="lineNum">      77 </span><span class="lineNoCov">          0 :         if (!stricmp(streamType, &quot;MPEG7&quot;)) return GF_STREAM_MPEG7;</span>
+<span class="lineNum">      78 </span><span class="lineNoCov">          0 :         if (!stricmp(streamType, &quot;IPMP&quot;)) return GF_STREAM_IPMP;</span>
+<span class="lineNum">      79 </span><span class="lineNoCov">          0 :         if (!stricmp(streamType, &quot;OCI&quot;)) return GF_STREAM_OCI;</span>
+<span class="lineNum">      80 </span><span class="lineNoCov">          0 :         if (!stricmp(streamType, &quot;MPEGJ&quot;)) return GF_STREAM_MPEGJ;</span>
+<span class="lineNum">      81 </span><span class="lineNoCov">          0 :         if (!stricmp(streamType, &quot;Interaction&quot;)) return GF_STREAM_INTERACT;</span>
+<span class="lineNum">      82 </span><span class="lineNoCov">          0 :         if (!stricmp(streamType, &quot;Text&quot;)) return GF_STREAM_TEXT;</span>
+<span class="lineNum">      83 </span><span class="lineNoCov">          0 :         return 0;</span>
+<span class="lineNum">      84 </span><span class="lineNoCov">          0 : }</span>
+<a name="85"><span class="lineNum">      85 </span>            : </a>
+<span class="lineNum">      86 </span>            : 
+<span class="lineNum">      87 </span>            : s32 gf_odf_size_field_size(u32 size_desc)
+<span class="lineNum">      88 </span>            : {
+<span class="lineNum">      89 </span><span class="lineCov">     438180 :         if (size_desc &lt; 0x00000080) {</span>
+<span class="lineNum">      90 </span><span class="lineCov">     218458 :                 return 1 + 1;</span>
+<span class="lineNum">      91 </span><span class="lineCov">        632 :         } else if (size_desc &lt; 0x00004000) {</span>
+<span class="lineNum">      92 </span><span class="lineCov">        632 :                 return 2 + 1;</span>
+<span class="lineNum">      93 </span><span class="lineNoCov">          0 :         } else if (size_desc &lt; 0x00200000) {</span>
+<span class="lineNum">      94 </span><span class="lineNoCov">          0 :                 return 3 + 1;</span>
+<span class="lineNum">      95 </span><span class="lineNoCov">          0 :         } else if (size_desc &lt; 0x10000000) {</span>
+<span class="lineNum">      96 </span><span class="lineNoCov">          0 :                 return 4 + 1;</span>
+<span class="lineNum">      97 </span>            :         } else {
+<span class="lineNum">      98 </span><span class="lineNoCov">          0 :                 return -1;</span>
+<span class="lineNum">      99 </span>            :         }
+<span class="lineNum">     100 </span>            : 
+<span class="lineNum">     101 </span><span class="lineCov">     219090 : }</span>
+<span class="lineNum">     102 </span>            : 
+<a name="103"><span class="lineNum">     103 </span>            : </a>
+<span class="lineNum">     104 </span>            : GF_EXPORT
+<span class="lineNum">     105 </span>            : GF_Err gf_odf_parse_descriptor(GF_BitStream *bs, GF_Descriptor **desc, u32 *desc_size)
+<span class="lineNum">     106 </span>            : {
+<span class="lineNum">     107 </span>            :         u32 val, size, sizeHeader;
+<span class="lineNum">     108 </span>            :         u8 tag;
+<span class="lineNum">     109 </span>            :         GF_Err err;
+<span class="lineNum">     110 </span>            :         GF_Descriptor *newDesc;
+<span class="lineNum">     111 </span><span class="lineCov">     146332 :         if (!bs) return GF_BAD_PARAM;</span>
+<span class="lineNum">     112 </span>            : 
+<span class="lineNum">     113 </span><span class="lineCov">      73166 :         *desc_size = 0;</span>
+<span class="lineNum">     114 </span>            : 
+<span class="lineNum">     115 </span>            :         //tag
+<span class="lineNum">     116 </span><span class="lineCov">      73166 :         tag = (u8) gf_bs_read_int(bs, 8);</span>
+<span class="lineNum">     117 </span>            :         sizeHeader = 1;
+<span class="lineNum">     118 </span>            : 
+<span class="lineNum">     119 </span>            :         //size
+<span class="lineNum">     120 </span>            :         size = 0;
+<span class="lineNum">     121 </span><span class="lineCov">      73166 :         do {</span>
+<span class="lineNum">     122 </span><span class="lineCov">      73328 :                 val = gf_bs_read_int(bs, 8);</span>
+<span class="lineNum">     123 </span><span class="lineCov">      73328 :                 sizeHeader++;</span>
+<span class="lineNum">     124 </span><span class="lineCov">      73328 :                 if (sizeHeader &gt; 5) {</span>
+<span class="lineNum">     125 </span><span class="lineNoCov">          0 :                         GF_LOG(GF_LOG_ERROR, GF_LOG_CODEC, (&quot;[ODF] Descriptor size on more than 4 bytes\n&quot;));</span>
+<span class="lineNum">     126 </span><span class="lineNoCov">          0 :                         return GF_ODF_INVALID_DESCRIPTOR;</span>
+<span class="lineNum">     127 </span>            :                 }
+<span class="lineNum">     128 </span><span class="lineCov">      73328 :                 size &lt;&lt;= 7;</span>
+<span class="lineNum">     129 </span><span class="lineCov">      73328 :                 size |= val &amp; 0x7F;</span>
+<span class="lineNum">     130 </span><span class="lineCov">      73328 :         } while ( val &amp; 0x80);</span>
+<span class="lineNum">     131 </span><span class="lineCov">      73166 :         *desc_size = size;</span>
+<span class="lineNum">     132 </span>            : 
+<span class="lineNum">     133 </span><span class="lineCov">      73166 :         if (gf_bs_available(bs) &lt; size) {</span>
+<span class="lineNum">     134 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_CODEC, (&quot;[ODF] Not enough bytes (%d) to read descriptor (size=%d)\n&quot;, gf_bs_available(bs), size));</span>
+<span class="lineNum">     135 </span><span class="lineNoCov">          0 :                 return GF_ODF_INVALID_DESCRIPTOR;</span>
+<span class="lineNum">     136 </span>            :         }
+<span class="lineNum">     137 </span>            : 
+<span class="lineNum">     138 </span><span class="lineCov">      73166 :         GF_LOG(GF_LOG_DEBUG, GF_LOG_CODEC, (&quot;[ODF] Reading descriptor (tag %d size %d)\n&quot;, tag, size ));</span>
+<span class="lineNum">     139 </span>            : 
+<span class="lineNum">     140 </span><span class="lineCov">      73166 :         newDesc = gf_odf_create_descriptor(tag);</span>
+<span class="lineNum">     141 </span><span class="lineCov">      73166 :         if (! newDesc) {</span>
+<span class="lineNum">     142 </span><span class="lineNoCov">          0 :                 *desc = NULL;</span>
+<span class="lineNum">     143 </span><span class="lineNoCov">          0 :                 *desc_size = sizeHeader;</span>
+<span class="lineNum">     144 </span><span class="lineNoCov">          0 :                 if ( (tag &gt;= GF_ODF_ISO_RES_BEGIN_TAG) &amp;&amp;</span>
+<span class="lineNum">     145 </span><span class="lineNoCov">          0 :                         (tag &lt;= GF_ODF_ISO_RES_END_TAG) ) {</span>
+<span class="lineNum">     146 </span><span class="lineNoCov">          0 :                         return GF_ODF_FORBIDDEN_DESCRIPTOR;</span>
+<span class="lineNum">     147 </span>            :                 }
+<span class="lineNum">     148 </span><span class="lineNoCov">          0 :                 else if (!tag || (tag == 0xFF)) {</span>
+<span class="lineNum">     149 </span><span class="lineNoCov">          0 :                         return GF_ODF_INVALID_DESCRIPTOR;</span>
+<span class="lineNum">     150 </span>            :                 }
+<span class="lineNum">     151 </span>            : #ifndef GPAC_MINIMAL_ODF
+<span class="lineNum">     152 </span><span class="lineNoCov">          0 :                 return GF_OUT_OF_MEM;</span>
+<span class="lineNum">     153 </span>            : #else
+<span class="lineNum">     154 </span>            :                 gf_bs_skip_bytes(bs, size);
+<span class="lineNum">     155 </span>            :                 *desc_size = size + sizeHeader - gf_odf_size_field_size(*desc_size);
+<span class="lineNum">     156 </span>            :                 return GF_OK;
+<span class="lineNum">     157 </span>            : #endif
+<span class="lineNum">     158 </span>            :         }
+<span class="lineNum">     159 </span>            : 
+<span class="lineNum">     160 </span><span class="lineCov">      73166 :         newDesc-&gt;tag = tag;</span>
+<span class="lineNum">     161 </span><span class="lineCov">      73166 :         err = gf_odf_read_descriptor(bs, newDesc, *desc_size);</span>
+<span class="lineNum">     162 </span>            : 
+<span class="lineNum">     163 </span>            :         /*FFMPEG fix*/
+<span class="lineNum">     164 </span><span class="lineCov">      88142 :         if ((tag==GF_ODF_SLC_TAG) &amp;&amp; (((GF_SLConfig*)newDesc)-&gt;predefined==2)) {</span>
+<span class="lineNum">     165 </span><span class="lineCov">      11869 :                 if (*desc_size==3) {</span>
+<span class="lineNum">     166 </span><span class="lineNoCov">          0 :                         *desc_size = 1;</span>
+<span class="lineNum">     167 </span>            :                         err = GF_OK;
+<span class="lineNum">     168 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     169 </span>            :         }
+<span class="lineNum">     170 </span>            : 
+<span class="lineNum">     171 </span>            :         //little trick to handle lazy bitstreams that encode
+<span class="lineNum">     172 </span>            :         //SizeOfInstance on a fix number of bytes
+<span class="lineNum">     173 </span>            :         //This nb of bytes is added in Read methods
+<span class="lineNum">     174 </span><span class="lineCov">      73166 :         *desc_size += sizeHeader - gf_odf_size_field_size(*desc_size);</span>
+<span class="lineNum">     175 </span><span class="lineCov">      73166 :         *desc = newDesc;</span>
+<span class="lineNum">     176 </span><span class="lineCov">      73166 :         if (err) {</span>
+<span class="lineNum">     177 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_CODEC, (&quot;[ODF] Error reading descriptor (tag %d size %d): %s\n&quot;, tag, size, gf_error_to_string(err) ));</span>
+<span class="lineNum">     178 </span><span class="lineNoCov">          0 :                 gf_odf_delete_descriptor(newDesc);</span>
+<span class="lineNum">     179 </span><span class="lineNoCov">          0 :                 *desc = NULL;</span>
+<span class="lineNum">     180 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     181 </span><span class="lineCov">      73166 :         return err;</span>
+<span class="lineNum">     182 </span><span class="lineCov">      73166 : }</span>
+<span class="lineNum">     183 </span>            : 
+<a name="184"><span class="lineNum">     184 </span>            : </a>
+<span class="lineNum">     185 </span>            : 
+<span class="lineNum">     186 </span>            : GF_Err gf_odf_delete_descriptor_list(GF_List *descList)
+<span class="lineNum">     187 </span>            : {
+<span class="lineNum">     188 </span>            :         GF_Err e;
+<span class="lineNum">     189 </span>            :         GF_Descriptor*tmp;
+<span class="lineNum">     190 </span><span class="lineCov">     279530 :         u32 i;</span>
+<span class="lineNum">     191 </span>            :         //no error if NULL chain...
+<span class="lineNum">     192 </span><span class="lineCov">     151995 :         if (! descList) return GF_OK;</span>
+<span class="lineNum">     193 </span><span class="lineCov">     127535 :         i=0;</span>
+<span class="lineNum">     194 </span><span class="lineCov">     270926 :         while ((tmp = (GF_Descriptor*)gf_list_enum(descList, &amp;i))) {</span>
+<span class="lineNum">     195 </span><span class="lineCov">      15856 :                 e = gf_odf_delete_descriptor(tmp);</span>
+<span class="lineNum">     196 </span><span class="lineCov">      15856 :                 if (e) return e;</span>
+<span class="lineNum">     197 </span>            :         }
+<span class="lineNum">     198 </span><span class="lineCov">     127535 :         gf_list_del(descList);</span>
+<span class="lineNum">     199 </span><span class="lineCov">     127535 :         return GF_OK;</span>
+<a name="200"><span class="lineNum">     200 </span><span class="lineCov">     139765 : }</span></a>
+<span class="lineNum">     201 </span>            : 
+<span class="lineNum">     202 </span>            : GF_Err gf_odf_write_base_descriptor(GF_BitStream *bs, u8 tag, u32 size)
+<span class="lineNum">     203 </span>            : {
+<span class="lineNum">     204 </span>            :         u32 length;
+<span class="lineNum">     205 </span>            :         unsigned char vals[4];
+<span class="lineNum">     206 </span>            : 
+<span class="lineNum">     207 </span><span class="lineCov">     106734 :         if (!tag ) return GF_BAD_PARAM;</span>
+<span class="lineNum">     208 </span>            : 
+<span class="lineNum">     209 </span>            :         length = size;
+<span class="lineNum">     210 </span><span class="lineCov">      53367 :         vals[3] = (unsigned char) (length &amp; 0x7f);</span>
+<span class="lineNum">     211 </span><span class="lineCov">      53367 :         length &gt;&gt;= 7;</span>
+<span class="lineNum">     212 </span><span class="lineCov">      53367 :         vals[2] = (unsigned char) ((length &amp; 0x7f) | 0x80);</span>
+<span class="lineNum">     213 </span><span class="lineCov">      53367 :         length &gt;&gt;= 7;</span>
+<span class="lineNum">     214 </span><span class="lineCov">      53367 :         vals[1] = (unsigned char) ((length &amp; 0x7f) | 0x80);</span>
+<span class="lineNum">     215 </span><span class="lineCov">      53367 :         length &gt;&gt;= 7;</span>
+<span class="lineNum">     216 </span><span class="lineCov">      53367 :         vals[0] = (unsigned char) ((length &amp; 0x7f) | 0x80);</span>
+<span class="lineNum">     217 </span>            : 
+<span class="lineNum">     218 </span><span class="lineCov">      53367 :         gf_bs_write_int(bs, tag, 8);</span>
+<span class="lineNum">     219 </span><span class="lineCov">      53367 :         if (size &lt; 0x00000080) {</span>
+<span class="lineNum">     220 </span><span class="lineCov">      53127 :                 gf_bs_write_int(bs, vals[3], 8);</span>
+<span class="lineNum">     221 </span><span class="lineCov">      53367 :         } else if (size &lt; 0x00004000) {</span>
+<span class="lineNum">     222 </span><span class="lineCov">        240 :                 gf_bs_write_int(bs, vals[2], 8);</span>
+<span class="lineNum">     223 </span><span class="lineCov">        240 :                 gf_bs_write_int(bs, vals[3], 8);</span>
+<span class="lineNum">     224 </span><span class="lineCov">        240 :         } else if (size &lt; 0x00200000) {</span>
+<span class="lineNum">     225 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, vals[1], 8);</span>
+<span class="lineNum">     226 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, vals[2], 8);</span>
+<span class="lineNum">     227 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, vals[3], 8);</span>
+<span class="lineNum">     228 </span><span class="lineNoCov">          0 :         } else if (size &lt; 0x10000000) {</span>
+<span class="lineNum">     229 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, vals[0], 8);</span>
+<span class="lineNum">     230 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, vals[1], 8);</span>
+<span class="lineNum">     231 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, vals[2], 8);</span>
+<span class="lineNum">     232 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, vals[3], 8);</span>
+<span class="lineNum">     233 </span>            :         } else {
+<span class="lineNum">     234 </span><span class="lineNoCov">          0 :                 return GF_ODF_INVALID_DESCRIPTOR;</span>
+<span class="lineNum">     235 </span>            :         }
+<span class="lineNum">     236 </span><span class="lineCov">      53367 :         return GF_OK;</span>
+<span class="lineNum">     237 </span><span class="lineCov">      53367 : }</span>
+<a name="238"><span class="lineNum">     238 </span>            : </a>
+<span class="lineNum">     239 </span>            : 
+<span class="lineNum">     240 </span>            : GF_Err gf_odf_size_descriptor_list(GF_List *descList, u32 *outSize)
+<span class="lineNum">     241 </span>            : {
+<span class="lineNum">     242 </span>            :         GF_Err e;
+<span class="lineNum">     243 </span>            :         GF_Descriptor *tmp;
+<span class="lineNum">     244 </span><span class="lineCov">     227392 :         u32 tmpSize, count, i;</span>
+<span class="lineNum">     245 </span><span class="lineCov">     117054 :         if (! descList) return GF_OK;</span>
+<span class="lineNum">     246 </span>            : 
+<span class="lineNum">     247 </span><span class="lineCov">     110338 :         count = gf_list_count(descList);</span>
+<span class="lineNum">     248 </span><span class="lineCov">     240004 :         for ( i = 0; i &lt; count; i++ ) {</span>
+<span class="lineNum">     249 </span><span class="lineCov">       9664 :                 tmp = (GF_Descriptor*)gf_list_get(descList, i);</span>
+<span class="lineNum">     250 </span><span class="lineCov">       9664 :                 if (tmp) {</span>
+<span class="lineNum">     251 </span><span class="lineCov">       9664 :                         e = gf_odf_size_descriptor(tmp, &amp;tmpSize);</span>
+<span class="lineNum">     252 </span><span class="lineCov">       9664 :                         if (e) return e;</span>
+<span class="lineNum">     253 </span><span class="lineCov">      18498 :                         if (tmpSize) *outSize += tmpSize + gf_odf_size_field_size(tmpSize);</span>
+<span class="lineNum">     254 </span>            :                 }
+<span class="lineNum">     255 </span>            :         }
+<span class="lineNum">     256 </span><span class="lineCov">     110338 :         return GF_OK;</span>
+<a name="257"><span class="lineNum">     257 </span><span class="lineCov">     113696 : }</span></a>
+<span class="lineNum">     258 </span>            : 
+<span class="lineNum">     259 </span>            : GF_Err gf_odf_write_descriptor_list(GF_BitStream *bs, GF_List *descList)
+<span class="lineNum">     260 </span>            : {
+<span class="lineNum">     261 </span>            :         GF_Err e;
+<span class="lineNum">     262 </span>            :         u32 count, i;
+<span class="lineNum">     263 </span>            :         GF_Descriptor *tmp;
+<span class="lineNum">     264 </span>            : 
+<span class="lineNum">     265 </span><span class="lineCov">     123450 :         if (! descList) return GF_OK;</span>
+<span class="lineNum">     266 </span><span class="lineCov">      60300 :         count = gf_list_count(descList);</span>
+<span class="lineNum">     267 </span><span class="lineCov">     131394 :         for ( i = 0; i &lt; count; i++ ) {</span>
+<span class="lineNum">     268 </span><span class="lineCov">       5397 :                 tmp = (GF_Descriptor*)gf_list_get(descList, i);</span>
+<span class="lineNum">     269 </span><span class="lineCov">       5397 :                 if (tmp) {</span>
+<span class="lineNum">     270 </span><span class="lineCov">       5397 :                         e = gf_odf_write_descriptor(bs, tmp);</span>
+<span class="lineNum">     271 </span><span class="lineCov">       5397 :                         if (e) return e;</span>
+<span class="lineNum">     272 </span>            :                 }
+<span class="lineNum">     273 </span>            :         }
+<span class="lineNum">     274 </span><span class="lineCov">      60300 :         return GF_OK;</span>
+<a name="275"><span class="lineNum">     275 </span><span class="lineCov">      61250 : }</span></a>
+<span class="lineNum">     276 </span>            : 
+<span class="lineNum">     277 </span>            : GF_Err gf_odf_write_descriptor_list_filter(GF_BitStream *bs, GF_List *descList, u8 only_tag)
+<span class="lineNum">     278 </span>            : {
+<span class="lineNum">     279 </span>            :         GF_Err e;
+<span class="lineNum">     280 </span>            :         u32 count, i;
+<span class="lineNum">     281 </span>            :         GF_Descriptor *tmp;
+<span class="lineNum">     282 </span>            : 
+<span class="lineNum">     283 </span><span class="lineCov">      17416 :         if (! descList) return GF_OK;</span>
+<span class="lineNum">     284 </span><span class="lineCov">       8708 :         count = gf_list_count(descList);</span>
+<span class="lineNum">     285 </span><span class="lineCov">      17416 :         for ( i = 0; i &lt; count; i++ ) {</span>
+<span class="lineNum">     286 </span><span class="lineNoCov">          0 :                 tmp = (GF_Descriptor*)gf_list_get(descList, i);</span>
+<span class="lineNum">     287 </span><span class="lineNoCov">          0 :                 if (tmp &amp;&amp; (tmp-&gt;tag==only_tag) ) {</span>
+<span class="lineNum">     288 </span><span class="lineNoCov">          0 :                         e = gf_odf_write_descriptor(bs, tmp);</span>
+<span class="lineNum">     289 </span><span class="lineNoCov">          0 :                         if (e) return e;</span>
+<span class="lineNum">     290 </span>            :                 }
+<span class="lineNum">     291 </span>            :         }
+<span class="lineNum">     292 </span><span class="lineCov">       8708 :         return GF_OK;</span>
+<span class="lineNum">     293 </span><span class="lineCov">       8708 : }</span>
+<span class="lineNum">     294 </span>            : #ifndef GPAC_DISABLE_ODF
+<a name="295"><span class="lineNum">     295 </span>            : </a>
+<span class="lineNum">     296 </span>            : 
+<span class="lineNum">     297 </span>            : u32 gf_ipmpx_array_size(GF_BitStream *bs, u32 *array_size)
+<span class="lineNum">     298 </span>            : {
+<span class="lineNum">     299 </span>            :         u32 val, size, io_size;
+<span class="lineNum">     300 </span>            : 
+<span class="lineNum">     301 </span>            :         io_size = size = 0;
+<span class="lineNum">     302 </span><span class="lineNoCov">          0 :         do {</span>
+<span class="lineNum">     303 </span><span class="lineNoCov">          0 :                 val = gf_bs_read_int(bs, 8);</span>
+<span class="lineNum">     304 </span><span class="lineNoCov">          0 :                 io_size ++;</span>
+<span class="lineNum">     305 </span><span class="lineNoCov">          0 :                 size &lt;&lt;= 7;</span>
+<span class="lineNum">     306 </span><span class="lineNoCov">          0 :                 size |= val &amp; 0x7F;</span>
+<span class="lineNum">     307 </span><span class="lineNoCov">          0 :         } while ( val &amp; 0x80 );</span>
+<span class="lineNum">     308 </span><span class="lineNoCov">          0 :         *array_size = size;</span>
+<span class="lineNum">     309 </span><span class="lineNoCov">          0 :         return io_size;</span>
+<a name="310"><span class="lineNum">     310 </span>            : }</a>
+<span class="lineNum">     311 </span>            : 
+<span class="lineNum">     312 </span>            : void gf_ipmpx_write_array(GF_BitStream *bs, char *data, u32 data_len)
+<span class="lineNum">     313 </span>            : {
+<span class="lineNum">     314 </span>            :         u32 length;
+<span class="lineNum">     315 </span>            :         unsigned char vals[4];
+<span class="lineNum">     316 </span>            : 
+<span class="lineNum">     317 </span><span class="lineNoCov">          0 :         if (!data || !data_len) return;</span>
+<span class="lineNum">     318 </span>            : 
+<span class="lineNum">     319 </span>            :         length = data_len;
+<span class="lineNum">     320 </span><span class="lineNoCov">          0 :         vals[3] = (unsigned char) (length &amp; 0x7f);</span>
+<span class="lineNum">     321 </span><span class="lineNoCov">          0 :         length &gt;&gt;= 7;</span>
+<span class="lineNum">     322 </span><span class="lineNoCov">          0 :         vals[2] = (unsigned char) ((length &amp; 0x7f) | 0x80);</span>
+<span class="lineNum">     323 </span><span class="lineNoCov">          0 :         length &gt;&gt;= 7;</span>
+<span class="lineNum">     324 </span><span class="lineNoCov">          0 :         vals[1] = (unsigned char) ((length &amp; 0x7f) | 0x80);</span>
+<span class="lineNum">     325 </span><span class="lineNoCov">          0 :         length &gt;&gt;= 7;</span>
+<span class="lineNum">     326 </span><span class="lineNoCov">          0 :         vals[0] = (unsigned char) ((length &amp; 0x7f) | 0x80);</span>
+<span class="lineNum">     327 </span>            : 
+<span class="lineNum">     328 </span><span class="lineNoCov">          0 :         if (data_len &lt; 0x00000080) {</span>
+<span class="lineNum">     329 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, vals[3], 8);</span>
+<span class="lineNum">     330 </span><span class="lineNoCov">          0 :         } else if (data_len &lt; 0x00004000) {</span>
+<span class="lineNum">     331 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, vals[2], 8);</span>
+<span class="lineNum">     332 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, vals[3], 8);</span>
+<span class="lineNum">     333 </span><span class="lineNoCov">          0 :         } else if (data_len &lt; 0x00200000) {</span>
+<span class="lineNum">     334 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, vals[1], 8);</span>
+<span class="lineNum">     335 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, vals[2], 8);</span>
+<span class="lineNum">     336 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, vals[3], 8);</span>
+<span class="lineNum">     337 </span><span class="lineNoCov">          0 :         } else if (data_len &lt; 0x10000000) {</span>
+<span class="lineNum">     338 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, vals[0], 8);</span>
+<span class="lineNum">     339 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, vals[1], 8);</span>
+<span class="lineNum">     340 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, vals[2], 8);</span>
+<span class="lineNum">     341 </span><span class="lineNoCov">          0 :                 gf_bs_write_int(bs, vals[3], 8);</span>
+<span class="lineNum">     342 </span>            :         } else {
+<span class="lineNum">     343 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     344 </span>            :         }
+<span class="lineNum">     345 </span><span class="lineNoCov">          0 :         gf_bs_write_data(bs, data, data_len);</span>
+<span class="lineNum">     346 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     347 </span>            : 
+<span class="lineNum">     348 </span>            : 
+<span class="lineNum">     349 </span>            : #endif /*GPAC_MINIMAL_ODF*/
+<span class="lineNum">     350 </span>            : 
+<a name="351"><span class="lineNum">     351 </span>            : /*special authoring functions*/</a>
+<span class="lineNum">     352 </span>            : GF_EXPORT
+<span class="lineNum">     353 </span>            : GF_BIFSConfig *gf_odf_get_bifs_config(GF_DefaultDescriptor *dsi, u8 oti)
+<span class="lineNum">     354 </span>            : {
+<span class="lineNum">     355 </span>            :         Bool hasSize, cmd_stream;
+<span class="lineNum">     356 </span>            :         GF_BitStream *bs;
+<span class="lineNum">     357 </span>            :         GF_BIFSConfig *cfg;
+<span class="lineNum">     358 </span>            : 
+<span class="lineNum">     359 </span><span class="lineCov">       2918 :         if (oti&gt;=GPAC_OTI_SCENE_BIFS_EXTENDED) return NULL;</span>
+<span class="lineNum">     360 </span>            : 
+<span class="lineNum">     361 </span><span class="lineCov">       4377 :         if (!dsi || !dsi-&gt;data || !dsi-&gt;dataLength ) {</span>
+<span class="lineNum">     362 </span>            :                 /* Hack for T-DMB non compliant streams (OnTimeTek ?) */
+<span class="lineNum">     363 </span><span class="lineNoCov">          0 :                 cfg = (GF_BIFSConfig *) gf_odf_desc_new(GF_ODF_BIFS_CFG_TAG);</span>
+<span class="lineNum">     364 </span><span class="lineNoCov">          0 :                 cfg-&gt;pixelMetrics = GF_TRUE;</span>
+<span class="lineNum">     365 </span><span class="lineNoCov">          0 :                 cfg-&gt;version = 1;</span>
+<span class="lineNum">     366 </span><span class="lineNoCov">          0 :                 return cfg;</span>
+<span class="lineNum">     367 </span>            :         }
+<span class="lineNum">     368 </span><span class="lineCov">       1459 :         bs = gf_bs_new(dsi-&gt;data, dsi-&gt;dataLength, GF_BITSTREAM_READ);</span>
+<span class="lineNum">     369 </span>            : 
+<span class="lineNum">     370 </span><span class="lineCov">       1459 :         cfg = (GF_BIFSConfig *) gf_odf_desc_new(GF_ODF_BIFS_CFG_TAG);</span>
+<span class="lineNum">     371 </span><span class="lineCov">       1459 :         if (oti==2) {</span>
+<span class="lineNum">     372 </span>            :                 /*3D Mesh Coding*/
+<span class="lineNum">     373 </span><span class="lineCov">        145 :                 gf_bs_read_int(bs, 1);</span>
+<span class="lineNum">     374 </span>            :                 /*PMF*/
+<span class="lineNum">     375 </span><span class="lineCov">        145 :                 gf_bs_read_int(bs, 1);</span>
+<span class="lineNum">     376 </span><span class="lineCov">        145 :         }</span>
+<span class="lineNum">     377 </span><span class="lineCov">       1459 :         cfg-&gt;nodeIDbits = gf_bs_read_int(bs, 5);</span>
+<span class="lineNum">     378 </span><span class="lineCov">       1459 :         cfg-&gt;routeIDbits = gf_bs_read_int(bs, 5);</span>
+<span class="lineNum">     379 </span><span class="lineCov">       1604 :         if (oti==2) cfg-&gt;protoIDbits = gf_bs_read_int(bs, 5);</span>
+<span class="lineNum">     380 </span>            : 
+<span class="lineNum">     381 </span><span class="lineCov">       1459 :         cmd_stream = (Bool)gf_bs_read_int(bs, 1);</span>
+<span class="lineNum">     382 </span><span class="lineCov">       1459 :         if (!cmd_stream) {</span>
+<span class="lineNum">     383 </span><span class="lineNoCov">          0 :                 cfg-&gt;elementaryMasks = gf_list_new();</span>
+<span class="lineNum">     384 </span><span class="lineNoCov">          0 :                 while (1) {</span>
+<span class="lineNum">     385 </span><span class="lineNoCov">          0 :                         GF_ElementaryMask* em = (GF_ElementaryMask* ) gf_odf_New_ElemMask();</span>
+<span class="lineNum">     386 </span><span class="lineNoCov">          0 :                         em-&gt;node_id = gf_bs_read_int(bs, cfg-&gt;nodeIDbits);</span>
+<span class="lineNum">     387 </span><span class="lineNoCov">          0 :                         gf_list_add(cfg-&gt;elementaryMasks, em);</span>
+<span class="lineNum">     388 </span>            :                         /*this assumes only FDP, BDP and IFS2D (no elem mask)*/
+<span class="lineNum">     389 </span><span class="lineNoCov">          0 :                         if (gf_bs_read_int(bs, 1) == 0) break;</span>
+<span class="lineNum">     390 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     391 </span><span class="lineNoCov">          0 :                 gf_bs_align(bs);</span>
+<span class="lineNum">     392 </span><span class="lineNoCov">          0 :                 if (gf_bs_get_size(bs) != gf_bs_get_position(bs)) {</span>
+<span class="lineNum">     393 </span><span class="lineNoCov">          0 :                         GF_LOG(GF_LOG_WARNING, GF_LOG_CODEC, (&quot;[ODF] Reading bifs config: shift in sizes (not supported)\n&quot;));</span>
+<span class="lineNum">     394 </span>            :                 }
+<span class="lineNum">     395 </span>            :         } else {
+<span class="lineNum">     396 </span><span class="lineCov">       1459 :                 cfg-&gt;pixelMetrics = (Bool)gf_bs_read_int(bs, 1);</span>
+<span class="lineNum">     397 </span><span class="lineCov">       1459 :                 hasSize = (Bool)gf_bs_read_int(bs, 1);</span>
+<span class="lineNum">     398 </span><span class="lineCov">       1459 :                 if (hasSize) {</span>
+<span class="lineNum">     399 </span><span class="lineCov">       1454 :                         cfg-&gt;pixelWidth = gf_bs_read_int(bs, 16);</span>
+<span class="lineNum">     400 </span><span class="lineCov">       1454 :                         cfg-&gt;pixelHeight = gf_bs_read_int(bs, 16);</span>
+<span class="lineNum">     401 </span><span class="lineCov">       1454 :                 }</span>
+<span class="lineNum">     402 </span><span class="lineCov">       1459 :                 gf_bs_align(bs);</span>
+<span class="lineNum">     403 </span><span class="lineCov">       1459 :                 if (gf_bs_get_size(bs) != gf_bs_get_position(bs))</span>
+<span class="lineNum">     404 </span><span class="lineNoCov">          0 :                         GF_LOG(GF_LOG_WARNING, GF_LOG_CODEC, (&quot;[ODF] Reading bifs config: shift in sizes (invalid descriptor)\n&quot;));</span>
+<span class="lineNum">     405 </span>            :         }
+<span class="lineNum">     406 </span><span class="lineCov">       1459 :         gf_bs_del(bs);</span>
+<span class="lineNum">     407 </span><span class="lineCov">       1459 :         return cfg;</span>
+<span class="lineNum">     408 </span><span class="lineCov">       1459 : }</span>
+<span class="lineNum">     409 </span>            : 
+<a name="410"><span class="lineNum">     410 </span>            : /*special function for authoring - convert DSI to LASERConfig*/</a>
+<span class="lineNum">     411 </span>            : GF_EXPORT
+<span class="lineNum">     412 </span>            : GF_Err gf_odf_get_laser_config(GF_DefaultDescriptor *dsi, GF_LASERConfig *cfg)
+<span class="lineNum">     413 </span>            : {
+<span class="lineNum">     414 </span>            :         u32 to_skip;
+<span class="lineNum">     415 </span>            :         GF_BitStream *bs;
+<span class="lineNum">     416 </span>            :         
+<span class="lineNum">     417 </span><span class="lineCov">        524 :         if (!cfg) return GF_BAD_PARAM;</span>
+<span class="lineNum">     418 </span><span class="lineCov">        262 :         memset(cfg, 0, sizeof(GF_LASERConfig));</span>
+<span class="lineNum">     419 </span>            :         
+<span class="lineNum">     420 </span><span class="lineCov">        786 :         if (!dsi || !dsi-&gt;data || !dsi-&gt;dataLength || !cfg) return GF_BAD_PARAM;</span>
+<span class="lineNum">     421 </span><span class="lineCov">        262 :         bs = gf_bs_new(dsi-&gt;data, dsi-&gt;dataLength, GF_BITSTREAM_READ);</span>
+<span class="lineNum">     422 </span><span class="lineCov">        262 :         memset(cfg, 0, sizeof(GF_LASERConfig));</span>
+<span class="lineNum">     423 </span><span class="lineCov">        262 :         cfg-&gt;tag = GF_ODF_LASER_CFG_TAG;</span>
+<span class="lineNum">     424 </span><span class="lineCov">        262 :         cfg-&gt;profile = gf_bs_read_int(bs, 8);</span>
+<span class="lineNum">     425 </span><span class="lineCov">        262 :         cfg-&gt;level = gf_bs_read_int(bs, 8);</span>
+<span class="lineNum">     426 </span><span class="lineCov">        262 :         /*cfg-&gt;reserved = */gf_bs_read_int(bs, 3);</span>
+<span class="lineNum">     427 </span><span class="lineCov">        262 :         cfg-&gt;pointsCodec = gf_bs_read_int(bs, 2);</span>
+<span class="lineNum">     428 </span><span class="lineCov">        262 :         cfg-&gt;pathComponents = gf_bs_read_int(bs, 4);</span>
+<span class="lineNum">     429 </span><span class="lineCov">        262 :         cfg-&gt;fullRequestHost = gf_bs_read_int(bs, 1);</span>
+<span class="lineNum">     430 </span><span class="lineCov">        262 :         if (gf_bs_read_int(bs, 1)) cfg-&gt;time_resolution = gf_bs_read_int(bs, 16);</span>
+<span class="lineNum">     431 </span><span class="lineCov">        262 :         else cfg-&gt;time_resolution = 1000;</span>
+<span class="lineNum">     432 </span><span class="lineCov">        262 :         cfg-&gt;colorComponentBits = 1 + gf_bs_read_int(bs, 4);</span>
+<span class="lineNum">     433 </span><span class="lineCov">        262 :         cfg-&gt;resolution = gf_bs_read_int(bs, 4);</span>
+<span class="lineNum">     434 </span><span class="lineCov">        264 :         if (cfg-&gt;resolution&gt;7) cfg-&gt;resolution -= 16;</span>
+<span class="lineNum">     435 </span><span class="lineCov">        262 :         cfg-&gt;coord_bits = gf_bs_read_int(bs, 5);</span>
+<span class="lineNum">     436 </span><span class="lineCov">        262 :         cfg-&gt;scale_bits_minus_coord_bits = gf_bs_read_int(bs, 4);</span>
+<span class="lineNum">     437 </span><span class="lineCov">        262 :         cfg-&gt;newSceneIndicator = gf_bs_read_int(bs, 1);</span>
+<span class="lineNum">     438 </span><span class="lineCov">        262 :         /*reserved2*/ gf_bs_read_int(bs, 3);</span>
+<span class="lineNum">     439 </span><span class="lineCov">        262 :         cfg-&gt;extensionIDBits = gf_bs_read_int(bs, 4);</span>
+<span class="lineNum">     440 </span>            :         /*hasExtConfig - we just ignore it*/
+<span class="lineNum">     441 </span><span class="lineCov">        262 :         if (gf_bs_read_int(bs, 1)) {</span>
+<span class="lineNum">     442 </span><span class="lineNoCov">          0 :                 to_skip = gf_bs_read_vluimsbf5(bs);</span>
+<span class="lineNum">     443 </span><span class="lineNoCov">          0 :                 while (to_skip) {</span>
+<span class="lineNum">     444 </span><span class="lineNoCov">          0 :                         gf_bs_read_int(bs, 8);</span>
+<span class="lineNum">     445 </span><span class="lineNoCov">          0 :                         to_skip--;</span>
+<span class="lineNum">     446 </span>            :                 }
+<span class="lineNum">     447 </span>            :         }
+<span class="lineNum">     448 </span>            :         /*hasExtension - we just ignore it*/
+<span class="lineNum">     449 </span><span class="lineCov">        262 :         if (gf_bs_read_int(bs, 1)) {</span>
+<span class="lineNum">     450 </span><span class="lineNoCov">          0 :                 to_skip = gf_bs_read_vluimsbf5(bs);</span>
+<span class="lineNum">     451 </span><span class="lineNoCov">          0 :                 while (to_skip) {</span>
+<span class="lineNum">     452 </span><span class="lineNoCov">          0 :                         gf_bs_read_int(bs, 8);</span>
+<span class="lineNum">     453 </span><span class="lineNoCov">          0 :                         to_skip--;</span>
+<span class="lineNum">     454 </span>            :                 }
+<span class="lineNum">     455 </span>            :         }
+<span class="lineNum">     456 </span><span class="lineCov">        262 :         gf_bs_del(bs);</span>
+<span class="lineNum">     457 </span><span class="lineCov">        262 :         return GF_OK;</span>
+<span class="lineNum">     458 </span><span class="lineCov">        262 : }</span>
+<a name="459"><span class="lineNum">     459 </span>            : </a>
+<span class="lineNum">     460 </span>            : GF_EXPORT
+<span class="lineNum">     461 </span>            : GF_Err gf_odf_get_ui_config(GF_DefaultDescriptor *dsi, GF_UIConfig *cfg)
+<span class="lineNum">     462 </span>            : {
+<span class="lineNum">     463 </span>            :         u32 len, i;
+<span class="lineNum">     464 </span>            :         GF_BitStream *bs;
+<span class="lineNum">     465 </span><span class="lineNoCov">          0 :         if (!dsi || !dsi-&gt;data || !dsi-&gt;dataLength || !cfg) return GF_BAD_PARAM;</span>
+<span class="lineNum">     466 </span><span class="lineNoCov">          0 :         memset(cfg, 0, sizeof(GF_UIConfig));</span>
+<span class="lineNum">     467 </span><span class="lineNoCov">          0 :         cfg-&gt;tag = GF_ODF_UI_CFG_TAG;</span>
+<span class="lineNum">     468 </span><span class="lineNoCov">          0 :         bs = gf_bs_new(dsi-&gt;data, dsi-&gt;dataLength, GF_BITSTREAM_READ);</span>
+<span class="lineNum">     469 </span><span class="lineNoCov">          0 :         len = gf_bs_read_int(bs, 8);</span>
+<span class="lineNum">     470 </span><span class="lineNoCov">          0 :         cfg-&gt;deviceName = (char*)gf_malloc(sizeof(char) * (len+1));</span>
+<span class="lineNum">     471 </span><span class="lineNoCov">          0 :         for (i=0; i&lt;len; i++) cfg-&gt;deviceName[i] = gf_bs_read_int(bs, 8);</span>
+<span class="lineNum">     472 </span><span class="lineNoCov">          0 :         cfg-&gt;deviceName[i] = 0;</span>
+<span class="lineNum">     473 </span>            : 
+<span class="lineNum">     474 </span><span class="lineNoCov">          0 :         if (!stricmp(cfg-&gt;deviceName, &quot;StringSensor&quot;) &amp;&amp; gf_bs_available(bs)) {</span>
+<span class="lineNum">     475 </span><span class="lineNoCov">          0 :                 cfg-&gt;termChar = gf_bs_read_int(bs, 8);</span>
+<span class="lineNum">     476 </span><span class="lineNoCov">          0 :                 cfg-&gt;delChar = gf_bs_read_int(bs, 8);</span>
+<span class="lineNum">     477 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     478 </span><span class="lineNoCov">          0 :         gf_bs_del(bs);</span>
+<span class="lineNum">     479 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">     480 </span><span class="lineNoCov">          0 : }</span>
+<a name="481"><span class="lineNum">     481 </span>            : </a>
+<span class="lineNum">     482 </span>            : GF_EXPORT
+<span class="lineNum">     483 </span>            : GF_Err gf_odf_encode_ui_config(GF_UIConfig *cfg, GF_DefaultDescriptor **out_dsi)
+<span class="lineNum">     484 </span>            : {
+<span class="lineNum">     485 </span>            :         u32 i, len;
+<span class="lineNum">     486 </span>            :         GF_BitStream *bs;
+<span class="lineNum">     487 </span>            :         GF_DefaultDescriptor *dsi;
+<span class="lineNum">     488 </span><span class="lineCov">         18 :         if (!out_dsi || (cfg-&gt;tag != GF_ODF_UI_CFG_TAG)) return GF_BAD_PARAM;</span>
+<span class="lineNum">     489 </span>            : 
+<span class="lineNum">     490 </span><span class="lineCov">          6 :         *out_dsi = NULL;</span>
+<span class="lineNum">     491 </span><span class="lineCov">          6 :         if (!cfg-&gt;deviceName) return GF_OK;</span>
+<span class="lineNum">     492 </span>            : 
+<span class="lineNum">     493 </span><span class="lineCov">          6 :         bs = gf_bs_new(NULL, 0, GF_BITSTREAM_WRITE);</span>
+<span class="lineNum">     494 </span><span class="lineCov">          6 :         len = (u32) strlen(cfg-&gt;deviceName);</span>
+<span class="lineNum">     495 </span><span class="lineCov">          6 :         gf_bs_write_int(bs, len, 8);</span>
+<span class="lineNum">     496 </span><span class="lineCov">        116 :         for (i=0; i&lt;len; i++) gf_bs_write_int(bs, cfg-&gt;deviceName[i], 8);</span>
+<span class="lineNum">     497 </span><span class="lineCov">          6 :         if (!stricmp(cfg-&gt;deviceName, &quot;StringSensor&quot;)) {</span>
+<span class="lineNum">     498 </span>            :                 /*fixme - this should be UTF-8 chars*/
+<span class="lineNum">     499 </span><span class="lineCov">          4 :                 if (cfg-&gt;delChar || cfg-&gt;termChar) {</span>
+<span class="lineNum">     500 </span><span class="lineNoCov">          0 :                         gf_bs_write_int(bs, cfg-&gt;termChar, 8);</span>
+<span class="lineNum">     501 </span><span class="lineNoCov">          0 :                         gf_bs_write_int(bs, cfg-&gt;delChar, 8);</span>
+<span class="lineNum">     502 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     503 </span>            :         }
+<span class="lineNum">     504 </span><span class="lineCov">          6 :         if (cfg-&gt;ui_data) gf_bs_write_data(bs, cfg-&gt;ui_data, cfg-&gt;ui_data_length);</span>
+<span class="lineNum">     505 </span>            : 
+<span class="lineNum">     506 </span><span class="lineCov">          6 :         dsi = (GF_DefaultDescriptor *) gf_odf_desc_new(GF_ODF_DSI_TAG);</span>
+<span class="lineNum">     507 </span><span class="lineCov">          6 :         gf_bs_get_content(bs, &amp;dsi-&gt;data, &amp;dsi-&gt;dataLength);</span>
+<span class="lineNum">     508 </span><span class="lineCov">          6 :         gf_bs_del(bs);</span>
+<span class="lineNum">     509 </span><span class="lineCov">          6 :         *out_dsi = dsi;</span>
+<span class="lineNum">     510 </span><span class="lineCov">          6 :         return GF_OK;</span>
+<span class="lineNum">     511 </span><span class="lineCov">          6 : }</span>
+<span class="lineNum">     512 </span>            : 
+<a name="513"><span class="lineNum">     513 </span>            : </a>
+<span class="lineNum">     514 </span>            : GF_EXPORT
+<span class="lineNum">     515 </span>            : GF_AVCConfig *gf_odf_avc_cfg_new()
+<span class="lineNum">     516 </span>            : {
+<span class="lineNum">     517 </span>            :         GF_AVCConfig *cfg;
+<span class="lineNum">     518 </span><span class="lineCov">       4440 :         GF_SAFEALLOC(cfg, GF_AVCConfig);</span>
+<span class="lineNum">     519 </span><span class="lineCov">       1480 :         if (!cfg) return NULL;</span>
+<span class="lineNum">     520 </span><span class="lineCov">       1480 :         cfg-&gt;sequenceParameterSets = gf_list_new();</span>
+<span class="lineNum">     521 </span><span class="lineCov">       1480 :         cfg-&gt;pictureParameterSets = gf_list_new();</span>
+<span class="lineNum">     522 </span><span class="lineCov">       1480 :         cfg-&gt;AVCLevelIndication = 1;</span>
+<span class="lineNum">     523 </span><span class="lineCov">       1480 :         cfg-&gt;chroma_format = 1;</span>
+<span class="lineNum">     524 </span><span class="lineCov">       1480 :         cfg-&gt;chroma_bit_depth = 8;</span>
+<span class="lineNum">     525 </span><span class="lineCov">       1480 :         cfg-&gt;luma_bit_depth = 8;</span>
+<span class="lineNum">     526 </span><span class="lineCov">       1480 :         return cfg;</span>
+<span class="lineNum">     527 </span><span class="lineCov">       1480 : }</span>
+<a name="528"><span class="lineNum">     528 </span>            : </a>
+<span class="lineNum">     529 </span>            : GF_EXPORT
+<span class="lineNum">     530 </span>            : void gf_odf_avc_cfg_del(GF_AVCConfig *cfg)
+<span class="lineNum">     531 </span>            : {
+<span class="lineNum">     532 </span><span class="lineCov">       2960 :         if (!cfg) return;</span>
+<span class="lineNum">     533 </span><span class="lineCov">       3946 :         while (gf_list_count(cfg-&gt;sequenceParameterSets)) {</span>
+<span class="lineNum">     534 </span><span class="lineCov">       1233 :                 GF_AVCConfigSlot *sl = (GF_AVCConfigSlot *)gf_list_get(cfg-&gt;sequenceParameterSets, 0);</span>
+<span class="lineNum">     535 </span><span class="lineCov">       1233 :                 gf_list_rem(cfg-&gt;sequenceParameterSets, 0);</span>
+<span class="lineNum">     536 </span><span class="lineCov">       2466 :                 if (sl-&gt;data) gf_free(sl-&gt;data);</span>
+<span class="lineNum">     537 </span><span class="lineCov">       1233 :                 gf_free(sl);</span>
+<span class="lineNum">     538 </span>            :         }
+<span class="lineNum">     539 </span><span class="lineCov">       1480 :         gf_list_del(cfg-&gt;sequenceParameterSets);</span>
+<span class="lineNum">     540 </span><span class="lineCov">       5342 :         while (gf_list_count(cfg-&gt;pictureParameterSets)) {</span>
+<span class="lineNum">     541 </span><span class="lineCov">       1191 :                 GF_AVCConfigSlot *sl = (GF_AVCConfigSlot *)gf_list_get(cfg-&gt;pictureParameterSets, 0);</span>
+<span class="lineNum">     542 </span><span class="lineCov">       1191 :                 gf_list_rem(cfg-&gt;pictureParameterSets, 0);</span>
+<span class="lineNum">     543 </span><span class="lineCov">       2382 :                 if (sl-&gt;data) gf_free(sl-&gt;data);</span>
+<span class="lineNum">     544 </span><span class="lineCov">       1191 :                 gf_free(sl);</span>
+<span class="lineNum">     545 </span>            :         }
+<span class="lineNum">     546 </span><span class="lineCov">       1480 :         gf_list_del(cfg-&gt;pictureParameterSets);</span>
+<span class="lineNum">     547 </span>            : 
+<span class="lineNum">     548 </span><span class="lineCov">       1480 :         if (cfg-&gt;sequenceParameterSetExtensions) {</span>
+<span class="lineNum">     549 </span><span class="lineNoCov">          0 :                 while (gf_list_count(cfg-&gt;sequenceParameterSetExtensions)) {</span>
+<span class="lineNum">     550 </span><span class="lineNoCov">          0 :                         GF_AVCConfigSlot *sl = (GF_AVCConfigSlot *)gf_list_get(cfg-&gt;sequenceParameterSetExtensions, 0);</span>
+<span class="lineNum">     551 </span><span class="lineNoCov">          0 :                         gf_list_rem(cfg-&gt;sequenceParameterSetExtensions, 0);</span>
+<span class="lineNum">     552 </span><span class="lineNoCov">          0 :                         if (sl-&gt;data) gf_free(sl-&gt;data);</span>
+<span class="lineNum">     553 </span><span class="lineNoCov">          0 :                         gf_free(sl);</span>
+<span class="lineNum">     554 </span>            :                 }
+<span class="lineNum">     555 </span><span class="lineNoCov">          0 :                 gf_list_del(cfg-&gt;sequenceParameterSetExtensions);</span>
+<span class="lineNum">     556 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     557 </span><span class="lineCov">       1480 :         gf_free(cfg);</span>
+<span class="lineNum">     558 </span><span class="lineCov">       2960 : }</span>
+<a name="559"><span class="lineNum">     559 </span>            : </a>
+<span class="lineNum">     560 </span>            : GF_EXPORT
+<span class="lineNum">     561 </span>            : GF_Err gf_odf_avc_cfg_write(GF_AVCConfig *cfg, char **outData, u32 *outSize)
+<span class="lineNum">     562 </span>            : {
+<span class="lineNum">     563 </span>            :         u32 i, count;
+<span class="lineNum">     564 </span><span class="lineCov">       1208 :         GF_BitStream *bs = gf_bs_new(NULL, 0, GF_BITSTREAM_WRITE);</span>
+<span class="lineNum">     565 </span><span class="lineCov">        604 :         gf_bs_write_int(bs, cfg-&gt;configurationVersion, 8);</span>
+<span class="lineNum">     566 </span><span class="lineCov">        604 :         gf_bs_write_int(bs, cfg-&gt;AVCProfileIndication , 8);</span>
+<span class="lineNum">     567 </span><span class="lineCov">        604 :         gf_bs_write_int(bs, cfg-&gt;profile_compatibility, 8);</span>
+<span class="lineNum">     568 </span><span class="lineCov">        604 :         gf_bs_write_int(bs, cfg-&gt;AVCLevelIndication, 8);</span>
+<span class="lineNum">     569 </span><span class="lineCov">        604 :         gf_bs_write_int(bs, 0x3F, 6);</span>
+<span class="lineNum">     570 </span><span class="lineCov">        604 :         gf_bs_write_int(bs, cfg-&gt;nal_unit_size - 1, 2);</span>
+<span class="lineNum">     571 </span><span class="lineCov">        604 :         gf_bs_write_int(bs, 0x7, 3);</span>
+<span class="lineNum">     572 </span><span class="lineCov">        604 :         count = gf_list_count(cfg-&gt;sequenceParameterSets);</span>
+<span class="lineNum">     573 </span><span class="lineCov">        604 :         gf_bs_write_int(bs, count, 5);</span>
+<span class="lineNum">     574 </span><span class="lineCov">       2318 :         for (i=0; i&lt;count; i++) {</span>
+<span class="lineNum">     575 </span><span class="lineCov">        555 :                 GF_AVCConfigSlot *sl = (GF_AVCConfigSlot *)gf_list_get(cfg-&gt;sequenceParameterSets, i);</span>
+<span class="lineNum">     576 </span><span class="lineCov">        555 :                 gf_bs_write_int(bs, sl-&gt;size, 16);</span>
+<span class="lineNum">     577 </span><span class="lineCov">        555 :                 gf_bs_write_data(bs, sl-&gt;data, sl-&gt;size);</span>
+<span class="lineNum">     578 </span>            :         }
+<span class="lineNum">     579 </span><span class="lineCov">        604 :         count = gf_list_count(cfg-&gt;pictureParameterSets);</span>
+<span class="lineNum">     580 </span><span class="lineCov">        604 :         gf_bs_write_int(bs, count, 8);</span>
+<span class="lineNum">     581 </span><span class="lineCov">       2318 :         for (i=0; i&lt;count; i++) {</span>
+<span class="lineNum">     582 </span><span class="lineCov">        555 :                 GF_AVCConfigSlot *sl = (GF_AVCConfigSlot *)gf_list_get(cfg-&gt;pictureParameterSets, i);</span>
+<span class="lineNum">     583 </span><span class="lineCov">        555 :                 gf_bs_write_int(bs, sl-&gt;size, 16);</span>
+<span class="lineNum">     584 </span><span class="lineCov">        555 :                 gf_bs_write_data(bs, sl-&gt;data, sl-&gt;size);</span>
+<span class="lineNum">     585 </span>            :         }
+<span class="lineNum">     586 </span><span class="lineCov">        604 :         if (gf_avc_is_rext_profile(cfg-&gt;AVCProfileIndication)) {</span>
+<span class="lineNum">     587 </span><span class="lineCov">        473 :                 gf_bs_write_int(bs, 0xFF, 6);</span>
+<span class="lineNum">     588 </span><span class="lineCov">        473 :                 gf_bs_write_int(bs, cfg-&gt;chroma_format, 2);</span>
+<span class="lineNum">     589 </span><span class="lineCov">        473 :                 gf_bs_write_int(bs, 0xFF, 5);</span>
+<span class="lineNum">     590 </span><span class="lineCov">        473 :                 gf_bs_write_int(bs, cfg-&gt;luma_bit_depth - 8, 3);</span>
+<span class="lineNum">     591 </span><span class="lineCov">        473 :                 gf_bs_write_int(bs, 0xFF, 5);</span>
+<span class="lineNum">     592 </span><span class="lineCov">        473 :                 gf_bs_write_int(bs, cfg-&gt;chroma_bit_depth - 8, 3);</span>
+<span class="lineNum">     593 </span>            : 
+<span class="lineNum">     594 </span><span class="lineCov">        946 :                 count = cfg-&gt;sequenceParameterSetExtensions ? gf_list_count(cfg-&gt;sequenceParameterSetExtensions) : 0;</span>
+<span class="lineNum">     595 </span><span class="lineCov">        473 :                 gf_bs_write_u8(bs, count);</span>
+<span class="lineNum">     596 </span><span class="lineCov">        946 :                 for (i=0; i&lt;count; i++) {</span>
+<span class="lineNum">     597 </span><span class="lineNoCov">          0 :                         GF_AVCConfigSlot *sl = (GF_AVCConfigSlot *) gf_list_get(cfg-&gt;sequenceParameterSetExtensions, i);</span>
+<span class="lineNum">     598 </span><span class="lineNoCov">          0 :                         gf_bs_write_u16(bs, sl-&gt;size);</span>
+<span class="lineNum">     599 </span><span class="lineNoCov">          0 :                         gf_bs_write_data(bs, sl-&gt;data, sl-&gt;size);</span>
+<span class="lineNum">     600 </span>            :                 }
+<span class="lineNum">     601 </span>            :         }
+<span class="lineNum">     602 </span><span class="lineCov">        604 :         *outSize = 0;</span>
+<span class="lineNum">     603 </span><span class="lineCov">        604 :         *outData = NULL;</span>
+<span class="lineNum">     604 </span><span class="lineCov">        604 :         gf_bs_get_content(bs, outData, outSize);</span>
+<span class="lineNum">     605 </span><span class="lineCov">        604 :         gf_bs_del(bs);</span>
+<span class="lineNum">     606 </span><span class="lineCov">        604 :         return GF_OK;</span>
+<span class="lineNum">     607 </span>            : }
+<a name="608"><span class="lineNum">     608 </span>            : </a>
+<span class="lineNum">     609 </span>            : GF_EXPORT
+<span class="lineNum">     610 </span>            : GF_AVCConfig *gf_odf_avc_cfg_read(char *dsi, u32 dsi_size)
+<span class="lineNum">     611 </span>            : {
+<span class="lineNum">     612 </span>            :         u32 i, count;
+<span class="lineNum">     613 </span><span class="lineCov">        164 :         GF_AVCConfig *avcc = gf_odf_avc_cfg_new();</span>
+<span class="lineNum">     614 </span><span class="lineCov">         82 :         GF_BitStream *bs = gf_bs_new(dsi, dsi_size, GF_BITSTREAM_READ);</span>
+<span class="lineNum">     615 </span><span class="lineCov">         82 :         avcc-&gt;configurationVersion = gf_bs_read_int(bs, 8);</span>
+<span class="lineNum">     616 </span><span class="lineCov">         82 :         avcc-&gt;AVCProfileIndication  = gf_bs_read_int(bs, 8);</span>
+<span class="lineNum">     617 </span><span class="lineCov">         82 :         avcc-&gt;profile_compatibility = gf_bs_read_int(bs, 8);</span>
+<span class="lineNum">     618 </span><span class="lineCov">         82 :         avcc-&gt;AVCLevelIndication  = gf_bs_read_int(bs, 8);</span>
+<span class="lineNum">     619 </span><span class="lineCov">         82 :         gf_bs_read_int(bs, 6);</span>
+<span class="lineNum">     620 </span><span class="lineCov">         82 :         avcc-&gt;nal_unit_size = 1 + gf_bs_read_int(bs, 2);</span>
+<span class="lineNum">     621 </span><span class="lineCov">         82 :         gf_bs_read_int(bs, 3);</span>
+<span class="lineNum">     622 </span><span class="lineCov">         82 :         count = gf_bs_read_int(bs, 5);</span>
+<span class="lineNum">     623 </span><span class="lineCov">        328 :         for (i=0; i&lt;count; i++) {</span>
+<span class="lineNum">     624 </span><span class="lineCov">         82 :                 GF_AVCConfigSlot *sl = (GF_AVCConfigSlot *)gf_malloc(sizeof(GF_AVCConfigSlot));</span>
+<span class="lineNum">     625 </span><span class="lineCov">         82 :                 sl-&gt;size = gf_bs_read_int(bs, 16);</span>
+<span class="lineNum">     626 </span><span class="lineCov">         82 :                 sl-&gt;data = (char*)gf_malloc(sizeof(char)*sl-&gt;size);</span>
+<span class="lineNum">     627 </span><span class="lineCov">         82 :                 gf_bs_read_data(bs, sl-&gt;data, sl-&gt;size);</span>
+<span class="lineNum">     628 </span><span class="lineCov">         82 :                 gf_list_add(avcc-&gt;sequenceParameterSets, sl);</span>
+<span class="lineNum">     629 </span>            :         }
+<span class="lineNum">     630 </span><span class="lineCov">         82 :         count = gf_bs_read_int(bs, 8);</span>
+<span class="lineNum">     631 </span><span class="lineCov">        328 :         for (i=0; i&lt;count; i++) {</span>
+<span class="lineNum">     632 </span><span class="lineCov">         82 :                 GF_AVCConfigSlot *sl = (GF_AVCConfigSlot *)gf_malloc(sizeof(GF_AVCConfigSlot));</span>
+<span class="lineNum">     633 </span><span class="lineCov">         82 :                 sl-&gt;size = gf_bs_read_int(bs, 16);</span>
+<span class="lineNum">     634 </span><span class="lineCov">         82 :                 sl-&gt;data = (char*)gf_malloc(sizeof(char)*sl-&gt;size);</span>
+<span class="lineNum">     635 </span><span class="lineCov">         82 :                 gf_bs_read_data(bs, sl-&gt;data, sl-&gt;size);</span>
+<span class="lineNum">     636 </span><span class="lineCov">         82 :                 gf_list_add(avcc-&gt;pictureParameterSets, sl);</span>
+<span class="lineNum">     637 </span>            :         }
+<span class="lineNum">     638 </span><span class="lineCov">         82 :         if (gf_avc_is_rext_profile(avcc-&gt;AVCProfileIndication)) {</span>
+<span class="lineNum">     639 </span><span class="lineCov">         78 :                 gf_bs_read_int(bs, 6);</span>
+<span class="lineNum">     640 </span><span class="lineCov">         78 :                 avcc-&gt;chroma_format = gf_bs_read_int(bs, 2);</span>
+<span class="lineNum">     641 </span><span class="lineCov">         78 :                 gf_bs_read_int(bs, 5);</span>
+<span class="lineNum">     642 </span><span class="lineCov">         78 :                 avcc-&gt;luma_bit_depth = 8 + gf_bs_read_int(bs, 3);</span>
+<span class="lineNum">     643 </span><span class="lineCov">         78 :                 gf_bs_read_int(bs, 5);</span>
+<span class="lineNum">     644 </span><span class="lineCov">         78 :                 avcc-&gt;chroma_bit_depth = 8 + gf_bs_read_int(bs, 3);</span>
+<span class="lineNum">     645 </span>            : 
+<span class="lineNum">     646 </span><span class="lineCov">         78 :                 count = gf_bs_read_int(bs, 8);</span>
+<span class="lineNum">     647 </span><span class="lineCov">         78 :                 if (count) {</span>
+<span class="lineNum">     648 </span><span class="lineNoCov">          0 :                         avcc-&gt;sequenceParameterSetExtensions = gf_list_new();</span>
+<span class="lineNum">     649 </span><span class="lineNoCov">          0 :                         for (i=0; i&lt;count; i++) {</span>
+<span class="lineNum">     650 </span><span class="lineNoCov">          0 :                                 GF_AVCConfigSlot *sl = (GF_AVCConfigSlot *)gf_malloc(sizeof(GF_AVCConfigSlot));</span>
+<span class="lineNum">     651 </span><span class="lineNoCov">          0 :                                 sl-&gt;size = gf_bs_read_u16(bs);</span>
+<span class="lineNum">     652 </span><span class="lineNoCov">          0 :                                 sl-&gt;data = (char *)gf_malloc(sizeof(char) * sl-&gt;size);</span>
+<span class="lineNum">     653 </span><span class="lineNoCov">          0 :                                 gf_bs_read_data(bs, sl-&gt;data, sl-&gt;size);</span>
+<span class="lineNum">     654 </span><span class="lineNoCov">          0 :                                 gf_list_add(avcc-&gt;sequenceParameterSetExtensions, sl);</span>
+<span class="lineNum">     655 </span>            :                         }
+<span class="lineNum">     656 </span>            :                 }
+<span class="lineNum">     657 </span>            :         }
+<span class="lineNum">     658 </span>            : 
+<span class="lineNum">     659 </span>            : 
+<span class="lineNum">     660 </span><span class="lineCov">         82 :         gf_bs_del(bs);</span>
+<span class="lineNum">     661 </span><span class="lineCov">         82 :         return avcc;</span>
+<span class="lineNum">     662 </span>            : }
+<a name="663"><span class="lineNum">     663 </span>            : </a>
+<span class="lineNum">     664 </span>            : 
+<span class="lineNum">     665 </span>            : GF_Descriptor *gf_odf_new_tx3g()
+<span class="lineNum">     666 </span>            : {
+<span class="lineNum">     667 </span><span class="lineCov">         44 :         GF_TextSampleDescriptor *newDesc = (GF_TextSampleDescriptor*) gf_malloc(sizeof(GF_TextSampleDescriptor));</span>
+<span class="lineNum">     668 </span><span class="lineCov">         22 :         if (!newDesc) return NULL;</span>
+<span class="lineNum">     669 </span><span class="lineCov">         22 :         memset(newDesc, 0, sizeof(GF_TextSampleDescriptor));</span>
+<span class="lineNum">     670 </span><span class="lineCov">         22 :         newDesc-&gt;tag = GF_ODF_TX3G_TAG;</span>
+<a name="671"><span class="lineNum">     671 </span><span class="lineCov">         22 :         return (GF_Descriptor *) newDesc;</span></a>
+<span class="lineNum">     672 </span><span class="lineCov">         22 : }</span>
+<span class="lineNum">     673 </span>            : GF_Err gf_odf_del_tx3g(GF_TextSampleDescriptor *sd)
+<span class="lineNum">     674 </span>            : {
+<span class="lineNum">     675 </span>            :         u32 i;
+<span class="lineNum">     676 </span><span class="lineCov">        160 :         for (i=0; i&lt;sd-&gt;font_count; i++)</span>
+<span class="lineNum">     677 </span><span class="lineCov">         64 :                 if (sd-&gt;fonts[i].fontName) gf_free(sd-&gt;fonts[i].fontName);</span>
+<span class="lineNum">     678 </span><span class="lineCov">         32 :         gf_free(sd-&gt;fonts);</span>
+<span class="lineNum">     679 </span><span class="lineCov">         32 :         gf_free(sd);</span>
+<span class="lineNum">     680 </span><span class="lineCov">         32 :         return GF_OK;</span>
+<span class="lineNum">     681 </span>            : }
+<a name="682"><span class="lineNum">     682 </span>            : </a>
+<span class="lineNum">     683 </span>            : /*TextConfig*/
+<span class="lineNum">     684 </span>            : GF_Descriptor *gf_odf_new_text_cfg()
+<span class="lineNum">     685 </span>            : {
+<span class="lineNum">     686 </span><span class="lineCov">         20 :         GF_TextConfig *newDesc = (GF_TextConfig*) gf_malloc(sizeof(GF_TextConfig));</span>
+<span class="lineNum">     687 </span><span class="lineCov">         10 :         if (!newDesc) return NULL;</span>
+<span class="lineNum">     688 </span><span class="lineCov">         10 :         memset(newDesc, 0, sizeof(GF_TextConfig));</span>
+<span class="lineNum">     689 </span><span class="lineCov">         10 :         newDesc-&gt;tag = GF_ODF_TEXT_CFG_TAG;</span>
+<span class="lineNum">     690 </span><span class="lineCov">         10 :         newDesc-&gt;sample_descriptions = gf_list_new();</span>
+<span class="lineNum">     691 </span><span class="lineCov">         10 :         newDesc-&gt;Base3GPPFormat = 0x10;</span>
+<span class="lineNum">     692 </span><span class="lineCov">         10 :         newDesc-&gt;MPEGExtendedFormat = 0x10;</span>
+<span class="lineNum">     693 </span><span class="lineCov">         10 :         newDesc-&gt;profileLevel = 0x10;</span>
+<span class="lineNum">     694 </span><span class="lineCov">         10 :         newDesc-&gt;timescale = 1000;</span>
+<span class="lineNum">     695 </span><span class="lineCov">         10 :         return (GF_Descriptor *) newDesc;</span>
+<a name="696"><span class="lineNum">     696 </span><span class="lineCov">         10 : }</span></a>
+<span class="lineNum">     697 </span>            : 
+<span class="lineNum">     698 </span>            : void ResetTextConfig(GF_TextConfig *desc)
+<span class="lineNum">     699 </span>            : {
+<span class="lineNum">     700 </span>            :         GF_List *bck;
+<span class="lineNum">     701 </span><span class="lineCov">         80 :         while (gf_list_count(desc-&gt;sample_descriptions)) {</span>
+<span class="lineNum">     702 </span><span class="lineCov">         10 :                 GF_TextSampleDescriptor *sd = (GF_TextSampleDescriptor *)gf_list_get(desc-&gt;sample_descriptions, 0);</span>
+<span class="lineNum">     703 </span><span class="lineCov">         10 :                 gf_list_rem(desc-&gt;sample_descriptions, 0);</span>
+<span class="lineNum">     704 </span><span class="lineCov">         10 :                 gf_odf_del_tx3g(sd);</span>
+<span class="lineNum">     705 </span>            :         }
+<span class="lineNum">     706 </span><span class="lineCov">         20 :         bck = desc-&gt;sample_descriptions;</span>
+<span class="lineNum">     707 </span><span class="lineCov">         20 :         memset(desc, 0, sizeof(GF_TextConfig));</span>
+<span class="lineNum">     708 </span><span class="lineCov">         20 :         desc-&gt;tag = GF_ODF_TEXT_CFG_TAG;</span>
+<span class="lineNum">     709 </span><span class="lineCov">         20 :         desc-&gt;sample_descriptions = bck;</span>
+<a name="710"><span class="lineNum">     710 </span><span class="lineCov">         20 : }</span></a>
+<span class="lineNum">     711 </span>            : 
+<span class="lineNum">     712 </span>            : GF_Err gf_odf_del_text_cfg(GF_TextConfig *desc)
+<span class="lineNum">     713 </span>            : {
+<span class="lineNum">     714 </span><span class="lineCov">         20 :         ResetTextConfig(desc);</span>
+<span class="lineNum">     715 </span><span class="lineCov">         10 :         gf_list_del(desc-&gt;sample_descriptions);</span>
+<span class="lineNum">     716 </span><span class="lineCov">         10 :         gf_free(desc);</span>
+<span class="lineNum">     717 </span><span class="lineCov">         10 :         return GF_OK;</span>
+<span class="lineNum">     718 </span>            : }
+<span class="lineNum">     719 </span>            : 
+<span class="lineNum">     720 </span>            : /*we need box parsing*/
+<a name="721"><span class="lineNum">     721 </span>            : #include &lt;gpac/internal/isomedia_dev.h&gt;</a>
+<span class="lineNum">     722 </span>            : GF_EXPORT
+<span class="lineNum">     723 </span>            : GF_Err gf_odf_get_text_config(GF_DefaultDescriptor *dsi, u8 oti, GF_TextConfig *cfg)
+<span class="lineNum">     724 </span>            : {
+<span class="lineNum">     725 </span>            :         u32 i;
+<span class="lineNum">     726 </span>            :         Bool has_alt_format;
+<span class="lineNum">     727 </span>            : #ifndef GPAC_DISABLE_ISOM
+<span class="lineNum">     728 </span>            :         Bool has_sd;
+<span class="lineNum">     729 </span>            :         u32 j;
+<span class="lineNum">     730 </span>            : #endif
+<span class="lineNum">     731 </span>            :         GF_Err e;
+<span class="lineNum">     732 </span>            :         GF_BitStream *bs;
+<span class="lineNum">     733 </span><span class="lineCov">         40 :         if (!dsi || !dsi-&gt;data || !dsi-&gt;dataLength || !cfg) return GF_BAD_PARAM;</span>
+<span class="lineNum">     734 </span><span class="lineCov">         10 :         if (oti != 0x08) return GF_NOT_SUPPORTED;</span>
+<span class="lineNum">     735 </span>            : 
+<span class="lineNum">     736 </span>            :         /*reset*/
+<span class="lineNum">     737 </span><span class="lineCov">         10 :         ResetTextConfig(cfg);</span>
+<span class="lineNum">     738 </span><span class="lineCov">         10 :         bs = gf_bs_new(dsi-&gt;data, dsi-&gt;dataLength, GF_BITSTREAM_READ);</span>
+<span class="lineNum">     739 </span>            : 
+<span class="lineNum">     740 </span>            :         e = GF_OK;
+<span class="lineNum">     741 </span><span class="lineCov">         10 :         cfg-&gt;Base3GPPFormat = gf_bs_read_int(bs, 8);</span>
+<span class="lineNum">     742 </span><span class="lineCov">         10 :         cfg-&gt;MPEGExtendedFormat = gf_bs_read_int(bs, 8);</span>
+<span class="lineNum">     743 </span><span class="lineCov">         10 :         cfg-&gt;profileLevel = gf_bs_read_int(bs, 8);</span>
+<span class="lineNum">     744 </span><span class="lineCov">         10 :         cfg-&gt;timescale = gf_bs_read_int(bs, 24);</span>
+<span class="lineNum">     745 </span><span class="lineCov">         10 :         has_alt_format = (Bool)gf_bs_read_int(bs, 1);</span>
+<span class="lineNum">     746 </span><span class="lineCov">         10 :         cfg-&gt;sampleDescriptionFlags = gf_bs_read_int(bs, 2);</span>
+<span class="lineNum">     747 </span>            : #ifndef GPAC_DISABLE_ISOM
+<span class="lineNum">     748 </span><span class="lineCov">         10 :         has_sd = (Bool)gf_bs_read_int(bs, 1);</span>
+<span class="lineNum">     749 </span>            : #else
+<span class="lineNum">     750 </span>            :         gf_bs_read_int(bs, 1);
+<span class="lineNum">     751 </span>            : #endif
+<span class="lineNum">     752 </span><span class="lineCov">         10 :         cfg-&gt;has_vid_info = (Bool)gf_bs_read_int(bs, 1);</span>
+<span class="lineNum">     753 </span><span class="lineCov">         10 :         gf_bs_read_int(bs, 3);</span>
+<span class="lineNum">     754 </span><span class="lineCov">         10 :         cfg-&gt;layer = gf_bs_read_int(bs, 8);</span>
+<span class="lineNum">     755 </span><span class="lineCov">         10 :         cfg-&gt;text_width = gf_bs_read_int(bs, 16);</span>
+<span class="lineNum">     756 </span><span class="lineCov">         10 :         cfg-&gt;text_height = gf_bs_read_int(bs, 16);</span>
+<span class="lineNum">     757 </span><span class="lineCov">         10 :         if (has_alt_format) {</span>
+<span class="lineNum">     758 </span><span class="lineNoCov">          0 :                 cfg-&gt;nb_compatible_formats = gf_bs_read_int(bs, 8);</span>
+<span class="lineNum">     759 </span><span class="lineNoCov">          0 :                 for (i=0; i&lt;cfg-&gt;nb_compatible_formats; i++) cfg-&gt;compatible_formats[i] = gf_bs_read_int(bs, 8);</span>
+<span class="lineNum">     760 </span>            :         }
+<span class="lineNum">     761 </span>            : #ifndef GPAC_DISABLE_ISOM
+<span class="lineNum">     762 </span><span class="lineCov">         10 :         if (has_sd) {</span>
+<span class="lineNum">     763 </span>            :                 u8 sample_index;
+<span class="lineNum">     764 </span>            :                 GF_TextSampleDescriptor *txdesc;
+<span class="lineNum">     765 </span><span class="lineCov">         10 :                 GF_Tx3gSampleEntryBox *a;</span>
+<span class="lineNum">     766 </span>            :                 s64 avail;
+<span class="lineNum">     767 </span><span class="lineCov">         10 :                 u32 nb_desc = gf_bs_read_int(bs, 8);</span>
+<span class="lineNum">     768 </span>            : 
+<span class="lineNum">     769 </span>            :                 /*parse TTU[5]s*/
+<span class="lineNum">     770 </span><span class="lineCov">         10 :                 avail = (s64) gf_bs_available(bs);</span>
+<span class="lineNum">     771 </span><span class="lineCov">         40 :                 for (i=0; i&lt;nb_desc; i++) {</span>
+<span class="lineNum">     772 </span><span class="lineCov">         10 :                         sample_index = gf_bs_read_int(bs, 8);</span>
+<span class="lineNum">     773 </span><span class="lineCov">         10 :                         avail -= 1;</span>
+<span class="lineNum">     774 </span><span class="lineCov">         10 :                         e = gf_isom_parse_box((GF_Box **) &amp;a, bs);</span>
+<span class="lineNum">     775 </span><span class="lineCov">         10 :                         if (e) goto exit;</span>
+<span class="lineNum">     776 </span><span class="lineCov">         10 :                         avail -= (s32) a-&gt;size;</span>
+<span class="lineNum">     777 </span>            : 
+<span class="lineNum">     778 </span><span class="lineCov">         10 :                         if (avail&lt;0) {</span>
+<span class="lineNum">     779 </span>            :                                 e = GF_NON_COMPLIANT_BITSTREAM;
+<span class="lineNum">     780 </span><span class="lineNoCov">          0 :                                 goto exit;</span>
+<span class="lineNum">     781 </span>            :                         }
+<span class="lineNum">     782 </span><span class="lineCov">         10 :                         txdesc = (GF_TextSampleDescriptor *)gf_malloc(sizeof(GF_TextSampleDescriptor));</span>
+<span class="lineNum">     783 </span><span class="lineCov">         10 :                         txdesc-&gt;sample_index = sample_index;</span>
+<span class="lineNum">     784 </span><span class="lineCov">         10 :                         txdesc-&gt;displayFlags = a-&gt;displayFlags;</span>
+<span class="lineNum">     785 </span><span class="lineCov">         10 :                         txdesc-&gt;back_color = a-&gt;back_color;</span>
+<span class="lineNum">     786 </span><span class="lineCov">         10 :                         txdesc-&gt;default_pos = a-&gt;default_box;</span>
+<span class="lineNum">     787 </span><span class="lineCov">         10 :                         txdesc-&gt;default_style = a-&gt;default_style;</span>
+<span class="lineNum">     788 </span><span class="lineCov">         10 :                         txdesc-&gt;vert_justif = a-&gt;vertical_justification;</span>
+<span class="lineNum">     789 </span><span class="lineCov">         10 :                         txdesc-&gt;horiz_justif = a-&gt;horizontal_justification;</span>
+<span class="lineNum">     790 </span><span class="lineCov">         30 :                         txdesc-&gt;font_count = a-&gt;font_table ? a-&gt;font_table-&gt;entry_count : 0;</span>
+<span class="lineNum">     791 </span><span class="lineCov">         10 :                         if (txdesc-&gt;font_count) {</span>
+<span class="lineNum">     792 </span><span class="lineCov">         10 :                                 txdesc-&gt;fonts = (GF_FontRecord*)gf_malloc(sizeof(GF_FontRecord)*txdesc-&gt;font_count);</span>
+<span class="lineNum">     793 </span><span class="lineCov">         40 :                                 for (j=0; j&lt;txdesc-&gt;font_count; j++) {</span>
+<span class="lineNum">     794 </span><span class="lineCov">         10 :                                         txdesc-&gt;fonts[j].fontID = a-&gt;font_table-&gt;fonts[j].fontID;</span>
+<span class="lineNum">     795 </span><span class="lineCov">         30 :                                         txdesc-&gt;fonts[j].fontName = a-&gt;font_table-&gt;fonts[j].fontName ? gf_strdup(a-&gt;font_table-&gt;fonts[j].fontName) : NULL;</span>
+<span class="lineNum">     796 </span>            :                                 }
+<span class="lineNum">     797 </span>            :                         }
+<span class="lineNum">     798 </span><span class="lineCov">         10 :                         gf_list_add(cfg-&gt;sample_descriptions, txdesc);</span>
+<span class="lineNum">     799 </span><span class="lineCov">         10 :                         gf_isom_box_del((GF_Box *)a);</span>
+<span class="lineNum">     800 </span>            :                 }
+<span class="lineNum">     801 </span><span class="lineCov">         40 :         }</span>
+<span class="lineNum">     802 </span>            : #endif
+<span class="lineNum">     803 </span>            : 
+<span class="lineNum">     804 </span><span class="lineCov">         10 :         if (cfg-&gt;has_vid_info) {</span>
+<span class="lineNum">     805 </span><span class="lineNoCov">          0 :                 cfg-&gt;video_width = gf_bs_read_int(bs, 16);</span>
+<span class="lineNum">     806 </span><span class="lineNoCov">          0 :                 cfg-&gt;video_height = gf_bs_read_int(bs, 16);</span>
+<span class="lineNum">     807 </span><span class="lineNoCov">          0 :                 cfg-&gt;horiz_offset = gf_bs_read_int(bs, 16);</span>
+<span class="lineNum">     808 </span><span class="lineNoCov">          0 :                 cfg-&gt;vert_offset = gf_bs_read_int(bs, 16);</span>
+<span class="lineNum">     809 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     810 </span>            : 
+<span class="lineNum">     811 </span>            : #ifndef GPAC_DISABLE_ISOM
+<span class="lineNum">     812 </span>            : exit:
+<span class="lineNum">     813 </span>            : #endif
+<span class="lineNum">     814 </span><span class="lineCov">         10 :         gf_bs_del(bs);</span>
+<span class="lineNum">     815 </span><span class="lineCov">         10 :         if (e) ResetTextConfig(cfg);</span>
+<span class="lineNum">     816 </span><span class="lineCov">         10 :         return e;</span>
+<span class="lineNum">     817 </span><span class="lineCov">         10 : }</span>
+<span class="lineNum">     818 </span>            : 
+<span class="lineNum">     819 </span>            : 
+<a name="820"><span class="lineNum">     820 </span>            : </a>
+<span class="lineNum">     821 </span>            : GF_EXPORT
+<span class="lineNum">     822 </span>            : GF_HEVCConfig *gf_odf_hevc_cfg_new()
+<span class="lineNum">     823 </span>            : {
+<span class="lineNum">     824 </span>            :         GF_HEVCConfig *cfg;
+<span class="lineNum">     825 </span><span class="lineCov">        834 :         GF_SAFEALLOC(cfg, GF_HEVCConfig);</span>
+<span class="lineNum">     826 </span><span class="lineCov">        278 :         if (!cfg) return NULL;</span>
+<span class="lineNum">     827 </span><span class="lineCov">        278 :         cfg-&gt;param_array = gf_list_new();</span>
+<span class="lineNum">     828 </span><span class="lineCov">        278 :         cfg-&gt;nal_unit_size = 4;</span>
+<span class="lineNum">     829 </span><span class="lineCov">        278 :         return cfg;</span>
+<span class="lineNum">     830 </span><span class="lineCov">        278 : }</span>
+<a name="831"><span class="lineNum">     831 </span>            : </a>
+<span class="lineNum">     832 </span>            : GF_EXPORT
+<span class="lineNum">     833 </span>            : void gf_odf_hevc_cfg_del(GF_HEVCConfig *cfg)
+<span class="lineNum">     834 </span>            : {
+<span class="lineNum">     835 </span><span class="lineCov">        556 :         if (!cfg) return;</span>
+<span class="lineNum">     836 </span><span class="lineCov">       1594 :         while (gf_list_count(cfg-&gt;param_array)) {</span>
+<span class="lineNum">     837 </span><span class="lineCov">        658 :                 GF_HEVCParamArray *pa = (GF_HEVCParamArray*)gf_list_get(cfg-&gt;param_array, 0);</span>
+<span class="lineNum">     838 </span><span class="lineCov">        658 :                 gf_list_rem(cfg-&gt;param_array, 0);</span>
+<span class="lineNum">     839 </span>            : 
+<span class="lineNum">     840 </span><span class="lineCov">       2628 :                 while (gf_list_count(pa-&gt;nalus)) {</span>
+<span class="lineNum">     841 </span><span class="lineCov">        656 :                         GF_AVCConfigSlot *n = (GF_AVCConfigSlot*)gf_list_get(pa-&gt;nalus, 0);</span>
+<span class="lineNum">     842 </span><span class="lineCov">        656 :                         gf_list_rem(pa-&gt;nalus, 0);</span>
+<span class="lineNum">     843 </span><span class="lineCov">       1312 :                         if (n-&gt;data) gf_free(n-&gt;data);</span>
+<span class="lineNum">     844 </span><span class="lineCov">        656 :                         gf_free(n);</span>
+<span class="lineNum">     845 </span>            :                 }
+<span class="lineNum">     846 </span><span class="lineCov">        658 :                 gf_list_del(pa-&gt;nalus);</span>
+<span class="lineNum">     847 </span><span class="lineCov">        658 :                 gf_free(pa);</span>
+<span class="lineNum">     848 </span>            :         }
+<span class="lineNum">     849 </span><span class="lineCov">        278 :         gf_list_del(cfg-&gt;param_array);</span>
+<span class="lineNum">     850 </span><span class="lineCov">        278 :         gf_free(cfg);</span>
+<span class="lineNum">     851 </span><span class="lineCov">        556 : }</span>
+<a name="852"><span class="lineNum">     852 </span>            : </a>
+<span class="lineNum">     853 </span>            : GF_EXPORT
+<span class="lineNum">     854 </span>            : GF_Err gf_odf_hevc_cfg_write_bs(GF_HEVCConfig *cfg, GF_BitStream *bs)
+<span class="lineNum">     855 </span>            : {
+<span class="lineNum">     856 </span>            :         u32 i, count;
+<span class="lineNum">     857 </span>            : 
+<span class="lineNum">     858 </span><span class="lineCov">        644 :         gf_bs_write_int(bs, cfg-&gt;configurationVersion, 8);</span>
+<span class="lineNum">     859 </span>            : 
+<span class="lineNum">     860 </span><span class="lineCov">        322 :         if (!cfg-&gt;is_lhvc) {</span>
+<span class="lineNum">     861 </span><span class="lineCov">        272 :                 gf_bs_write_int(bs, cfg-&gt;profile_space, 2);</span>
+<span class="lineNum">     862 </span><span class="lineCov">        272 :                 gf_bs_write_int(bs, cfg-&gt;tier_flag, 1);</span>
+<span class="lineNum">     863 </span><span class="lineCov">        272 :                 gf_bs_write_int(bs, cfg-&gt;profile_idc, 5);</span>
+<span class="lineNum">     864 </span><span class="lineCov">        272 :                 gf_bs_write_int(bs, cfg-&gt;general_profile_compatibility_flags, 32);</span>
+<span class="lineNum">     865 </span><span class="lineCov">        272 :                 gf_bs_write_int(bs, cfg-&gt;progressive_source_flag, 1);</span>
+<span class="lineNum">     866 </span><span class="lineCov">        272 :                 gf_bs_write_int(bs, cfg-&gt;interlaced_source_flag, 1);</span>
+<span class="lineNum">     867 </span><span class="lineCov">        272 :                 gf_bs_write_int(bs, cfg-&gt;non_packed_constraint_flag, 1);</span>
+<span class="lineNum">     868 </span><span class="lineCov">        272 :                 gf_bs_write_int(bs, cfg-&gt;frame_only_constraint_flag, 1);</span>
+<span class="lineNum">     869 </span>            :                 /*only lowest 44 bits used*/
+<span class="lineNum">     870 </span><span class="lineCov">        272 :                 gf_bs_write_long_int(bs, cfg-&gt;constraint_indicator_flags, 44);</span>
+<span class="lineNum">     871 </span><span class="lineCov">        272 :                 gf_bs_write_int(bs, cfg-&gt;level_idc, 8);</span>
+<span class="lineNum">     872 </span><span class="lineCov">        272 :         }</span>
+<span class="lineNum">     873 </span>            : 
+<span class="lineNum">     874 </span><span class="lineCov">        322 :         gf_bs_write_int(bs, 0xFF, 4);</span>
+<span class="lineNum">     875 </span><span class="lineCov">        322 :         gf_bs_write_int(bs, cfg-&gt;min_spatial_segmentation_idc, 12);</span>
+<span class="lineNum">     876 </span>            : 
+<span class="lineNum">     877 </span><span class="lineCov">        322 :         gf_bs_write_int(bs, 0xFF, 6);</span>
+<span class="lineNum">     878 </span><span class="lineCov">        322 :         gf_bs_write_int(bs, cfg-&gt;parallelismType, 2);</span>
+<span class="lineNum">     879 </span>            : 
+<span class="lineNum">     880 </span><span class="lineCov">        322 :         if (!cfg-&gt;is_lhvc) {</span>
+<span class="lineNum">     881 </span><span class="lineCov">        272 :                 gf_bs_write_int(bs, 0xFF, 6);</span>
+<span class="lineNum">     882 </span><span class="lineCov">        272 :                 gf_bs_write_int(bs, cfg-&gt;chromaFormat, 2);</span>
+<span class="lineNum">     883 </span><span class="lineCov">        272 :                 gf_bs_write_int(bs, 0xFF, 5);</span>
+<span class="lineNum">     884 </span><span class="lineCov">        272 :                 gf_bs_write_int(bs, cfg-&gt;luma_bit_depth-8, 3);</span>
+<span class="lineNum">     885 </span><span class="lineCov">        272 :                 gf_bs_write_int(bs, 0xFF, 5);</span>
+<span class="lineNum">     886 </span><span class="lineCov">        272 :                 gf_bs_write_int(bs, cfg-&gt;chroma_bit_depth-8, 3);</span>
+<span class="lineNum">     887 </span><span class="lineCov">        272 :                 gf_bs_write_int(bs, cfg-&gt;avgFrameRate, 16);</span>
+<span class="lineNum">     888 </span><span class="lineCov">        272 :         }</span>
+<span class="lineNum">     889 </span>            : 
+<span class="lineNum">     890 </span><span class="lineCov">        322 :         if (!cfg-&gt;is_lhvc)</span>
+<span class="lineNum">     891 </span><span class="lineCov">        272 :                 gf_bs_write_int(bs, cfg-&gt;constantFrameRate, 2);</span>
+<span class="lineNum">     892 </span>            :         else
+<span class="lineNum">     893 </span><span class="lineCov">         50 :                 gf_bs_write_int(bs, 0xFF, 2);</span>
+<span class="lineNum">     894 </span>            : 
+<span class="lineNum">     895 </span><span class="lineCov">        322 :         gf_bs_write_int(bs, cfg-&gt;numTemporalLayers, 3);</span>
+<span class="lineNum">     896 </span><span class="lineCov">        322 :         gf_bs_write_int(bs, cfg-&gt;temporalIdNested, 1);</span>
+<span class="lineNum">     897 </span><span class="lineCov">        322 :         gf_bs_write_int(bs, cfg-&gt;nal_unit_size - 1, 2);</span>
+<span class="lineNum">     898 </span>            : 
+<span class="lineNum">     899 </span><span class="lineCov">        322 :         count = gf_list_count(cfg-&gt;param_array);</span>
+<span class="lineNum">     900 </span><span class="lineCov">        322 :         gf_bs_write_int(bs, count, 8);</span>
+<span class="lineNum">     901 </span><span class="lineCov">       2224 :         for (i=0; i&lt;count; i++) {</span>
+<span class="lineNum">     902 </span>            :                 u32 nalucount, j;
+<span class="lineNum">     903 </span><span class="lineCov">        790 :                 GF_HEVCParamArray *ar = (GF_HEVCParamArray*)gf_list_get(cfg-&gt;param_array, i);</span>
+<span class="lineNum">     904 </span><span class="lineCov">        790 :                 gf_bs_write_int(bs, ar-&gt;array_completeness, 1);</span>
+<span class="lineNum">     905 </span><span class="lineCov">        790 :                 gf_bs_write_int(bs, 0, 1);</span>
+<span class="lineNum">     906 </span><span class="lineCov">        790 :                 gf_bs_write_int(bs, ar-&gt;type, 6);</span>
+<span class="lineNum">     907 </span><span class="lineCov">        790 :                 nalucount = gf_list_count(ar-&gt;nalus);</span>
+<span class="lineNum">     908 </span><span class="lineCov">        790 :                 gf_bs_write_int(bs, nalucount, 16);</span>
+<span class="lineNum">     909 </span><span class="lineCov">       3288 :                 for (j=0; j&lt;nalucount; j++) {</span>
+<span class="lineNum">     910 </span><span class="lineCov">        854 :                         GF_AVCConfigSlot *sl = (GF_AVCConfigSlot *)gf_list_get(ar-&gt;nalus, j);</span>
+<span class="lineNum">     911 </span><span class="lineCov">        854 :                         gf_bs_write_int(bs, sl-&gt;size, 16);</span>
+<span class="lineNum">     912 </span><span class="lineCov">        854 :                         gf_bs_write_data(bs, sl-&gt;data, sl-&gt;size);</span>
+<span class="lineNum">     913 </span>            :                 }
+<span class="lineNum">     914 </span>            :         }
+<span class="lineNum">     915 </span><span class="lineCov">        322 :         return GF_OK;</span>
+<span class="lineNum">     916 </span>            : }
+<a name="917"><span class="lineNum">     917 </span>            : </a>
+<span class="lineNum">     918 </span>            : GF_EXPORT
+<span class="lineNum">     919 </span>            : GF_Err gf_odf_hevc_cfg_write(GF_HEVCConfig *cfg, char **outData, u32 *outSize)
+<span class="lineNum">     920 </span>            : {
+<span class="lineNum">     921 </span>            :         GF_Err e;
+<span class="lineNum">     922 </span><span class="lineCov">        188 :         GF_BitStream *bs = gf_bs_new(NULL, 0, GF_BITSTREAM_WRITE);</span>
+<span class="lineNum">     923 </span><span class="lineCov">         94 :         *outSize = 0;</span>
+<span class="lineNum">     924 </span><span class="lineCov">         94 :         *outData = NULL;</span>
+<span class="lineNum">     925 </span><span class="lineCov">         94 :         e = gf_odf_hevc_cfg_write_bs(cfg, bs);</span>
+<span class="lineNum">     926 </span><span class="lineCov">         94 :         if (e==GF_OK)</span>
+<span class="lineNum">     927 </span><span class="lineCov">         94 :                 gf_bs_get_content(bs, outData, outSize);</span>
+<span class="lineNum">     928 </span>            : 
+<span class="lineNum">     929 </span><span class="lineCov">         94 :         gf_bs_del(bs);</span>
+<span class="lineNum">     930 </span><span class="lineCov">         94 :         return e;</span>
+<span class="lineNum">     931 </span>            : }
+<a name="932"><span class="lineNum">     932 </span>            : </a>
+<span class="lineNum">     933 </span>            : GF_EXPORT
+<span class="lineNum">     934 </span>            : GF_HEVCConfig *gf_odf_hevc_cfg_read_bs(GF_BitStream *bs, Bool is_lhvc)
+<span class="lineNum">     935 </span>            : {
+<span class="lineNum">     936 </span>            :         u32 i, count;
+<span class="lineNum">     937 </span><span class="lineCov">        498 :         GF_HEVCConfig *cfg = gf_odf_hevc_cfg_new();</span>
+<span class="lineNum">     938 </span>            : 
+<span class="lineNum">     939 </span><span class="lineCov">        249 :         cfg-&gt;is_lhvc = is_lhvc;</span>
+<span class="lineNum">     940 </span>            : 
+<span class="lineNum">     941 </span><span class="lineCov">        249 :         cfg-&gt;configurationVersion = gf_bs_read_int(bs, 8);</span>
+<span class="lineNum">     942 </span>            : 
+<span class="lineNum">     943 </span><span class="lineCov">        249 :         if (!is_lhvc) {</span>
+<span class="lineNum">     944 </span><span class="lineCov">        190 :                 cfg-&gt;profile_space = gf_bs_read_int(bs, 2);</span>
+<span class="lineNum">     945 </span><span class="lineCov">        190 :                 cfg-&gt;tier_flag = gf_bs_read_int(bs, 1);</span>
+<span class="lineNum">     946 </span><span class="lineCov">        190 :                 cfg-&gt;profile_idc = gf_bs_read_int(bs, 5);</span>
+<span class="lineNum">     947 </span><span class="lineCov">        190 :                 cfg-&gt;general_profile_compatibility_flags = gf_bs_read_int(bs, 32);</span>
+<span class="lineNum">     948 </span>            : 
+<span class="lineNum">     949 </span><span class="lineCov">        190 :                 cfg-&gt;progressive_source_flag = gf_bs_read_int(bs, 1);</span>
+<span class="lineNum">     950 </span><span class="lineCov">        190 :                 cfg-&gt;interlaced_source_flag = gf_bs_read_int(bs, 1);</span>
+<span class="lineNum">     951 </span><span class="lineCov">        190 :                 cfg-&gt;non_packed_constraint_flag = gf_bs_read_int(bs, 1);</span>
+<span class="lineNum">     952 </span><span class="lineCov">        190 :                 cfg-&gt;frame_only_constraint_flag = gf_bs_read_int(bs, 1);</span>
+<span class="lineNum">     953 </span>            :                 /*only lowest 44 bits used*/
+<span class="lineNum">     954 </span><span class="lineCov">        190 :                 cfg-&gt;constraint_indicator_flags = gf_bs_read_long_int(bs, 44);</span>
+<span class="lineNum">     955 </span><span class="lineCov">        190 :                 cfg-&gt;level_idc = gf_bs_read_int(bs, 8);</span>
+<span class="lineNum">     956 </span><span class="lineCov">        190 :         }</span>
+<span class="lineNum">     957 </span>            : 
+<span class="lineNum">     958 </span><span class="lineCov">        249 :         gf_bs_read_int(bs, 4); //reserved</span>
+<span class="lineNum">     959 </span><span class="lineCov">        249 :         cfg-&gt;min_spatial_segmentation_idc = gf_bs_read_int(bs, 12);</span>
+<span class="lineNum">     960 </span>            : 
+<span class="lineNum">     961 </span><span class="lineCov">        249 :         gf_bs_read_int(bs, 6);//reserved</span>
+<span class="lineNum">     962 </span><span class="lineCov">        249 :         cfg-&gt;parallelismType = gf_bs_read_int(bs, 2);</span>
+<span class="lineNum">     963 </span>            : 
+<span class="lineNum">     964 </span><span class="lineCov">        249 :         if (!is_lhvc) {</span>
+<span class="lineNum">     965 </span><span class="lineCov">        190 :                 gf_bs_read_int(bs, 6);</span>
+<span class="lineNum">     966 </span><span class="lineCov">        190 :                 cfg-&gt;chromaFormat = gf_bs_read_int(bs, 2);</span>
+<span class="lineNum">     967 </span><span class="lineCov">        190 :                 gf_bs_read_int(bs, 5);</span>
+<span class="lineNum">     968 </span><span class="lineCov">        190 :                 cfg-&gt;luma_bit_depth = gf_bs_read_int(bs, 3) + 8;</span>
+<span class="lineNum">     969 </span><span class="lineCov">        190 :                 gf_bs_read_int(bs, 5);</span>
+<span class="lineNum">     970 </span><span class="lineCov">        190 :                 cfg-&gt;chroma_bit_depth = gf_bs_read_int(bs, 3) + 8;</span>
+<span class="lineNum">     971 </span><span class="lineCov">        190 :                 cfg-&gt;avgFrameRate = gf_bs_read_int(bs, 16);</span>
+<span class="lineNum">     972 </span><span class="lineCov">        190 :         }</span>
+<span class="lineNum">     973 </span>            : 
+<span class="lineNum">     974 </span><span class="lineCov">        249 :         if (!is_lhvc)</span>
+<span class="lineNum">     975 </span><span class="lineCov">        190 :                 cfg-&gt;constantFrameRate = gf_bs_read_int(bs, 2);</span>
+<span class="lineNum">     976 </span>            :         else
+<span class="lineNum">     977 </span><span class="lineCov">        249 :                 gf_bs_read_int(bs, 2); //reserved</span>
+<span class="lineNum">     978 </span>            : 
+<span class="lineNum">     979 </span><span class="lineCov">        249 :         cfg-&gt;numTemporalLayers = gf_bs_read_int(bs, 3);</span>
+<span class="lineNum">     980 </span><span class="lineCov">        249 :         cfg-&gt;temporalIdNested = gf_bs_read_int(bs, 1);</span>
+<span class="lineNum">     981 </span>            : 
+<span class="lineNum">     982 </span><span class="lineCov">        249 :         cfg-&gt;nal_unit_size = 1 + gf_bs_read_int(bs, 2);</span>
+<span class="lineNum">     983 </span>            : 
+<span class="lineNum">     984 </span><span class="lineCov">        249 :         count = gf_bs_read_int(bs, 8);</span>
+<span class="lineNum">     985 </span><span class="lineCov">       1706 :         for (i=0; i&lt;count; i++) {</span>
+<span class="lineNum">     986 </span>            :                 u32 nalucount, j;
+<span class="lineNum">     987 </span>            :                 GF_HEVCParamArray *ar;
+<span class="lineNum">     988 </span><span class="lineCov">       1208 :                 GF_SAFEALLOC(ar, GF_HEVCParamArray);</span>
+<span class="lineNum">     989 </span><span class="lineCov">        604 :                 if (!ar) {</span>
+<span class="lineNum">     990 </span><span class="lineNoCov">          0 :                         gf_odf_hevc_cfg_del(cfg);</span>
+<span class="lineNum">     991 </span><span class="lineNoCov">          0 :                         return NULL;</span>
+<span class="lineNum">     992 </span>            :                 }
+<span class="lineNum">     993 </span><span class="lineCov">        604 :                 ar-&gt;nalus = gf_list_new();</span>
+<span class="lineNum">     994 </span><span class="lineCov">        604 :                 gf_list_add(cfg-&gt;param_array, ar);</span>
+<span class="lineNum">     995 </span>            : 
+<span class="lineNum">     996 </span><span class="lineCov">        604 :                 ar-&gt;array_completeness = gf_bs_read_int(bs, 1);</span>
+<span class="lineNum">     997 </span><span class="lineCov">        604 :                 gf_bs_read_int(bs, 1);</span>
+<span class="lineNum">     998 </span><span class="lineCov">        604 :                 ar-&gt;type = gf_bs_read_int(bs, 6);</span>
+<span class="lineNum">     999 </span><span class="lineCov">        604 :                 nalucount = gf_bs_read_int(bs, 16);</span>
+<span class="lineNum">    1000 </span><span class="lineCov">       2416 :                 for (j=0; j&lt;nalucount; j++) {</span>
+<span class="lineNum">    1001 </span>            :                         GF_AVCConfigSlot *sl;
+<span class="lineNum">    1002 </span><span class="lineCov">        604 :                         u32 size = gf_bs_read_int(bs, 16);</span>
+<span class="lineNum">    1003 </span><span class="lineCov">        604 :                         if (size&gt;gf_bs_available(bs)) {</span>
+<span class="lineNum">    1004 </span><span class="lineNoCov">          0 :                                 GF_LOG(GF_LOG_ERROR, GF_LOG_CONTAINER, (&quot;[iso file] Wrong param set size %d\n&quot;, size));</span>
+<span class="lineNum">    1005 </span><span class="lineNoCov">          0 :                                 gf_odf_hevc_cfg_del(cfg);</span>
+<span class="lineNum">    1006 </span><span class="lineNoCov">          0 :                                 return NULL;</span>
+<span class="lineNum">    1007 </span>            :                         }
+<span class="lineNum">    1008 </span><span class="lineCov">       1208 :                         GF_SAFEALLOC(sl, GF_AVCConfigSlot );</span>
+<span class="lineNum">    1009 </span><span class="lineCov">        604 :                         if (!sl) {</span>
+<span class="lineNum">    1010 </span><span class="lineNoCov">          0 :                                 gf_odf_hevc_cfg_del(cfg);</span>
+<span class="lineNum">    1011 </span><span class="lineNoCov">          0 :                                 return NULL;</span>
+<span class="lineNum">    1012 </span>            :                         }
+<span class="lineNum">    1013 </span>            : 
+<span class="lineNum">    1014 </span><span class="lineCov">        604 :                         sl-&gt;size = size;</span>
+<span class="lineNum">    1015 </span><span class="lineCov">        604 :                         sl-&gt;data = (char *)gf_malloc(sizeof(char) * sl-&gt;size);</span>
+<span class="lineNum">    1016 </span><span class="lineCov">        604 :                         gf_bs_read_data(bs, sl-&gt;data, sl-&gt;size);</span>
+<span class="lineNum">    1017 </span><span class="lineCov">        604 :                         gf_list_add(ar-&gt;nalus, sl);</span>
+<span class="lineNum">    1018 </span><span class="lineCov">        604 :                 }</span>
+<span class="lineNum">    1019 </span><span class="lineCov">        604 :         }</span>
+<span class="lineNum">    1020 </span><span class="lineCov">        249 :         return cfg;</span>
+<span class="lineNum">    1021 </span><span class="lineCov">        249 : }</span>
+<a name="1022"><span class="lineNum">    1022 </span>            : </a>
+<span class="lineNum">    1023 </span>            : GF_EXPORT
+<span class="lineNum">    1024 </span>            : GF_HEVCConfig *gf_odf_hevc_cfg_read(char *dsi, u32 dsi_size, Bool is_lhvc)
+<span class="lineNum">    1025 </span>            : {
+<span class="lineNum">    1026 </span><span class="lineCov">         20 :         GF_BitStream *bs = gf_bs_new(dsi, dsi_size, GF_BITSTREAM_READ);</span>
+<span class="lineNum">    1027 </span><span class="lineCov">         10 :         GF_HEVCConfig *cfg = gf_odf_hevc_cfg_read_bs(bs, is_lhvc);</span>
+<span class="lineNum">    1028 </span><span class="lineCov">         10 :         gf_bs_del(bs);</span>
+<span class="lineNum">    1029 </span><span class="lineCov">         10 :         return cfg;</span>
+<span class="lineNum">    1030 </span>            : }
+<a name="1031"><span class="lineNum">    1031 </span>            : </a>
+<span class="lineNum">    1032 </span>            : GF_EXPORT
+<span class="lineNum">    1033 </span>            : const char *gf_afx_get_type_description(u8 afx_code)
+<span class="lineNum">    1034 </span>            : {
+<span class="lineNum">    1035 </span><span class="lineNoCov">          0 :         switch (afx_code) {</span>
+<span class="lineNum">    1036 </span>            :         case GPAC_AFX_3DMC:
+<span class="lineNum">    1037 </span><span class="lineNoCov">          0 :                 return &quot;AFX 3D Mesh Compression&quot;;</span>
+<span class="lineNum">    1038 </span>            :         case GPAC_AFX_WAVELET_SUBDIVISION:
+<span class="lineNum">    1039 </span><span class="lineNoCov">          0 :                 return &quot;AFX Wavelet Subdivision Surface&quot;;</span>
+<span class="lineNum">    1040 </span>            :         case GPAC_AFX_MESHGRID:
+<span class="lineNum">    1041 </span><span class="lineNoCov">          0 :                 return &quot;AFX Mesh Grid&quot;;</span>
+<span class="lineNum">    1042 </span>            :         case GPAC_AFX_COORDINATE_INTERPOLATOR:
+<span class="lineNum">    1043 </span><span class="lineNoCov">          0 :                 return &quot;AFX Coordinate Interpolator&quot;;</span>
+<span class="lineNum">    1044 </span>            :         case GPAC_AFX_ORIENTATION_INTERPOLATOR:
+<span class="lineNum">    1045 </span><span class="lineNoCov">          0 :                 return &quot;AFX Orientation Interpolator&quot;;</span>
+<span class="lineNum">    1046 </span>            :         case GPAC_AFX_POSITION_INTERPOLATOR:
+<span class="lineNum">    1047 </span><span class="lineNoCov">          0 :                 return &quot;AFX Position Interpolator&quot;;</span>
+<span class="lineNum">    1048 </span>            :         case GPAC_AFX_OCTREE_IMAGE:
+<span class="lineNum">    1049 </span><span class="lineNoCov">          0 :                 return &quot;AFX Octree Image&quot;;</span>
+<span class="lineNum">    1050 </span>            :         case GPAC_AFX_BBA:
+<span class="lineNum">    1051 </span><span class="lineNoCov">          0 :                 return &quot;AFX BBA&quot;;</span>
+<span class="lineNum">    1052 </span>            :         case GPAC_AFX_POINT_TEXTURE:
+<span class="lineNum">    1053 </span><span class="lineNoCov">          0 :                 return &quot;AFX Point Texture&quot;;</span>
+<span class="lineNum">    1054 </span>            :         case GPAC_AFX_3DMC_EXT:
+<span class="lineNum">    1055 </span><span class="lineNoCov">          0 :                 return &quot;AFX 3D Mesh Compression Extension&quot;;</span>
+<span class="lineNum">    1056 </span>            :         case GPAC_AFX_FOOTPRINT:
+<span class="lineNum">    1057 </span><span class="lineNoCov">          0 :                 return &quot;AFX FootPrint Representation&quot;;</span>
+<span class="lineNum">    1058 </span>            :         case GPAC_AFX_ANIMATED_MESH:
+<span class="lineNum">    1059 </span><span class="lineNoCov">          0 :                 return &quot;AFX Animated Mesh Compression&quot;;</span>
+<span class="lineNum">    1060 </span>            :         case GPAC_AFX_SCALABLE_COMPLEXITY:
+<span class="lineNum">    1061 </span><span class="lineNoCov">          0 :                 return &quot;AFX Scalable Complexity Representation&quot;;</span>
+<span class="lineNum">    1062 </span>            :         default:
+<span class="lineNum">    1063 </span>            :                 break;
+<span class="lineNum">    1064 </span>            :         }
+<span class="lineNum">    1065 </span><span class="lineNoCov">          0 :         return &quot;AFX Unknown&quot;;</span>
+<span class="lineNum">    1066 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">    1067 </span>            : 
+<a name="1068"><span class="lineNum">    1068 </span>            : </a>
+<span class="lineNum">    1069 </span>            : GF_EXPORT
+<span class="lineNum">    1070 </span>            : const char *gf_esd_get_textual_description(GF_ESD *esd)
+<span class="lineNum">    1071 </span>            : {
+<span class="lineNum">    1072 </span><span class="lineNoCov">          0 :         if (!esd || !esd-&gt;decoderConfig) return &quot;Bad parameter&quot;;</span>
+<span class="lineNum">    1073 </span>            : 
+<span class="lineNum">    1074 </span><span class="lineNoCov">          0 :         switch (esd-&gt;decoderConfig-&gt;streamType) {</span>
+<span class="lineNum">    1075 </span>            :         case GF_STREAM_OD:
+<span class="lineNum">    1076 </span><span class="lineNoCov">          0 :                 return &quot;MPEG-4 Object Descriptor&quot;;</span>
+<span class="lineNum">    1077 </span>            :         case GF_STREAM_OCR:
+<span class="lineNum">    1078 </span><span class="lineNoCov">          0 :                 return &quot;MPEG-4 Object Clock Reference&quot;;</span>
+<span class="lineNum">    1079 </span>            :         case GF_STREAM_SCENE:
+<span class="lineNum">    1080 </span><span class="lineNoCov">          0 :                 switch (esd-&gt;decoderConfig-&gt;objectTypeIndication) {</span>
+<span class="lineNum">    1081 </span>            :                 case 0x0:
+<span class="lineNum">    1082 </span>            :                 case 0x1:
+<span class="lineNum">    1083 </span>            :                 case 0x2:
+<span class="lineNum">    1084 </span>            :                 case 0x3:
+<span class="lineNum">    1085 </span>            :                 case 0xFF:
+<span class="lineNum">    1086 </span><span class="lineNoCov">          0 :                         return &quot;MPEG-4 BIFS Scene Description&quot;;</span>
+<span class="lineNum">    1087 </span>            :                 case GPAC_OTI_SCENE_BIFS_EXTENDED:
+<span class="lineNum">    1088 </span><span class="lineNoCov">          0 :                         return &quot;MPEG-4 Extended BIFS Scene Description&quot;;</span>
+<span class="lineNum">    1089 </span>            :                 case GPAC_OTI_SCENE_AFX:
+<span class="lineNum">    1090 </span><span class="lineNoCov">          0 :                         if (!esd-&gt;decoderConfig-&gt;decoderSpecificInfo || !esd-&gt;decoderConfig-&gt;decoderSpecificInfo-&gt;data)</span>
+<span class="lineNum">    1091 </span><span class="lineNoCov">          0 :                                 return &quot;AFX Unknown&quot;;</span>
+<span class="lineNum">    1092 </span><span class="lineNoCov">          0 :                         return gf_afx_get_type_description(esd-&gt;decoderConfig-&gt;decoderSpecificInfo-&gt;data[0]);</span>
+<span class="lineNum">    1093 </span>            :                 case GPAC_OTI_SCENE_LASER:
+<span class="lineNum">    1094 </span>            :                 {
+<span class="lineNum">    1095 </span><span class="lineNoCov">          0 :                         GF_LASERConfig l_cfg;</span>
+<span class="lineNum">    1096 </span><span class="lineNoCov">          0 :                         gf_odf_get_laser_config(esd-&gt;decoderConfig-&gt;decoderSpecificInfo, &amp;l_cfg);</span>
+<span class="lineNum">    1097 </span><span class="lineNoCov">          0 :                         if (! l_cfg.newSceneIndicator ) return &quot;LASeR Scene Segment Description&quot;;</span>
+<span class="lineNum">    1098 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">    1099 </span><span class="lineNoCov">          0 :                 return &quot;LASeR Scene Description&quot;;</span>
+<span class="lineNum">    1100 </span>            :                 case GPAC_OTI_SCENE_SYNTHESIZED_TEXTURE:
+<span class="lineNum">    1101 </span><span class="lineNoCov">          0 :                         return &quot;MPEG-4 Synthesized Texture&quot;;</span>
+<span class="lineNum">    1102 </span>            :                 case GPAC_OTI_SCENE_SAF:
+<span class="lineNum">    1103 </span><span class="lineNoCov">          0 :                         return &quot;MPEG-4 SAF&quot;;</span>
+<span class="lineNum">    1104 </span>            :                 case GPAC_OTI_3GPP2_CMF:
+<span class="lineNum">    1105 </span><span class="lineNoCov">          0 :                         return &quot;3GPP2 CMF&quot;;</span>
+<span class="lineNum">    1106 </span>            :                 default:
+<span class="lineNum">    1107 </span><span class="lineNoCov">          0 :                         return &quot;Unknown Scene Type&quot;;</span>
+<span class="lineNum">    1108 </span>            :                 }
+<span class="lineNum">    1109 </span>            :                 break;
+<span class="lineNum">    1110 </span>            :         case GF_STREAM_VISUAL:
+<span class="lineNum">    1111 </span><span class="lineNoCov">          0 :                 switch (esd-&gt;decoderConfig-&gt;objectTypeIndication) {</span>
+<span class="lineNum">    1112 </span>            :                 case GPAC_OTI_VIDEO_MPEG2_SIMPLE:
+<span class="lineNum">    1113 </span><span class="lineNoCov">          0 :                         return &quot;MPEG-2 Visual Simple Profile&quot;;</span>
+<span class="lineNum">    1114 </span>            :                 case GPAC_OTI_VIDEO_MPEG2_MAIN:
+<span class="lineNum">    1115 </span><span class="lineNoCov">          0 :                         return &quot;MPEG-2 Visual Main Profile&quot;;</span>
+<span class="lineNum">    1116 </span>            :                 case GPAC_OTI_VIDEO_MPEG2_SNR:
+<span class="lineNum">    1117 </span><span class="lineNoCov">          0 :                         return &quot;MPEG-2 Visual SNR Profile&quot;;</span>
+<span class="lineNum">    1118 </span>            :                 case GPAC_OTI_VIDEO_MPEG2_SPATIAL:
+<span class="lineNum">    1119 </span><span class="lineNoCov">          0 :                         return &quot;MPEG-2 Visual SNR Profile&quot;;</span>
+<span class="lineNum">    1120 </span>            :                 case GPAC_OTI_VIDEO_MPEG2_HIGH:
+<span class="lineNum">    1121 </span><span class="lineNoCov">          0 :                         return &quot;MPEG-2 Visual SNR Profile&quot;;</span>
+<span class="lineNum">    1122 </span>            :                 case GPAC_OTI_VIDEO_MPEG2_422:
+<span class="lineNum">    1123 </span><span class="lineNoCov">          0 :                         return &quot;MPEG-2 Visual SNR Profile&quot;;</span>
+<span class="lineNum">    1124 </span>            :                 case GPAC_OTI_VIDEO_MPEG1:
+<span class="lineNum">    1125 </span><span class="lineNoCov">          0 :                         return &quot;MPEG-1 Video&quot;;</span>
+<span class="lineNum">    1126 </span>            :                 case GPAC_OTI_IMAGE_JPEG:
+<span class="lineNum">    1127 </span><span class="lineNoCov">          0 :                         return &quot;JPEG Image&quot;;</span>
+<span class="lineNum">    1128 </span>            :                 case GPAC_OTI_IMAGE_PNG:
+<span class="lineNum">    1129 </span><span class="lineNoCov">          0 :                         return &quot;PNG Image&quot;;</span>
+<span class="lineNum">    1130 </span>            :                 case GPAC_OTI_IMAGE_JPEG_2000:
+<span class="lineNum">    1131 </span><span class="lineNoCov">          0 :                         return &quot;JPEG2000 Image&quot;;</span>
+<span class="lineNum">    1132 </span>            :                 case GPAC_OTI_VIDEO_MPEG4_PART2:
+<span class="lineNum">    1133 </span><span class="lineNoCov">          0 :                         return &quot;MPEG-4 Part 2 Video&quot;;</span>
+<span class="lineNum">    1134 </span>            :                 case GPAC_OTI_VIDEO_AVC:
+<span class="lineNum">    1135 </span><span class="lineNoCov">          0 :                         return &quot;MPEG-4 AVC|H264 Video&quot;;</span>
+<span class="lineNum">    1136 </span>            :                 case GPAC_OTI_VIDEO_SVC:
+<span class="lineNum">    1137 </span><span class="lineNoCov">          0 :                         return &quot;MPEG-4 SVC Video&quot;;</span>
+<span class="lineNum">    1138 </span>            :                 case GPAC_OTI_VIDEO_AVC_PS:
+<span class="lineNum">    1139 </span><span class="lineNoCov">          0 :                         return &quot;MPEG-4 AVC|H264 Parameter Set&quot;;</span>
+<span class="lineNum">    1140 </span>            :                 case GPAC_OTI_VIDEO_HEVC:
+<span class="lineNum">    1141 </span><span class="lineNoCov">          0 :                         return &quot;MPEG-H HEVC Video&quot;;</span>
+<span class="lineNum">    1142 </span>            :                 case GPAC_OTI_VIDEO_LHVC:
+<span class="lineNum">    1143 </span><span class="lineNoCov">          0 :                         return &quot;MPEG-H L-HEVC Video&quot;;</span>
+<span class="lineNum">    1144 </span>            :                 case GPAC_OTI_MEDIA_FFMPEG:
+<span class="lineNum">    1145 </span><span class="lineNoCov">          0 :                         return &quot;GPAC FFMPEG Private Video&quot;;</span>
+<span class="lineNum">    1146 </span>            :                 case GPAC_OTI_VIDEO_SMPTE_VC1:
+<span class="lineNum">    1147 </span><span class="lineNoCov">          0 :                         return &quot;SMPTE VC-1 Video&quot;;</span>
+<span class="lineNum">    1148 </span>            :                 case GPAC_OTI_VIDEO_DIRAC:
+<span class="lineNum">    1149 </span><span class="lineNoCov">          0 :                         return &quot;Dirac Video&quot;;</span>
+<span class="lineNum">    1150 </span>            :                 default:
+<span class="lineNum">    1151 </span><span class="lineNoCov">          0 :                         return &quot;Unknown Video type&quot;;</span>
+<span class="lineNum">    1152 </span>            :                 }
+<span class="lineNum">    1153 </span>            :                 break;
+<span class="lineNum">    1154 </span>            :         case GF_STREAM_AUDIO:
+<span class="lineNum">    1155 </span><span class="lineNoCov">          0 :                 switch (esd-&gt;decoderConfig-&gt;objectTypeIndication) {</span>
+<span class="lineNum">    1156 </span>            :                 case GPAC_OTI_AUDIO_AAC_MPEG2_MP:
+<span class="lineNum">    1157 </span><span class="lineNoCov">          0 :                         return &quot;MPEG-2 AAC Main Profile&quot;;</span>
+<span class="lineNum">    1158 </span>            :                 case GPAC_OTI_AUDIO_AAC_MPEG2_LCP:
+<span class="lineNum">    1159 </span><span class="lineNoCov">          0 :                         return &quot;MPEG-2 AAC Low Complexity Profile&quot;;</span>
+<span class="lineNum">    1160 </span>            :                 case GPAC_OTI_AUDIO_AAC_MPEG2_SSRP:
+<span class="lineNum">    1161 </span><span class="lineNoCov">          0 :                         return &quot;MPEG-2 AAC Scaleable Sampling Rate Profile&quot;;</span>
+<span class="lineNum">    1162 </span>            :                 case GPAC_OTI_AUDIO_MPEG2_PART3:
+<span class="lineNum">    1163 </span><span class="lineNoCov">          0 :                         return &quot;MPEG-2 Audio Part 3&quot;;</span>
+<span class="lineNum">    1164 </span>            :                 case GPAC_OTI_AUDIO_MPEG1:
+<span class="lineNum">    1165 </span><span class="lineNoCov">          0 :                         return &quot;MPEG-1 Audio&quot;;</span>
+<span class="lineNum">    1166 </span>            :                 case GPAC_OTI_AUDIO_AAC_MPEG4:
+<span class="lineNum">    1167 </span>            :                 {
+<span class="lineNum">    1168 </span>            : #ifdef GPAC_DISABLE_AV_PARSERS
+<span class="lineNum">    1169 </span>            :                         return &quot;MPEG-4 AAC&quot;;
+<span class="lineNum">    1170 </span>            : #else
+<span class="lineNum">    1171 </span><span class="lineNoCov">          0 :                         GF_M4ADecSpecInfo a_cfg;</span>
+<span class="lineNum">    1172 </span><span class="lineNoCov">          0 :                         if (!esd-&gt;decoderConfig-&gt;decoderSpecificInfo) return &quot;MPEG-4 AAC&quot;;</span>
+<span class="lineNum">    1173 </span><span class="lineNoCov">          0 :                         gf_m4a_get_config(esd-&gt;decoderConfig-&gt;decoderSpecificInfo-&gt;data, esd-&gt;decoderConfig-&gt;decoderSpecificInfo-&gt;dataLength, &amp;a_cfg);</span>
+<span class="lineNum">    1174 </span><span class="lineNoCov">          0 :                         return gf_m4a_object_type_name(a_cfg.base_object_type);</span>
+<span class="lineNum">    1175 </span>            : #endif
+<span class="lineNum">    1176 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">    1177 </span>            :                 break;
+<span class="lineNum">    1178 </span>            :                 case GPAC_OTI_MEDIA_FFMPEG:
+<span class="lineNum">    1179 </span><span class="lineNoCov">          0 :                         return &quot;GPAC FFMPEG Private Audio&quot;;</span>
+<span class="lineNum">    1180 </span>            :                 case GPAC_OTI_AUDIO_EVRC_VOICE:
+<span class="lineNum">    1181 </span><span class="lineNoCov">          0 :                         return &quot;EVRC Voice&quot;;</span>
+<span class="lineNum">    1182 </span>            :                 case GPAC_OTI_AUDIO_SMV_VOICE:
+<span class="lineNum">    1183 </span><span class="lineNoCov">          0 :                         return &quot;SMV Voice&quot;;</span>
+<span class="lineNum">    1184 </span>            :                 case GPAC_OTI_AUDIO_AC3:
+<span class="lineNum">    1185 </span><span class="lineNoCov">          0 :                         return &quot;AC-3 audio&quot;;</span>
+<span class="lineNum">    1186 </span>            :                 case GPAC_OTI_AUDIO_EAC3:
+<span class="lineNum">    1187 </span><span class="lineNoCov">          0 :                         return &quot;Enhanced AC-3 Audio&quot;;</span>
+<span class="lineNum">    1188 </span>            :                 case GPAC_OTI_AUDIO_DRA:
+<span class="lineNum">    1189 </span><span class="lineNoCov">          0 :                         return &quot;DRA Audio&quot;;</span>
+<span class="lineNum">    1190 </span>            :                 case GPAC_OTI_AUDIO_ITU_G719:
+<span class="lineNum">    1191 </span><span class="lineNoCov">          0 :                         return &quot;ITU G719 Audio&quot;;</span>
+<span class="lineNum">    1192 </span>            :                 case GPAC_OTI_AUDIO_DTS_CA:
+<span class="lineNum">    1193 </span><span class="lineNoCov">          0 :                         return &quot;DTS Coherent Acoustics audio&quot;;</span>
+<span class="lineNum">    1194 </span>            :                 case GPAC_OTI_AUDIO_DTS_HD_HR:
+<span class="lineNum">    1195 </span><span class="lineNoCov">          0 :                         return &quot;DTS-HD High Resolution audio&quot;;</span>
+<span class="lineNum">    1196 </span>            :                 case GPAC_OTI_AUDIO_DTS_HD_MASTER:
+<span class="lineNum">    1197 </span><span class="lineNoCov">          0 :                         return &quot;DTS-HD Master audios&quot;;</span>
+<span class="lineNum">    1198 </span>            :                 default:
+<span class="lineNum">    1199 </span><span class="lineNoCov">          0 :                         return &quot;Unknown Audio Type&quot;;</span>
+<span class="lineNum">    1200 </span>            :                 }
+<span class="lineNum">    1201 </span>            :                 break;
+<span class="lineNum">    1202 </span>            :         case GF_STREAM_MPEG7:
+<span class="lineNum">    1203 </span><span class="lineNoCov">          0 :                 return &quot;MPEG-7 Description&quot;;</span>
+<span class="lineNum">    1204 </span>            :         case GF_STREAM_IPMP:
+<span class="lineNum">    1205 </span><span class="lineNoCov">          0 :                 return &quot;MPEG-4 IPMP&quot;;</span>
+<span class="lineNum">    1206 </span>            :         case GF_STREAM_OCI:
+<span class="lineNum">    1207 </span><span class="lineNoCov">          0 :                 return &quot;MPEG-4 OCI&quot;;</span>
+<span class="lineNum">    1208 </span>            :         case GF_STREAM_MPEGJ:
+<span class="lineNum">    1209 </span><span class="lineNoCov">          0 :                 return &quot;MPEG-4 MPEG-J&quot;;</span>
+<span class="lineNum">    1210 </span>            :         case GF_STREAM_INTERACT:
+<span class="lineNum">    1211 </span><span class="lineNoCov">          0 :                 return &quot;MPEG-4 User Interaction&quot;;</span>
+<span class="lineNum">    1212 </span>            :         case GF_STREAM_IPMP_TOOL:
+<span class="lineNum">    1213 </span><span class="lineNoCov">          0 :                 return &quot;MPEG-4 IPMP Tool&quot;;</span>
+<span class="lineNum">    1214 </span>            :         case GF_STREAM_FONT:
+<span class="lineNum">    1215 </span><span class="lineNoCov">          0 :                 return &quot;MPEG-4 Font Data&quot;;</span>
+<span class="lineNum">    1216 </span>            :         case GF_STREAM_TEXT:
+<span class="lineNum">    1217 </span><span class="lineNoCov">          0 :                 return &quot;MPEG-4 Streaming Text&quot;;</span>
+<span class="lineNum">    1218 </span>            :         case GF_STREAM_ND_SUBPIC:
+<span class="lineNum">    1219 </span><span class="lineNoCov">          0 :                 return &quot;Nero Digital Subpicture&quot;;</span>
+<span class="lineNum">    1220 </span>            : 
+<span class="lineNum">    1221 </span>            :         case GF_STREAM_PRIVATE_SCENE:
+<span class="lineNum">    1222 </span><span class="lineNoCov">          0 :                 switch (esd-&gt;decoderConfig-&gt;objectTypeIndication) {</span>
+<span class="lineNum">    1223 </span>            :                 case GPAC_OTI_PRIVATE_SCENE_GENERIC:
+<span class="lineNum">    1224 </span>            :                 {
+<span class="lineNum">    1225 </span><span class="lineNoCov">          0 :                         char *ext = strchr(esd-&gt;decoderConfig-&gt;decoderSpecificInfo-&gt;data + 4, '.');</span>
+<span class="lineNum">    1226 </span><span class="lineNoCov">          0 :                         if (!ext) return &quot;GPAC Internal Scene Description&quot;;</span>
+<span class="lineNum">    1227 </span><span class="lineNoCov">          0 :                         ext += 1;</span>
+<span class="lineNum">    1228 </span><span class="lineNoCov">          0 :                         if (!strnicmp(ext, &quot;bt&quot;, 2))</span>
+<span class="lineNum">    1229 </span><span class="lineNoCov">          0 :                                 return &quot;BT Scene Description&quot;;</span>
+<span class="lineNum">    1230 </span><span class="lineNoCov">          0 :                         if (!strnicmp(ext, &quot;xmt&quot;, 2))</span>
+<span class="lineNum">    1231 </span><span class="lineNoCov">          0 :                                 return &quot;XMT Scene Description&quot;;</span>
+<span class="lineNum">    1232 </span><span class="lineNoCov">          0 :                         if (!strnicmp(ext, &quot;wrl&quot;, 3))</span>
+<span class="lineNum">    1233 </span><span class="lineNoCov">          0 :                                 return &quot;VRML Scene Description&quot;;</span>
+<span class="lineNum">    1234 </span><span class="lineNoCov">          0 :                         if (!strnicmp(ext, &quot;x3d&quot;, 3))</span>
+<span class="lineNum">    1235 </span><span class="lineNoCov">          0 :                                 return &quot;W3D Scene Description&quot;;</span>
+<span class="lineNum">    1236 </span><span class="lineNoCov">          0 :                         if (!strnicmp(ext, &quot;x3dv&quot;, 4))</span>
+<span class="lineNum">    1237 </span><span class="lineNoCov">          0 :                                 return &quot;X3D Scene Description&quot;;</span>
+<span class="lineNum">    1238 </span><span class="lineNoCov">          0 :                         if (!strnicmp(ext, &quot;swf&quot;, 3))</span>
+<span class="lineNum">    1239 </span><span class="lineNoCov">          0 :                                 return &quot;Flash (SWF) Scene Description&quot;;</span>
+<span class="lineNum">    1240 </span><span class="lineNoCov">          0 :                         if (!strnicmp(ext, &quot;xsr&quot;, 3))</span>
+<span class="lineNum">    1241 </span><span class="lineNoCov">          0 :                                 return &quot;LASeR-ML Scene Description&quot;;</span>
+<span class="lineNum">    1242 </span><span class="lineNoCov">          0 :                         if (!strnicmp(ext, &quot;wgt&quot;, 3))</span>
+<span class="lineNum">    1243 </span><span class="lineNoCov">          0 :                                 return &quot;W3C Widget Package&quot;;</span>
+<span class="lineNum">    1244 </span><span class="lineNoCov">          0 :                         if (!strnicmp(ext, &quot;mgt&quot;, 3))</span>
+<span class="lineNum">    1245 </span><span class="lineNoCov">          0 :                                 return &quot;MPEG-U Widget Package&quot;;</span>
+<span class="lineNum">    1246 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">    1247 </span><span class="lineNoCov">          0 :                 return &quot;GPAC Internal Scene Description&quot;;</span>
+<span class="lineNum">    1248 </span>            :                 case GPAC_OTI_PRIVATE_SCENE_SVG:
+<span class="lineNum">    1249 </span><span class="lineNoCov">          0 :                         return &quot;SVG&quot;;</span>
+<span class="lineNum">    1250 </span>            :                 case GPAC_OTI_PRIVATE_SCENE_LASER:
+<span class="lineNum">    1251 </span><span class="lineNoCov">          0 :                         return &quot;LASeR (XML)&quot;;</span>
+<span class="lineNum">    1252 </span>            :                 case GPAC_OTI_PRIVATE_SCENE_XBL:
+<span class="lineNum">    1253 </span><span class="lineNoCov">          0 :                         return &quot;XBL&quot;;</span>
+<span class="lineNum">    1254 </span>            :                 case GPAC_OTI_PRIVATE_SCENE_EPG:
+<span class="lineNum">    1255 </span><span class="lineNoCov">          0 :                         return &quot;DVB Event Information&quot;;</span>
+<span class="lineNum">    1256 </span>            :                 case GPAC_OTI_PRIVATE_SCENE_WGT:
+<span class="lineNum">    1257 </span><span class="lineNoCov">          0 :                         return &quot;W3C/MPEG-U Widget&quot;;</span>
+<span class="lineNum">    1258 </span>            :                 case GPAC_OTI_SCENE_SVG:
+<span class="lineNum">    1259 </span><span class="lineNoCov">          0 :                         return &quot;SVG over RTP&quot;;</span>
+<span class="lineNum">    1260 </span>            :                 case GPAC_OTI_SCENE_SVG_GZ:
+<span class="lineNum">    1261 </span><span class="lineNoCov">          0 :                         return &quot;SVG+gz over RTP&quot;;</span>
+<span class="lineNum">    1262 </span>            :                 case GPAC_OTI_SCENE_DIMS:
+<span class="lineNum">    1263 </span><span class="lineNoCov">          0 :                         return &quot;3GPP DIMS&quot;;</span>
+<span class="lineNum">    1264 </span>            :                 default:
+<span class="lineNum">    1265 </span><span class="lineNoCov">          0 :                         return &quot;Unknown Scene Description&quot;;</span>
+<span class="lineNum">    1266 </span>            :                 }
+<span class="lineNum">    1267 </span>            :                 break;
+<span class="lineNum">    1268 </span>            :         case GF_STREAM_PRIVATE_MEDIA:
+<span class="lineNum">    1269 </span><span class="lineNoCov">          0 :                 return &quot;Opaque Decoder&quot;;</span>
+<span class="lineNum">    1270 </span>            :         case GF_STREAM_4CC:
+<span class="lineNum">    1271 </span><span class="lineNoCov">          0 :                 return gf_4cc_to_str(esd-&gt;decoderConfig-&gt;objectTypeIndication);</span>
+<span class="lineNum">    1272 </span>            :         default:
+<span class="lineNum">    1273 </span><span class="lineNoCov">          0 :                 return &quot;Unknown Media Type&quot;;</span>
+<span class="lineNum">    1274 </span>            :         }
+<span class="lineNum">    1275 </span><span class="lineNoCov">          0 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

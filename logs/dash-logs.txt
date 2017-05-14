@@ -1,0 +1,11 @@
+*** dash logs (GPAC version 0.6.2-DEV-revUNKNOWN-HEAD ) - test date 14/05/2017 22:23:54 ***
+
+
+*** Subtest "dash-input-preparation": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/external_media/counter/counter-10mn_I25_baseline_1280x720_512kbps.264 -add /Users/travis/build/gpac/gpac/tests/external_media/counter/counter-10mn_audio.aac -new /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4" ***
+[33mCannot find file /Users/travis/build/gpac/gpac/tests/external_media/counter/counter-10mn_I25_baseline_1280x720_512kbps.264
+[0mError importing /Users/travis/build/gpac/gpac/tests/external_media/counter/counter-10mn_I25_baseline_1280x720_512kbps.264: Requested URL is not valid or cannot be found
+
+
+*** Subtest "basic-dash": executing "MP4Box -noprog -for-test  -mem-track -dash 1000 -profile live /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/file.mpd" ***
+DASH Setup Error: Requested URL is not valid or cannot be found
+

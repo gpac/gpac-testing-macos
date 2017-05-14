@@ -1,0 +1,6 @@
+*** hls logs (GPAC version 0.6.2-DEV-revUNKNOWN-HEAD ) - test date 14/05/2017 22:23:59 ***
+
+
+*** Subtest "convert": executing "MP4Box -noprog -for-test  -mem-track -mpd /Users/travis/build/gpac/gpac/tests/external_media/hls/index.m3u8 -out /Users/travis/build/gpac/gpac/tests/external_media/hls/file.mpd" ***
+Done converting M3U8 (/Users/travis/build/gpac/gpac/tests/external_media/hls/index.m3u8) to MPD (/Users/travis/build/gpac/gpac/tests/external_media/hls/file.mpd)
+

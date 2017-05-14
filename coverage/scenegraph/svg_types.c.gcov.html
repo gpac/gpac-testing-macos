@@ -1,0 +1,572 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - scenegraph/svg_types.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">scenegraph</a> - svg_types.c<span style="font-size: 80%;"> (source / <a href="svg_types.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">136</td>
+            <td class="headerCovTableEntry">256</td>
+            <td class="headerCovTableEntryLo">53.1 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-05-14 22:31:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntry">18</td>
+            <td class="headerCovTableEntryLo">66.7 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *                      GPAC - Multimedia Framework C SDK
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *                      Authors: Cyril Concolato, Jean Le Feuvre
+<span class="lineNum">       5 </span>            :  *                      Copyright (c) Telecom ParisTech 2004-2012
+<span class="lineNum">       6 </span>            :  *                                      All rights reserved
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  *  This file is part of GPAC / SVG Scene Graph sub-project
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  *  GPAC is free software; you can redistribute it and/or modify
+<span class="lineNum">      11 </span>            :  *  it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">      12 </span>            :  *  the Free Software Foundation; either version 2, or (at your option)
+<span class="lineNum">      13 </span>            :  *  any later version.
+<span class="lineNum">      14 </span>            :  *
+<span class="lineNum">      15 </span>            :  *  GPAC is distributed in the hope that it will be useful,
+<span class="lineNum">      16 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      17 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      18 </span>            :  *  GNU Lesser General Public License for more details.
+<span class="lineNum">      19 </span>            :  *
+<span class="lineNum">      20 </span>            :  *  You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      21 </span>            :  *  License along with this library; see the file COPYING.  If not, write to
+<span class="lineNum">      22 </span>            :  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+<span class="lineNum">      23 </span>            :  *
+<span class="lineNum">      24 </span>            :  */
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : #include &lt;gpac/internal/scenegraph_dev.h&gt;
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span>            : #ifndef GPAC_DISABLE_SVG
+<a name="29"><span class="lineNum">      29 </span>            : #include &lt;gpac/nodes_svg.h&gt;</a>
+<span class="lineNum">      30 </span>            : 
+<span class="lineNum">      31 </span>            : Bool gf_svg_is_animation_tag(u32 tag)
+<span class="lineNum">      32 </span>            : {
+<span class="lineNum">      33 </span><span class="lineCov">     458864 :         return (tag == TAG_SVG_set ||</span>
+<span class="lineNum">      34 </span><span class="lineCov">      65552 :                 tag == TAG_SVG_animate ||</span>
+<span class="lineNum">      35 </span><span class="lineCov">      65552 :                 tag == TAG_SVG_animateColor ||</span>
+<span class="lineNum">      36 </span><span class="lineCov">      65552 :                 tag == TAG_SVG_animateTransform ||</span>
+<span class="lineNum">      37 </span><span class="lineCov">     129892 :                 tag == TAG_SVG_animateMotion ||</span>
+<span class="lineNum">      38 </span><span class="lineCov">      64340 :                 tag == TAG_SVG_discard</span>
+<span class="lineNum">      39 </span>            :                ) ? 1 : 0;
+<a name="40"><span class="lineNum">      40 </span>            : }</a>
+<span class="lineNum">      41 </span>            : 
+<span class="lineNum">      42 </span>            : Bool gf_svg_is_timing_tag(u32 tag)
+<span class="lineNum">      43 </span>            : {
+<span class="lineNum">      44 </span><span class="lineCov">     109580 :         if (gf_svg_is_animation_tag(tag)) return 1;</span>
+<span class="lineNum">      45 </span><span class="lineCov">     267290 :         else return (tag == TAG_SVG_animation ||</span>
+<span class="lineNum">      46 </span><span class="lineCov">      53458 :                              tag == TAG_SVG_audio ||</span>
+<span class="lineNum">      47 </span><span class="lineCov">      53458 :                              tag == TAG_LSR_conditional ||</span>
+<span class="lineNum">      48 </span><span class="lineCov">     106916 :                              tag == TAG_LSR_updates ||</span>
+<span class="lineNum">      49 </span><span class="lineCov">      53458 :                              tag == TAG_SVG_video)? GF_TRUE : GF_FALSE;</span>
+<a name="50"><span class="lineNum">      50 </span><span class="lineCov">      54346 : }</span></a>
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span>            : SVG_Element *gf_svg_create_node(u32 ElementTag)
+<span class="lineNum">      53 </span>            : {
+<span class="lineNum">      54 </span>            :         SVG_Element *p;
+<span class="lineNum">      55 </span><span class="lineCov">      43612 :         if (gf_svg_is_timing_tag(ElementTag)) {</span>
+<span class="lineNum">      56 </span>            :                 SVGTimedAnimBaseElement *tap;
+<span class="lineNum">      57 </span><span class="lineCov">        888 :                 GF_SAFEALLOC(tap, SVGTimedAnimBaseElement);</span>
+<span class="lineNum">      58 </span><span class="lineCov">        444 :                 p = (SVG_Element *)tap;</span>
+<span class="lineNum">      59 </span><span class="lineCov">      21806 :         } else if (ElementTag == TAG_SVG_handler) {</span>
+<span class="lineNum">      60 </span>            :                 SVG_handlerElement *hdl;
+<span class="lineNum">      61 </span><span class="lineCov">         26 :                 GF_SAFEALLOC(hdl, SVG_handlerElement);</span>
+<span class="lineNum">      62 </span><span class="lineCov">         13 :                 p = (SVG_Element *)hdl;</span>
+<span class="lineNum">      63 </span><span class="lineCov">         13 :         } else {</span>
+<span class="lineNum">      64 </span><span class="lineCov">      42698 :                 GF_SAFEALLOC(p, SVG_Element);</span>
+<span class="lineNum">      65 </span>            :         }
+<span class="lineNum">      66 </span><span class="lineCov">      21806 :         gf_node_setup((GF_Node *)p, ElementTag);</span>
+<span class="lineNum">      67 </span><span class="lineCov">      21806 :         gf_sg_parent_setup((GF_Node *) p);</span>
+<span class="lineNum">      68 </span><span class="lineCov">      21806 :         return p;</span>
+<a name="69"><span class="lineNum">      69 </span>            : }</a>
+<span class="lineNum">      70 </span>            : 
+<span class="lineNum">      71 </span>            : void gf_svg_node_del(GF_Node *node)
+<span class="lineNum">      72 </span>            : {
+<span class="lineNum">      73 </span><span class="lineCov">      43612 :         SVG_Element *p = (SVG_Element *)node;</span>
+<span class="lineNum">      74 </span>            : 
+<span class="lineNum">      75 </span><span class="lineCov">      21806 :         if (p-&gt;sgprivate-&gt;interact &amp;&amp; p-&gt;sgprivate-&gt;interact-&gt;animations) {</span>
+<span class="lineNum">      76 </span><span class="lineNoCov">          0 :                 gf_smil_anim_delete_animations((GF_Node *)p);</span>
+<span class="lineNum">      77 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">      78 </span><span class="lineCov">      21806 :         if (p-&gt;sgprivate-&gt;tag==TAG_SVG_listener) {</span>
+<span class="lineNum">      79 </span>            :                 /*remove from target's listener list*/
+<span class="lineNum">      80 </span><span class="lineCov">         13 :                 gf_dom_event_remove_listener_from_parent((GF_DOMEventTarget *)node-&gt;sgprivate-&gt;UserPrivate, (GF_Node *)p);</span>
+<span class="lineNum">      81 </span><span class="lineCov">         13 :         }</span>
+<span class="lineNum">      82 </span>            :         /*if this is a handler with a UserPrivate, this is a handler with an implicit listener
+<span class="lineNum">      83 </span>            :         (eg handler with ev:event=&quot;&quot;). Destroy the associated listener*/
+<span class="lineNum">      84 </span><span class="lineCov">      21806 :         if (p-&gt;sgprivate-&gt;tag==TAG_SVG_handler) {</span>
+<span class="lineNum">      85 </span><span class="lineCov">         13 :                 GF_Node *listener = p-&gt;sgprivate-&gt;UserPrivate;</span>
+<span class="lineNum">      86 </span><span class="lineCov">         13 :                 if (listener &amp;&amp; (listener-&gt;sgprivate-&gt;tag==TAG_SVG_listener)) {</span>
+<span class="lineNum">      87 </span><span class="lineNoCov">          0 :                         GF_FieldInfo info;</span>
+<span class="lineNum">      88 </span><span class="lineNoCov">          0 :                         if (gf_node_get_attribute_by_tag(listener, TAG_XMLEV_ATT_handler, 0, 0, &amp;info) == GF_OK) {</span>
+<span class="lineNum">      89 </span><span class="lineNoCov">          0 :                                 XMLRI *iri = (XMLRI *)info.far_ptr;</span>
+<span class="lineNum">      90 </span><span class="lineNoCov">          0 :                                 if (iri-&gt;target) {</span>
+<span class="lineNum">      91 </span>            :                                         assert(iri-&gt;target==p);
+<span class="lineNum">      92 </span><span class="lineNoCov">          0 :                                         iri-&gt;target = NULL;</span>
+<span class="lineNum">      93 </span><span class="lineNoCov">          0 :                                 }</span>
+<span class="lineNum">      94 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">      95 </span><span class="lineNoCov">          0 :                         gf_node_unregister(listener, NULL);</span>
+<span class="lineNum">      96 </span>            : //                      gf_svg_node_del(listener);
+<span class="lineNum">      97 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">      98 </span><span class="lineCov">         13 :         }</span>
+<span class="lineNum">      99 </span>            :         /*remove this node from associated listeners*/
+<span class="lineNum">     100 </span><span class="lineCov">      21806 :         if (node-&gt;sgprivate-&gt;interact &amp;&amp; node-&gt;sgprivate-&gt;interact-&gt;dom_evt) {</span>
+<span class="lineNum">     101 </span>            :                 u32 i, count;
+<span class="lineNum">     102 </span><span class="lineNoCov">          0 :                 count = gf_dom_listener_count(node);</span>
+<span class="lineNum">     103 </span><span class="lineNoCov">          0 :                 for (i=0; i&lt;count; i++) {</span>
+<span class="lineNum">     104 </span><span class="lineNoCov">          0 :                         GF_Node *listener = (GF_Node *)gf_list_get(node-&gt;sgprivate-&gt;interact-&gt;dom_evt-&gt;listeners, i);</span>
+<span class="lineNum">     105 </span><span class="lineNoCov">          0 :                         listener-&gt;sgprivate-&gt;UserPrivate = NULL;</span>
+<span class="lineNum">     106 </span>            :                 }
+<span class="lineNum">     107 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     108 </span>            : 
+<span class="lineNum">     109 </span><span class="lineCov">      21806 :         if (gf_svg_is_timing_tag(node-&gt;sgprivate-&gt;tag)) {</span>
+<span class="lineNum">     110 </span><span class="lineCov">        444 :                 SVGTimedAnimBaseElement *tap = (SVGTimedAnimBaseElement *)node;</span>
+<span class="lineNum">     111 </span><span class="lineCov">        444 :                 if (tap-&gt;animp) {</span>
+<span class="lineNum">     112 </span><span class="lineNoCov">          0 :                         gf_free(tap-&gt;animp);</span>
+<span class="lineNum">     113 </span><span class="lineNoCov">          0 :                         gf_smil_anim_remove_from_target((GF_Node *)tap, (GF_Node *)tap-&gt;xlinkp-&gt;href-&gt;target);</span>
+<span class="lineNum">     114 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     115 </span><span class="lineCov">        444 :                 if (tap-&gt;timingp)            {</span>
+<span class="lineNum">     116 </span><span class="lineNoCov">          0 :                         gf_smil_timing_delete_runtime_info((GF_Node *)tap, tap-&gt;timingp-&gt;runtime);</span>
+<span class="lineNum">     117 </span><span class="lineNoCov">          0 :                         gf_free(tap-&gt;timingp);</span>
+<span class="lineNum">     118 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     119 </span><span class="lineCov">        444 :                 if (tap-&gt;xlinkp)     gf_free(tap-&gt;xlinkp);</span>
+<span class="lineNum">     120 </span><span class="lineCov">        444 :         }</span>
+<span class="lineNum">     121 </span>            : 
+<span class="lineNum">     122 </span><span class="lineCov">      21806 :         gf_node_delete_attributes(node);</span>
+<span class="lineNum">     123 </span><span class="lineCov">      21806 :         gf_sg_parent_reset(node);</span>
+<span class="lineNum">     124 </span><span class="lineCov">      21806 :         gf_node_free(node);</span>
+<a name="125"><span class="lineNum">     125 </span><span class="lineCov">      21806 : }</span></a>
+<span class="lineNum">     126 </span>            : 
+<span class="lineNum">     127 </span>            : Bool gf_svg_node_init(GF_Node *node)
+<span class="lineNum">     128 </span>            : {
+<span class="lineNum">     129 </span><span class="lineCov">        806 :         switch (node-&gt;sgprivate-&gt;tag) {</span>
+<span class="lineNum">     130 </span>            :         case TAG_SVG_script:
+<span class="lineNum">     131 </span><span class="lineNoCov">          0 :                 if (node-&gt;sgprivate-&gt;scenegraph-&gt;script_load)</span>
+<span class="lineNum">     132 </span><span class="lineNoCov">          0 :                         node-&gt;sgprivate-&gt;scenegraph-&gt;script_load(node);</span>
+<span class="lineNum">     133 </span><span class="lineNoCov">          0 :                 return 1;</span>
+<span class="lineNum">     134 </span>            : 
+<span class="lineNum">     135 </span>            :         case TAG_SVG_handler:
+<span class="lineNum">     136 </span><span class="lineNoCov">          0 :                 if (node-&gt;sgprivate-&gt;scenegraph-&gt;script_load)</span>
+<span class="lineNum">     137 </span><span class="lineNoCov">          0 :                         node-&gt;sgprivate-&gt;scenegraph-&gt;script_load(node);</span>
+<span class="lineNum">     138 </span><span class="lineNoCov">          0 :                 if (node-&gt;sgprivate-&gt;scenegraph-&gt;script_action)</span>
+<span class="lineNum">     139 </span><span class="lineNoCov">          0 :                         ((SVG_handlerElement*)node)-&gt;handle_event = gf_sg_handle_dom_event;</span>
+<span class="lineNum">     140 </span><span class="lineNoCov">          0 :                 return 1;</span>
+<span class="lineNum">     141 </span>            :         case TAG_LSR_conditional:
+<span class="lineNum">     142 </span><span class="lineNoCov">          0 :                 gf_smil_timing_init_runtime_info(node);</span>
+<span class="lineNum">     143 </span><span class="lineNoCov">          0 :                 gf_smil_setup_events(node);</span>
+<span class="lineNum">     144 </span><span class="lineNoCov">          0 :                 return 1;</span>
+<span class="lineNum">     145 </span>            :         case TAG_SVG_animateMotion:
+<span class="lineNum">     146 </span>            :         case TAG_SVG_set:
+<span class="lineNum">     147 </span>            :         case TAG_SVG_animate:
+<span class="lineNum">     148 </span>            :         case TAG_SVG_animateColor:
+<span class="lineNum">     149 </span>            :         case TAG_SVG_animateTransform:
+<span class="lineNum">     150 </span><span class="lineNoCov">          0 :                 gf_smil_anim_init_node(node);</span>
+<span class="lineNum">     151 </span><span class="lineNoCov">          0 :                 gf_smil_setup_events(node);</span>
+<span class="lineNum">     152 </span>            :                 /*we may get called several times depending on xlink:href resoling for events*/
+<span class="lineNum">     153 </span><span class="lineNoCov">          0 :                 return (node-&gt;sgprivate-&gt;UserPrivate || node-&gt;sgprivate-&gt;UserCallback) ? 1 : 0;</span>
+<span class="lineNum">     154 </span>            :         case TAG_SVG_audio:
+<span class="lineNum">     155 </span>            :         case TAG_SVG_video:
+<span class="lineNum">     156 </span>            :         case TAG_LSR_updates:
+<span class="lineNum">     157 </span><span class="lineNoCov">          0 :                 gf_smil_timing_init_runtime_info(node);</span>
+<span class="lineNum">     158 </span><span class="lineNoCov">          0 :                 gf_smil_setup_events(node);</span>
+<span class="lineNum">     159 </span>            :                 /*we may get called several times depending on xlink:href resoling for events*/
+<span class="lineNum">     160 </span><span class="lineNoCov">          0 :                 return (node-&gt;sgprivate-&gt;UserPrivate || node-&gt;sgprivate-&gt;UserCallback) ? 1 : 0;</span>
+<span class="lineNum">     161 </span>            :         case TAG_SVG_animation:
+<span class="lineNum">     162 </span><span class="lineNoCov">          0 :                 gf_smil_timing_init_runtime_info(node);</span>
+<span class="lineNum">     163 </span><span class="lineNoCov">          0 :                 gf_smil_setup_events(node);</span>
+<span class="lineNum">     164 </span><span class="lineNoCov">          0 :                 return 0;</span>
+<span class="lineNum">     165 </span>            :         /*discard is implemented as a special animation element */
+<span class="lineNum">     166 </span>            :         case TAG_SVG_discard:
+<span class="lineNum">     167 </span><span class="lineNoCov">          0 :                 gf_smil_anim_init_discard(node);</span>
+<span class="lineNum">     168 </span><span class="lineNoCov">          0 :                 gf_smil_setup_events(node);</span>
+<span class="lineNum">     169 </span><span class="lineNoCov">          0 :                 return 1;</span>
+<span class="lineNum">     170 </span>            :         default:
+<span class="lineNum">     171 </span><span class="lineCov">        403 :                 return 0;</span>
+<span class="lineNum">     172 </span>            :         }
+<span class="lineNum">     173 </span>            :         return 0;
+<a name="174"><span class="lineNum">     174 </span><span class="lineCov">        403 : }</span></a>
+<span class="lineNum">     175 </span>            : 
+<span class="lineNum">     176 </span>            : Bool gf_svg_node_changed(GF_Node *node, GF_FieldInfo *field)
+<span class="lineNum">     177 </span>            : {
+<span class="lineNum">     178 </span><span class="lineCov">      53430 :         switch (node-&gt;sgprivate-&gt;tag) {</span>
+<span class="lineNum">     179 </span>            :         case TAG_SVG_animateMotion:
+<span class="lineNum">     180 </span>            :         case TAG_SVG_discard:
+<span class="lineNum">     181 </span>            :         case TAG_SVG_set:
+<span class="lineNum">     182 </span>            :         case TAG_SVG_animate:
+<span class="lineNum">     183 </span>            :         case TAG_SVG_animateColor:
+<span class="lineNum">     184 </span>            :         case TAG_SVG_animateTransform:
+<span class="lineNum">     185 </span>            :         case TAG_LSR_conditional:
+<span class="lineNum">     186 </span><span class="lineNoCov">          0 :                 gf_smil_timing_modified(node, field);</span>
+<span class="lineNum">     187 </span><span class="lineNoCov">          0 :                 return 1;</span>
+<span class="lineNum">     188 </span>            :         case TAG_SVG_animation:
+<span class="lineNum">     189 </span>            :         case TAG_SVG_audio:
+<span class="lineNum">     190 </span>            :         case TAG_SVG_video:
+<span class="lineNum">     191 </span>            :         case TAG_LSR_updates:
+<span class="lineNum">     192 </span><span class="lineNoCov">          0 :                 gf_smil_timing_modified(node, field);</span>
+<span class="lineNum">     193 </span>            :                 /*used by compositors*/
+<span class="lineNum">     194 </span><span class="lineNoCov">          0 :                 return 0;</span>
+<span class="lineNum">     195 </span>            :         }
+<span class="lineNum">     196 </span><span class="lineCov">      26715 :         return 0;</span>
+<span class="lineNum">     197 </span><span class="lineCov">      26715 : }</span>
+<a name="198"><span class="lineNum">     198 </span>            : </a>
+<span class="lineNum">     199 </span>            : 
+<span class="lineNum">     200 </span>            : void gf_svg_reset_path(SVG_PathData d)
+<span class="lineNum">     201 </span>            : {
+<span class="lineNum">     202 </span>            : #if USE_GF_PATH
+<span class="lineNum">     203 </span><span class="lineNoCov">          0 :         gf_path_reset(&amp;d);</span>
+<span class="lineNum">     204 </span>            : #else
+<span class="lineNum">     205 </span>            :         u32 i, count;
+<span class="lineNum">     206 </span>            :         count = gf_list_count(d.commands);
+<span class="lineNum">     207 </span>            :         for (i = 0; i &lt; count; i++) {
+<span class="lineNum">     208 </span>            :                 u8 *command = (u8 *)gf_list_get(d.commands, i);
+<span class="lineNum">     209 </span>            :                 gf_free(command);
+<span class="lineNum">     210 </span>            :         }
+<span class="lineNum">     211 </span>            :         gf_list_del(d.commands);
+<span class="lineNum">     212 </span>            :         count = gf_list_count(d.points);
+<span class="lineNum">     213 </span>            :         for (i = 0; i &lt; count; i++) {
+<span class="lineNum">     214 </span>            :                 SVG_Point *pt = (SVG_Point *)gf_list_get(d.points, i);
+<span class="lineNum">     215 </span>            :                 gf_free(pt);
+<span class="lineNum">     216 </span>            :         }
+<span class="lineNum">     217 </span>            :         gf_list_del(d.points);
+<span class="lineNum">     218 </span>            : #endif
+<span class="lineNum">     219 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     220 </span>            : 
+<a name="221"><span class="lineNum">     221 </span>            : /* TODO: update for elliptical arcs */</a>
+<span class="lineNum">     222 </span>            : GF_EXPORT
+<span class="lineNum">     223 </span>            : void gf_svg_path_build(GF_Path *path, GF_List *commands, GF_List *points)
+<span class="lineNum">     224 </span>            : {
+<span class="lineNum">     225 </span>            :         u32 i, j, command_count;
+<span class="lineNum">     226 </span>            :         SVG_Point orig, ct_orig, ct_end, end, *tmp;
+<span class="lineNum">     227 </span><span class="lineNoCov">          0 :         command_count = gf_list_count(commands);</span>
+<span class="lineNum">     228 </span>            :         orig.x = orig.y = ct_orig.x = ct_orig.y = 0;
+<span class="lineNum">     229 </span>            : 
+<span class="lineNum">     230 </span><span class="lineNoCov">          0 :         for (i=0, j=0; i&lt;command_count; i++) {</span>
+<span class="lineNum">     231 </span><span class="lineNoCov">          0 :                 u8 *command = (u8 *)gf_list_get(commands, i);</span>
+<span class="lineNum">     232 </span><span class="lineNoCov">          0 :                 switch (*command) {</span>
+<span class="lineNum">     233 </span>            :                 case SVG_PATHCOMMAND_M: /* Move To */
+<span class="lineNum">     234 </span><span class="lineNoCov">          0 :                         tmp = (SVG_Point*)gf_list_get(points, j);</span>
+<span class="lineNum">     235 </span><span class="lineNoCov">          0 :                         orig = *tmp;</span>
+<span class="lineNum">     236 </span><span class="lineNoCov">          0 :                         gf_path_add_move_to(path, orig.x, orig.y);</span>
+<span class="lineNum">     237 </span><span class="lineNoCov">          0 :                         j++;</span>
+<span class="lineNum">     238 </span>            :                         /*provision for nextCurveTo when no curve is specified:
+<span class="lineNum">     239 </span>            :                                 &quot;If there is no previous command or if the previous command was not an C, c, S or s,
+<span class="lineNum">     240 </span>            :                                 assume the first control point is coincident with the current point.
+<span class="lineNum">     241 </span>            :                         */
+<span class="lineNum">     242 </span>            :                         ct_orig = orig;
+<span class="lineNum">     243 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     244 </span>            :                 case SVG_PATHCOMMAND_L: /* Line To */
+<span class="lineNum">     245 </span><span class="lineNoCov">          0 :                         tmp = (SVG_Point*)gf_list_get(points, j);</span>
+<span class="lineNum">     246 </span><span class="lineNoCov">          0 :                         end = *tmp;</span>
+<span class="lineNum">     247 </span>            : 
+<span class="lineNum">     248 </span><span class="lineNoCov">          0 :                         gf_path_add_line_to(path, end.x, end.y);</span>
+<span class="lineNum">     249 </span><span class="lineNoCov">          0 :                         j++;</span>
+<span class="lineNum">     250 </span>            :                         orig = end;
+<span class="lineNum">     251 </span>            :                         /*cf above*/
+<span class="lineNum">     252 </span>            :                         ct_orig = orig;
+<span class="lineNum">     253 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     254 </span>            :                 case SVG_PATHCOMMAND_C: /* Curve To */
+<span class="lineNum">     255 </span><span class="lineNoCov">          0 :                         tmp = (SVG_Point*)gf_list_get(points, j);</span>
+<span class="lineNum">     256 </span><span class="lineNoCov">          0 :                         ct_orig = *tmp;</span>
+<span class="lineNum">     257 </span><span class="lineNoCov">          0 :                         tmp = (SVG_Point*)gf_list_get(points, j+1);</span>
+<span class="lineNum">     258 </span><span class="lineNoCov">          0 :                         ct_end = *tmp;</span>
+<span class="lineNum">     259 </span><span class="lineNoCov">          0 :                         tmp = (SVG_Point*)gf_list_get(points, j+2);</span>
+<span class="lineNum">     260 </span><span class="lineNoCov">          0 :                         end = *tmp;</span>
+<span class="lineNum">     261 </span><span class="lineNoCov">          0 :                         gf_path_add_cubic_to(path, ct_orig.x, ct_orig.y, ct_end.x, ct_end.y, end.x, end.y);</span>
+<span class="lineNum">     262 </span>            :                         ct_orig = ct_end;
+<span class="lineNum">     263 </span>            :                         orig = end;
+<span class="lineNum">     264 </span><span class="lineNoCov">          0 :                         j+=3;</span>
+<span class="lineNum">     265 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     266 </span>            :                 case SVG_PATHCOMMAND_S: /* Next Curve To */
+<span class="lineNum">     267 </span><span class="lineNoCov">          0 :                         ct_orig.x = 2*orig.x - ct_orig.x;</span>
+<span class="lineNum">     268 </span><span class="lineNoCov">          0 :                         ct_orig.y = 2*orig.y - ct_orig.y;</span>
+<span class="lineNum">     269 </span><span class="lineNoCov">          0 :                         tmp = (SVG_Point*)gf_list_get(points, j);</span>
+<span class="lineNum">     270 </span><span class="lineNoCov">          0 :                         ct_end = *tmp;</span>
+<span class="lineNum">     271 </span><span class="lineNoCov">          0 :                         tmp = (SVG_Point*)gf_list_get(points, j+1);</span>
+<span class="lineNum">     272 </span><span class="lineNoCov">          0 :                         end = *tmp;</span>
+<span class="lineNum">     273 </span><span class="lineNoCov">          0 :                         gf_path_add_cubic_to(path, ct_orig.x, ct_orig.y, ct_end.x, ct_end.y, end.x, end.y);</span>
+<span class="lineNum">     274 </span>            :                         ct_orig = ct_end;
+<span class="lineNum">     275 </span>            :                         orig = end;
+<span class="lineNum">     276 </span><span class="lineNoCov">          0 :                         j+=2;</span>
+<span class="lineNum">     277 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     278 </span>            :                 case SVG_PATHCOMMAND_Q: /* Quadratic Curve To */
+<span class="lineNum">     279 </span><span class="lineNoCov">          0 :                         tmp = (SVG_Point*)gf_list_get(points, j);</span>
+<span class="lineNum">     280 </span><span class="lineNoCov">          0 :                         ct_orig = *tmp;</span>
+<span class="lineNum">     281 </span><span class="lineNoCov">          0 :                         tmp = (SVG_Point*)gf_list_get(points, j+1);</span>
+<span class="lineNum">     282 </span><span class="lineNoCov">          0 :                         end = *tmp;</span>
+<span class="lineNum">     283 </span><span class="lineNoCov">          0 :                         gf_path_add_quadratic_to(path, ct_orig.x, ct_orig.y, end.x, end.y);</span>
+<span class="lineNum">     284 </span>            :                         orig = end;
+<span class="lineNum">     285 </span><span class="lineNoCov">          0 :                         j+=2;</span>
+<span class="lineNum">     286 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     287 </span>            :                 case SVG_PATHCOMMAND_T: /* Next Quadratic Curve To */
+<span class="lineNum">     288 </span><span class="lineNoCov">          0 :                         ct_orig.x = 2*orig.x - ct_orig.x;</span>
+<span class="lineNum">     289 </span><span class="lineNoCov">          0 :                         ct_orig.y = 2*orig.y - ct_orig.y;</span>
+<span class="lineNum">     290 </span><span class="lineNoCov">          0 :                         tmp = (SVG_Point*)gf_list_get(points, j);</span>
+<span class="lineNum">     291 </span><span class="lineNoCov">          0 :                         end = *tmp;</span>
+<span class="lineNum">     292 </span><span class="lineNoCov">          0 :                         gf_path_add_quadratic_to(path, ct_orig.x, ct_orig.y, end.x, end.y);</span>
+<span class="lineNum">     293 </span>            :                         orig = end;
+<span class="lineNum">     294 </span><span class="lineNoCov">          0 :                         j++;</span>
+<span class="lineNum">     295 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     296 </span>            :                 case SVG_PATHCOMMAND_Z: /* Close */
+<span class="lineNum">     297 </span><span class="lineNoCov">          0 :                         gf_path_close(path);</span>
+<span class="lineNum">     298 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     299 </span>            :                 }
+<span class="lineNum">     300 </span>            :         }
+<span class="lineNum">     301 </span><span class="lineNoCov">          0 : }</span>
+<a name="302"><span class="lineNum">     302 </span>            : </a>
+<span class="lineNum">     303 </span>            : 
+<span class="lineNum">     304 </span>            : void gf_smil_delete_times(GF_List *list)
+<span class="lineNum">     305 </span>            : {
+<span class="lineNum">     306 </span>            :         u32 i, count;
+<span class="lineNum">     307 </span><span class="lineCov">       1552 :         count = gf_list_count(list);</span>
+<span class="lineNum">     308 </span><span class="lineCov">       2272 :         for (i = 0; i &lt; count; i++) {</span>
+<span class="lineNum">     309 </span><span class="lineCov">        360 :                 SMIL_Time *v = (SMIL_Time *)gf_list_get(list, i);</span>
+<span class="lineNum">     310 </span><span class="lineCov">        360 :                 if (v-&gt;element_id) gf_free(v-&gt;element_id);</span>
+<span class="lineNum">     311 </span><span class="lineCov">        360 :                 gf_free(v);</span>
+<span class="lineNum">     312 </span>            :         }
+<span class="lineNum">     313 </span><span class="lineCov">        776 :         gf_list_del(list);</span>
+<a name="314"><span class="lineNum">     314 </span><span class="lineCov">        776 : }</span></a>
+<span class="lineNum">     315 </span>            : 
+<span class="lineNum">     316 </span>            : void gf_svg_delete_points(GF_List *list)
+<span class="lineNum">     317 </span>            : {
+<span class="lineNum">     318 </span><span class="lineNoCov">          0 :         u32 i, count = gf_list_count(list);</span>
+<span class="lineNum">     319 </span><span class="lineNoCov">          0 :         for (i = 0; i &lt; count; i++) {</span>
+<span class="lineNum">     320 </span><span class="lineNoCov">          0 :                 SVG_Point *p = (SVG_Point *)gf_list_get(list, i);</span>
+<span class="lineNum">     321 </span><span class="lineNoCov">          0 :                 gf_free(p);</span>
+<span class="lineNum">     322 </span>            :         }
+<span class="lineNum">     323 </span><span class="lineNoCov">          0 :         gf_list_del(list);</span>
+<a name="324"><span class="lineNum">     324 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     325 </span>            : 
+<span class="lineNum">     326 </span>            : void gf_svg_delete_coordinates(GF_List *list)
+<span class="lineNum">     327 </span>            : {
+<span class="lineNum">     328 </span><span class="lineNoCov">          0 :         u32 i, count = gf_list_count(list);</span>
+<span class="lineNum">     329 </span><span class="lineNoCov">          0 :         for (i = 0; i &lt; count; i++) {</span>
+<span class="lineNum">     330 </span><span class="lineNoCov">          0 :                 SVG_Coordinate *c = (SVG_Coordinate *)gf_list_get(list, i);</span>
+<span class="lineNum">     331 </span><span class="lineNoCov">          0 :                 gf_free(c);</span>
+<span class="lineNum">     332 </span>            :         }
+<span class="lineNum">     333 </span><span class="lineNoCov">          0 :         gf_list_del(list);</span>
+<a name="334"><span class="lineNum">     334 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     335 </span>            : 
+<span class="lineNum">     336 </span>            : void gf_svg_reset_iri(GF_SceneGraph *sg, XMLRI *iri)
+<span class="lineNum">     337 </span>            : {
+<span class="lineNum">     338 </span><span class="lineCov">      27400 :         if (!iri) return;</span>
+<span class="lineNum">     339 </span><span class="lineCov">      13944 :         if (iri-&gt;string) gf_free(iri-&gt;string);</span>
+<span class="lineNum">     340 </span><span class="lineCov">      13700 :         gf_node_unregister_iri(sg, iri);</span>
+<a name="341"><span class="lineNum">     341 </span><span class="lineCov">      27400 : }</span></a>
+<span class="lineNum">     342 </span>            : 
+<span class="lineNum">     343 </span>            : void gf_svg_delete_paint(GF_SceneGraph *sg, SVG_Paint *paint)
+<span class="lineNum">     344 </span>            : {
+<span class="lineNum">     345 </span><span class="lineCov">      25520 :         if (!paint) return;</span>
+<span class="lineNum">     346 </span>            :         //always free since we may allocate the iri to &quot;&quot;
+<span class="lineNum">     347 </span><span class="lineCov">      25520 :         if (sg) gf_svg_reset_iri(sg, &amp;paint-&gt;iri);</span>
+<span class="lineNum">     348 </span><span class="lineCov">      12760 :         gf_free(paint);</span>
+<a name="349"><span class="lineNum">     349 </span><span class="lineCov">      25520 : }</span></a>
+<span class="lineNum">     350 </span>            : 
+<span class="lineNum">     351 </span>            : static void svg_delete_one_anim_value(u8 anim_datatype, void *anim_value, GF_SceneGraph *sg)
+<span class="lineNum">     352 </span>            : {
+<span class="lineNum">     353 </span>            :         /* TODO: handle specific animation types : Motion, else ? */
+<span class="lineNum">     354 </span><span class="lineCov">       2328 :         gf_svg_delete_attribute_value(anim_datatype, anim_value, sg);</span>
+<a name="355"><span class="lineNum">     355 </span><span class="lineCov">       1164 : }</span></a>
+<span class="lineNum">     356 </span>            : 
+<span class="lineNum">     357 </span>            : void gf_svg_reset_animate_values(SMIL_AnimateValues anim_values, GF_SceneGraph *sg)
+<span class="lineNum">     358 </span>            : {
+<span class="lineNum">     359 </span>            :         u32 i, count;
+<span class="lineNum">     360 </span><span class="lineCov">        464 :         count = gf_list_count(anim_values.values);</span>
+<span class="lineNum">     361 </span><span class="lineCov">       2328 :         for (i = 0; i &lt; count; i++) {</span>
+<span class="lineNum">     362 </span><span class="lineCov">        932 :                 void *value = gf_list_get(anim_values.values, i);</span>
+<span class="lineNum">     363 </span><span class="lineCov">        932 :                 svg_delete_one_anim_value(anim_values.type, value, sg);</span>
+<span class="lineNum">     364 </span>            :         }
+<span class="lineNum">     365 </span><span class="lineCov">        232 :         gf_list_del(anim_values.values);</span>
+<span class="lineNum">     366 </span>            :         anim_values.values = NULL;
+<a name="367"><span class="lineNum">     367 </span><span class="lineCov">        232 : }</span></a>
+<span class="lineNum">     368 </span>            : 
+<span class="lineNum">     369 </span>            : void gf_svg_reset_animate_value(SMIL_AnimateValue anim_value, GF_SceneGraph *sg)
+<span class="lineNum">     370 </span>            : {
+<span class="lineNum">     371 </span><span class="lineNoCov">          0 :         svg_delete_one_anim_value(anim_value.type, anim_value.value, sg);</span>
+<span class="lineNum">     372 </span>            :         anim_value.value = NULL;
+<a name="373"><span class="lineNum">     373 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     374 </span>            : 
+<span class="lineNum">     375 </span>            : void gf_svg_delete_attribute_value(u32 type, void *value, GF_SceneGraph *sg)
+<span class="lineNum">     376 </span>            : {
+<span class="lineNum">     377 </span>            :         GF_List *l;
+<span class="lineNum">     378 </span><span class="lineCov">      80928 :         switch (type) {</span>
+<span class="lineNum">     379 </span>            :         case SVG_Paint_datatype:
+<span class="lineNum">     380 </span><span class="lineCov">      12760 :                 gf_svg_delete_paint(sg, (SVG_Paint *)value);</span>
+<span class="lineNum">     381 </span><span class="lineCov">      12760 :                 break;</span>
+<span class="lineNum">     382 </span>            :         case XMLRI_datatype:
+<span class="lineNum">     383 </span>            :         case XML_IDREF_datatype:
+<span class="lineNum">     384 </span><span class="lineCov">        848 :                 gf_svg_reset_iri(sg, (XMLRI *)value);</span>
+<span class="lineNum">     385 </span><span class="lineCov">        848 :                 gf_free(value);</span>
+<span class="lineNum">     386 </span><span class="lineCov">        848 :                 break;</span>
+<span class="lineNum">     387 </span>            :         case SVG_Focus_datatype:
+<span class="lineNum">     388 </span><span class="lineCov">         92 :                 gf_svg_reset_iri(sg, &amp; ((SVG_Focus*)value)-&gt;target);</span>
+<span class="lineNum">     389 </span><span class="lineCov">         92 :                 gf_free(value);</span>
+<span class="lineNum">     390 </span><span class="lineCov">         92 :                 break;</span>
+<span class="lineNum">     391 </span>            :         case SVG_PathData_datatype:
+<span class="lineNum">     392 </span>            : #if USE_GF_PATH
+<span class="lineNum">     393 </span><span class="lineCov">      14432 :                 gf_path_del((GF_Path *)value);</span>
+<span class="lineNum">     394 </span>            : #else
+<span class="lineNum">     395 </span>            :                 gf_free(value);
+<span class="lineNum">     396 </span>            : #endif
+<span class="lineNum">     397 </span><span class="lineCov">      14432 :                 break;</span>
+<span class="lineNum">     398 </span>            :         case SVG_ID_datatype:
+<span class="lineNum">     399 </span>            :         case DOM_String_datatype:
+<span class="lineNum">     400 </span>            :         case SVG_ContentType_datatype:
+<span class="lineNum">     401 </span>            :         case SVG_LanguageID_datatype:
+<span class="lineNum">     402 </span><span class="lineCov">       2788 :                 if (*(SVG_String *)value) gf_free(*(SVG_String *)value);</span>
+<span class="lineNum">     403 </span><span class="lineCov">       1410 :                 gf_free(value);</span>
+<span class="lineNum">     404 </span><span class="lineCov">       1410 :                 break;</span>
+<span class="lineNum">     405 </span>            :         case SVG_StrokeDashArray_datatype:
+<span class="lineNum">     406 </span><span class="lineCov">         48 :                 if (((SVG_StrokeDashArray*)value)-&gt;array.vals) gf_free(((SVG_StrokeDashArray*)value)-&gt;array.vals);</span>
+<span class="lineNum">     407 </span><span class="lineCov">         48 :                 if (((SVG_StrokeDashArray*)value)-&gt;array.units) gf_free(((SVG_StrokeDashArray*)value)-&gt;array.units);</span>
+<span class="lineNum">     408 </span><span class="lineCov">         24 :                 gf_free(value);</span>
+<span class="lineNum">     409 </span><span class="lineCov">         24 :                 break;</span>
+<span class="lineNum">     410 </span>            :         case SMIL_KeyTimes_datatype:
+<span class="lineNum">     411 </span>            :         case SMIL_KeyPoints_datatype:
+<span class="lineNum">     412 </span>            :         case SMIL_KeySplines_datatype:
+<span class="lineNum">     413 </span>            :         case SVG_Numbers_datatype:
+<span class="lineNum">     414 </span>            :         case SVG_Coordinates_datatype:
+<span class="lineNum">     415 </span>            :         case SVG_Points_datatype:
+<span class="lineNum">     416 </span><span class="lineCov">        488 :                 l = *(GF_List**)value;</span>
+<span class="lineNum">     417 </span><span class="lineCov">       3472 :                 while (gf_list_count(l)) {</span>
+<span class="lineNum">     418 </span><span class="lineCov">       1248 :                         void *n = gf_list_last(l);</span>
+<span class="lineNum">     419 </span><span class="lineCov">       1248 :                         gf_list_rem_last(l);</span>
+<span class="lineNum">     420 </span><span class="lineCov">       1248 :                         gf_free(n);</span>
+<span class="lineNum">     421 </span>            :                 }
+<span class="lineNum">     422 </span><span class="lineCov">        488 :                 gf_list_del(l);</span>
+<span class="lineNum">     423 </span><span class="lineCov">        488 :                 gf_free(value);</span>
+<span class="lineNum">     424 </span><span class="lineCov">        488 :                 break;</span>
+<span class="lineNum">     425 </span>            :         case SVG_FontFamily_datatype:
+<span class="lineNum">     426 </span>            :         {
+<span class="lineNum">     427 </span><span class="lineCov">         84 :                 SVG_FontFamily *ff = (SVG_FontFamily *)value;</span>
+<span class="lineNum">     428 </span><span class="lineCov">        156 :                 if (ff-&gt;value) gf_free(ff-&gt;value);</span>
+<span class="lineNum">     429 </span><span class="lineCov">         84 :                 gf_free(value);</span>
+<span class="lineNum">     430 </span>            :         }
+<span class="lineNum">     431 </span><span class="lineCov">         84 :         break;</span>
+<span class="lineNum">     432 </span>            :         case SMIL_AttributeName_datatype:
+<span class="lineNum">     433 </span>            :         {
+<span class="lineNum">     434 </span><span class="lineCov">        396 :                 SMIL_AttributeName *an = (SMIL_AttributeName *)value;</span>
+<span class="lineNum">     435 </span><span class="lineCov">        608 :                 if (an-&gt;name) gf_free(an-&gt;name);</span>
+<span class="lineNum">     436 </span><span class="lineCov">        396 :                 gf_free(value);</span>
+<span class="lineNum">     437 </span>            :         }
+<span class="lineNum">     438 </span><span class="lineCov">        396 :         break;</span>
+<span class="lineNum">     439 </span>            :         case SMIL_Times_datatype:
+<span class="lineNum">     440 </span><span class="lineCov">        776 :                 gf_smil_delete_times(*(SMIL_Times *)value);</span>
+<span class="lineNum">     441 </span><span class="lineCov">        776 :                 gf_free(value);</span>
+<span class="lineNum">     442 </span><span class="lineCov">        776 :                 break;</span>
+<span class="lineNum">     443 </span>            :         case SMIL_AnimateValue_datatype:
+<span class="lineNum">     444 </span><span class="lineCov">        232 :                 svg_delete_one_anim_value(((SMIL_AnimateValue *)value)-&gt;type, ((SMIL_AnimateValue *)value)-&gt;value, sg);</span>
+<span class="lineNum">     445 </span><span class="lineCov">        232 :                 gf_free(value);</span>
+<span class="lineNum">     446 </span><span class="lineCov">        232 :                 break;</span>
+<span class="lineNum">     447 </span>            :         case SMIL_AnimateValues_datatype:
+<span class="lineNum">     448 </span><span class="lineCov">        232 :                 gf_svg_reset_animate_values(*((SMIL_AnimateValues *)value), sg);</span>
+<span class="lineNum">     449 </span><span class="lineCov">        232 :                 gf_free(value);</span>
+<span class="lineNum">     450 </span><span class="lineCov">        232 :                 break;</span>
+<span class="lineNum">     451 </span>            :         case DOM_StringList_datatype:
+<span class="lineNum">     452 </span><span class="lineCov">         56 :                 l = *(GF_List**)value;</span>
+<span class="lineNum">     453 </span><span class="lineCov">        264 :                 while (gf_list_count(l)) {</span>
+<span class="lineNum">     454 </span><span class="lineCov">         76 :                         char *n = gf_list_last(l);</span>
+<span class="lineNum">     455 </span><span class="lineCov">         76 :                         gf_list_rem_last(l);</span>
+<span class="lineNum">     456 </span><span class="lineCov">         76 :                         gf_free(n);</span>
+<span class="lineNum">     457 </span>            :                 }
+<span class="lineNum">     458 </span><span class="lineCov">         56 :                 gf_list_del(l);</span>
+<span class="lineNum">     459 </span><span class="lineCov">         56 :                 gf_free(value);</span>
+<span class="lineNum">     460 </span><span class="lineCov">         56 :                 break;</span>
+<span class="lineNum">     461 </span>            :         case XMLRI_List_datatype:
+<span class="lineNum">     462 </span><span class="lineCov">         18 :                 l = *(GF_List**)value;</span>
+<span class="lineNum">     463 </span><span class="lineCov">         80 :                 while (gf_list_count(l)) {</span>
+<span class="lineNum">     464 </span><span class="lineCov">         22 :                         XMLRI *r = gf_list_last(l);</span>
+<span class="lineNum">     465 </span><span class="lineCov">         22 :                         gf_list_rem_last(l);</span>
+<span class="lineNum">     466 </span><span class="lineCov">         44 :                         if (r-&gt;string) gf_free(r-&gt;string);</span>
+<span class="lineNum">     467 </span><span class="lineCov">         22 :                         gf_free(r);</span>
+<span class="lineNum">     468 </span>            :                 }
+<span class="lineNum">     469 </span><span class="lineCov">         18 :                 gf_list_del(l);</span>
+<span class="lineNum">     470 </span><span class="lineCov">         18 :                 gf_free(value);</span>
+<span class="lineNum">     471 </span><span class="lineCov">         18 :                 break;</span>
+<span class="lineNum">     472 </span>            : 
+<span class="lineNum">     473 </span>            :         case SMIL_RepeatCount_datatype:
+<span class="lineNum">     474 </span>            :         case SMIL_Duration_datatype:
+<span class="lineNum">     475 </span>            :         case SVG_Length_datatype:
+<span class="lineNum">     476 </span>            :         case SVG_Coordinate_datatype:
+<span class="lineNum">     477 </span>            :         case SVG_Visibility_datatype:
+<span class="lineNum">     478 </span>            :         case SVG_Display_datatype:
+<span class="lineNum">     479 </span>            :         default:
+<span class="lineNum">     480 </span><span class="lineCov">       8616 :                 gf_free(value);</span>
+<span class="lineNum">     481 </span><span class="lineCov">       8616 :         }</span>
+<span class="lineNum">     482 </span><span class="lineCov">      40464 : }</span>
+<a name="483"><span class="lineNum">     483 </span>            : </a>
+<span class="lineNum">     484 </span>            : 
+<span class="lineNum">     485 </span>            : void gf_smil_delete_key_types(GF_List *l)
+<span class="lineNum">     486 </span>            : {
+<span class="lineNum">     487 </span><span class="lineNoCov">          0 :         while (gf_list_count(l)) {</span>
+<span class="lineNum">     488 </span><span class="lineNoCov">          0 :                 Fixed *t = (Fixed *)gf_list_get(l, 0);</span>
+<span class="lineNum">     489 </span><span class="lineNoCov">          0 :                 gf_list_rem(l, 0);</span>
+<span class="lineNum">     490 </span><span class="lineNoCov">          0 :                 gf_free(t);</span>
+<span class="lineNum">     491 </span>            :         }
+<span class="lineNum">     492 </span><span class="lineNoCov">          0 :         gf_list_del(l);</span>
+<span class="lineNum">     493 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     494 </span>            : 
+<span class="lineNum">     495 </span>            : 
+<span class="lineNum">     496 </span>            : #endif /*GPAC_DISABLE_SVG*/
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

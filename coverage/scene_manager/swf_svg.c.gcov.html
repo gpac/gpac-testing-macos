@@ -1,0 +1,635 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - scene_manager/swf_svg.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">scene_manager</a> - swf_svg.c<span style="font-size: 80%;"> (source / <a href="swf_svg.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">52</td>
+            <td class="headerCovTableEntry">278</td>
+            <td class="headerCovTableEntryLo">18.7 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-05-14 22:31:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">24</td>
+            <td class="headerCovTableEntryLo">12.5 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *          GPAC - Multimedia Framework C SDK
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *          Authors: Cyril Concolato
+<span class="lineNum">       5 </span>            :  *          Copyright (c) Telecom ParisTech 2000-2012
+<span class="lineNum">       6 </span>            :  *                  All rights reserved
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  *  This file is part of GPAC / Scene Management sub-project
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  *  GPAC is free software; you can redistribute it and/or modify
+<span class="lineNum">      11 </span>            :  *  it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">      12 </span>            :  *  the Free Software Foundation; either version 2, or (at your option)
+<span class="lineNum">      13 </span>            :  *  any later version.
+<span class="lineNum">      14 </span>            :  *
+<span class="lineNum">      15 </span>            :  *  GPAC is distributed in the hope that it will be useful,
+<span class="lineNum">      16 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      17 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      18 </span>            :  *  GNU Lesser General Public License for more details.
+<span class="lineNum">      19 </span>            :  *
+<span class="lineNum">      20 </span>            :  *  You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      21 </span>            :  *  License along with this library; see the file COPYING.  If not, write to
+<span class="lineNum">      22 </span>            :  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+<span class="lineNum">      23 </span>            :  *
+<span class="lineNum">      24 </span>            :  */
+<span class="lineNum">      25 </span>            : #include &lt;gpac/utf.h&gt;
+<span class="lineNum">      26 </span>            : #include &lt;gpac/xml.h&gt;
+<span class="lineNum">      27 </span>            : #include &lt;gpac/internal/swf_dev.h&gt;
+<span class="lineNum">      28 </span>            : #include &lt;gpac/internal/scenegraph_dev.h&gt;
+<span class="lineNum">      29 </span>            : #include &lt;gpac/internal/isomedia_dev.h&gt;
+<span class="lineNum">      30 </span>            : #include &lt;gpac/internal/media_dev.h&gt;
+<span class="lineNum">      31 </span>            : #include &lt;gpac/constants.h&gt;
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span>            : #ifndef GPAC_DISABLE_VVG
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span>            : #ifndef GPAC_DISABLE_SWF_IMPORT
+<span class="lineNum">      36 </span>            : 
+<span class="lineNum">      37 </span>            : #define SWF_TEXT_SCALE              (1/1024.0f)
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span>            : typedef struct _swf_svg_sample
+<span class="lineNum">      40 </span>            : {
+<span class="lineNum">      41 </span>            :         u64 start;
+<span class="lineNum">      42 </span>            :         u64 end;
+<span class="lineNum">      43 </span>            :         char *data;
+<a name="44"><span class="lineNum">      44 </span>            : } GF_SWF_SVG_Sample;</a>
+<span class="lineNum">      45 </span>            : 
+<span class="lineNum">      46 </span>            : static void swf_svg_print(SWFReader *read, const char *format, ...) {
+<span class="lineNum">      47 </span><span class="lineCov">         18 :         char line[2000];</span>
+<span class="lineNum">      48 </span>            :         u32 line_length;
+<span class="lineNum">      49 </span>            :         u32 new_size;
+<span class="lineNum">      50 </span><span class="lineCov">          9 :         va_list args;</span>
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span>            :         /* print the line */
+<span class="lineNum">      53 </span><span class="lineCov">          9 :         va_start(args, format);</span>
+<span class="lineNum">      54 </span><span class="lineCov">          9 :         vsprintf(line, format, args);</span>
+<span class="lineNum">      55 </span><span class="lineCov">          9 :         va_end(args);</span>
+<span class="lineNum">      56 </span>            :         /* add the line to the buffer */
+<span class="lineNum">      57 </span><span class="lineCov">          9 :         line_length = (u32)strlen(line);</span>
+<span class="lineNum">      58 </span><span class="lineCov">          9 :         new_size = read-&gt;svg_data_size+line_length;</span>
+<span class="lineNum">      59 </span><span class="lineCov">          9 :         read-&gt;svg_data = (char *)gf_realloc(read-&gt;svg_data, new_size+1);</span>
+<span class="lineNum">      60 </span><span class="lineCov">          9 :         if (read-&gt;print_frame_header) {</span>
+<span class="lineNum">      61 </span>            :                 /* write at the beginning of the buffer */
+<span class="lineNum">      62 </span><span class="lineNoCov">          0 :                 memmove(read-&gt;svg_data+read-&gt;frame_header_offset+line_length, read-&gt;svg_data+read-&gt;frame_header_offset, (read-&gt;svg_data_size-read-&gt;frame_header_offset)+1);</span>
+<span class="lineNum">      63 </span><span class="lineNoCov">          0 :                 memcpy(read-&gt;svg_data+read-&gt;frame_header_offset, line, line_length);</span>
+<span class="lineNum">      64 </span><span class="lineNoCov">          0 :                 read-&gt;frame_header_offset += line_length;</span>
+<span class="lineNum">      65 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">      66 </span><span class="lineCov">          9 :                 strcpy(read-&gt;svg_data+read-&gt;svg_data_size, line);</span>
+<span class="lineNum">      67 </span>            :         }
+<span class="lineNum">      68 </span><span class="lineCov">          9 :         read-&gt;svg_data_size = new_size;</span>
+<a name="69"><span class="lineNum">      69 </span><span class="lineCov">          9 : }</span></a>
+<span class="lineNum">      70 </span>            : 
+<span class="lineNum">      71 </span>            : static void swf_svg_print_color(SWFReader *read, u32 ARGB)
+<span class="lineNum">      72 </span>            : {
+<span class="lineNum">      73 </span>            :         SFColor val;
+<span class="lineNum">      74 </span><span class="lineNoCov">          0 :         val.red = INT2FIX((ARGB&gt;&gt;16)&amp;0xFF) / 255*100;</span>
+<span class="lineNum">      75 </span><span class="lineNoCov">          0 :         val.green = INT2FIX((ARGB&gt;&gt;8)&amp;0xFF) / 255*100;</span>
+<span class="lineNum">      76 </span><span class="lineNoCov">          0 :         val.blue = INT2FIX((ARGB)&amp;0xFF) / 255*100;</span>
+<span class="lineNum">      77 </span><span class="lineNoCov">          0 :         swf_svg_print(read, &quot;rgb(%g%%,%g%%,%g%%)&quot;, FIX2FLT(val.red), FIX2FLT(val.green), FIX2FLT(val.blue));</span>
+<a name="78"><span class="lineNum">      78 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      79 </span>            : 
+<span class="lineNum">      80 </span>            : static void swf_svg_print_alpha(SWFReader *read, u32 ARGB)
+<span class="lineNum">      81 </span>            : {
+<span class="lineNum">      82 </span>            :         Fixed alpha;
+<span class="lineNum">      83 </span><span class="lineNoCov">          0 :         alpha = INT2FIX((ARGB&gt;&gt;24)&amp;0xFF)/255;</span>
+<span class="lineNum">      84 </span><span class="lineNoCov">          0 :         swf_svg_print(read, &quot;%g&quot;, FIX2FLT(alpha));</span>
+<a name="85"><span class="lineNum">      85 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      86 </span>            : 
+<span class="lineNum">      87 </span>            : static void swg_svg_print_shape_record_to_fill_stroke(SWFReader *read, SWFShapeRec *srec, Bool is_fill)
+<span class="lineNum">      88 </span>            : {
+<span class="lineNum">      89 </span>            :         /*get regular appearance reuse*/
+<span class="lineNum">      90 </span><span class="lineNoCov">          0 :         if (is_fill) {</span>
+<span class="lineNum">      91 </span><span class="lineNoCov">          0 :                 switch (srec-&gt;type) {</span>
+<span class="lineNum">      92 </span>            :                 /*solid/alpha fill*/
+<span class="lineNum">      93 </span>            :                 case 0x00:
+<span class="lineNum">      94 </span><span class="lineNoCov">          0 :                         swf_svg_print(read, &quot;fill=\&quot;&quot;);</span>
+<span class="lineNum">      95 </span><span class="lineNoCov">          0 :                         swf_svg_print_color(read, srec-&gt;solid_col);</span>
+<span class="lineNum">      96 </span><span class="lineNoCov">          0 :                         swf_svg_print(read, &quot;\&quot; &quot;);</span>
+<span class="lineNum">      97 </span><span class="lineNoCov">          0 :                         swf_svg_print(read, &quot;fill-opacity=\&quot;&quot;);</span>
+<span class="lineNum">      98 </span><span class="lineNoCov">          0 :                         swf_svg_print_alpha(read, srec-&gt;solid_col);</span>
+<span class="lineNum">      99 </span><span class="lineNoCov">          0 :                         swf_svg_print(read, &quot;\&quot; &quot;);</span>
+<span class="lineNum">     100 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     101 </span>            :                 case 0x10:
+<span class="lineNum">     102 </span>            :                 case 0x12:
+<span class="lineNum">     103 </span>            :                 //if (read-&gt;flags &amp; GF_SM_SWF_NO_GRADIENT) {
+<span class="lineNum">     104 </span>            :                 //      u32 col = srec-&gt;grad_col[srec-&gt;nbGrad/2];
+<span class="lineNum">     105 </span>            :                 //      col |= 0xFF000000;
+<span class="lineNum">     106 </span>            :                 //      n-&gt;appearance = s2b_get_appearance(read, (GF_Node *) n, col, 0, 0);
+<span class="lineNum">     107 </span>            :                 //} else {
+<span class="lineNum">     108 </span>            :                 //      n-&gt;appearance = s2b_get_gradient(read, (GF_Node *) n, shape, srec);
+<span class="lineNum">     109 </span>            :                 //}
+<span class="lineNum">     110 </span>            :                 //break;
+<span class="lineNum">     111 </span>            :                 case 0x40:
+<span class="lineNum">     112 </span>            :                 case 0x41:
+<span class="lineNum">     113 </span>            :                 case 0x42:
+<span class="lineNum">     114 </span>            :                 case 0x43:
+<span class="lineNum">     115 </span>            :                 //n-&gt;appearance = s2b_get_bitmap(read, (GF_Node *) n, shape, srec);
+<span class="lineNum">     116 </span>            :                 //break;
+<span class="lineNum">     117 </span>            :                 default:
+<span class="lineNum">     118 </span><span class="lineNoCov">          0 :                         swf_report(read, GF_NOT_SUPPORTED, &quot;fill_style %x not supported&quot;, srec-&gt;type);</span>
+<span class="lineNum">     119 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     120 </span>            :                 }
+<span class="lineNum">     121 </span>            :         } else {
+<span class="lineNum">     122 </span><span class="lineNoCov">          0 :                 swf_svg_print(read, &quot;fill=\&quot;none\&quot; &quot;);</span>
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 :                 swf_svg_print(read, &quot;stroke=\&quot;&quot;);</span>
+<span class="lineNum">     124 </span><span class="lineNoCov">          0 :                 swf_svg_print_color(read, srec-&gt;solid_col);</span>
+<span class="lineNum">     125 </span><span class="lineNoCov">          0 :                 swf_svg_print(read, &quot;\&quot; &quot;);</span>
+<span class="lineNum">     126 </span><span class="lineNoCov">          0 :                 swf_svg_print(read, &quot;stroke-opacity=\&quot;&quot;);</span>
+<span class="lineNum">     127 </span><span class="lineNoCov">          0 :                 swf_svg_print_alpha(read, srec-&gt;solid_col);</span>
+<span class="lineNum">     128 </span><span class="lineNoCov">          0 :                 swf_svg_print(read, &quot;\&quot; &quot;);</span>
+<span class="lineNum">     129 </span><span class="lineNoCov">          0 :                 swf_svg_print(read, &quot;stroke-width=\&quot;%g\&quot; &quot;, FIX2FLT(srec-&gt;width));</span>
+<span class="lineNum">     130 </span>            :         }
+<a name="131"><span class="lineNum">     131 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     132 </span>            : 
+<span class="lineNum">     133 </span>            : static void swf_svg_print_shape_record_to_path_d(SWFReader *read, SWFShapeRec *srec)
+<span class="lineNum">     134 </span>            : {
+<span class="lineNum">     135 </span>            :         u32     pt_idx;
+<span class="lineNum">     136 </span>            :         u32     i;
+<span class="lineNum">     137 </span>            : 
+<span class="lineNum">     138 </span>            :         pt_idx = 0;
+<span class="lineNum">     139 </span><span class="lineNoCov">          0 :         for (i=0; i&lt;srec-&gt;path-&gt;nbType; i++) {</span>
+<span class="lineNum">     140 </span><span class="lineNoCov">          0 :                 switch (srec-&gt;path-&gt;types[i]) {</span>
+<span class="lineNum">     141 </span>            :                 /*moveTo*/
+<span class="lineNum">     142 </span>            :                 case 0:
+<span class="lineNum">     143 </span><span class="lineNoCov">          0 :                         swf_svg_print(read, &quot;M%g,%g&quot;, FIX2FLT(srec-&gt;path-&gt;pts[pt_idx].x), FIX2FLT(srec-&gt;path-&gt;pts[pt_idx].y));</span>
+<span class="lineNum">     144 </span><span class="lineNoCov">          0 :                         pt_idx++;</span>
+<span class="lineNum">     145 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     146 </span>            :                 /*lineTo*/
+<span class="lineNum">     147 </span>            :                 case 1:
+<span class="lineNum">     148 </span><span class="lineNoCov">          0 :                         swf_svg_print(read, &quot;L%g,%g&quot;, FIX2FLT(srec-&gt;path-&gt;pts[pt_idx].x), FIX2FLT(srec-&gt;path-&gt;pts[pt_idx].y));</span>
+<span class="lineNum">     149 </span><span class="lineNoCov">          0 :                         pt_idx++;</span>
+<span class="lineNum">     150 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     151 </span>            :                 /*curveTo*/
+<span class="lineNum">     152 </span>            :                 case 2:
+<span class="lineNum">     153 </span><span class="lineNoCov">          0 :                         swf_svg_print(read, &quot;Q%g,%g&quot;, FIX2FLT(srec-&gt;path-&gt;pts[pt_idx].x), FIX2FLT(srec-&gt;path-&gt;pts[pt_idx].y));</span>
+<span class="lineNum">     154 </span><span class="lineNoCov">          0 :                         pt_idx++;</span>
+<span class="lineNum">     155 </span><span class="lineNoCov">          0 :                         swf_svg_print(read, &quot;,%g,%g&quot;, FIX2FLT(srec-&gt;path-&gt;pts[pt_idx].x), FIX2FLT(srec-&gt;path-&gt;pts[pt_idx].y));</span>
+<span class="lineNum">     156 </span><span class="lineNoCov">          0 :                         pt_idx++;</span>
+<span class="lineNum">     157 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     158 </span>            :                 }
+<span class="lineNum">     159 </span>            :         }
+<a name="160"><span class="lineNum">     160 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     161 </span>            : 
+<span class="lineNum">     162 </span>            : static void swf_svg_print_matrix(SWFReader *read, GF_Matrix2D *mat)
+<span class="lineNum">     163 </span>            : {
+<span class="lineNum">     164 </span><span class="lineNoCov">          0 :         if (!gf_mx2d_is_identity(*mat))</span>
+<span class="lineNum">     165 </span>            :         {
+<span class="lineNum">     166 </span><span class="lineNoCov">          0 :                 GF_Point2D  scale;</span>
+<span class="lineNum">     167 </span><span class="lineNoCov">          0 :                 GF_Point2D  translate;</span>
+<span class="lineNum">     168 </span><span class="lineNoCov">          0 :                 Fixed       rotate;</span>
+<span class="lineNum">     169 </span><span class="lineNoCov">          0 :                 if( gf_mx2d_decompose(mat, &amp;scale, &amp;rotate, &amp;translate))</span>
+<span class="lineNum">     170 </span>            :                 {
+<span class="lineNum">     171 </span><span class="lineNoCov">          0 :                         swf_svg_print(read, &quot;transform=\&quot;&quot;);</span>
+<span class="lineNum">     172 </span><span class="lineNoCov">          0 :                         if (translate.x != 0 || translate.y != 0)</span>
+<span class="lineNum">     173 </span>            :                         {
+<span class="lineNum">     174 </span><span class="lineNoCov">          0 :                                 swf_svg_print(read, &quot;translate(%g, %g) &quot;, FIX2FLT(translate.x), FIX2FLT(translate.y));</span>
+<span class="lineNum">     175 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     176 </span><span class="lineNoCov">          0 :                         if (rotate != 0)</span>
+<span class="lineNum">     177 </span>            :                         {
+<span class="lineNum">     178 </span><span class="lineNoCov">          0 :                                 swf_svg_print(read, &quot;rotate(%g) &quot;, FIX2FLT(rotate));</span>
+<span class="lineNum">     179 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     180 </span><span class="lineNoCov">          0 :                         if (scale.x != FIX_ONE || scale.y != FIX_ONE)</span>
+<span class="lineNum">     181 </span>            :                         {
+<span class="lineNum">     182 </span><span class="lineNoCov">          0 :                                 swf_svg_print(read, &quot;scale(%g, %g) &quot;, FIX2FLT(scale.x), FIX2FLT(scale.y));</span>
+<span class="lineNum">     183 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     184 </span><span class="lineNoCov">          0 :                         swf_svg_print(read, &quot;\&quot; &quot;);</span>
+<span class="lineNum">     185 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     186 </span>            :                 else
+<span class="lineNum">     187 </span>            :                 {
+<span class="lineNum">     188 </span><span class="lineNoCov">          0 :                         swf_svg_print(read, &quot;transform=\&quot;matrix(%g,%g,%g,%g,%g,%g)\&quot; &quot;, FIX2FLT(mat-&gt;m[0]), FIX2FLT(mat-&gt;m[3]), FIX2FLT(mat-&gt;m[1]), FIX2FLT(mat-&gt;m[4]), FIX2FLT(mat-&gt;m[2]), FIX2FLT(mat-&gt;m[5]) );</span>
+<span class="lineNum">     189 </span>            :                 }
+<span class="lineNum">     190 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     191 </span><span class="lineNoCov">          0 : }</span>
+<a name="192"><span class="lineNum">     192 </span>            : </a>
+<span class="lineNum">     193 </span>            : /*translates Flash to SVG shapes*/
+<span class="lineNum">     194 </span>            : static GF_Err swf_svg_define_shape(SWFReader *read, SWFShape *shape, SWFFont *parent_font, Bool last_sub_shape)
+<span class="lineNum">     195 </span>            : {
+<span class="lineNum">     196 </span><span class="lineNoCov">          0 :         u32 i;</span>
+<span class="lineNum">     197 </span>            :         SWFShapeRec *srec;
+<span class="lineNum">     198 </span>            : 
+<span class="lineNum">     199 </span><span class="lineNoCov">          0 :         if (parent_font &amp;&amp; (read-&gt;flags &amp; GF_SM_SWF_NO_FONT))</span>
+<span class="lineNum">     200 </span>            :         {
+<span class="lineNum">     201 </span><span class="lineNoCov">          0 :                 return GF_OK;</span>
+<span class="lineNum">     202 </span>            :         }
+<span class="lineNum">     203 </span>            : 
+<span class="lineNum">     204 </span><span class="lineNoCov">          0 :         if (!read-&gt;svg_shape_started)</span>
+<span class="lineNum">     205 </span>            :         {
+<span class="lineNum">     206 </span><span class="lineNoCov">          0 :                 swf_svg_print(read, &quot;&lt;defs&gt;\n&quot;);</span>
+<span class="lineNum">     207 </span><span class="lineNoCov">          0 :                 if (!parent_font)</span>
+<span class="lineNum">     208 </span>            :                 {
+<span class="lineNum">     209 </span><span class="lineNoCov">          0 :                         swf_svg_print(read, &quot;&lt;g id=\&quot;S%d\&quot; &gt;\n&quot;, shape-&gt;ID);</span>
+<span class="lineNum">     210 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     211 </span>            :                 else
+<span class="lineNum">     212 </span>            :                 {
+<span class="lineNum">     213 </span><span class="lineNoCov">          0 :                         char    szGlyphId[256];</span>
+<span class="lineNum">     214 </span><span class="lineNoCov">          0 :                         sprintf(szGlyphId, &quot;Font%d_Glyph%d&quot;, parent_font-&gt;fontID, gf_list_count(parent_font-&gt;glyphs));</span>
+<span class="lineNum">     215 </span><span class="lineNoCov">          0 :                         swf_svg_print(read, &quot;&lt;g id=\&quot;%s\&quot; &gt;\n&quot;, szGlyphId);</span>
+<span class="lineNum">     216 </span><span class="lineNoCov">          0 :                         gf_list_add(parent_font-&gt;glyphs, szGlyphId);</span>
+<span class="lineNum">     217 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     218 </span>            :         }
+<span class="lineNum">     219 </span><span class="lineNoCov">          0 :         read-&gt;empty_frame = GF_FALSE;</span>
+<span class="lineNum">     220 </span><span class="lineNoCov">          0 :         read-&gt;svg_shape_started = GF_TRUE;</span>
+<span class="lineNum">     221 </span>            : 
+<span class="lineNum">     222 </span><span class="lineNoCov">          0 :         i=0;</span>
+<span class="lineNum">     223 </span><span class="lineNoCov">          0 :         while ((srec = (SWFShapeRec*)gf_list_enum(shape-&gt;fill_left, &amp;i))) {</span>
+<span class="lineNum">     224 </span><span class="lineNoCov">          0 :                 swf_svg_print(read, &quot;&lt;path d=\&quot;&quot;);</span>
+<span class="lineNum">     225 </span><span class="lineNoCov">          0 :                 swf_svg_print_shape_record_to_path_d(read, srec);</span>
+<span class="lineNum">     226 </span><span class="lineNoCov">          0 :                 swf_svg_print(read, &quot;\&quot; &quot;);</span>
+<span class="lineNum">     227 </span><span class="lineNoCov">          0 :                 swg_svg_print_shape_record_to_fill_stroke(read, srec, 1);</span>
+<span class="lineNum">     228 </span><span class="lineNoCov">          0 :                 swf_svg_print(read, &quot;/&gt;\n&quot;);</span>
+<span class="lineNum">     229 </span>            :         }
+<span class="lineNum">     230 </span><span class="lineNoCov">          0 :         i=0;</span>
+<span class="lineNum">     231 </span><span class="lineNoCov">          0 :         while ((srec = (SWFShapeRec*)gf_list_enum(shape-&gt;lines, &amp;i))) {</span>
+<span class="lineNum">     232 </span><span class="lineNoCov">          0 :                 swf_svg_print(read, &quot;&lt;path d=\&quot;&quot;);</span>
+<span class="lineNum">     233 </span><span class="lineNoCov">          0 :                 swf_svg_print_shape_record_to_path_d(read, srec);</span>
+<span class="lineNum">     234 </span><span class="lineNoCov">          0 :                 swf_svg_print(read, &quot;\&quot; &quot;);</span>
+<span class="lineNum">     235 </span><span class="lineNoCov">          0 :                 swg_svg_print_shape_record_to_fill_stroke(read, srec, 0);</span>
+<span class="lineNum">     236 </span><span class="lineNoCov">          0 :                 swf_svg_print(read, &quot;/&gt;\n&quot;);</span>
+<span class="lineNum">     237 </span>            :         }
+<span class="lineNum">     238 </span>            : 
+<span class="lineNum">     239 </span><span class="lineNoCov">          0 :         if (last_sub_shape)</span>
+<span class="lineNum">     240 </span>            :         {
+<span class="lineNum">     241 </span><span class="lineNoCov">          0 :                 read-&gt;svg_shape_started = GF_FALSE;</span>
+<span class="lineNum">     242 </span><span class="lineNoCov">          0 :                 swf_svg_print(read, &quot;&lt;/g&gt;\n&quot;);</span>
+<span class="lineNum">     243 </span><span class="lineNoCov">          0 :                 swf_svg_print(read, &quot;&lt;/defs&gt;\n&quot;);</span>
+<span class="lineNum">     244 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     245 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<a name="246"><span class="lineNum">     246 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     247 </span>            : 
+<span class="lineNum">     248 </span>            : static GF_Err swf_svg_define_text(SWFReader *read, SWFText *text)
+<span class="lineNum">     249 </span>            : {
+<span class="lineNum">     250 </span>            :         Bool            use_text;
+<span class="lineNum">     251 </span><span class="lineNoCov">          0 :         u32             i;</span>
+<span class="lineNum">     252 </span>            :         u32             j;
+<span class="lineNum">     253 </span>            :         SWFGlyphRec     *gr;
+<span class="lineNum">     254 </span>            :         SWFFont         *ft;
+<span class="lineNum">     255 </span>            : 
+<span class="lineNum">     256 </span><span class="lineNoCov">          0 :         use_text = (read-&gt;flags &amp; GF_SM_SWF_NO_FONT) ? 1 : 0;</span>
+<span class="lineNum">     257 </span>            : 
+<span class="lineNum">     258 </span><span class="lineNoCov">          0 :         swf_svg_print(read, &quot;&lt;defs&gt;\n&quot;);</span>
+<span class="lineNum">     259 </span><span class="lineNoCov">          0 :         swf_svg_print(read, &quot;&lt;g id=\&quot;S%d\&quot; &quot;, text-&gt;ID);</span>
+<span class="lineNum">     260 </span><span class="lineNoCov">          0 :         swf_svg_print_matrix(read, &amp;text-&gt;mat);</span>
+<span class="lineNum">     261 </span><span class="lineNoCov">          0 :         swf_svg_print(read, &quot;&gt;\n&quot;);</span>
+<span class="lineNum">     262 </span>            : 
+<span class="lineNum">     263 </span><span class="lineNoCov">          0 :         i=0;</span>
+<span class="lineNum">     264 </span><span class="lineNoCov">          0 :         while ((gr = (SWFGlyphRec*)gf_list_enum(text-&gt;text, &amp;i)))</span>
+<span class="lineNum">     265 </span>            :         {
+<span class="lineNum">     266 </span>            :                 ft = NULL;
+<span class="lineNum">     267 </span><span class="lineNoCov">          0 :                 if (use_text) {</span>
+<span class="lineNum">     268 </span><span class="lineNoCov">          0 :                         ft = swf_find_font(read, gr-&gt;fontID);</span>
+<span class="lineNum">     269 </span><span class="lineNoCov">          0 :                         if (!ft-&gt;glyph_codes) {</span>
+<span class="lineNum">     270 </span>            :                                 use_text = 0;
+<span class="lineNum">     271 </span><span class="lineNoCov">          0 :                                 swf_report(read, GF_BAD_PARAM, &quot;Font glyphs are not defined, cannot reference extern font - Forcing glyph embedding&quot;);</span>
+<span class="lineNum">     272 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     273 </span>            :                 }
+<span class="lineNum">     274 </span><span class="lineNoCov">          0 :                 if (use_text) {</span>
+<span class="lineNum">     275 </span>            :                         /*restore back the font height in pixels (it's currently in SWF glyph design units)*/
+<span class="lineNum">     276 </span><span class="lineNoCov">          0 :                         swf_svg_print(read, &quot;&lt;text &quot;);</span>
+<span class="lineNum">     277 </span><span class="lineNoCov">          0 :                         swf_svg_print(read, &quot;x=\&quot;%g \&quot; &quot;, FIX2FLT(gr-&gt;orig_x));</span>
+<span class="lineNum">     278 </span><span class="lineNoCov">          0 :                         swf_svg_print(read, &quot;y=\&quot;%g \&quot; &quot;, FIX2FLT(gr-&gt;orig_y));</span>
+<span class="lineNum">     279 </span><span class="lineNoCov">          0 :                         swf_svg_print(read, &quot;font-size=\&quot;%d\&quot; &quot;, (u32)(gr-&gt;fontSize * SWF_TWIP_SCALE));</span>
+<span class="lineNum">     280 </span><span class="lineNoCov">          0 :                         if (ft-&gt;fontName)</span>
+<span class="lineNum">     281 </span>            :                         {
+<span class="lineNum">     282 </span><span class="lineNoCov">          0 :                                 swf_svg_print(read, &quot;font-family=\&quot;%s\&quot; &quot;, ft-&gt;fontName);</span>
+<span class="lineNum">     283 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     284 </span><span class="lineNoCov">          0 :                         if (ft-&gt;is_italic)</span>
+<span class="lineNum">     285 </span>            :                         {
+<span class="lineNum">     286 </span><span class="lineNoCov">          0 :                                 swf_svg_print(read, &quot;font-style=\&quot;italic\&quot; &quot;);</span>
+<span class="lineNum">     287 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     288 </span><span class="lineNoCov">          0 :                         if (ft-&gt;is_bold)</span>
+<span class="lineNum">     289 </span>            :                         {
+<span class="lineNum">     290 </span><span class="lineNoCov">          0 :                                 swf_svg_print(read, &quot;font-weight=\&quot;bold\&quot; &quot;);</span>
+<span class="lineNum">     291 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     292 </span><span class="lineNoCov">          0 :                         swf_svg_print(read, &quot;&gt;&quot;);</span>
+<span class="lineNum">     293 </span>            :                         /*convert to UTF-8*/
+<span class="lineNum">     294 </span>            :                         {
+<span class="lineNum">     295 </span>            :                                 size_t _len;
+<span class="lineNum">     296 </span>            :                                 u16     *str_w;
+<span class="lineNum">     297 </span><span class="lineNoCov">          0 :                                 u16     *widestr;</span>
+<span class="lineNum">     298 </span>            :                                 char    *str;
+<span class="lineNum">     299 </span>            : 
+<span class="lineNum">     300 </span><span class="lineNoCov">          0 :                                 str_w = (u16*)gf_malloc(sizeof(u16) * (gr-&gt;nbGlyphs+1));</span>
+<span class="lineNum">     301 </span><span class="lineNoCov">          0 :                                 for (j=0; j&lt;gr-&gt;nbGlyphs; j++)</span>
+<span class="lineNum">     302 </span>            :                                 {
+<span class="lineNum">     303 </span><span class="lineNoCov">          0 :                                         str_w[j] = ft-&gt;glyph_codes[gr-&gt;indexes[j]];</span>
+<span class="lineNum">     304 </span>            :                                 }
+<span class="lineNum">     305 </span><span class="lineNoCov">          0 :                                 str_w[j] = 0;</span>
+<span class="lineNum">     306 </span><span class="lineNoCov">          0 :                                 str = (char*)gf_malloc(sizeof(char) * (gr-&gt;nbGlyphs+2));</span>
+<span class="lineNum">     307 </span><span class="lineNoCov">          0 :                                 widestr = str_w;</span>
+<span class="lineNum">     308 </span><span class="lineNoCov">          0 :                                 _len = gf_utf8_wcstombs(str, sizeof(u8) * (gr-&gt;nbGlyphs+1), (const unsigned short **) &amp;widestr);</span>
+<span class="lineNum">     309 </span><span class="lineNoCov">          0 :                                 if (_len != (size_t) -1) {</span>
+<span class="lineNum">     310 </span><span class="lineNoCov">          0 :                                         str[(u32) _len] = 0;</span>
+<span class="lineNum">     311 </span><span class="lineNoCov">          0 :                                         swf_svg_print(read, &quot;%s&quot;, str);</span>
+<span class="lineNum">     312 </span><span class="lineNoCov">          0 :                                 }</span>
+<span class="lineNum">     313 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     314 </span><span class="lineNoCov">          0 :                         swf_svg_print(read, &quot;&lt;/text&gt;\n&quot;);</span>
+<span class="lineNum">     315 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     316 </span>            :                 else
+<span class="lineNum">     317 </span>            :                 {
+<span class="lineNum">     318 </span>            :                         /*convert glyphs*/
+<span class="lineNum">     319 </span>            :                         Fixed       dx;
+<span class="lineNum">     320 </span><span class="lineNoCov">          0 :                         swf_svg_print(read, &quot;&lt;g tranform=\&quot;scale(1,-1) &quot;);</span>
+<span class="lineNum">     321 </span><span class="lineNoCov">          0 :                         swf_svg_print(read, &quot;translate(%g, %g)\&quot; &gt;\n&quot;, FIX2FLT(gr-&gt;orig_x), FIX2FLT(gr-&gt;orig_y));</span>
+<span class="lineNum">     322 </span>            : 
+<span class="lineNum">     323 </span>            :                         dx = 0;
+<span class="lineNum">     324 </span><span class="lineNoCov">          0 :                         for (j=0; j&lt;gr-&gt;nbGlyphs; j++)</span>
+<span class="lineNum">     325 </span>            :                         {
+<span class="lineNum">     326 </span><span class="lineNoCov">          0 :                                 swf_svg_print(read, &quot;&lt;use xlink:href=\&quot;#Font%d_Glyph%d\&quot; transform=\&quot;translate(%g)\&quot; /&gt;\n&quot;, gr-&gt;fontID, gr-&gt;indexes[j], FIX2FLT(gf_divfix(dx, FLT2FIX(gr-&gt;fontSize * SWF_TEXT_SCALE))));</span>
+<span class="lineNum">     327 </span><span class="lineNoCov">          0 :                                 dx += gr-&gt;dx[j];</span>
+<span class="lineNum">     328 </span>            :                         }
+<span class="lineNum">     329 </span><span class="lineNoCov">          0 :                         swf_svg_print(read, &quot;&lt;/g&gt;\n&quot;);</span>
+<span class="lineNum">     330 </span>            :                 }
+<span class="lineNum">     331 </span>            :         }
+<span class="lineNum">     332 </span><span class="lineNoCov">          0 :         read-&gt;empty_frame = GF_FALSE;</span>
+<span class="lineNum">     333 </span><span class="lineNoCov">          0 :         swf_svg_print(read, &quot;&lt;/g&gt;\n&quot;);</span>
+<span class="lineNum">     334 </span><span class="lineNoCov">          0 :         swf_svg_print(read, &quot;&lt;/defs&gt;\n&quot;);</span>
+<span class="lineNum">     335 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<a name="336"><span class="lineNum">     336 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     337 </span>            : 
+<span class="lineNum">     338 </span>            : static GF_Err swf_svg_define_edit_text(SWFReader *read, SWFEditText *text)
+<span class="lineNum">     339 </span>            : {
+<span class="lineNum">     340 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">     341 </span>            : }
+<span class="lineNum">     342 </span>            : 
+<span class="lineNum">     343 </span>            : #if 0
+<span class="lineNum">     344 </span>            : /*called upon end of sprite or clip*/
+<span class="lineNum">     345 </span>            : static void swf_svg_end_of_clip(SWFReader *read)
+<span class="lineNum">     346 </span>            : {
+<span class="lineNum">     347 </span>            : }
+<a name="348"><span class="lineNum">     348 </span>            : #endif</a>
+<span class="lineNum">     349 </span>            : 
+<span class="lineNum">     350 </span>            : static Bool swf_svg_allocate_depth(SWFReader *read, u32 depth)
+<span class="lineNum">     351 </span>            : {
+<span class="lineNum">     352 </span><span class="lineNoCov">          0 :         return GF_FALSE;</span>
+<a name="353"><span class="lineNum">     353 </span>            : }</a>
+<span class="lineNum">     354 </span>            : 
+<span class="lineNum">     355 </span>            : static GF_Err swf_svg_define_sprite(SWFReader *read, u32 nb_frames)
+<span class="lineNum">     356 </span>            : {
+<span class="lineNum">     357 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<a name="358"><span class="lineNum">     358 </span>            : }</a>
+<span class="lineNum">     359 </span>            : 
+<span class="lineNum">     360 </span>            : static GF_Err swf_svg_setup_sound(SWFReader *read, SWFSound *snd, Bool soundstream_first_block)
+<span class="lineNum">     361 </span>            : {
+<span class="lineNum">     362 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<a name="363"><span class="lineNum">     363 </span>            : }</a>
+<span class="lineNum">     364 </span>            : 
+<span class="lineNum">     365 </span>            : static GF_Err swf_svg_setup_image(SWFReader *read, u32 ID, char *fileName)
+<span class="lineNum">     366 </span>            : {
+<span class="lineNum">     367 </span><span class="lineNoCov">          0 :         swf_svg_print(read, &quot;&lt;defs&gt;\n&quot;);</span>
+<span class="lineNum">     368 </span><span class="lineNoCov">          0 :         swf_svg_print(read, &quot;&lt;image id=\&quot;S%d\&quot; xlink:href=\&quot;\&quot;/&gt;&quot;, ID, fileName);</span>
+<span class="lineNum">     369 </span><span class="lineNoCov">          0 :         swf_svg_print(read, &quot;&lt;/defs&gt;\n&quot;);</span>
+<span class="lineNum">     370 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<a name="371"><span class="lineNum">     371 </span>            : }</a>
+<span class="lineNum">     372 </span>            : 
+<span class="lineNum">     373 </span>            : static GF_Err swf_svg_set_backcol(SWFReader *read, u32 xrgb)
+<span class="lineNum">     374 </span>            : {
+<span class="lineNum">     375 </span>            : 
+<span class="lineNum">     376 </span>            :         //rgb.red = INT2FIX((xrgb&gt;&gt;16) &amp; 0xFF) / 255;
+<span class="lineNum">     377 </span>            :         //rgb.green = INT2FIX((xrgb&gt;&gt;8) &amp; 0xFF) / 255;
+<span class="lineNum">     378 </span>            :         //rgb.blue = INT2FIX((xrgb) &amp; 0xFF) / 255;
+<span class="lineNum">     379 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<a name="380"><span class="lineNum">     380 </span>            : }</a>
+<span class="lineNum">     381 </span>            : 
+<span class="lineNum">     382 </span>            : static GF_Err swf_svg_start_sound(SWFReader *read, SWFSound *snd, Bool stop)
+<span class="lineNum">     383 </span>            : {
+<span class="lineNum">     384 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<a name="385"><span class="lineNum">     385 </span>            : }</a>
+<span class="lineNum">     386 </span>            : 
+<span class="lineNum">     387 </span>            : static GF_Err swf_svg_place_obj(SWFReader *read, u32 depth, u32 ID, u32 prev_id, u32 type, GF_Matrix2D *mat, GF_ColorMatrix *cmat, GF_Matrix2D *prev_mat, GF_ColorMatrix *prev_cmat)
+<span class="lineNum">     388 </span>            : {
+<span class="lineNum">     389 </span><span class="lineNoCov">          0 :         read-&gt;empty_frame = GF_FALSE;</span>
+<span class="lineNum">     390 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<a name="391"><span class="lineNum">     391 </span>            : }</a>
+<span class="lineNum">     392 </span>            : 
+<span class="lineNum">     393 </span>            : static GF_Err swf_svg_remove_obj(SWFReader *read, u32 depth, u32 ID)
+<span class="lineNum">     394 </span>            : {
+<span class="lineNum">     395 </span><span class="lineNoCov">          0 :         read-&gt;empty_frame = GF_FALSE;</span>
+<span class="lineNum">     396 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<a name="397"><span class="lineNum">     397 </span>            : }</a>
+<span class="lineNum">     398 </span>            : 
+<span class="lineNum">     399 </span>            : static GF_Err swf_svg_show_frame(SWFReader *read)
+<span class="lineNum">     400 </span>            : {
+<span class="lineNum">     401 </span>            :         u32     i;
+<span class="lineNum">     402 </span>            :         u32     len;
+<span class="lineNum">     403 </span><span class="lineNoCov">          0 :         GF_List *sdl = gf_list_new(); // sorted display list</span>
+<span class="lineNum">     404 </span>            : 
+<span class="lineNum">     405 </span>            :         /* sorting the display list because SVG/CSS z-index is not well supported */
+<span class="lineNum">     406 </span><span class="lineNoCov">          0 :         while (gf_list_count(read-&gt;display_list))</span>
+<span class="lineNum">     407 </span>            :         {
+<span class="lineNum">     408 </span>            :                 Bool        inserted = GF_FALSE;
+<span class="lineNum">     409 </span>            :                 DispShape   *s;
+<span class="lineNum">     410 </span>            : 
+<span class="lineNum">     411 </span><span class="lineNoCov">          0 :                 s = (DispShape *)gf_list_get(read-&gt;display_list, 0);</span>
+<span class="lineNum">     412 </span><span class="lineNoCov">          0 :                 gf_list_rem(read-&gt;display_list, 0);</span>
+<span class="lineNum">     413 </span>            : 
+<span class="lineNum">     414 </span><span class="lineNoCov">          0 :                 for (i = 0; i &lt; gf_list_count(sdl); i++)</span>
+<span class="lineNum">     415 </span>            :                 {
+<span class="lineNum">     416 </span><span class="lineNoCov">          0 :                         DispShape *s2 = (DispShape *)gf_list_get(sdl, i);</span>
+<span class="lineNum">     417 </span><span class="lineNoCov">          0 :                         if (s-&gt;depth &lt; s2-&gt;depth)</span>
+<span class="lineNum">     418 </span>            :                         {
+<span class="lineNum">     419 </span><span class="lineNoCov">          0 :                                 gf_list_insert(sdl, s, i);</span>
+<span class="lineNum">     420 </span>            :                                 inserted = GF_TRUE;
+<span class="lineNum">     421 </span><span class="lineNoCov">          0 :                                 break;</span>
+<span class="lineNum">     422 </span>            :                         }
+<span class="lineNum">     423 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     424 </span><span class="lineNoCov">          0 :                 if (!inserted)</span>
+<span class="lineNum">     425 </span>            :                 {
+<span class="lineNum">     426 </span><span class="lineNoCov">          0 :                         gf_list_add(sdl, s);</span>
+<span class="lineNum">     427 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     428 </span>            :         }
+<span class="lineNum">     429 </span><span class="lineNoCov">          0 :         gf_list_del(read-&gt;display_list);</span>
+<span class="lineNum">     430 </span><span class="lineNoCov">          0 :         read-&gt;display_list = sdl;</span>
+<span class="lineNum">     431 </span>            : 
+<span class="lineNum">     432 </span>            :         /* dumping the display list */
+<span class="lineNum">     433 </span><span class="lineNoCov">          0 :         len = gf_list_count(read-&gt;display_list);</span>
+<span class="lineNum">     434 </span><span class="lineNoCov">          0 :         for (i=0; i&lt;len; i++)</span>
+<span class="lineNum">     435 </span>            :         {
+<span class="lineNum">     436 </span>            :                 DispShape   *s;
+<span class="lineNum">     437 </span><span class="lineNoCov">          0 :                 s = (DispShape *)gf_list_get(read-&gt;display_list, i);</span>
+<span class="lineNum">     438 </span><span class="lineNoCov">          0 :                 swf_svg_print(read, &quot;&lt;use xlink:href=\&quot;#S%d\&quot; &quot;, s-&gt;char_id);</span>
+<span class="lineNum">     439 </span>            :                 //swf_svg_print(read, &quot;z-index=\&quot;%d\&quot; &quot;, s-&gt;depth);
+<span class="lineNum">     440 </span><span class="lineNoCov">          0 :                 swf_svg_print_matrix(read, &amp;s-&gt;mat);</span>
+<span class="lineNum">     441 </span><span class="lineNoCov">          0 :                 swf_svg_print(read, &quot;/&gt;\n&quot;);</span>
+<span class="lineNum">     442 </span><span class="lineNoCov">          0 :                 read-&gt;empty_frame = GF_FALSE;</span>
+<span class="lineNum">     443 </span>            :         }
+<span class="lineNum">     444 </span><span class="lineNoCov">          0 :         if (!read-&gt;empty_frame) {</span>
+<span class="lineNum">     445 </span><span class="lineNoCov">          0 :                 read-&gt;print_frame_header = GF_TRUE;</span>
+<span class="lineNum">     446 </span><span class="lineNoCov">          0 :                 read-&gt;frame_header_offset = 0;</span>
+<span class="lineNum">     447 </span><span class="lineNoCov">          0 :                 swf_svg_print(read, &quot;&lt;g display=\&quot;none\&quot;&gt;\n&quot;);</span>
+<span class="lineNum">     448 </span><span class="lineNoCov">          0 :                 swf_svg_print(read, &quot;&lt;animate id=\&quot;frame%d_anim\&quot; attributeName=\&quot;display\&quot; to=\&quot;inline\&quot; &quot;, read-&gt;current_frame);</span>
+<span class="lineNum">     449 </span><span class="lineNoCov">          0 :                 swf_svg_print(read, &quot;begin=\&quot;%g\&quot; &quot;, 1.0*(read-&gt;current_frame)/read-&gt;frame_rate);</span>
+<span class="lineNum">     450 </span><span class="lineNoCov">          0 :                 if (read-&gt;current_frame+1 &lt; read-&gt;frame_count) {</span>
+<span class="lineNum">     451 </span><span class="lineNoCov">          0 :                         swf_svg_print(read, &quot;end=\&quot;frame%d_anim.begin\&quot; fill=\&quot;remove\&quot; &quot;, (read-&gt;current_frame+1));</span>
+<span class="lineNum">     452 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     453 </span><span class="lineNoCov">          0 :                         swf_svg_print(read, &quot;fill=\&quot;freeze\&quot; &quot;);</span>
+<span class="lineNum">     454 </span>            :                 }
+<span class="lineNum">     455 </span><span class="lineNoCov">          0 :                 swf_svg_print(read, &quot;/&gt;\n&quot;);</span>
+<span class="lineNum">     456 </span><span class="lineNoCov">          0 :                 read-&gt;print_frame_header = GF_FALSE;</span>
+<span class="lineNum">     457 </span>            : 
+<span class="lineNum">     458 </span><span class="lineNoCov">          0 :                 swf_svg_print(read, &quot;&lt;/g&gt;\n&quot;);</span>
+<span class="lineNum">     459 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     460 </span><span class="lineNoCov">          0 :         read-&gt;add_sample(read-&gt;user, read-&gt;svg_data, read-&gt;svg_data_size, read-&gt;current_frame*1000/read-&gt;frame_rate, (read-&gt;current_frame == 0));</span>
+<span class="lineNum">     461 </span><span class="lineNoCov">          0 :         gf_free(read-&gt;svg_data);</span>
+<span class="lineNum">     462 </span><span class="lineNoCov">          0 :         read-&gt;svg_data = NULL;</span>
+<span class="lineNum">     463 </span><span class="lineNoCov">          0 :         read-&gt;svg_data_size = 0;</span>
+<span class="lineNum">     464 </span>            : 
+<span class="lineNum">     465 </span><span class="lineNoCov">          0 :         read-&gt;empty_frame = GF_TRUE;</span>
+<span class="lineNum">     466 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<a name="467"><span class="lineNum">     467 </span>            : }</a>
+<span class="lineNum">     468 </span>            : 
+<span class="lineNum">     469 </span>            : static void swf_svg_finalize(SWFReader *read)
+<span class="lineNum">     470 </span>            : {
+<span class="lineNum">     471 </span><span class="lineCov">          2 :         swf_svg_print(read, &quot;&lt;/svg&gt;\n&quot;);</span>
+<span class="lineNum">     472 </span><span class="lineCov">          1 :         read-&gt;add_header(read-&gt;user, read-&gt;svg_data, read-&gt;svg_data_size, GF_FALSE);</span>
+<span class="lineNum">     473 </span><span class="lineCov">          1 :         gf_free(read-&gt;svg_data);</span>
+<span class="lineNum">     474 </span><span class="lineCov">          1 :         read-&gt;svg_data = NULL;</span>
+<span class="lineNum">     475 </span><span class="lineCov">          1 :         read-&gt;svg_data_size = 0;</span>
+<a name="476"><span class="lineNum">     476 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     477 </span>            : 
+<span class="lineNum">     478 </span>            : static GF_Err swf_svg_define_button(SWFReader *read, SWF_Button *btn)
+<span class="lineNum">     479 </span>            : {
+<span class="lineNum">     480 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<a name="481"><span class="lineNum">     481 </span>            : }</a>
+<span class="lineNum">     482 </span>            : 
+<span class="lineNum">     483 </span>            : static Bool swf_svg_action(SWFReader *read, SWFAction *act)
+<span class="lineNum">     484 </span>            : {
+<span class="lineNum">     485 </span><span class="lineNoCov">          0 :         return GF_TRUE;</span>
+<a name="486"><span class="lineNum">     486 </span>            : }</a>
+<span class="lineNum">     487 </span>            : 
+<span class="lineNum">     488 </span>            : GF_Err swf_to_svg_init(SWFReader *read, u32 swf_flags, Float swf_flatten_angle)
+<span class="lineNum">     489 </span>            : {
+<span class="lineNum">     490 </span><span class="lineCov">          2 :         if (!read-&gt;user) return GF_BAD_PARAM;</span>
+<span class="lineNum">     491 </span>            : 
+<span class="lineNum">     492 </span>            :         /*init callbacks*/
+<span class="lineNum">     493 </span><span class="lineCov">          1 :         read-&gt;show_frame = swf_svg_show_frame;</span>
+<span class="lineNum">     494 </span><span class="lineCov">          1 :         read-&gt;allocate_depth = swf_svg_allocate_depth;</span>
+<span class="lineNum">     495 </span><span class="lineCov">          1 :         read-&gt;place_obj = swf_svg_place_obj;</span>
+<span class="lineNum">     496 </span><span class="lineCov">          1 :         read-&gt;remove_obj = swf_svg_remove_obj;</span>
+<span class="lineNum">     497 </span><span class="lineCov">          1 :         read-&gt;define_shape = swf_svg_define_shape;</span>
+<span class="lineNum">     498 </span><span class="lineCov">          1 :         read-&gt;define_sprite = swf_svg_define_sprite;</span>
+<span class="lineNum">     499 </span><span class="lineCov">          1 :         read-&gt;set_backcol = swf_svg_set_backcol;</span>
+<span class="lineNum">     500 </span><span class="lineCov">          1 :         read-&gt;define_button = swf_svg_define_button;</span>
+<span class="lineNum">     501 </span><span class="lineCov">          1 :         read-&gt;define_text = swf_svg_define_text;</span>
+<span class="lineNum">     502 </span><span class="lineCov">          1 :         read-&gt;define_edit_text = swf_svg_define_edit_text;</span>
+<span class="lineNum">     503 </span><span class="lineCov">          1 :         read-&gt;setup_sound = swf_svg_setup_sound;</span>
+<span class="lineNum">     504 </span><span class="lineCov">          1 :         read-&gt;start_sound = swf_svg_start_sound;</span>
+<span class="lineNum">     505 </span><span class="lineCov">          1 :         read-&gt;setup_image = swf_svg_setup_image;</span>
+<span class="lineNum">     506 </span><span class="lineCov">          1 :         read-&gt;action = swf_svg_action;</span>
+<span class="lineNum">     507 </span><span class="lineCov">          1 :         read-&gt;finalize = swf_svg_finalize;</span>
+<span class="lineNum">     508 </span>            : 
+<span class="lineNum">     509 </span><span class="lineCov">          1 :         read-&gt;flags = swf_flags;</span>
+<span class="lineNum">     510 </span><span class="lineCov">          1 :         read-&gt;flat_limit = FLT2FIX(swf_flatten_angle);</span>
+<span class="lineNum">     511 </span>            : 
+<span class="lineNum">     512 </span><span class="lineCov">          1 :         read-&gt;print_stream_header = GF_TRUE;</span>
+<span class="lineNum">     513 </span><span class="lineCov">          1 :         swf_svg_print(read, &quot;&lt;?xml version=\&quot;1.0\&quot; encoding=\&quot;UTF-8\&quot;?&gt;\n&quot;);</span>
+<span class="lineNum">     514 </span><span class="lineCov">          1 :         swf_svg_print(read, &quot;&lt;svg xmlns=\&quot;http://www.w3.org/2000/svg\&quot; &quot;);</span>
+<span class="lineNum">     515 </span><span class="lineCov">          1 :         swf_svg_print(read, &quot;xmlns:xlink=\&quot;http://www.w3.org/1999/xlink\&quot; &quot;);</span>
+<span class="lineNum">     516 </span><span class="lineCov">          1 :         swf_svg_print(read, &quot;width=\&quot;100%%\&quot; &quot;);</span>
+<span class="lineNum">     517 </span><span class="lineCov">          1 :         swf_svg_print(read, &quot;height=\&quot;100%%\&quot; &quot;);</span>
+<span class="lineNum">     518 </span><span class="lineCov">          1 :         swf_svg_print(read, &quot;viewBox=\&quot;0 0 %d %d\&quot; &quot;, FIX2INT(read-&gt;width), FIX2INT(read-&gt;height));</span>
+<span class="lineNum">     519 </span><span class="lineCov">          1 :         swf_svg_print(read, &quot;viewport-fill=\&quot;rgb(255,255,255)\&quot; &quot;);</span>
+<span class="lineNum">     520 </span><span class="lineCov">          1 :         swf_svg_print(read, &quot;&gt;\n&quot;);</span>
+<span class="lineNum">     521 </span><span class="lineCov">          1 :         read-&gt;print_stream_header = GF_FALSE;</span>
+<span class="lineNum">     522 </span>            : 
+<span class="lineNum">     523 </span>            :         /* update sample description */
+<span class="lineNum">     524 </span><span class="lineCov">          1 :         read-&gt;add_header(read-&gt;user, read-&gt;svg_data, read-&gt;svg_data_size, GF_TRUE);</span>
+<span class="lineNum">     525 </span><span class="lineCov">          1 :         gf_free(read-&gt;svg_data);</span>
+<span class="lineNum">     526 </span><span class="lineCov">          1 :         read-&gt;svg_data = NULL;</span>
+<span class="lineNum">     527 </span><span class="lineCov">          1 :         read-&gt;svg_data_size = 0;</span>
+<span class="lineNum">     528 </span>            : 
+<span class="lineNum">     529 </span><span class="lineCov">          1 :         return GF_OK;</span>
+<a name="530"><span class="lineNum">     530 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     531 </span>            : 
+<span class="lineNum">     532 </span>            : GF_Err swf_svg_write_text_sample(void *user, const char *data, u32 length, u64 timestamp, Bool isRap)
+<span class="lineNum">     533 </span>            : {
+<span class="lineNum">     534 </span><span class="lineNoCov">          0 :         FILE *svgFile = (FILE *)user;</span>
+<span class="lineNum">     535 </span>            :         u32  lengthWritten;
+<span class="lineNum">     536 </span>            : 
+<span class="lineNum">     537 </span><span class="lineNoCov">          0 :         lengthWritten = (u32)fwrite(data, 1, length, svgFile);</span>
+<span class="lineNum">     538 </span><span class="lineNoCov">          0 :         if (length != lengthWritten) {</span>
+<span class="lineNum">     539 </span><span class="lineNoCov">          0 :                 return GF_BAD_PARAM;</span>
+<span class="lineNum">     540 </span>            :         } else {
+<span class="lineNum">     541 </span><span class="lineNoCov">          0 :                 return GF_OK;</span>
+<span class="lineNum">     542 </span>            :         }
+<a name="543"><span class="lineNum">     543 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     544 </span>            : 
+<span class="lineNum">     545 </span>            : GF_Err swf_svg_write_text_header(void *user, const char *data, u32 length, Bool isHeader)
+<span class="lineNum">     546 </span>            : {
+<span class="lineNum">     547 </span><span class="lineNoCov">          0 :         FILE *svgFile = (FILE *)user;</span>
+<span class="lineNum">     548 </span>            :         u32  lengthWritten;
+<span class="lineNum">     549 </span>            : 
+<span class="lineNum">     550 </span><span class="lineNoCov">          0 :         lengthWritten = (u32)fwrite(data, 1, length, svgFile);</span>
+<span class="lineNum">     551 </span><span class="lineNoCov">          0 :         if (length != lengthWritten) {</span>
+<span class="lineNum">     552 </span><span class="lineNoCov">          0 :                 return GF_BAD_PARAM;</span>
+<span class="lineNum">     553 </span>            :         } else {
+<span class="lineNum">     554 </span><span class="lineNoCov">          0 :                 return GF_OK;</span>
+<span class="lineNum">     555 </span>            :         }
+<span class="lineNum">     556 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     557 </span>            : #endif /*GPAC_DISABLE_SWF_IMPORT*/
+<span class="lineNum">     558 </span>            : 
+<span class="lineNum">     559 </span>            : #endif /*GPAC_DISABLE_SVG*/
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

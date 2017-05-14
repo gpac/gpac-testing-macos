@@ -1,0 +1,91 @@
+*** mp4box-subtitle logs (GPAC version 0.6.2-DEV-revUNKNOWN-HEAD ) - test date 14/05/2017 22:28:58 ***
+
+
+*** Subtest "srt-to-ttxt-out": executing "MP4Box -noprog -for-test  -mem-track -ttxt /Users/travis/build/gpac/gpac/tests/media/auxiliary_files/subtitle.srt -out /Users/travis/build/gpac/gpac/tests/results/temp/subtitle-srt.ttxt" ***
+[32mTimed Text (SRT) import - text track 400 x 60, font Serif (size 18)
+[0mConversion done
+
+
+*** Subtest "srt-to-svg-out": executing "MP4Box -noprog -for-test  -mem-track -svg /Users/travis/build/gpac/gpac/tests/media/auxiliary_files/subtitle.srt -out /Users/travis/build/gpac/gpac/tests/results/temp/subtitle-srt.svg" ***
+[32mTimed Text (SRT) import - text track 400 x 60, font Serif (size 18)
+[0mConversion done
+
+
+*** Subtest "ttxt-to-svg-out": executing "MP4Box -noprog -for-test  -mem-track -svg /Users/travis/build/gpac/gpac/tests/results/temp/subtitle-srt.ttxt -out /Users/travis/build/gpac/gpac/tests/results/temp/subtitle-ttxt.svg" ***
+[32mTimed Text (GPAC TTXT) Import
+[0mConversion done
+
+
+*** Subtest "vtt-raw-output": executing "MP4Box -noprog -for-test  -mem-track -raw 1:output=/Users/travis/build/gpac/gpac/tests/results/temp/subtitle-out.vtt /Users/travis/build/gpac/gpac/tests/results/temp/subtitle-srt-wvtt.mp4" ***
+[33mExtracting WebVTT
+[0m[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "fragmented-ttml": executing "MP4Box -noprog -for-test  -mem-track -diso /Users/travis/build/gpac/gpac/tests/media/auxiliary_files/subs.ismt -out /Users/travis/build/gpac/gpac/tests/results/temp/out_info.xml" ***
+[31m[iso file] Invalid number of entries 1 in traf
+[0m[31m[iso file] Read Box "tfra" failed (Invalid IsoMedia File) - skipping
+[0m[31m[iso file] Read Box "mfra" failed (Invalid IsoMedia File) - skipping
+[0mError opening file /Users/travis/build/gpac/gpac/tests/media/auxiliary_files/subs.ismt: Invalid IsoMedia File
+
+
+*** Subtest "srt-add": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/media/auxiliary_files/subtitle.srt -new /Users/travis/build/gpac/gpac/tests/results/temp/subtitle-srt-tx3g.mp4" ***
+[32mTimed Text (SRT) import - text track 400 x 60, font Serif (size 18)
+[0mSaving /Users/travis/build/gpac/gpac/tests/results/temp/subtitle-srt-tx3g.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "srt-vtt-add": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/media/auxiliary_files/subtitle.srt:fmt=VTT -new /Users/travis/build/gpac/gpac/tests/results/temp/subtitle-srt-wvtt.mp4" ***
+[32mWebVTT import
+[0mSaving /Users/travis/build/gpac/gpac/tests/results/temp/subtitle-srt-wvtt.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "tx3g-add": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/results/temp/subtitle-srt.ttxt -new /Users/travis/build/gpac/gpac/tests/results/temp/subtitle-ttxt-tx3g.mp4" ***
+[32mTimed Text (GPAC TTXT) Import
+[0mSaving /Users/travis/build/gpac/gpac/tests/results/temp/subtitle-ttxt-tx3g.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "vtt-add": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/media/webvtt/spec-example-basic.vtt -new /Users/travis/build/gpac/gpac/tests/results/temp/subtitle-vtt-wvtt.mp4" ***
+[32mWebVTT import
+[0mSaving /Users/travis/build/gpac/gpac/tests/results/temp/subtitle-vtt-wvtt.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "ttml-add": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/media/ttml/ebu-ttd_sample.ttml -new /Users/travis/build/gpac/gpac/tests/results/temp/subtitle-ttml-stpp.mp4" ***
+[32mTTML Import
+[0m[33mNote: TTML import - EBU-TTD detected
+[0mSaving /Users/travis/build/gpac/gpac/tests/results/temp/subtitle-ttml-stpp.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "tx3g-dump-track-out": executing "MP4Box -noprog -for-test  -mem-track -ttxt 1 /Users/travis/build/gpac/gpac/tests/results/temp/subtitle-srt-tx3g.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/subtitle-tx3g.ttxt" ***
+Conversion done
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "srt-dump-track-out": executing "MP4Box -noprog -for-test  -mem-track -srt 1 /Users/travis/build/gpac/gpac/tests/results/temp/subtitle-ttxt-tx3g.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/subtitle-tx3g.srt" ***
+Conversion done
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "ttxt-to-srt-out": executing "MP4Box -noprog -for-test  -mem-track -srt /Users/travis/build/gpac/gpac/tests/results/temp/subtitle-srt.ttxt -out /Users/travis/build/gpac/gpac/tests/results/temp/subtitle-ttxt.srt" ***
+[32mTimed Text (GPAC TTXT) Import
+[0mConversion done
+

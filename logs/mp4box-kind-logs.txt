@@ -1,0 +1,446 @@
+*** mp4box-kind logs (GPAC version 0.6.2-DEV-revUNKNOWN-HEAD ) - test date 14/05/2017 22:27:59 ***
+
+
+*** Subtest "kind-all-scheme": executing "MP4Box -noprog -for-test  -mem-track -kind all=myKindScheme /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving to /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-all-rem-scheme": executing "MP4Box -noprog -for-test  -mem-track -kind-rem all=myKindScheme /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-all-scheme-with-column": executing "MP4Box -noprog -for-test  -mem-track -kind all=urn:gpac:kindScheme=myKindValue /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving to /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-all-scheme-with-column-rem": executing "MP4Box -noprog -for-test  -mem-track -kind-rem all=urn:gpac:kindScheme=myKindValue  /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-all-2-schemes-1": executing "MP4Box -noprog -for-test  -mem-track -kind all=myFirstKindScheme /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving to /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-all-2-schemes-2": executing "MP4Box -noprog -for-test  -mem-track -kind all=mySecondKindScheme /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-all-2-schemes-rem-1": executing "MP4Box -noprog -for-test  -mem-track -kind-rem all=myFirstKindScheme /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-all-2-schemes-rem-2": executing "MP4Box -noprog -for-test  -mem-track -kind-rem all=mySecondKindScheme /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-all-same-scheme-1": executing "MP4Box -noprog -for-test  -mem-track -kind all=myFirstKindScheme /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving to /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-all-same-scheme-2": executing "MP4Box -noprog -for-test  -mem-track -kind all=myFirstKindScheme /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-all-same-scheme-value-1": executing "MP4Box -noprog -for-test  -mem-track -kind all=myFirstKindScheme=myKindValue /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving to /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-all-scheme-rem": executing "MP4Box -noprog -for-test  -mem-track -kind-rem all=myKindScheme /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-all-same-scheme-value-2": executing "MP4Box -noprog -for-test  -mem-track -kind all=myFirstKindScheme=myKindValue /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-scheme": executing "MP4Box -noprog -for-test  -mem-track -kind myKindScheme /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving to /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-scheme-rem": executing "MP4Box -noprog -for-test  -mem-track -kind-rem myKindScheme /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-scheme-rem-twice": executing "MP4Box -noprog -for-test  -mem-track -kind-rem myKindScheme /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+[33m[iso file] Box "mdat" is larger than container box
+[0m[33m[iso file] Box "trak" size 648 invalid (read 16228)
+[0m[33m[iso file] Box "trak" is larger than container box
+[0m[33m[iso file] Box "trak" size 804 invalid (read 1452)
+[0m[33m[iso file] Box "mdat" is larger than container box
+[0m[33m[iso file] Box "trak" size 648 invalid (read 16228)
+[0mSaving /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-scheme-value": executing "MP4Box -noprog -for-test  -mem-track -kind myKindScheme=myKindValue /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving to /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-scheme-value-rem": executing "MP4Box -noprog -for-test  -mem-track -kind-rem myKindScheme=myKindValue /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-scheme-value-multiple-1": executing "MP4Box -noprog -for-test  -mem-track -kind myKindScheme=myKindValue2 /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving to /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-scheme-value-multiple-2": executing "MP4Box -noprog -for-test  -mem-track -kind myKindScheme=myKindValue /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-scheme-value-multiple-3": executing "MP4Box -noprog -for-test  -mem-track -kind myKindScheme /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-multiple-rem-1": executing "MP4Box -noprog -for-test  -mem-track -kind-rem myKindScheme=myKindValue /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-all-scheme-rem-twice": executing "MP4Box -noprog -for-test  -mem-track -kind-rem all=myKindScheme /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+[33m[iso file] Box "mdat" is larger than container box
+[0m[33m[iso file] Box "trak" size 648 invalid (read 16228)
+[0m[33m[iso file] Box "trak" is larger than container box
+[0m[33m[iso file] Box "trak" size 804 invalid (read 1452)
+[0m[33m[iso file] Box "mdat" is larger than container box
+[0m[33m[iso file] Box "trak" size 648 invalid (read 16228)
+[0mSaving /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-rem-scheme": executing "MP4Box -noprog -for-test  -mem-track -kind-rem myKindScheme /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "": executing "MP4Box -noprog -for-test  -mem-track -kind urn:gpac:kindScheme=myKindValue /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving to /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-scheme-with-column-rem": executing "MP4Box -noprog -for-test  -mem-track -kind-rem urn:gpac:kindScheme=myKindValue  /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-2-schemes-1": executing "MP4Box -noprog -for-test  -mem-track -kind myFirstKindScheme /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving to /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-2-schemes-2": executing "MP4Box -noprog -for-test  -mem-track -kind mySecondKindScheme /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-2-schemes-rem-1": executing "MP4Box -noprog -for-test  -mem-track -kind-rem myFirstKindScheme /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-2-schemes-rem-2": executing "MP4Box -noprog -for-test  -mem-track -kind-rem mySecondKindScheme /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-same-scheme-1": executing "MP4Box -noprog -for-test  -mem-track -kind myFirstKindScheme /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving to /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-same-scheme-1": executing "MP4Box -noprog -for-test  -mem-track -kind myFirstKindScheme /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-same-scheme-value-1": executing "MP4Box -noprog -for-test  -mem-track -kind myFirstKindScheme=myKindValue /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving to /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-all-scheme-value": executing "MP4Box -noprog -for-test  -mem-track -kind all=myKindScheme=myKindValue /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving to /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-same-scheme-value-2": executing "MP4Box -noprog -for-test  -mem-track -kind myFirstKindScheme=myKindValue /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-track-scheme": executing "MP4Box -noprog -for-test  -mem-track -kind 1=myKindScheme /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving to /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-track-scheme-rem": executing "MP4Box -noprog -for-test  -mem-track -kind-rem 1=myKindScheme /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-track-scheme-value": executing "MP4Box -noprog -for-test  -mem-track -kind 1=myKindScheme=myKindValue /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving to /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-track-scheme-value-rem": executing "MP4Box -noprog -for-test  -mem-track -kind-rem 1=myKindScheme=myKindValue /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-track-2-schemes-1": executing "MP4Box -noprog -for-test  -mem-track -kind 1=myKindScheme /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving to /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-track-2-schemes-2": executing "MP4Box -noprog -for-test  -mem-track -kind 1=mySecondKindScheme /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-track-2-schemes-rem-1": executing "MP4Box -noprog -for-test  -mem-track -kind-rem 1=myKindScheme /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-track-2-schemes-rem-2": executing "MP4Box -noprog -for-test  -mem-track -kind-rem 1=mySecondKindScheme /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-track-2-schemes-2-tracks-1": executing "MP4Box -noprog -for-test  -mem-track -kind 1=mySecondKindScheme /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving to /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-all-scheme-value-rem": executing "MP4Box -noprog -for-test  -mem-track -kind-rem all=myKindScheme=myKindValue /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-track-2-schemes-2-tracks-2": executing "MP4Box -noprog -for-test  -mem-track -kind 2=mySecondKindScheme /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-track-2-schemes-2-tracks-rem-1": executing "MP4Box -noprog -for-test  -mem-track -kind-rem 1=mySecondKindScheme /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-track-2-schemes-2-tracks-rem-2": executing "MP4Box -noprog -for-test  -mem-track -kind-rem 2=mySecondKindScheme /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+[33m[iso file] Box "trak" is larger than container box
+[0m[33m[iso file] Box "trak" size 804 invalid (read 1483)
+[0mSaving /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-new-output": executing "MP4Box -noprog -for-test  -mem-track -kind mySecondKindScheme /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving to /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-import-mp4": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4 /Users/travis/build/gpac/gpac/tests/results/temp/out2.mp4" ***
+[32mIsoMedia import output.mp4 - track ID 1 - Video (size 128 x 128)
+[0m[32mIsoMedia import output.mp4 - track ID 2 - Audio (SR 48000 - 2 channels)
+[0mSaving to /Users/travis/build/gpac/gpac/tests/results/temp/out2.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-import-track-scheme": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4#1:kind=myKindScheme -new /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+[32mIsoMedia import file.mp4 - track ID 1 - Video (size 128 x 128)
+[0mSaving /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-import-track-scheme-value": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4#1:kind=myKindScheme=myKindValue -new /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+[32mIsoMedia import file.mp4 - track ID 1 - Video (size 128 x 128)
+[0mSaving /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-import-track-scheme-value-column": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4#1:kind=urn:gpac:kindScheme=myKindValue -new /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Unrecognized import option gpac, ignoring
+Unrecognized import option kindScheme=myKindValue, ignoring
+[32mIsoMedia import file.mp4 - track ID 1 - Video (size 128 x 128)
+[0mSaving /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-import-track-2-schemes-same-kind": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4#1:kind=myKindScheme=myKindValue:kind=myKindScheme=myKindValue2 -new /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+[32mIsoMedia import file.mp4 - track ID 1 - Video (size 128 x 128)
+[0mSaving /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-import-track-2-schemes-same-kind": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4#1:kind=myKindScheme=myKindValue:kind=myKindScheme2=myKindValue2 -new /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+[32mIsoMedia import file.mp4 - track ID 1 - Video (size 128 x 128)
+[0mSaving /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-all-scheme-value-multiple-1": executing "MP4Box -noprog -for-test  -mem-track -kind all=myKindScheme=myKindValue2 /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving to /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-import-track-2-kinds-same": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/results/temp/file.mp4#1:kind=myKindScheme=myKindValue:kind=myKindScheme=myKindValue -new /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+[32mIsoMedia import file.mp4 - track ID 1 - Video (size 128 x 128)
+[0mSaving /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-all-scheme-value-multiple-2": executing "MP4Box -noprog -for-test  -mem-track -kind all=myKindScheme=myKindValue /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-all-scheme-value-multiple-3": executing "MP4Box -noprog -for-test  -mem-track -kind all=myKindScheme /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "kind-all-multiple-rem-1": executing "MP4Box -noprog -for-test  -mem-track -kind-rem all=myKindScheme=myKindValue /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4" ***
+Saving /Users/travis/build/gpac/gpac/tests/results/temp/output.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m

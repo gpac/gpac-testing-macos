@@ -1,0 +1,6 @@
+ <test name="hls" result="OK" date="14/05/2017 22:24:01">
+
+  <stat subtest="convert" execution_status="OK" return_status="0" mem_total_avg="0" mem_resident_avg="0" mem_resident_max="51953664" cpu_percent="23%" cpu_elapsed_time="0:00.49" cpu_user_time="0.01" cpu_kernel_time="0.09" page_faults="30" file_inputs="0" socket_msg_rec="0" socket_msg_sent="0" return_value="0">
+   <command_line>MP4Box -noprog -for-test  -mem-track -mpd /Users/travis/build/gpac/gpac/tests/external_media/hls/index.m3u8 -out /Users/travis/build/gpac/gpac/tests/external_media/hls/file.mpd</command_line>
+  </stat>
+ </test>

@@ -1,0 +1,739 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - media_tools/filestreamer.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">media_tools</a> - filestreamer.c<span style="font-size: 80%;"> (source / <a href="filestreamer.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">234</td>
+            <td class="headerCovTableEntry">313</td>
+            <td class="headerCovTableEntryLo">74.8 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-05-14 22:31:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntryMed">77.8 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *                      GPAC - Multimedia Framework C SDK
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *                      Authors: Jean Le Feuvre, Cyril Concolato
+<span class="lineNum">       5 </span>            :  *                      Copyright (c) Telecom ParisTech 2000-2012
+<span class="lineNum">       6 </span>            :  *                                      All rights reserved
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  *  This file is part of GPAC / mp4 simple streamer application
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  *  GPAC is free software; you can redistribute it and/or modify
+<span class="lineNum">      11 </span>            :  *  it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">      12 </span>            :  *  the Free Software Foundation; either version 2, or (at your option)
+<span class="lineNum">      13 </span>            :  *  any later version.
+<span class="lineNum">      14 </span>            :  *
+<span class="lineNum">      15 </span>            :  *  GPAC is distributed in the hope that it will be useful,
+<span class="lineNum">      16 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      17 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      18 </span>            :  *  GNU Lesser General Public License for more details.
+<span class="lineNum">      19 </span>            :  *
+<span class="lineNum">      20 </span>            :  *  You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      21 </span>            :  *  License along with this library; see the file COPYING.  If not, write to
+<span class="lineNum">      22 </span>            :  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+<span class="lineNum">      23 </span>            :  *
+<span class="lineNum">      24 </span>            :  */
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : #include &lt;gpac/internal/media_dev.h&gt;
+<span class="lineNum">      27 </span>            : #include &lt;gpac/constants.h&gt;
+<span class="lineNum">      28 </span>            : #include &lt;gpac/maths.h&gt;
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : #if !defined(GPAC_DISABLE_ISOM) &amp;&amp; !defined(GPAC_DISABLE_STREAMING)
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            : #include &lt;gpac/isomedia.h&gt;
+<span class="lineNum">      33 </span>            : #include &lt;gpac/ietf.h&gt;
+<span class="lineNum">      34 </span>            : #include &lt;gpac/config_file.h&gt;
+<span class="lineNum">      35 </span>            : #include &lt;gpac/base_coding.h&gt;
+<span class="lineNum">      36 </span>            : #include &lt;gpac/filestreamer.h&gt;
+<span class="lineNum">      37 </span>            : #include &lt;gpac/rtp_streamer.h&gt;
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span>            : typedef struct __tag_rtp_track
+<span class="lineNum">      40 </span>            : {
+<span class="lineNum">      41 </span>            :         struct __tag_rtp_track *next;
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            :         GF_RTPStreamer *rtp;
+<span class="lineNum">      44 </span>            :         u16 port;
+<span class="lineNum">      45 </span>            : 
+<span class="lineNum">      46 </span>            :         /*scale from TimeStamps in media timescales to TimeStamps in microseconds*/
+<span class="lineNum">      47 </span>            :         Double microsec_ts_scale;
+<span class="lineNum">      48 </span>            : 
+<span class="lineNum">      49 </span>            :         /*NALU size for H264/AVC parsing*/
+<span class="lineNum">      50 </span>            :         u32 avc_nalu_size;
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span>            :         /*track info*/
+<span class="lineNum">      53 </span>            :         u32 track_num;
+<span class="lineNum">      54 </span>            :         u32 timescale;
+<span class="lineNum">      55 </span>            :         u32 nb_aus;
+<span class="lineNum">      56 </span>            : 
+<span class="lineNum">      57 </span>            :         /*loaded AU info*/
+<span class="lineNum">      58 </span>            :         GF_ISOSample  *au;
+<span class="lineNum">      59 </span>            :         u32 current_au;
+<span class="lineNum">      60 </span>            :         u32 sample_duration;
+<span class="lineNum">      61 </span>            :         u32 sample_desc_index;
+<span class="lineNum">      62 </span>            :         /*normalized DTS in micro-sec*/
+<span class="lineNum">      63 </span>            :         u64 microsec_dts;
+<span class="lineNum">      64 </span>            : 
+<span class="lineNum">      65 </span>            :         /*offset of CTS/DTS in media timescale, used when looping the track*/
+<span class="lineNum">      66 </span>            :         u32 ts_offset;
+<span class="lineNum">      67 </span>            :         /*offset of CTS/DTS in microseconds, used when looping the track*/
+<span class="lineNum">      68 </span>            :         u32 microsec_ts_offset;
+<span class="lineNum">      69 </span>            : } GF_RTPTrack;
+<span class="lineNum">      70 </span>            : 
+<span class="lineNum">      71 </span>            : 
+<span class="lineNum">      72 </span>            : struct __isom_rtp_streamer
+<span class="lineNum">      73 </span>            : {
+<span class="lineNum">      74 </span>            :         GF_ISOFile *isom;
+<span class="lineNum">      75 </span>            :         char *dest_ip;
+<span class="lineNum">      76 </span>            :         Bool loop;
+<span class="lineNum">      77 </span>            :         Bool force_mpeg4_generic;
+<span class="lineNum">      78 </span>            :         /*timeline origin of our session (all tracks) in microseconds*/
+<span class="lineNum">      79 </span>            :         u64 timelineOrigin;
+<span class="lineNum">      80 </span>            :         /*list of streams in session*/
+<span class="lineNum">      81 </span>            :         GF_RTPTrack *stream;
+<span class="lineNum">      82 </span>            : 
+<span class="lineNum">      83 </span>            :         /*to sync looping sessions with tracks of # length*/
+<span class="lineNum">      84 </span>            :         u32 duration_ms;
+<span class="lineNum">      85 </span>            : 
+<span class="lineNum">      86 </span>            :         /*base track if this stream contains a media decoding dependancy, 0 otherwise*/
+<span class="lineNum">      87 </span>            :         u32 base_track;
+<span class="lineNum">      88 </span>            : 
+<span class="lineNum">      89 </span>            :         Bool first_RTCP_sent;
+<span class="lineNum">      90 </span>            :     u64 last_min_dts;
+<span class="lineNum">      91 </span>            : };
+<span class="lineNum">      92 </span>            : 
+<a name="93"><span class="lineNum">      93 </span>            : </a>
+<span class="lineNum">      94 </span>            : 
+<span class="lineNum">      95 </span>            : static GF_Err gf_isom_streamer_setup_sdp(GF_ISOMRTPStreamer *streamer, char*sdpfilename, char **out_sdp_buffer)
+<span class="lineNum">      96 </span>            : {
+<span class="lineNum">      97 </span>            :         GF_RTPTrack *track;
+<span class="lineNum">      98 </span>            :         FILE *sdp_out;
+<span class="lineNum">      99 </span><span class="lineCov">         12 :         char filename[GF_MAX_PATH];</span>
+<span class="lineNum">     100 </span><span class="lineCov">          6 :         char sdpLine[20000];</span>
+<span class="lineNum">     101 </span>            :         u32 t, count;
+<span class="lineNum">     102 </span>            :         u8 *payload_type;
+<span class="lineNum">     103 </span>            : 
+<span class="lineNum">     104 </span><span class="lineCov">          6 :         strcpy(filename, sdpfilename ? sdpfilename : &quot;videosession.sdp&quot;);</span>
+<span class="lineNum">     105 </span><span class="lineCov">          6 :         sdp_out = gf_fopen(filename, &quot;wt&quot;);</span>
+<span class="lineNum">     106 </span><span class="lineCov">          6 :         if (!sdp_out) return GF_IO_ERR;</span>
+<span class="lineNum">     107 </span>            : 
+<span class="lineNum">     108 </span><span class="lineCov">          6 :         if (!out_sdp_buffer) {</span>
+<span class="lineNum">     109 </span><span class="lineCov">          6 :                 sprintf(sdpLine, &quot;v=0&quot;);</span>
+<span class="lineNum">     110 </span><span class="lineCov">          6 :                 fprintf(sdp_out, &quot;%s\n&quot;, sdpLine);</span>
+<span class="lineNum">     111 </span><span class="lineCov">          6 :                 sprintf(sdpLine, &quot;o=MP4Streamer 3357474383 1148485440000 IN IP%d %s&quot;, gf_net_is_ipv6(streamer-&gt;dest_ip) ? 6 : 4, streamer-&gt;dest_ip);</span>
+<span class="lineNum">     112 </span><span class="lineCov">          6 :                 fprintf(sdp_out, &quot;%s\n&quot;, sdpLine);</span>
+<span class="lineNum">     113 </span><span class="lineCov">          6 :                 sprintf(sdpLine, &quot;s=livesession&quot;);</span>
+<span class="lineNum">     114 </span><span class="lineCov">          6 :                 fprintf(sdp_out, &quot;%s\n&quot;, sdpLine);</span>
+<span class="lineNum">     115 </span><span class="lineCov">          6 :                 sprintf(sdpLine, &quot;i=This is an MP4 time-sliced Streaming demo&quot;);</span>
+<span class="lineNum">     116 </span><span class="lineCov">          6 :                 fprintf(sdp_out, &quot;%s\n&quot;, sdpLine);</span>
+<span class="lineNum">     117 </span><span class="lineCov">          6 :                 sprintf(sdpLine, &quot;u=http://gpac.io&quot;);</span>
+<span class="lineNum">     118 </span><span class="lineCov">          6 :                 fprintf(sdp_out, &quot;%s\n&quot;, sdpLine);</span>
+<span class="lineNum">     119 </span><span class="lineCov">          6 :                 sprintf(sdpLine, &quot;e=admin@&quot;);</span>
+<span class="lineNum">     120 </span><span class="lineCov">          6 :                 fprintf(sdp_out, &quot;%s\n&quot;, sdpLine);</span>
+<span class="lineNum">     121 </span><span class="lineCov">          6 :                 sprintf(sdpLine, &quot;c=IN IP%d %s&quot;, gf_net_is_ipv6(streamer-&gt;dest_ip) ? 6 : 4, streamer-&gt;dest_ip);</span>
+<span class="lineNum">     122 </span><span class="lineCov">          6 :                 fprintf(sdp_out, &quot;%s\n&quot;, sdpLine);</span>
+<span class="lineNum">     123 </span><span class="lineCov">          6 :                 sprintf(sdpLine, &quot;t=0 0&quot;);</span>
+<span class="lineNum">     124 </span><span class="lineCov">          6 :                 fprintf(sdp_out, &quot;%s\n&quot;, sdpLine);</span>
+<span class="lineNum">     125 </span><span class="lineCov">          6 :                 sprintf(sdpLine, &quot;a=x-copyright: Streamed with GPAC (C)2000-2016 - http://gpac.io&quot;);</span>
+<span class="lineNum">     126 </span><span class="lineCov">          6 :                 fprintf(sdp_out, &quot;%s\n&quot;, sdpLine);</span>
+<span class="lineNum">     127 </span><span class="lineCov">          6 :                 if (streamer-&gt;base_track)</span>
+<span class="lineNum">     128 </span>            :                 {
+<span class="lineNum">     129 </span><span class="lineNoCov">          0 :                         sprintf(sdpLine, &quot;a=group:DDP L%d&quot;, streamer-&gt;base_track);</span>
+<span class="lineNum">     130 </span><span class="lineNoCov">          0 :                         fprintf(sdp_out, &quot;%s&quot;, sdpLine);</span>
+<span class="lineNum">     131 </span><span class="lineNoCov">          0 :                         count = gf_isom_get_track_count(streamer-&gt;isom);</span>
+<span class="lineNum">     132 </span><span class="lineNoCov">          0 :                         for (t = 0; t &lt; count; t++)</span>
+<span class="lineNum">     133 </span>            :                         {
+<span class="lineNum">     134 </span><span class="lineNoCov">          0 :                                 if (gf_isom_has_track_reference(streamer-&gt;isom, t+1, GF_ISOM_REF_BASE, gf_isom_get_track_id(streamer-&gt;isom, streamer-&gt;base_track)))</span>
+<span class="lineNum">     135 </span>            :                                 {
+<span class="lineNum">     136 </span><span class="lineNoCov">          0 :                                         sprintf(sdpLine, &quot; L%d&quot;, t+1);</span>
+<span class="lineNum">     137 </span><span class="lineNoCov">          0 :                                         fprintf(sdp_out, &quot;%s&quot;, sdpLine);</span>
+<span class="lineNum">     138 </span><span class="lineNoCov">          0 :                                 }</span>
+<span class="lineNum">     139 </span>            :                         }
+<span class="lineNum">     140 </span><span class="lineNoCov">          0 :                         fprintf(sdp_out, &quot;\n&quot;);</span>
+<span class="lineNum">     141 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     142 </span>            :         }
+<span class="lineNum">     143 </span>            : 
+<span class="lineNum">     144 </span>            :         /*prepare array of payload type*/
+<span class="lineNum">     145 </span><span class="lineCov">          6 :         count = gf_isom_get_track_count(streamer-&gt;isom);</span>
+<span class="lineNum">     146 </span><span class="lineCov">          6 :         payload_type = (u8 *)gf_malloc(count * sizeof(u8));</span>
+<span class="lineNum">     147 </span><span class="lineCov">          6 :         track = streamer-&gt;stream;</span>
+<span class="lineNum">     148 </span><span class="lineCov">         36 :         while (track) {</span>
+<span class="lineNum">     149 </span><span class="lineCov">         12 :                 payload_type[track-&gt;track_num-1] = gf_rtp_streamer_get_payload_type(track-&gt;rtp);</span>
+<span class="lineNum">     150 </span><span class="lineCov">         12 :                 track = track-&gt;next;</span>
+<span class="lineNum">     151 </span>            :         }
+<span class="lineNum">     152 </span>            : 
+<span class="lineNum">     153 </span>            : 
+<span class="lineNum">     154 </span><span class="lineCov">          6 :         track = streamer-&gt;stream;</span>
+<span class="lineNum">     155 </span><span class="lineCov">         36 :         while (track) {</span>
+<span class="lineNum">     156 </span><span class="lineCov">         12 :                 char *sdp_media=NULL;</span>
+<span class="lineNum">     157 </span><span class="lineCov">         12 :                 const char *KMS = NULL;</span>
+<span class="lineNum">     158 </span>            :                 char *dsi = NULL;
+<span class="lineNum">     159 </span><span class="lineCov">         12 :                 u32 w, h;</span>
+<span class="lineNum">     160 </span>            :                 u32 dsi_len = 0;
+<span class="lineNum">     161 </span>            :                 GF_DecoderConfig *dcd;
+<span class="lineNum">     162 </span>            :                 //use inspect mode so that we don't aggregate xPS from the base in the enhancement ESD
+<span class="lineNum">     163 </span><span class="lineCov">         12 :                 gf_isom_set_nalu_extract_mode(streamer-&gt;isom, track-&gt;track_num, GF_ISOM_NALU_EXTRACT_INSPECT);</span>
+<span class="lineNum">     164 </span><span class="lineCov">         12 :                 dcd = gf_isom_get_decoder_config(streamer-&gt;isom, track-&gt;track_num, 1);</span>
+<span class="lineNum">     165 </span>            : 
+<span class="lineNum">     166 </span><span class="lineCov">         22 :                 if (dcd &amp;&amp; dcd-&gt;decoderSpecificInfo) {</span>
+<span class="lineNum">     167 </span><span class="lineCov">         10 :                         dsi = dcd-&gt;decoderSpecificInfo-&gt;data;</span>
+<span class="lineNum">     168 </span><span class="lineCov">         10 :                         dsi_len = dcd-&gt;decoderSpecificInfo-&gt;dataLength;</span>
+<span class="lineNum">     169 </span><span class="lineCov">         10 :                 }</span>
+<span class="lineNum">     170 </span><span class="lineCov">         12 :                 w = h = 0;</span>
+<span class="lineNum">     171 </span><span class="lineCov">         12 :                 if (gf_isom_get_media_type(streamer-&gt;isom, track-&gt;track_num) == GF_ISOM_MEDIA_VISUAL) {</span>
+<span class="lineNum">     172 </span><span class="lineCov">          6 :                         gf_isom_get_visual_info(streamer-&gt;isom, track-&gt;track_num, 1, &amp;w, &amp;h);</span>
+<span class="lineNum">     173 </span><span class="lineCov">          6 :                 }</span>
+<span class="lineNum">     174 </span>            : 
+<span class="lineNum">     175 </span><span class="lineCov">         12 :                 gf_isom_get_ismacryp_info(streamer-&gt;isom, track-&gt;track_num, 1, NULL, NULL, NULL, NULL, &amp;KMS, NULL, NULL, NULL);</span>
+<span class="lineNum">     176 </span>            : 
+<span class="lineNum">     177 </span>            :                 /*TODO retrieve DIMS content encoding from track to set the flags */
+<span class="lineNum">     178 </span><span class="lineCov">         12 :                 gf_rtp_streamer_append_sdp_extended(track-&gt;rtp, gf_isom_get_track_id(streamer-&gt;isom, track-&gt;track_num), dsi, dsi_len, streamer-&gt;isom, track-&gt;track_num, (char *)KMS, w, h, &amp;sdp_media);</span>
+<span class="lineNum">     179 </span><span class="lineCov">         12 :                 if (streamer-&gt;base_track)</span>
+<span class="lineNum">     180 </span><span class="lineNoCov">          0 :                         gf_rtp_streamer_append_sdp_decoding_dependency(streamer-&gt;isom, track-&gt;track_num, payload_type, &amp;sdp_media);</span>
+<span class="lineNum">     181 </span><span class="lineCov">         12 :                 if (sdp_media) {</span>
+<span class="lineNum">     182 </span><span class="lineCov">         12 :                         fprintf(sdp_out, &quot;%s&quot;, sdp_media);</span>
+<span class="lineNum">     183 </span><span class="lineCov">         12 :                         gf_free(sdp_media);</span>
+<span class="lineNum">     184 </span><span class="lineCov">         12 :                 }</span>
+<span class="lineNum">     185 </span>            : 
+<span class="lineNum">     186 </span><span class="lineCov">         22 :                 if (dcd) gf_odf_desc_del((GF_Descriptor *)dcd);</span>
+<span class="lineNum">     187 </span>            : 
+<span class="lineNum">     188 </span><span class="lineCov">         12 :                 track = track-&gt;next;</span>
+<span class="lineNum">     189 </span><span class="lineCov">         12 :         }</span>
+<span class="lineNum">     190 </span><span class="lineCov">          6 :         fprintf(sdp_out, &quot;\n&quot;);</span>
+<span class="lineNum">     191 </span><span class="lineCov">         12 :     GF_LOG(GF_LOG_INFO, GF_LOG_RTP, (&quot;[FileStreamer] SDP file generated\n&quot;));</span>
+<span class="lineNum">     192 </span>            :     
+<span class="lineNum">     193 </span><span class="lineCov">          6 :         gf_fclose(sdp_out);</span>
+<span class="lineNum">     194 </span><span class="lineCov">          6 :         if (out_sdp_buffer) {</span>
+<span class="lineNum">     195 </span>            :                 u64 size;
+<span class="lineNum">     196 </span><span class="lineNoCov">          0 :                 sdp_out = gf_fopen(filename, &quot;r&quot;);</span>
+<span class="lineNum">     197 </span><span class="lineNoCov">          0 :                 gf_fseek(sdp_out, 0, SEEK_END);</span>
+<span class="lineNum">     198 </span><span class="lineNoCov">          0 :                 size = gf_ftell(sdp_out);</span>
+<span class="lineNum">     199 </span><span class="lineNoCov">          0 :                 gf_fseek(sdp_out, 0, SEEK_SET);</span>
+<span class="lineNum">     200 </span><span class="lineNoCov">          0 :                 if (*out_sdp_buffer) gf_free(*out_sdp_buffer);</span>
+<span class="lineNum">     201 </span><span class="lineNoCov">          0 :                 *out_sdp_buffer = gf_malloc(sizeof(char)*(size_t)(size+1));</span>
+<span class="lineNum">     202 </span><span class="lineNoCov">          0 :                 size = fread(*out_sdp_buffer, 1, (size_t)size, sdp_out);</span>
+<span class="lineNum">     203 </span><span class="lineNoCov">          0 :                 gf_fclose(sdp_out);</span>
+<span class="lineNum">     204 </span><span class="lineNoCov">          0 :                 (*out_sdp_buffer)[size]=0;</span>
+<span class="lineNum">     205 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     206 </span>            : 
+<span class="lineNum">     207 </span><span class="lineCov">          6 :         gf_free(payload_type);</span>
+<span class="lineNum">     208 </span><span class="lineCov">          6 :         return GF_OK;</span>
+<span class="lineNum">     209 </span><span class="lineCov">          6 : }</span>
+<a name="210"><span class="lineNum">     210 </span>            : </a>
+<span class="lineNum">     211 </span>            : GF_EXPORT
+<span class="lineNum">     212 </span>            : GF_Err gf_isom_streamer_write_sdp(GF_ISOMRTPStreamer *streamer, char*sdpfilename)
+<span class="lineNum">     213 </span>            : {
+<span class="lineNum">     214 </span><span class="lineCov">         12 :         return gf_isom_streamer_setup_sdp(streamer, sdpfilename, NULL);</span>
+<a name="215"><span class="lineNum">     215 </span>            : }</a>
+<span class="lineNum">     216 </span>            : 
+<span class="lineNum">     217 </span>            : GF_Err gf_isom_streamer_get_sdp(GF_ISOMRTPStreamer *streamer, char **out_sdp_buffer)
+<span class="lineNum">     218 </span>            : {
+<span class="lineNum">     219 </span><span class="lineNoCov">          0 :         return gf_isom_streamer_setup_sdp(streamer, NULL, out_sdp_buffer);</span>
+<span class="lineNum">     220 </span>            : }
+<a name="221"><span class="lineNum">     221 </span>            : </a>
+<span class="lineNum">     222 </span>            : 
+<span class="lineNum">     223 </span>            : void gf_isom_streamer_reset(GF_ISOMRTPStreamer *streamer, Bool is_loop)
+<span class="lineNum">     224 </span>            : {
+<span class="lineNum">     225 </span>            :         GF_RTPTrack *track;
+<span class="lineNum">     226 </span><span class="lineNoCov">          0 :         if (!streamer) return;</span>
+<span class="lineNum">     227 </span><span class="lineNoCov">          0 :         track = streamer-&gt;stream;</span>
+<span class="lineNum">     228 </span><span class="lineNoCov">          0 :         while (track) {</span>
+<span class="lineNum">     229 </span><span class="lineNoCov">          0 :                 if (is_loop) {</span>
+<span class="lineNum">     230 </span><span class="lineNoCov">          0 :                         Double scale = track-&gt;timescale/1000.0;</span>
+<span class="lineNum">     231 </span><span class="lineNoCov">          0 :                         track-&gt;ts_offset += (u32) (streamer-&gt;duration_ms * scale);</span>
+<span class="lineNum">     232 </span><span class="lineNoCov">          0 :                         track-&gt;microsec_ts_offset = (u32) (track-&gt;ts_offset*(1000000.0/track-&gt;timescale) + streamer-&gt;timelineOrigin);</span>
+<span class="lineNum">     233 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     234 </span><span class="lineNoCov">          0 :                         track-&gt;ts_offset += 0;</span>
+<span class="lineNum">     235 </span><span class="lineNoCov">          0 :                         track-&gt;microsec_ts_offset = 0;</span>
+<span class="lineNum">     236 </span>            :                 }
+<span class="lineNum">     237 </span><span class="lineNoCov">          0 :                 track-&gt;current_au = 0;</span>
+<span class="lineNum">     238 </span><span class="lineNoCov">          0 :                 track = track-&gt;next;</span>
+<span class="lineNum">     239 </span>            :         }
+<span class="lineNum">     240 </span><span class="lineNoCov">          0 :         if (is_loop) streamer-&gt;timelineOrigin = 0;</span>
+<span class="lineNum">     241 </span><span class="lineNoCov">          0 : }</span>
+<a name="242"><span class="lineNum">     242 </span>            : </a>
+<span class="lineNum">     243 </span>            : GF_EXPORT
+<span class="lineNum">     244 </span>            : GF_Err gf_isom_streamer_send_next_packet(GF_ISOMRTPStreamer *streamer, s32 send_ahead_delay, s32 max_sleep_time)
+<span class="lineNum">     245 </span>            : {
+<span class="lineNum">     246 </span>            :         GF_Err e = GF_OK;
+<span class="lineNum">     247 </span>            :         GF_RTPTrack *track, *to_send;
+<span class="lineNum">     248 </span>            :         u32 duration;
+<span class="lineNum">     249 </span>            :         s32 diff;
+<span class="lineNum">     250 </span>            :         u64 min_ts, dts, cts, clock;
+<span class="lineNum">     251 </span>            : 
+<span class="lineNum">     252 </span><span class="lineCov">       2342 :         if (!streamer) return GF_BAD_PARAM;</span>
+<span class="lineNum">     253 </span>            : 
+<span class="lineNum">     254 </span>            :         /*browse all sessions and locate most mature stream*/
+<span class="lineNum">     255 </span>            :         to_send = NULL;
+<span class="lineNum">     256 </span>            :         min_ts = (u64) -1;
+<span class="lineNum">     257 </span>            : 
+<span class="lineNum">     258 </span><span class="lineCov">       1171 :         clock = gf_sys_clock_high_res();</span>
+<span class="lineNum">     259 </span>            : 
+<span class="lineNum">     260 </span>            :         /*init session timeline - all sessions are sync'ed for packet scheduling purposes*/
+<span class="lineNum">     261 </span><span class="lineCov">       1171 :         if (!streamer-&gt;timelineOrigin) {</span>
+<span class="lineNum">     262 </span><span class="lineCov">          3 :                 streamer-&gt;timelineOrigin = clock;</span>
+<span class="lineNum">     263 </span><span class="lineCov">          6 :                 GF_LOG(GF_LOG_INFO, GF_LOG_RTP, (&quot;[FileStreamer] RTP session %s initialized - time origin set to &quot;LLU&quot;\n&quot;, gf_isom_get_filename(streamer-&gt;isom), clock));</span>
+<span class="lineNum">     264 </span>            :         }
+<span class="lineNum">     265 </span>            : 
+<span class="lineNum">     266 </span><span class="lineCov">       1171 :         track = streamer-&gt;stream;</span>
+<span class="lineNum">     267 </span><span class="lineCov">       7026 :         while (track) {</span>
+<span class="lineNum">     268 </span>            :                 /*load next AU*/
+<span class="lineNum">     269 </span><span class="lineCov">       2342 :                 gf_isom_set_nalu_extract_mode(streamer-&gt;isom, track-&gt;track_num, GF_ISOM_NALU_EXTRACT_LAYER_ONLY);</span>
+<span class="lineNum">     270 </span><span class="lineCov">       2342 :                 if (!track-&gt;au) {</span>
+<span class="lineNum">     271 </span><span class="lineCov">       1174 :                         if (track-&gt;current_au &gt;= track-&gt;nb_aus) {</span>
+<span class="lineNum">     272 </span>            :                                 Double scale;
+<span class="lineNum">     273 </span><span class="lineCov">         30 :                                 if (!streamer-&gt;loop) {</span>
+<span class="lineNum">     274 </span><span class="lineNoCov">          0 :                                         track = track-&gt;next;</span>
+<span class="lineNum">     275 </span><span class="lineNoCov">          0 :                                         continue;</span>
+<span class="lineNum">     276 </span>            :                                 }
+<span class="lineNum">     277 </span>            :                                 /*increment ts offset*/
+<span class="lineNum">     278 </span><span class="lineCov">         30 :                                 scale = track-&gt;timescale/1000.0;</span>
+<span class="lineNum">     279 </span><span class="lineCov">         30 :                                 track-&gt;ts_offset += (u32) (streamer-&gt;duration_ms * scale);</span>
+<span class="lineNum">     280 </span><span class="lineCov">         30 :                                 track-&gt;microsec_ts_offset = (u32) (track-&gt;ts_offset*(1000000.0/track-&gt;timescale) + streamer-&gt;timelineOrigin);</span>
+<span class="lineNum">     281 </span><span class="lineCov">         30 :                                 track-&gt;current_au = 0;</span>
+<span class="lineNum">     282 </span><span class="lineCov">         30 :                         }</span>
+<span class="lineNum">     283 </span>            : 
+<span class="lineNum">     284 </span><span class="lineCov">       1174 :                         track-&gt;au = gf_isom_get_sample(streamer-&gt;isom, track-&gt;track_num, track-&gt;current_au + 1, &amp;track-&gt;sample_desc_index);</span>
+<span class="lineNum">     285 </span><span class="lineCov">       1174 :                         track-&gt;current_au ++;</span>
+<span class="lineNum">     286 </span><span class="lineCov">       1174 :                         if (track-&gt;au) {</span>
+<span class="lineNum">     287 </span><span class="lineCov">       1174 :                                 track-&gt;microsec_dts = (u64) (track-&gt;microsec_ts_scale * (s64) (track-&gt;au-&gt;DTS) + track-&gt;microsec_ts_offset + streamer-&gt;timelineOrigin);</span>
+<span class="lineNum">     288 </span><span class="lineCov">       1174 :                         }</span>
+<span class="lineNum">     289 </span>            :                 }
+<span class="lineNum">     290 </span>            : 
+<span class="lineNum">     291 </span>            :                 /*check timing*/
+<span class="lineNum">     292 </span><span class="lineCov">       2342 :                 if (track-&gt;au) {</span>
+<span class="lineNum">     293 </span><span class="lineCov">       2342 :                         if (min_ts &gt; track-&gt;microsec_dts) {</span>
+<span class="lineNum">     294 </span>            :                                 min_ts = track-&gt;microsec_dts;
+<span class="lineNum">     295 </span>            :                                 to_send = track;
+<span class="lineNum">     296 </span><span class="lineCov">       1950 :                         }</span>
+<span class="lineNum">     297 </span>            :                 }
+<span class="lineNum">     298 </span>            : 
+<span class="lineNum">     299 </span><span class="lineCov">       2342 :                 track = track-&gt;next;</span>
+<span class="lineNum">     300 </span>            :         }
+<span class="lineNum">     301 </span>            : 
+<span class="lineNum">     302 </span>            :         /*no input data ...*/
+<span class="lineNum">     303 </span><span class="lineCov">       1171 :         if( !to_send) return GF_EOS;</span>
+<span class="lineNum">     304 </span>            : 
+<span class="lineNum">     305 </span><span class="lineCov">       1171 :     streamer-&gt;last_min_dts = min_ts;</span>
+<span class="lineNum">     306 </span>            : 
+<span class="lineNum">     307 </span>            :         /*we are about to send scalable base: trigger RTCP reports with the same NTP. This avoids
+<span class="lineNum">     308 </span>            :         NTP drift due to system clock precision which could break sync decoding*/
+<span class="lineNum">     309 </span><span class="lineCov">       2339 :         if (!streamer-&gt;first_RTCP_sent || (streamer-&gt;base_track &amp;&amp; streamer-&gt;base_track==to_send-&gt;track_num)) {</span>
+<span class="lineNum">     310 </span><span class="lineCov">          3 :                 u32 ntp_sec, ntp_frac;</span>
+<span class="lineNum">     311 </span>            :                 /*force sending RTCP SR every RAP ? - not really compliant but we cannot perform scalable tuning otherwise*/
+<span class="lineNum">     312 </span><span class="lineCov">          3 :                 u32 ntp_type = to_send-&gt;au-&gt;IsRAP ? 2 : 1;</span>
+<span class="lineNum">     313 </span><span class="lineCov">          3 :                 gf_net_get_ntp(&amp;ntp_sec, &amp;ntp_frac);</span>
+<span class="lineNum">     314 </span><span class="lineCov">          3 :                 track = streamer-&gt;stream;</span>
+<span class="lineNum">     315 </span><span class="lineCov">         24 :                 while (track &amp;&amp; track-&gt;au) {</span>
+<span class="lineNum">     316 </span><span class="lineCov">          6 :                         u32 ts = (u32) (track-&gt;au-&gt;DTS + track-&gt;au-&gt;CTS_Offset + track-&gt;ts_offset);</span>
+<span class="lineNum">     317 </span><span class="lineCov">          6 :                         gf_rtp_streamer_send_rtcp(track-&gt;rtp, GF_TRUE, ts, ntp_type, ntp_sec, ntp_frac);</span>
+<span class="lineNum">     318 </span><span class="lineCov">          6 :                         track = track-&gt;next;</span>
+<span class="lineNum">     319 </span>            :                 }
+<span class="lineNum">     320 </span>            : 
+<span class="lineNum">     321 </span><span class="lineCov">          3 :                 streamer-&gt;first_RTCP_sent = 1;</span>
+<span class="lineNum">     322 </span><span class="lineCov">          3 :         }</span>
+<span class="lineNum">     323 </span>            : 
+<span class="lineNum">     324 </span><span class="lineCov">       1171 :         min_ts /= 1000;</span>
+<span class="lineNum">     325 </span>            : 
+<span class="lineNum">     326 </span><span class="lineCov">       1171 :         if (max_sleep_time) {</span>
+<span class="lineNum">     327 </span><span class="lineNoCov">          0 :                 diff = ((u32) min_ts) - gf_sys_clock();</span>
+<span class="lineNum">     328 </span><span class="lineNoCov">          0 :                 if (diff&gt;max_sleep_time)</span>
+<span class="lineNum">     329 </span><span class="lineNoCov">          0 :                         return GF_OK;</span>
+<span class="lineNum">     330 </span>            :         }
+<span class="lineNum">     331 </span>            : 
+<span class="lineNum">     332 </span>            : 
+<span class="lineNum">     333 </span>            :         /*sleep until TS is mature*/
+<span class="lineNum">     334 </span><span class="lineCov">      12618 :         while (1) {</span>
+<span class="lineNum">     335 </span><span class="lineCov">      13789 :                 diff = ((u32) min_ts) - gf_sys_clock();</span>
+<span class="lineNum">     336 </span>            : 
+<span class="lineNum">     337 </span><span class="lineCov">      13789 :                 if (diff &gt; send_ahead_delay) {</span>
+<span class="lineNum">     338 </span><span class="lineCov">      12618 :                         gf_sleep(1);</span>
+<span class="lineNum">     339 </span>            :                 } else {
+<span class="lineNum">     340 </span><span class="lineCov">       1171 :                         if (diff&lt;10) {</span>
+<span class="lineNum">     341 </span><span class="lineCov">       1171 :                                 GF_LOG(GF_LOG_DEBUG, GF_LOG_RTP, (&quot;WARNING: RTP session %s stream %d - sending packet %d ms too late\n&quot;, gf_isom_get_filename(streamer-&gt;isom), to_send-&gt;track_num, -diff));</span>
+<span class="lineNum">     342 </span>            :                         }
+<span class="lineNum">     343 </span>            :                         break;
+<span class="lineNum">     344 </span>            :                 }
+<span class="lineNum">     345 </span>            :         }
+<span class="lineNum">     346 </span>            : 
+<span class="lineNum">     347 </span>            :         /*send packets*/
+<span class="lineNum">     348 </span><span class="lineCov">       1171 :         dts = to_send-&gt;au-&gt;DTS + to_send-&gt;ts_offset;</span>
+<span class="lineNum">     349 </span><span class="lineCov">       1171 :         cts = to_send-&gt;au-&gt;DTS + to_send-&gt;au-&gt;CTS_Offset + to_send-&gt;ts_offset;</span>
+<span class="lineNum">     350 </span><span class="lineCov">       1171 :         duration = gf_isom_get_sample_duration(streamer-&gt;isom, to_send-&gt;track_num, to_send-&gt;current_au);</span>
+<span class="lineNum">     351 </span>            : 
+<span class="lineNum">     352 </span><span class="lineCov">       1171 :         GF_LOG(GF_LOG_DEBUG, GF_LOG_RTP, (&quot;[FileStreamer] Sending RTP packets for track %d AU %d/%d DTS &quot;LLU&quot; - CTS &quot;LLU&quot; - RTP TS &quot;LLU&quot; - size %d - RAP %d\n&quot;, to_send-&gt;track_num, to_send-&gt;current_au, to_send-&gt;nb_aus, to_send-&gt;au-&gt;DTS, to_send-&gt;au-&gt;DTS+to_send-&gt;au-&gt;CTS_Offset, cts, to_send-&gt;au-&gt;dataLength, to_send-&gt;au-&gt;IsRAP ) );</span>
+<span class="lineNum">     353 </span>            : 
+<span class="lineNum">     354 </span>            :         /*unpack nal units*/
+<span class="lineNum">     355 </span><span class="lineCov">       1171 :         if (to_send-&gt;avc_nalu_size) {</span>
+<span class="lineNum">     356 </span>            :                 Bool au_start, au_end;
+<span class="lineNum">     357 </span>            :                 u32 v, size;
+<span class="lineNum">     358 </span><span class="lineCov">        150 :                 u32 remain = to_send-&gt;au-&gt;dataLength;</span>
+<span class="lineNum">     359 </span><span class="lineCov">        150 :                 char *ptr = to_send-&gt;au-&gt;data;</span>
+<span class="lineNum">     360 </span>            : 
+<span class="lineNum">     361 </span>            :                 au_start = 1;
+<span class="lineNum">     362 </span><span class="lineCov">        600 :                 while (remain) {</span>
+<span class="lineNum">     363 </span>            :                         size = 0;
+<span class="lineNum">     364 </span><span class="lineCov">        150 :                         v = to_send-&gt;avc_nalu_size;</span>
+<span class="lineNum">     365 </span><span class="lineCov">        900 :                         while (v) {</span>
+<span class="lineNum">     366 </span><span class="lineCov">        600 :                                 size |= (u8) *ptr;</span>
+<span class="lineNum">     367 </span><span class="lineCov">        600 :                                 ptr++;</span>
+<span class="lineNum">     368 </span><span class="lineCov">        600 :                                 remain--;</span>
+<span class="lineNum">     369 </span><span class="lineCov">        600 :                                 v-=1;</span>
+<span class="lineNum">     370 </span><span class="lineCov">       1050 :                                 if (v) size&lt;&lt;=8;</span>
+<span class="lineNum">     371 </span>            :                         }
+<span class="lineNum">     372 </span><span class="lineCov">        150 :                         if (remain &lt; size) {</span>
+<span class="lineNum">     373 </span><span class="lineNoCov">          0 :                                 GF_LOG(GF_LOG_ERROR, GF_LOG_RTP, (&quot;[rtp hinter] Broken AVC nalu encapsulation: NALU size is %d but only %d bytes left in sample %d\n&quot;, size, remain, to_send-&gt;current_au));</span>
+<span class="lineNum">     374 </span>            :                                 break;
+<span class="lineNum">     375 </span>            :                         }
+<span class="lineNum">     376 </span><span class="lineCov">        150 :                         remain -= size;</span>
+<span class="lineNum">     377 </span><span class="lineCov">        150 :                         au_end = remain ? 0 : 1;</span>
+<span class="lineNum">     378 </span>            : 
+<span class="lineNum">     379 </span><span class="lineCov">        150 :                         e = gf_rtp_streamer_send_data(to_send-&gt;rtp, ptr, size, to_send-&gt;au-&gt;dataLength, cts, dts, (to_send-&gt;au-&gt;IsRAP==RAP) ? 1 : 0, au_start, au_end, to_send-&gt;current_au, duration, to_send-&gt;sample_desc_index);</span>
+<span class="lineNum">     380 </span><span class="lineCov">        150 :                         ptr += size;</span>
+<span class="lineNum">     381 </span>            :                         au_start = 0;
+<span class="lineNum">     382 </span>            :                 }
+<span class="lineNum">     383 </span><span class="lineCov">        150 :         } else {</span>
+<span class="lineNum">     384 </span><span class="lineCov">       1021 :                 e = gf_rtp_streamer_send_data(to_send-&gt;rtp, to_send-&gt;au-&gt;data, to_send-&gt;au-&gt;dataLength, to_send-&gt;au-&gt;dataLength, cts, dts, (to_send-&gt;au-&gt;IsRAP==RAP) ? 1 : 0, 1, 1, to_send-&gt;current_au, duration, to_send-&gt;sample_desc_index);</span>
+<span class="lineNum">     385 </span>            :         }
+<span class="lineNum">     386 </span>            :         /*delete sample*/
+<span class="lineNum">     387 </span><span class="lineCov">       1171 :         gf_isom_sample_del(&amp;to_send-&gt;au);</span>
+<span class="lineNum">     388 </span>            : 
+<span class="lineNum">     389 </span><span class="lineCov">       1171 :         return e;</span>
+<span class="lineNum">     390 </span><span class="lineCov">       1171 : }</span>
+<a name="391"><span class="lineNum">     391 </span>            : </a>
+<span class="lineNum">     392 </span>            : GF_EXPORT
+<span class="lineNum">     393 </span>            : Double gf_isom_streamer_get_current_time(GF_ISOMRTPStreamer *streamer)
+<span class="lineNum">     394 </span>            : {
+<span class="lineNum">     395 </span><span class="lineCov">       2342 :     Double res = (Double) (streamer-&gt;last_min_dts - streamer-&gt;timelineOrigin);</span>
+<span class="lineNum">     396 </span><span class="lineCov">       1171 :     res /= 1000000;</span>
+<span class="lineNum">     397 </span><span class="lineCov">       1171 :     return res;</span>
+<span class="lineNum">     398 </span>            : }
+<a name="399"><span class="lineNum">     399 </span>            : </a>
+<span class="lineNum">     400 </span>            : 
+<span class="lineNum">     401 </span>            : static u16 check_next_port(GF_ISOMRTPStreamer *streamer, u16 first_port)
+<span class="lineNum">     402 </span>            : {
+<span class="lineNum">     403 </span><span class="lineCov">         24 :         GF_RTPTrack *track = streamer-&gt;stream;</span>
+<span class="lineNum">     404 </span><span class="lineCov">         60 :         while (track) {</span>
+<span class="lineNum">     405 </span><span class="lineCov">         18 :                 if (track-&gt;port==first_port) {</span>
+<span class="lineNum">     406 </span><span class="lineNoCov">          0 :                         return check_next_port(streamer, (u16) (first_port+2) );</span>
+<span class="lineNum">     407 </span>            :                 }
+<span class="lineNum">     408 </span><span class="lineCov">         18 :                 track = track-&gt;next;</span>
+<span class="lineNum">     409 </span>            :         }
+<span class="lineNum">     410 </span><span class="lineCov">         12 :         return first_port;</span>
+<span class="lineNum">     411 </span><span class="lineCov">         12 : }</span>
+<a name="412"><span class="lineNum">     412 </span>            : </a>
+<span class="lineNum">     413 </span>            : GF_EXPORT
+<span class="lineNum">     414 </span>            : GF_ISOMRTPStreamer *gf_isom_streamer_new(const char *file_name, const char *ip_dest, u16 port, Bool loop, Bool force_mpeg4, u32 path_mtu, u32 ttl, char *ifce_addr)
+<span class="lineNum">     415 </span>            : {
+<span class="lineNum">     416 </span>            :         GF_ISOMRTPStreamer *streamer;
+<span class="lineNum">     417 </span>            :         GF_Err e = GF_OK;
+<span class="lineNum">     418 </span>            :         const char *opt = NULL;
+<span class="lineNum">     419 </span>            :         /*GF_Config *configFile = NULL; */
+<span class="lineNum">     420 </span>            :         u32 i, max_ptime, au_sn_len;
+<span class="lineNum">     421 </span>            :         u8 payt;
+<span class="lineNum">     422 </span>            :         GF_ISOFile *file;
+<span class="lineNum">     423 </span>            :         GF_RTPTrack *track, *prev_track;
+<span class="lineNum">     424 </span>            :         u16 first_port;
+<span class="lineNum">     425 </span>            :         u32 nb_tracks;
+<span class="lineNum">     426 </span>            :         u32 sess_data_size;
+<span class="lineNum">     427 </span><span class="lineCov">         12 :         u32 base_track;</span>
+<span class="lineNum">     428 </span>            : 
+<span class="lineNum">     429 </span><span class="lineCov">          6 :         if (!ip_dest) ip_dest = &quot;127.0.0.1&quot;;</span>
+<span class="lineNum">     430 </span><span class="lineCov">          6 :         if (!port) port = 7000;</span>
+<span class="lineNum">     431 </span><span class="lineCov">          6 :         if (!path_mtu) path_mtu = 1450;</span>
+<span class="lineNum">     432 </span>            : 
+<span class="lineNum">     433 </span><span class="lineCov">         12 :         GF_SAFEALLOC(streamer, GF_ISOMRTPStreamer);</span>
+<span class="lineNum">     434 </span><span class="lineCov">          6 :         if (!streamer) return NULL;</span>
+<span class="lineNum">     435 </span><span class="lineCov">          6 :         streamer-&gt;dest_ip = gf_strdup(ip_dest);</span>
+<span class="lineNum">     436 </span>            : 
+<span class="lineNum">     437 </span>            :         payt = 96;
+<span class="lineNum">     438 </span>            :         max_ptime = au_sn_len = 0;
+<span class="lineNum">     439 </span>            : 
+<span class="lineNum">     440 </span><span class="lineCov">          6 :         file = gf_isom_open(file_name, GF_ISOM_OPEN_READ, NULL);</span>
+<span class="lineNum">     441 </span><span class="lineCov">          6 :         if (!file) {</span>
+<span class="lineNum">     442 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_RTP, (&quot;Error opening file %s: %s\n&quot;, opt, gf_error_to_string(gf_isom_last_error(NULL))));</span>
+<span class="lineNum">     443 </span><span class="lineNoCov">          0 :                 return NULL;</span>
+<span class="lineNum">     444 </span>            :         }
+<span class="lineNum">     445 </span>            : 
+<span class="lineNum">     446 </span><span class="lineCov">          6 :         streamer-&gt;isom = file;</span>
+<span class="lineNum">     447 </span><span class="lineCov">          6 :         streamer-&gt;loop = loop;</span>
+<span class="lineNum">     448 </span><span class="lineCov">          6 :         streamer-&gt;force_mpeg4_generic = force_mpeg4;</span>
+<span class="lineNum">     449 </span>            :         first_port = port;
+<span class="lineNum">     450 </span>            : 
+<span class="lineNum">     451 </span>            :         sess_data_size = 0;
+<span class="lineNum">     452 </span>            :         prev_track = NULL;
+<span class="lineNum">     453 </span>            : 
+<span class="lineNum">     454 </span><span class="lineCov">          6 :         nb_tracks = gf_isom_get_track_count(streamer-&gt;isom);</span>
+<span class="lineNum">     455 </span><span class="lineCov">         36 :         for (i=0; i&lt;nb_tracks; i++) {</span>
+<span class="lineNum">     456 </span><span class="lineCov">         12 :                 u32 mediaSize, mediaDuration, flags, MinSize, MaxSize, avgTS, streamType, oti, const_dur, nb_ch, samplerate, maxDTSDelta, TrackMediaSubType, TrackMediaType, bandwidth, IV_length, KI_length, dsi_len;</span>
+<span class="lineNum">     457 </span><span class="lineCov">         12 :                 const char *url, *urn;</span>
+<span class="lineNum">     458 </span>            :                 char *dsi;
+<span class="lineNum">     459 </span>            :                 Bool is_crypted;
+<span class="lineNum">     460 </span>            : 
+<span class="lineNum">     461 </span><span class="lineCov">         12 :                 dsi_len = samplerate = streamType = oti = nb_ch = IV_length = KI_length = 0;</span>
+<span class="lineNum">     462 </span>            :                 is_crypted = 0;
+<span class="lineNum">     463 </span>            :                 dsi = NULL;
+<span class="lineNum">     464 </span>            : 
+<span class="lineNum">     465 </span>            :                 flags = 0;
+<span class="lineNum">     466 </span>            : 
+<span class="lineNum">     467 </span>            :                 /*we only support self-contained files for hinting*/
+<span class="lineNum">     468 </span><span class="lineCov">         12 :                 gf_isom_get_data_reference(streamer-&gt;isom, i+1, 1, &amp;url, &amp;urn);</span>
+<span class="lineNum">     469 </span><span class="lineCov">         12 :                 if (url || urn) continue;</span>
+<span class="lineNum">     470 </span>            : 
+<span class="lineNum">     471 </span><span class="lineCov">         24 :                 TrackMediaType = gf_isom_get_media_type(streamer-&gt;isom, i+1);</span>
+<span class="lineNum">     472 </span><span class="lineCov">         24 :                 TrackMediaSubType = gf_isom_get_media_subtype(streamer-&gt;isom, i+1, 1);</span>
+<span class="lineNum">     473 </span>            : 
+<span class="lineNum">     474 </span><span class="lineCov">         24 :                 switch (TrackMediaType) {</span>
+<span class="lineNum">     475 </span>            :                 case GF_ISOM_MEDIA_TEXT:
+<span class="lineNum">     476 </span>            :                         break;
+<span class="lineNum">     477 </span>            :                 case GF_ISOM_MEDIA_VISUAL:
+<span class="lineNum">     478 </span>            :                 case GF_ISOM_MEDIA_AUDIO:
+<span class="lineNum">     479 </span>            :                 case GF_ISOM_MEDIA_SUBT:
+<span class="lineNum">     480 </span>            :                 case GF_ISOM_MEDIA_OD:
+<span class="lineNum">     481 </span>            :                 case GF_ISOM_MEDIA_SCENE:
+<span class="lineNum">     482 </span><span class="lineCov">         12 :                         if (gf_isom_get_sample_description_count(streamer-&gt;isom, i+1) &gt; 1) continue;</span>
+<span class="lineNum">     483 </span>            :                         break;
+<span class="lineNum">     484 </span>            :                 default:
+<span class="lineNum">     485 </span><span class="lineNoCov">          0 :                         continue;</span>
+<span class="lineNum">     486 </span>            :                 }
+<span class="lineNum">     487 </span>            : 
+<span class="lineNum">     488 </span><span class="lineCov">         24 :                 GF_SAFEALLOC(track, GF_RTPTrack);</span>
+<span class="lineNum">     489 </span><span class="lineCov">         12 :                 if (!track) {</span>
+<span class="lineNum">     490 </span><span class="lineNoCov">          0 :                         GF_LOG(GF_LOG_ERROR, GF_LOG_RTP, (&quot;Could not allocate file streamer track\n&quot;));</span>
+<span class="lineNum">     491 </span><span class="lineNoCov">          0 :                         continue;</span>
+<span class="lineNum">     492 </span>            :                 }
+<span class="lineNum">     493 </span><span class="lineCov">         18 :                 if (prev_track) prev_track-&gt;next = track;</span>
+<span class="lineNum">     494 </span><span class="lineCov">          6 :                 else streamer-&gt;stream = track;</span>
+<span class="lineNum">     495 </span>            :                 prev_track = track;
+<span class="lineNum">     496 </span>            : 
+<span class="lineNum">     497 </span><span class="lineCov">         12 :                 track-&gt;track_num = i+1;</span>
+<span class="lineNum">     498 </span>            : 
+<span class="lineNum">     499 </span><span class="lineCov">         12 :                 track-&gt;nb_aus = gf_isom_get_sample_count(streamer-&gt;isom, track-&gt;track_num);</span>
+<span class="lineNum">     500 </span><span class="lineCov">         12 :                 track-&gt;timescale = gf_isom_get_media_timescale(streamer-&gt;isom, track-&gt;track_num);</span>
+<span class="lineNum">     501 </span><span class="lineCov">         12 :                 mediaDuration = (u32)(gf_isom_get_media_duration(streamer-&gt;isom, track-&gt;track_num)*1000/track-&gt;timescale); // ms</span>
+<span class="lineNum">     502 </span><span class="lineCov">         12 :                 mediaSize = (u32)gf_isom_get_media_data_size(streamer-&gt;isom, track-&gt;track_num);</span>
+<span class="lineNum">     503 </span>            : 
+<span class="lineNum">     504 </span><span class="lineCov">         12 :                 sess_data_size += mediaSize;</span>
+<span class="lineNum">     505 </span><span class="lineCov">         18 :                 if (mediaDuration &gt; streamer-&gt;duration_ms) streamer-&gt;duration_ms = mediaDuration;</span>
+<span class="lineNum">     506 </span>            : 
+<span class="lineNum">     507 </span><span class="lineCov">         12 :                 track-&gt;port = check_next_port(streamer, first_port);</span>
+<span class="lineNum">     508 </span><span class="lineCov">         12 :                 first_port = track-&gt;port+2;</span>
+<span class="lineNum">     509 </span>            : 
+<span class="lineNum">     510 </span>            :                 /*init packetizer*/
+<span class="lineNum">     511 </span><span class="lineCov">         12 :                 if (streamer-&gt;force_mpeg4_generic) flags = GP_RTP_PCK_SIGNAL_RAP | GP_RTP_PCK_FORCE_MPEG4;</span>
+<span class="lineNum">     512 </span>            : 
+<span class="lineNum">     513 </span>            : 
+<span class="lineNum">     514 </span><span class="lineCov">         12 :                 switch (TrackMediaSubType) {</span>
+<span class="lineNum">     515 </span>            :                 case GF_ISOM_SUBTYPE_MPEG4_CRYP:
+<span class="lineNum">     516 </span><span class="lineNoCov">          0 :                         is_crypted = 1;</span>
+<span class="lineNum">     517 </span>            :                 case GF_ISOM_SUBTYPE_MPEG4:
+<span class="lineNum">     518 </span>            :                 {
+<span class="lineNum">     519 </span><span class="lineCov">          4 :                         GF_ESD *esd = gf_isom_get_esd(streamer-&gt;isom, track-&gt;track_num, 1);</span>
+<span class="lineNum">     520 </span><span class="lineCov">          4 :                         if (esd) {</span>
+<span class="lineNum">     521 </span><span class="lineCov">          4 :                                 streamType = esd-&gt;decoderConfig-&gt;streamType;</span>
+<span class="lineNum">     522 </span><span class="lineCov">          4 :                                 oti = esd-&gt;decoderConfig-&gt;objectTypeIndication;</span>
+<span class="lineNum">     523 </span>            : 
+<span class="lineNum">     524 </span>            :                                 /*systems streams*/
+<span class="lineNum">     525 </span><span class="lineCov">          4 :                                 if (streamType==GF_STREAM_AUDIO) {</span>
+<span class="lineNum">     526 </span><span class="lineCov">          2 :                                         gf_isom_get_audio_info(streamer-&gt;isom, track-&gt;track_num, 1, &amp;samplerate, &amp;nb_ch, NULL);</span>
+<span class="lineNum">     527 </span><span class="lineCov">          2 :                                 }</span>
+<span class="lineNum">     528 </span>            :                                 /*systems streams*/
+<span class="lineNum">     529 </span><span class="lineCov">          2 :                                 else if (streamType==GF_STREAM_SCENE) {</span>
+<span class="lineNum">     530 </span><span class="lineNoCov">          0 :                                         if (gf_isom_has_sync_shadows(streamer-&gt;isom, track-&gt;track_num) || gf_isom_has_sample_dependency(streamer-&gt;isom, track-&gt;track_num))</span>
+<span class="lineNum">     531 </span><span class="lineNoCov">          0 :                                                 flags |= GP_RTP_PCK_SYSTEMS_CAROUSEL;</span>
+<span class="lineNum">     532 </span>            :                                 }
+<span class="lineNum">     533 </span>            : 
+<span class="lineNum">     534 </span><span class="lineCov">          4 :                                 if (esd-&gt;decoderConfig-&gt;decoderSpecificInfo) {</span>
+<span class="lineNum">     535 </span><span class="lineCov">          4 :                                         dsi = esd-&gt;decoderConfig-&gt;decoderSpecificInfo-&gt;data;</span>
+<span class="lineNum">     536 </span><span class="lineCov">          4 :                                         dsi_len = esd-&gt;decoderConfig-&gt;decoderSpecificInfo-&gt;dataLength;</span>
+<span class="lineNum">     537 </span><span class="lineCov">          4 :                                         esd-&gt;decoderConfig-&gt;decoderSpecificInfo-&gt;data = NULL;</span>
+<span class="lineNum">     538 </span><span class="lineCov">          4 :                                         esd-&gt;decoderConfig-&gt;decoderSpecificInfo-&gt;dataLength = 0;</span>
+<span class="lineNum">     539 </span><span class="lineCov">          4 :                                 }</span>
+<span class="lineNum">     540 </span><span class="lineCov">          4 :                                 gf_odf_desc_del((GF_Descriptor*)esd);</span>
+<span class="lineNum">     541 </span><span class="lineCov">          4 :                         }</span>
+<span class="lineNum">     542 </span>            :                 }
+<span class="lineNum">     543 </span><span class="lineCov">          4 :                 break;</span>
+<span class="lineNum">     544 </span>            :                 case GF_ISOM_SUBTYPE_AVC_H264:
+<span class="lineNum">     545 </span>            :                 case GF_ISOM_SUBTYPE_AVC2_H264:
+<span class="lineNum">     546 </span>            :                 case GF_ISOM_SUBTYPE_AVC3_H264:
+<span class="lineNum">     547 </span>            :                 case GF_ISOM_SUBTYPE_AVC4_H264:
+<span class="lineNum">     548 </span>            :                 case GF_ISOM_SUBTYPE_SVC_H264:
+<span class="lineNum">     549 </span>            :                 {
+<span class="lineNum">     550 </span>            :                         GF_AVCConfig *avcc, *svcc;
+<span class="lineNum">     551 </span><span class="lineCov">          2 :                         avcc = gf_isom_avc_config_get(streamer-&gt;isom, track-&gt;track_num, 1);</span>
+<span class="lineNum">     552 </span><span class="lineCov">          2 :                         if (avcc)</span>
+<span class="lineNum">     553 </span>            :                         {
+<span class="lineNum">     554 </span><span class="lineCov">          2 :                                 track-&gt;avc_nalu_size = avcc-&gt;nal_unit_size;</span>
+<span class="lineNum">     555 </span><span class="lineCov">          2 :                                 gf_odf_avc_cfg_del(avcc);</span>
+<span class="lineNum">     556 </span>            :                                 streamType = GF_STREAM_VISUAL;
+<span class="lineNum">     557 </span>            :                                 oti = GPAC_OTI_VIDEO_AVC;
+<span class="lineNum">     558 </span><span class="lineCov">          2 :                         }</span>
+<span class="lineNum">     559 </span><span class="lineCov">          2 :                         svcc = gf_isom_svc_config_get(streamer-&gt;isom, track-&gt;track_num, 1);</span>
+<span class="lineNum">     560 </span><span class="lineCov">          2 :                         if (svcc)</span>
+<span class="lineNum">     561 </span>            :                         {
+<span class="lineNum">     562 </span><span class="lineNoCov">          0 :                                 track-&gt;avc_nalu_size = svcc-&gt;nal_unit_size;</span>
+<span class="lineNum">     563 </span><span class="lineNoCov">          0 :                                 gf_odf_avc_cfg_del(svcc);</span>
+<span class="lineNum">     564 </span>            :                                 streamType = GF_STREAM_VISUAL;
+<span class="lineNum">     565 </span>            :                                 oti = GPAC_OTI_VIDEO_SVC;
+<span class="lineNum">     566 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     567 </span>            :                         break;
+<span class="lineNum">     568 </span>            :                 }
+<span class="lineNum">     569 </span>            :                 break;
+<span class="lineNum">     570 </span>            :                 case GF_ISOM_SUBTYPE_HVC1:
+<span class="lineNum">     571 </span>            :                 case GF_ISOM_SUBTYPE_HEV1:
+<span class="lineNum">     572 </span>            :                 case GF_ISOM_SUBTYPE_HVC2:
+<span class="lineNum">     573 </span>            :                 case GF_ISOM_SUBTYPE_HEV2:
+<span class="lineNum">     574 </span>            :                 case GF_ISOM_SUBTYPE_LHV1:
+<span class="lineNum">     575 </span>            :                 {
+<span class="lineNum">     576 </span>            :                         GF_HEVCConfig *hevcc = NULL, *lhvcc = NULL;
+<span class="lineNum">     577 </span><span class="lineNoCov">          0 :                         hevcc = gf_isom_hevc_config_get(streamer-&gt;isom, track-&gt;track_num, 1);</span>
+<span class="lineNum">     578 </span><span class="lineNoCov">          0 :                         if (hevcc) {</span>
+<span class="lineNum">     579 </span><span class="lineNoCov">          0 :                                 track-&gt;avc_nalu_size = hevcc-&gt;nal_unit_size;</span>
+<span class="lineNum">     580 </span><span class="lineNoCov">          0 :                                 gf_odf_hevc_cfg_del(hevcc);</span>
+<span class="lineNum">     581 </span>            :                                 streamType = GF_STREAM_VISUAL;
+<span class="lineNum">     582 </span>            :                                 oti = GPAC_OTI_VIDEO_HEVC;
+<span class="lineNum">     583 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     584 </span><span class="lineNoCov">          0 :                         lhvcc = gf_isom_lhvc_config_get(streamer-&gt;isom, track-&gt;track_num, 1);</span>
+<span class="lineNum">     585 </span><span class="lineNoCov">          0 :                         if (lhvcc) {</span>
+<span class="lineNum">     586 </span><span class="lineNoCov">          0 :                                 track-&gt;avc_nalu_size = lhvcc-&gt;nal_unit_size;</span>
+<span class="lineNum">     587 </span><span class="lineNoCov">          0 :                                 gf_odf_hevc_cfg_del(lhvcc);</span>
+<span class="lineNum">     588 </span>            :                                 streamType = GF_STREAM_VISUAL;
+<span class="lineNum">     589 </span>            :                                 oti = GPAC_OTI_VIDEO_LHVC;
+<span class="lineNum">     590 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     591 </span><span class="lineNoCov">          0 :                         flags |= GP_RTP_PCK_USE_MULTI;</span>
+<span class="lineNum">     592 </span>            :                         break;
+<span class="lineNum">     593 </span>            :                 }
+<span class="lineNum">     594 </span>            :                 break;
+<span class="lineNum">     595 </span>            :                 default:
+<span class="lineNum">     596 </span>            :                         streamType = GF_STREAM_4CC;
+<span class="lineNum">     597 </span>            :                         oti = TrackMediaSubType;
+<span class="lineNum">     598 </span><span class="lineCov">          6 :                         break;</span>
+<span class="lineNum">     599 </span>            :                 }
+<span class="lineNum">     600 </span>            : 
+<span class="lineNum">     601 </span>            :                 /*get sample info*/
+<span class="lineNum">     602 </span><span class="lineCov">         12 :                 gf_media_get_sample_average_infos(streamer-&gt;isom, track-&gt;track_num, &amp;MinSize, &amp;MaxSize, &amp;avgTS, &amp;maxDTSDelta, &amp;const_dur, &amp;bandwidth);</span>
+<span class="lineNum">     603 </span>            : 
+<span class="lineNum">     604 </span><span class="lineCov">         12 :                 if (is_crypted) {</span>
+<span class="lineNum">     605 </span><span class="lineNoCov">          0 :                         Bool use_sel_enc;</span>
+<span class="lineNum">     606 </span><span class="lineNoCov">          0 :                         gf_isom_get_ismacryp_info(streamer-&gt;isom, track-&gt;track_num, 1, NULL, NULL, NULL, NULL, NULL, &amp;use_sel_enc, &amp;IV_length, &amp;KI_length);</span>
+<span class="lineNum">     607 </span><span class="lineNoCov">          0 :                         if (use_sel_enc) flags |= GP_RTP_PCK_SELECTIVE_ENCRYPTION;</span>
+<span class="lineNum">     608 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     609 </span>            : 
+<span class="lineNum">     610 </span><span class="lineCov">         24 :                 track-&gt;rtp = gf_rtp_streamer_new_extended(streamType, oti, track-&gt;timescale,</span>
+<span class="lineNum">     611 </span><span class="lineCov">         12 :                              (char *) streamer-&gt;dest_ip, track-&gt;port, path_mtu, ttl, ifce_addr,</span>
+<span class="lineNum">     612 </span>            :                              flags, dsi, dsi_len,
+<span class="lineNum">     613 </span><span class="lineCov">         12 :                              payt, samplerate, nb_ch,</span>
+<span class="lineNum">     614 </span><span class="lineCov">         12 :                              is_crypted, IV_length, KI_length,</span>
+<span class="lineNum">     615 </span><span class="lineCov">         12 :                              MinSize, MaxSize, avgTS, maxDTSDelta, const_dur, bandwidth, max_ptime, au_sn_len);</span>
+<span class="lineNum">     616 </span>            : 
+<span class="lineNum">     617 </span><span class="lineCov">         12 :                 if (!track-&gt;rtp) {</span>
+<span class="lineNum">     618 </span><span class="lineNoCov">          0 :                         GF_LOG(GF_LOG_ERROR, GF_LOG_RTP, (&quot;Could not initialize RTP streamer: %s\n&quot;, gf_error_to_string(e)));</span>
+<span class="lineNum">     619 </span><span class="lineNoCov">          0 :                         goto exit;</span>
+<span class="lineNum">     620 </span>            :                 }
+<span class="lineNum">     621 </span>            : 
+<span class="lineNum">     622 </span><span class="lineCov">         12 :                 payt++;</span>
+<span class="lineNum">     623 </span><span class="lineCov">         12 :                 track-&gt;microsec_ts_scale = 1000000;</span>
+<span class="lineNum">     624 </span><span class="lineCov">         12 :                 track-&gt;microsec_ts_scale /= gf_isom_get_media_timescale(streamer-&gt;isom, track-&gt;track_num);</span>
+<span class="lineNum">     625 </span>            : 
+<span class="lineNum">     626 </span>            :                 /*does this stream have the decoding dependency ?*/
+<span class="lineNum">     627 </span><span class="lineCov">         12 :                 gf_isom_get_reference(streamer-&gt;isom, track-&gt;track_num, GF_ISOM_REF_BASE, 1, &amp;base_track);</span>
+<span class="lineNum">     628 </span><span class="lineCov">         12 :                 if (base_track)</span>
+<span class="lineNum">     629 </span><span class="lineNoCov">          0 :                         streamer-&gt;base_track = base_track;</span>
+<span class="lineNum">     630 </span><span class="lineCov">         30 :         }</span>
+<span class="lineNum">     631 </span>            : 
+<span class="lineNum">     632 </span>            :         /*if scalable coding is found, disable auto RTCP reports and send them ourselves*/
+<span class="lineNum">     633 </span><span class="lineCov">          6 :         if (streamer-&gt;base_track) {</span>
+<span class="lineNum">     634 </span><span class="lineNoCov">          0 :                 GF_RTPTrack *track = streamer-&gt;stream;</span>
+<span class="lineNum">     635 </span><span class="lineNoCov">          0 :                 while (track) {</span>
+<span class="lineNum">     636 </span><span class="lineNoCov">          0 :                         gf_rtp_streamer_disable_auto_rtcp(track-&gt;rtp);</span>
+<span class="lineNum">     637 </span><span class="lineNoCov">          0 :                         track = track-&gt;next;</span>
+<span class="lineNum">     638 </span>            :                 }
+<span class="lineNum">     639 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     640 </span><span class="lineCov">          6 :         return streamer;</span>
+<span class="lineNum">     641 </span>            : 
+<span class="lineNum">     642 </span>            : exit:
+<span class="lineNum">     643 </span><span class="lineNoCov">          0 :         gf_free(streamer);</span>
+<span class="lineNum">     644 </span><span class="lineNoCov">          0 :         return NULL;</span>
+<span class="lineNum">     645 </span><span class="lineCov">          6 : }</span>
+<a name="646"><span class="lineNum">     646 </span>            : </a>
+<span class="lineNum">     647 </span>            : GF_EXPORT
+<span class="lineNum">     648 </span>            : void gf_isom_streamer_del(GF_ISOMRTPStreamer *streamer)
+<span class="lineNum">     649 </span>            : {
+<span class="lineNum">     650 </span><span class="lineCov">         12 :         GF_RTPTrack *track = streamer-&gt;stream;</span>
+<span class="lineNum">     651 </span><span class="lineCov">         36 :         while (track) {</span>
+<span class="lineNum">     652 </span>            :                 GF_RTPTrack *tmp = track;
+<span class="lineNum">     653 </span><span class="lineCov">         15 :                 if (track-&gt;au) gf_isom_sample_del(&amp;track-&gt;au);</span>
+<span class="lineNum">     654 </span><span class="lineCov">         24 :                 if (track-&gt;rtp) gf_rtp_streamer_del(track-&gt;rtp);</span>
+<span class="lineNum">     655 </span><span class="lineCov">         12 :                 track = track-&gt;next;</span>
+<span class="lineNum">     656 </span><span class="lineCov">         12 :                 gf_free(tmp);</span>
+<span class="lineNum">     657 </span>            :         }
+<span class="lineNum">     658 </span><span class="lineCov">         12 :         if (streamer-&gt;isom) gf_isom_close(streamer-&gt;isom);</span>
+<span class="lineNum">     659 </span><span class="lineCov">          6 :         gf_free(streamer-&gt;dest_ip);</span>
+<span class="lineNum">     660 </span><span class="lineCov">          6 :         gf_free(streamer);</span>
+<span class="lineNum">     661 </span><span class="lineCov">          6 : }</span>
+<span class="lineNum">     662 </span>            : 
+<span class="lineNum">     663 </span>            : #endif /* !defined(GPAC_DISABLE_ISOM) &amp;&amp; !defined(GPAC_DISABLE_STREAMING) */
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

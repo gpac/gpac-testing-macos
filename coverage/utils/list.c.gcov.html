@@ -1,0 +1,912 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - utils/list.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">utils</a> - list.c<span style="font-size: 80%;"> (source / <a href="list.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">71</td>
+            <td class="headerCovTableEntry">127</td>
+            <td class="headerCovTableEntryLo">55.9 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-05-14 22:31:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">15</td>
+            <td class="headerCovTableEntry">21</td>
+            <td class="headerCovTableEntryLo">71.4 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *                      GPAC - Multimedia Framework C SDK
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *                      Authors: Jean Le Feuvre
+<span class="lineNum">       5 </span>            :  *                      Copyright (c) Telecom ParisTech 2000-2012
+<span class="lineNum">       6 </span>            :  *                                      All rights reserved
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  *  This file is part of GPAC / common tools sub-project
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  *  GPAC is free software; you can redistribute it and/or modify
+<span class="lineNum">      11 </span>            :  *  it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">      12 </span>            :  *  the Free Software Foundation; either version 2, or (at your option)
+<span class="lineNum">      13 </span>            :  *  any later version.
+<span class="lineNum">      14 </span>            :  *
+<span class="lineNum">      15 </span>            :  *  GPAC is distributed in the hope that it will be useful,
+<span class="lineNum">      16 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      17 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      18 </span>            :  *  GNU Lesser General Public License for more details.
+<span class="lineNum">      19 </span>            :  *
+<span class="lineNum">      20 </span>            :  *  You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      21 </span>            :  *  License along with this library; see the file COPYING.  If not, write to
+<span class="lineNum">      22 </span>            :  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+<span class="lineNum">      23 </span>            :  *
+<span class="lineNum">      24 </span>            :  */
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : #include &lt;gpac/list.h&gt;
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span>            : /* GF_List modes, ONLY ONE CAN BE DEFINED
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            :         linked-list
+<span class="lineNum">      31 </span>            :         #define GF_LIST_LINKED
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span>            :         double navigation linked-list
+<span class="lineNum">      34 </span>            :         #define GF_LIST_DOUBLE_LINKED
+<span class="lineNum">      35 </span>            : 
+<span class="lineNum">      36 </span>            :         single step memory array
+<span class="lineNum">      37 </span>            :         #define GF_LIST_ARRAY
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span>            :         multi-step memory array withou gf_realloc on remove, using the GF_LIST_REALLOC macro
+<span class="lineNum">      40 </span>            :         GF_LIST_ARRAY_GROW
+<span class="lineNum">      41 </span>            : */
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            : /*after some tuning, this seems to be the fastest mode on WINCE*/
+<span class="lineNum">      44 </span>            : #ifdef _WIN32_WCE
+<span class="lineNum">      45 </span>            : #define GF_LIST_LINKED
+<span class="lineNum">      46 </span>            : #else
+<span class="lineNum">      47 </span>            : #define GF_LIST_ARRAY_GROW
+<span class="lineNum">      48 </span>            : #endif
+<span class="lineNum">      49 </span>            : 
+<span class="lineNum">      50 </span>            : #define GF_LIST_REALLOC(a) (a = a ? (3*a/2) : 10)
+<span class="lineNum">      51 </span>            : //#define GF_LIST_REALLOC(a) (a++)
+<span class="lineNum">      52 </span>            : 
+<span class="lineNum">      53 </span>            : 
+<span class="lineNum">      54 </span>            : #if defined(GF_LIST_LINKED)
+<span class="lineNum">      55 </span>            : 
+<span class="lineNum">      56 </span>            : typedef struct tagIS
+<span class="lineNum">      57 </span>            : {
+<span class="lineNum">      58 </span>            :         struct tagIS *next;
+<span class="lineNum">      59 </span>            :         void *data;
+<span class="lineNum">      60 </span>            : } ItemSlot;
+<span class="lineNum">      61 </span>            : 
+<span class="lineNum">      62 </span>            : struct _tag_array
+<span class="lineNum">      63 </span>            : {
+<span class="lineNum">      64 </span>            :         struct tagIS *head;
+<span class="lineNum">      65 </span>            :         struct tagIS *tail;
+<span class="lineNum">      66 </span>            :         u32 entryCount;
+<span class="lineNum">      67 </span>            :         s32 foundEntryNumber;
+<span class="lineNum">      68 </span>            :         struct tagIS *foundEntry;
+<span class="lineNum">      69 </span>            : };
+<span class="lineNum">      70 </span>            : 
+<span class="lineNum">      71 </span>            : 
+<span class="lineNum">      72 </span>            : GF_EXPORT
+<span class="lineNum">      73 </span>            : GF_List * gf_list_new()
+<span class="lineNum">      74 </span>            : {
+<span class="lineNum">      75 </span>            :         GF_List *nlist = (GF_List *) gf_malloc(sizeof(GF_List));
+<span class="lineNum">      76 </span>            :         if (! nlist) return NULL;
+<span class="lineNum">      77 </span>            :         nlist-&gt;head = nlist-&gt;foundEntry = NULL;
+<span class="lineNum">      78 </span>            :         nlist-&gt;tail = NULL;
+<span class="lineNum">      79 </span>            :         nlist-&gt;foundEntryNumber = -1;
+<span class="lineNum">      80 </span>            :         nlist-&gt;entryCount = 0;
+<span class="lineNum">      81 </span>            :         return nlist;
+<span class="lineNum">      82 </span>            : }
+<span class="lineNum">      83 </span>            : 
+<span class="lineNum">      84 </span>            : GF_EXPORT
+<span class="lineNum">      85 </span>            : void gf_list_del(GF_List *ptr)
+<span class="lineNum">      86 </span>            : {
+<span class="lineNum">      87 </span>            :         if (!ptr) return;
+<span class="lineNum">      88 </span>            :         while (ptr-&gt;entryCount) gf_list_rem(ptr, 0);
+<span class="lineNum">      89 </span>            :         gf_free(ptr);
+<span class="lineNum">      90 </span>            : }
+<span class="lineNum">      91 </span>            : 
+<span class="lineNum">      92 </span>            : GF_EXPORT
+<span class="lineNum">      93 </span>            : void gf_list_reset(GF_List *ptr)
+<span class="lineNum">      94 </span>            : {
+<span class="lineNum">      95 </span>            :         while (ptr &amp;&amp; ptr-&gt;entryCount) gf_list_rem(ptr, 0);
+<span class="lineNum">      96 </span>            : }
+<span class="lineNum">      97 </span>            : 
+<span class="lineNum">      98 </span>            : GF_EXPORT
+<span class="lineNum">      99 </span>            : GF_Err gf_list_add(GF_List *ptr, void* item)
+<span class="lineNum">     100 </span>            : {
+<span class="lineNum">     101 </span>            :         ItemSlot *entry;
+<span class="lineNum">     102 </span>            :         if (! ptr) return GF_BAD_PARAM;
+<span class="lineNum">     103 </span>            :         entry = (ItemSlot *) gf_malloc(sizeof(ItemSlot));
+<span class="lineNum">     104 </span>            :         if (!entry) return GF_OUT_OF_MEM;
+<span class="lineNum">     105 </span>            :         entry-&gt;data = item;
+<span class="lineNum">     106 </span>            :         entry-&gt;next = NULL;
+<span class="lineNum">     107 </span>            :         if (! ptr-&gt;head) {
+<span class="lineNum">     108 </span>            :                 ptr-&gt;head = entry;
+<span class="lineNum">     109 </span>            :                 ptr-&gt;entryCount = 1;
+<span class="lineNum">     110 </span>            :         } else {
+<span class="lineNum">     111 </span>            :                 ptr-&gt;entryCount += 1;
+<span class="lineNum">     112 </span>            :                 ptr-&gt;tail-&gt;next = entry;
+<span class="lineNum">     113 </span>            :         }
+<span class="lineNum">     114 </span>            :         ptr-&gt;tail = entry;
+<span class="lineNum">     115 </span>            :         ptr-&gt;foundEntryNumber = ptr-&gt;entryCount - 1;
+<span class="lineNum">     116 </span>            :         ptr-&gt;foundEntry = entry;
+<span class="lineNum">     117 </span>            :         return GF_OK;
+<span class="lineNum">     118 </span>            : }
+<span class="lineNum">     119 </span>            : 
+<span class="lineNum">     120 </span>            : GF_EXPORT
+<span class="lineNum">     121 </span>            : u32 gf_list_count(const GF_List *ptr)
+<span class="lineNum">     122 </span>            : {
+<span class="lineNum">     123 </span>            :         if (! ptr) return 0;
+<span class="lineNum">     124 </span>            :         return ptr-&gt;entryCount;
+<span class="lineNum">     125 </span>            : }
+<span class="lineNum">     126 </span>            : 
+<span class="lineNum">     127 </span>            : GF_EXPORT
+<span class="lineNum">     128 </span>            : void *gf_list_get(GF_List *ptr, u32 itemNumber)
+<span class="lineNum">     129 </span>            : {
+<span class="lineNum">     130 </span>            :         ItemSlot *entry;
+<span class="lineNum">     131 </span>            :         u32 i;
+<span class="lineNum">     132 </span>            : 
+<span class="lineNum">     133 </span>            :         if (!ptr || (itemNumber &gt;= ptr-&gt;entryCount) ) return NULL;
+<span class="lineNum">     134 </span>            : 
+<span class="lineNum">     135 </span>            :         if (!ptr-&gt;foundEntry || (itemNumber &lt; (u32) ptr-&gt;foundEntryNumber) ) {
+<span class="lineNum">     136 </span>            :                 ptr-&gt;foundEntryNumber = 0;
+<span class="lineNum">     137 </span>            :                 ptr-&gt;foundEntry = ptr-&gt;head;
+<span class="lineNum">     138 </span>            :         }
+<span class="lineNum">     139 </span>            :         entry = ptr-&gt;foundEntry;
+<span class="lineNum">     140 </span>            :         for (i = ptr-&gt;foundEntryNumber; i &lt; itemNumber; i++ ) {
+<span class="lineNum">     141 </span>            :                 entry = entry-&gt;next;
+<span class="lineNum">     142 </span>            :         }
+<span class="lineNum">     143 </span>            :         ptr-&gt;foundEntryNumber = itemNumber;
+<span class="lineNum">     144 </span>            :         ptr-&gt;foundEntry = entry;
+<span class="lineNum">     145 </span>            :         return (void *) entry-&gt;data;
+<span class="lineNum">     146 </span>            : }
+<span class="lineNum">     147 </span>            : 
+<span class="lineNum">     148 </span>            : GF_EXPORT
+<span class="lineNum">     149 </span>            : void *gf_list_last(GF_List *ptr)
+<span class="lineNum">     150 </span>            : {
+<span class="lineNum">     151 </span>            :         ItemSlot *entry;
+<span class="lineNum">     152 </span>            :         if (!ptr || !ptr-&gt;entryCount) return NULL;
+<span class="lineNum">     153 </span>            :         entry = ptr-&gt;head;
+<span class="lineNum">     154 </span>            :         while (entry-&gt;next) entry = entry-&gt;next;
+<span class="lineNum">     155 </span>            :         return entry-&gt;data;
+<span class="lineNum">     156 </span>            : }
+<span class="lineNum">     157 </span>            : 
+<span class="lineNum">     158 </span>            : GF_EXPORT
+<span class="lineNum">     159 </span>            : GF_Err gf_list_rem(GF_List *ptr, u32 itemNumber)
+<span class="lineNum">     160 </span>            : {
+<span class="lineNum">     161 </span>            :         ItemSlot *tmp, *tmp2;
+<span class="lineNum">     162 </span>            :         u32 i;
+<span class="lineNum">     163 </span>            : 
+<span class="lineNum">     164 </span>            :         /* !! if head is null (empty list)*/
+<span class="lineNum">     165 </span>            :         if ( (! ptr) || (! ptr-&gt;head) || (ptr-&gt;head &amp;&amp; !ptr-&gt;entryCount) || (itemNumber &gt;= ptr-&gt;entryCount) )
+<span class="lineNum">     166 </span>            :                 return GF_BAD_PARAM;
+<span class="lineNum">     167 </span>            : 
+<span class="lineNum">     168 </span>            :         /*we delete the head*/
+<span class="lineNum">     169 </span>            :         if (! itemNumber) {
+<span class="lineNum">     170 </span>            :                 tmp = ptr-&gt;head;
+<span class="lineNum">     171 </span>            :                 ptr-&gt;head = ptr-&gt;head-&gt;next;
+<span class="lineNum">     172 </span>            :                 ptr-&gt;entryCount --;
+<span class="lineNum">     173 </span>            :                 ptr-&gt;foundEntry = ptr-&gt;head;
+<span class="lineNum">     174 </span>            :                 ptr-&gt;foundEntryNumber = 0;
+<span class="lineNum">     175 </span>            :                 gf_free(tmp);
+<span class="lineNum">     176 </span>            :                 /*that was the last entry, reset the tail*/
+<span class="lineNum">     177 </span>            :                 if (!ptr-&gt;entryCount) {
+<span class="lineNum">     178 </span>            :                         ptr-&gt;tail = ptr-&gt;head = ptr-&gt;foundEntry = NULL;
+<span class="lineNum">     179 </span>            :                         ptr-&gt;foundEntryNumber = -1;
+<span class="lineNum">     180 </span>            :                 }
+<span class="lineNum">     181 </span>            :                 return GF_OK;
+<span class="lineNum">     182 </span>            :         }
+<span class="lineNum">     183 </span>            : 
+<span class="lineNum">     184 </span>            :         tmp = ptr-&gt;head;
+<span class="lineNum">     185 </span>            :         i = 0;
+<span class="lineNum">     186 </span>            :         while (i &lt; itemNumber - 1) {
+<span class="lineNum">     187 </span>            :                 tmp = tmp-&gt;next;
+<span class="lineNum">     188 </span>            :                 i++;
+<span class="lineNum">     189 </span>            :         }
+<span class="lineNum">     190 </span>            :         tmp2 = tmp-&gt;next;
+<span class="lineNum">     191 </span>            :         tmp-&gt;next = tmp2-&gt;next;
+<span class="lineNum">     192 </span>            :         /*if we deleted the last entry, update the tail !!!*/
+<span class="lineNum">     193 </span>            :         if (! tmp-&gt;next || (ptr-&gt;tail == tmp2) ) {
+<span class="lineNum">     194 </span>            :                 ptr-&gt;tail = tmp;
+<span class="lineNum">     195 </span>            :                 tmp-&gt;next = NULL;
+<span class="lineNum">     196 </span>            :         }
+<span class="lineNum">     197 </span>            : 
+<span class="lineNum">     198 </span>            :         gf_free(tmp2);
+<span class="lineNum">     199 </span>            :         ptr-&gt;entryCount --;
+<span class="lineNum">     200 </span>            :         ptr-&gt;foundEntry = ptr-&gt;head;
+<span class="lineNum">     201 </span>            :         ptr-&gt;foundEntryNumber = 0;
+<span class="lineNum">     202 </span>            : 
+<span class="lineNum">     203 </span>            :         return GF_OK;
+<span class="lineNum">     204 </span>            : }
+<span class="lineNum">     205 </span>            : 
+<span class="lineNum">     206 </span>            : GF_EXPORT
+<span class="lineNum">     207 </span>            : GF_Err gf_list_rem_last(GF_List *ptr)
+<span class="lineNum">     208 </span>            : {
+<span class="lineNum">     209 </span>            :         return gf_list_rem(ptr, ptr-&gt;entryCount-1);
+<span class="lineNum">     210 </span>            : }
+<span class="lineNum">     211 </span>            : 
+<span class="lineNum">     212 </span>            : GF_EXPORT
+<span class="lineNum">     213 </span>            : GF_Err gf_list_insert(GF_List *ptr, void *item, u32 position)
+<span class="lineNum">     214 </span>            : {
+<span class="lineNum">     215 </span>            :         u32 i;
+<span class="lineNum">     216 </span>            :         ItemSlot *tmp, *tmp2;
+<span class="lineNum">     217 </span>            : 
+<span class="lineNum">     218 </span>            :         if (!ptr || !item) return GF_BAD_PARAM;
+<span class="lineNum">     219 </span>            :         /*if last entry or first of an empty array...*/
+<span class="lineNum">     220 </span>            :         if (position &gt;= ptr-&gt;entryCount) return gf_list_add(ptr, item);
+<span class="lineNum">     221 </span>            : 
+<span class="lineNum">     222 </span>            :         tmp2 = (ItemSlot *) gf_malloc(sizeof(ItemSlot));
+<span class="lineNum">     223 </span>            :         tmp2-&gt;data = item;
+<span class="lineNum">     224 </span>            :         tmp2-&gt;next = NULL;
+<span class="lineNum">     225 </span>            :         /*special case for the head*/
+<span class="lineNum">     226 </span>            :         if (position == 0) {
+<span class="lineNum">     227 </span>            :                 tmp2-&gt;next = ptr-&gt;head;
+<span class="lineNum">     228 </span>            :                 ptr-&gt;head = tmp2;
+<span class="lineNum">     229 </span>            :                 ptr-&gt;entryCount ++;
+<span class="lineNum">     230 </span>            :                 ptr-&gt;foundEntry = tmp2;
+<span class="lineNum">     231 </span>            :                 ptr-&gt;foundEntryNumber = 0;
+<span class="lineNum">     232 </span>            :                 return GF_OK;
+<span class="lineNum">     233 </span>            :         }
+<span class="lineNum">     234 </span>            :         tmp = ptr-&gt;head;
+<span class="lineNum">     235 </span>            :         for (i = 1; i &lt; position; i++) {
+<span class="lineNum">     236 </span>            :                 tmp = tmp-&gt;next;
+<span class="lineNum">     237 </span>            :                 if (!tmp)
+<span class="lineNum">     238 </span>            :                         break;
+<span class="lineNum">     239 </span>            :         }
+<span class="lineNum">     240 </span>            :         tmp2-&gt;next = tmp-&gt;next;
+<span class="lineNum">     241 </span>            :         tmp-&gt;next = tmp2;
+<span class="lineNum">     242 </span>            :         ptr-&gt;entryCount ++;
+<span class="lineNum">     243 </span>            :         ptr-&gt;foundEntry = tmp2;
+<span class="lineNum">     244 </span>            :         ptr-&gt;foundEntryNumber = i;
+<span class="lineNum">     245 </span>            :         return GF_OK;
+<span class="lineNum">     246 </span>            : }
+<span class="lineNum">     247 </span>            : 
+<span class="lineNum">     248 </span>            : #elif defined(GF_LIST_DOUBLE_LINKED)
+<span class="lineNum">     249 </span>            : 
+<span class="lineNum">     250 </span>            : 
+<span class="lineNum">     251 </span>            : typedef struct tagIS
+<span class="lineNum">     252 </span>            : {
+<span class="lineNum">     253 </span>            :         struct tagIS *next;
+<span class="lineNum">     254 </span>            :         struct tagIS *prev;
+<span class="lineNum">     255 </span>            :         void *data;
+<span class="lineNum">     256 </span>            : } ItemSlot;
+<span class="lineNum">     257 </span>            : 
+<span class="lineNum">     258 </span>            : struct _tag_array
+<span class="lineNum">     259 </span>            : {
+<span class="lineNum">     260 </span>            :         struct tagIS *head;
+<span class="lineNum">     261 </span>            :         struct tagIS *tail;
+<span class="lineNum">     262 </span>            :         u32 entryCount;
+<span class="lineNum">     263 </span>            :         s32 foundEntryNumber;
+<span class="lineNum">     264 </span>            :         struct tagIS *foundEntry;
+<span class="lineNum">     265 </span>            : };
+<span class="lineNum">     266 </span>            : 
+<span class="lineNum">     267 </span>            : 
+<span class="lineNum">     268 </span>            : GF_EXPORT
+<span class="lineNum">     269 </span>            : GF_List * gf_list_new()
+<span class="lineNum">     270 </span>            : {
+<span class="lineNum">     271 </span>            :         GF_List *nlist = (GF_List *) gf_malloc(sizeof(GF_List));
+<span class="lineNum">     272 </span>            :         if (! nlist) return NULL;
+<span class="lineNum">     273 </span>            :         nlist-&gt;head = nlist-&gt;foundEntry = NULL;
+<span class="lineNum">     274 </span>            :         nlist-&gt;tail = NULL;
+<span class="lineNum">     275 </span>            :         nlist-&gt;foundEntryNumber = -1;
+<span class="lineNum">     276 </span>            :         nlist-&gt;entryCount = 0;
+<span class="lineNum">     277 </span>            :         return nlist;
+<span class="lineNum">     278 </span>            : }
+<span class="lineNum">     279 </span>            : 
+<span class="lineNum">     280 </span>            : GF_EXPORT
+<span class="lineNum">     281 </span>            : void gf_list_del(GF_List *ptr)
+<span class="lineNum">     282 </span>            : {
+<span class="lineNum">     283 </span>            :         if (!ptr) return;
+<span class="lineNum">     284 </span>            :         while (ptr-&gt;entryCount) {
+<span class="lineNum">     285 </span>            :                 gf_list_rem(ptr, 0);
+<span class="lineNum">     286 </span>            :         }
+<span class="lineNum">     287 </span>            :         gf_free(ptr);
+<span class="lineNum">     288 </span>            : }
+<span class="lineNum">     289 </span>            : 
+<span class="lineNum">     290 </span>            : GF_EXPORT
+<span class="lineNum">     291 </span>            : void gf_list_reset(GF_List *ptr)
+<span class="lineNum">     292 </span>            : {
+<span class="lineNum">     293 </span>            :         while (ptr &amp;&amp; ptr-&gt;entryCount) gf_list_rem(ptr, 0);
+<span class="lineNum">     294 </span>            : }
+<span class="lineNum">     295 </span>            : 
+<span class="lineNum">     296 </span>            : GF_EXPORT
+<span class="lineNum">     297 </span>            : GF_Err gf_list_add(GF_List *ptr, void* item)
+<span class="lineNum">     298 </span>            : {
+<span class="lineNum">     299 </span>            :         ItemSlot *entry;
+<span class="lineNum">     300 </span>            :         if (! ptr) return GF_BAD_PARAM;
+<span class="lineNum">     301 </span>            :         entry = (ItemSlot *) gf_malloc(sizeof(ItemSlot));
+<span class="lineNum">     302 </span>            :         if (!entry) return GF_OUT_OF_MEM;
+<span class="lineNum">     303 </span>            :         entry-&gt;data = item;
+<span class="lineNum">     304 </span>            :         entry-&gt;next = entry-&gt;prev = NULL;
+<span class="lineNum">     305 </span>            : 
+<span class="lineNum">     306 </span>            :         if (! ptr-&gt;head) {
+<span class="lineNum">     307 </span>            :                 ptr-&gt;head = entry;
+<span class="lineNum">     308 </span>            :                 ptr-&gt;entryCount = 1;
+<span class="lineNum">     309 </span>            :         } else {
+<span class="lineNum">     310 </span>            :                 ptr-&gt;entryCount += 1;
+<span class="lineNum">     311 </span>            :                 entry-&gt;prev = ptr-&gt;tail;
+<span class="lineNum">     312 </span>            :                 ptr-&gt;tail-&gt;next = entry;
+<span class="lineNum">     313 </span>            :         }
+<span class="lineNum">     314 </span>            :         ptr-&gt;tail = entry;
+<span class="lineNum">     315 </span>            :         ptr-&gt;foundEntryNumber = ptr-&gt;entryCount - 1;
+<span class="lineNum">     316 </span>            :         ptr-&gt;foundEntry = entry;
+<span class="lineNum">     317 </span>            :         return GF_OK;
+<span class="lineNum">     318 </span>            : }
+<span class="lineNum">     319 </span>            : 
+<span class="lineNum">     320 </span>            : 
+<span class="lineNum">     321 </span>            : GF_EXPORT
+<span class="lineNum">     322 </span>            : u32 gf_list_count(GF_List *ptr)
+<span class="lineNum">     323 </span>            : {
+<span class="lineNum">     324 </span>            :         if (! ptr) return 0;
+<span class="lineNum">     325 </span>            :         return ptr-&gt;entryCount;
+<span class="lineNum">     326 </span>            : }
+<span class="lineNum">     327 </span>            : 
+<span class="lineNum">     328 </span>            : GF_EXPORT
+<span class="lineNum">     329 </span>            : void *gf_list_get(GF_List *ptr, u32 itemNumber)
+<span class="lineNum">     330 </span>            : {
+<span class="lineNum">     331 </span>            :         ItemSlot *entry;
+<span class="lineNum">     332 </span>            :         u32 i;
+<span class="lineNum">     333 </span>            : 
+<span class="lineNum">     334 </span>            :         if (!ptr || !ptr-&gt;head || (itemNumber &gt;= ptr-&gt;entryCount) ) return NULL;
+<span class="lineNum">     335 </span>            : 
+<span class="lineNum">     336 </span>            :         if (!itemNumber) {
+<span class="lineNum">     337 </span>            :                 ptr-&gt;foundEntry = ptr-&gt;head;
+<span class="lineNum">     338 </span>            :                 ptr-&gt;foundEntryNumber = 0;
+<span class="lineNum">     339 </span>            :                 return ptr-&gt;head-&gt;data;
+<span class="lineNum">     340 </span>            :         }
+<span class="lineNum">     341 </span>            : 
+<span class="lineNum">     342 </span>            :         entry = ptr-&gt;foundEntry;
+<span class="lineNum">     343 </span>            :         if ( itemNumber &lt; (u32) ptr-&gt;foundEntryNumber ) {
+<span class="lineNum">     344 </span>            :                 for (i = ptr-&gt;foundEntryNumber; i &gt; itemNumber; i-- ) {
+<span class="lineNum">     345 </span>            :                         entry = entry-&gt;prev;
+<span class="lineNum">     346 </span>            :                 }
+<span class="lineNum">     347 </span>            :         } else {
+<span class="lineNum">     348 </span>            :                 for (i = ptr-&gt;foundEntryNumber; i &lt; itemNumber; i++ ) {
+<span class="lineNum">     349 </span>            :                         entry = entry-&gt;next;
+<span class="lineNum">     350 </span>            :                 }
+<span class="lineNum">     351 </span>            :         }
+<span class="lineNum">     352 </span>            :         ptr-&gt;foundEntryNumber = itemNumber;
+<span class="lineNum">     353 </span>            :         ptr-&gt;foundEntry = entry;
+<span class="lineNum">     354 </span>            :         return (void *) entry-&gt;data;
+<span class="lineNum">     355 </span>            : }
+<span class="lineNum">     356 </span>            : 
+<span class="lineNum">     357 </span>            : GF_EXPORT
+<span class="lineNum">     358 </span>            : void *gf_list_last(GF_List *ptr)
+<span class="lineNum">     359 </span>            : {
+<span class="lineNum">     360 </span>            :         if(!ptr || !ptr-&gt;tail) return NULL;
+<span class="lineNum">     361 </span>            :         return ptr-&gt;tail-&gt;data;
+<span class="lineNum">     362 </span>            : }
+<span class="lineNum">     363 </span>            : 
+<span class="lineNum">     364 </span>            : GF_EXPORT
+<span class="lineNum">     365 </span>            : GF_Err gf_list_rem(GF_List *ptr, u32 itemNumber)
+<span class="lineNum">     366 </span>            : {
+<span class="lineNum">     367 </span>            :         ItemSlot *tmp;
+<span class="lineNum">     368 </span>            :         u32 i;
+<span class="lineNum">     369 </span>            : 
+<span class="lineNum">     370 </span>            :         /* !! if head is null (empty list)*/
+<span class="lineNum">     371 </span>            :         if ( (! ptr) || (! ptr-&gt;head) || (ptr-&gt;head &amp;&amp; !ptr-&gt;entryCount) || (itemNumber &gt;= ptr-&gt;entryCount) )
+<span class="lineNum">     372 </span>            :                 return GF_BAD_PARAM;
+<span class="lineNum">     373 </span>            : 
+<span class="lineNum">     374 </span>            :         /*we delete the head*/
+<span class="lineNum">     375 </span>            :         if (! itemNumber) {
+<span class="lineNum">     376 </span>            :                 tmp = ptr-&gt;head;
+<span class="lineNum">     377 </span>            :                 ptr-&gt;head = ptr-&gt;head-&gt;next;
+<span class="lineNum">     378 </span>            : 
+<span class="lineNum">     379 </span>            :                 ptr-&gt;entryCount --;
+<span class="lineNum">     380 </span>            :                 ptr-&gt;foundEntry = ptr-&gt;head;
+<span class="lineNum">     381 </span>            :                 ptr-&gt;foundEntryNumber = 0;
+<span class="lineNum">     382 </span>            :                 gf_free(tmp);
+<span class="lineNum">     383 </span>            : 
+<span class="lineNum">     384 </span>            :                 /*that was the last entry, reset the tail*/
+<span class="lineNum">     385 </span>            :                 if (!ptr-&gt;entryCount) {
+<span class="lineNum">     386 </span>            :                         ptr-&gt;tail = ptr-&gt;head = ptr-&gt;foundEntry = NULL;
+<span class="lineNum">     387 </span>            :                         ptr-&gt;foundEntryNumber = -1;
+<span class="lineNum">     388 </span>            :                 } else {
+<span class="lineNum">     389 </span>            :                         ptr-&gt;head-&gt;prev = NULL;
+<span class="lineNum">     390 </span>            :                 }
+<span class="lineNum">     391 </span>            :                 return GF_OK;
+<span class="lineNum">     392 </span>            :         }
+<span class="lineNum">     393 </span>            :         else if (itemNumber==ptr-&gt;entryCount-1) {
+<span class="lineNum">     394 </span>            :                 tmp = ptr-&gt;tail;
+<span class="lineNum">     395 </span>            :                 ptr-&gt;tail = tmp-&gt;prev;
+<span class="lineNum">     396 </span>            :                 ptr-&gt;tail-&gt;next = NULL;
+<span class="lineNum">     397 </span>            :                 ptr-&gt;entryCount--;
+<span class="lineNum">     398 </span>            :                 if (ptr-&gt;foundEntry==tmp) {
+<span class="lineNum">     399 </span>            :                         ptr-&gt;foundEntry = ptr-&gt;tail;
+<span class="lineNum">     400 </span>            :                         ptr-&gt;foundEntryNumber = ptr-&gt;entryCount-1;
+<span class="lineNum">     401 </span>            :                 }
+<span class="lineNum">     402 </span>            :                 gf_free(tmp);
+<span class="lineNum">     403 </span>            :                 return GF_OK;
+<span class="lineNum">     404 </span>            :         }
+<span class="lineNum">     405 </span>            : 
+<span class="lineNum">     406 </span>            :         tmp = ptr-&gt;foundEntry;
+<span class="lineNum">     407 </span>            :         if ( itemNumber &lt; (u32) ptr-&gt;foundEntryNumber ) {
+<span class="lineNum">     408 </span>            :                 for (i = ptr-&gt;foundEntryNumber; i &gt; itemNumber; i-- ) {
+<span class="lineNum">     409 </span>            :                         tmp = tmp-&gt;prev;
+<span class="lineNum">     410 </span>            :                 }
+<span class="lineNum">     411 </span>            :         } else {
+<span class="lineNum">     412 </span>            :                 for (i = ptr-&gt;foundEntryNumber; i &lt; itemNumber; i++ ) {
+<span class="lineNum">     413 </span>            :                         tmp = tmp-&gt;next;
+<span class="lineNum">     414 </span>            :                 }
+<span class="lineNum">     415 </span>            :         }
+<span class="lineNum">     416 </span>            :         tmp-&gt;prev-&gt;next = tmp-&gt;next;
+<span class="lineNum">     417 </span>            :         tmp-&gt;next-&gt;prev = tmp-&gt;prev;
+<span class="lineNum">     418 </span>            :         if (tmp==ptr-&gt;foundEntry) ptr-&gt;foundEntry = tmp-&gt;next;
+<span class="lineNum">     419 </span>            :         gf_free(tmp);
+<span class="lineNum">     420 </span>            :         ptr-&gt;entryCount--;
+<span class="lineNum">     421 </span>            :         return GF_OK;
+<span class="lineNum">     422 </span>            : }
+<span class="lineNum">     423 </span>            : 
+<span class="lineNum">     424 </span>            : GF_EXPORT
+<span class="lineNum">     425 </span>            : GF_Err gf_list_rem_last(GF_List *ptr)
+<span class="lineNum">     426 </span>            : {
+<span class="lineNum">     427 </span>            :         return gf_list_rem(ptr, ptr-&gt;entryCount-1);
+<span class="lineNum">     428 </span>            : }
+<span class="lineNum">     429 </span>            : 
+<span class="lineNum">     430 </span>            : GF_EXPORT
+<span class="lineNum">     431 </span>            : GF_Err gf_list_insert(GF_List *ptr, void *item, u32 position)
+<span class="lineNum">     432 </span>            : {
+<span class="lineNum">     433 </span>            :         u32 i;
+<span class="lineNum">     434 </span>            :         ItemSlot *tmp, *tmp2;
+<span class="lineNum">     435 </span>            : 
+<span class="lineNum">     436 </span>            :         if (!ptr || !item) return GF_BAD_PARAM;
+<span class="lineNum">     437 </span>            :         /*if last entry or first of an empty array...*/
+<span class="lineNum">     438 </span>            :         if (position &gt;= ptr-&gt;entryCount) return gf_list_add(ptr, item);
+<span class="lineNum">     439 </span>            :         tmp2 = (ItemSlot *) gf_malloc(sizeof(ItemSlot));
+<span class="lineNum">     440 </span>            :         tmp2-&gt;data = item;
+<span class="lineNum">     441 </span>            :         tmp2-&gt;next = tmp2-&gt;prev = NULL;
+<span class="lineNum">     442 </span>            :         /*special case for the head*/
+<span class="lineNum">     443 </span>            :         if (position == 0) {
+<span class="lineNum">     444 </span>            :                 ptr-&gt;head-&gt;prev = tmp2;
+<span class="lineNum">     445 </span>            :                 tmp2-&gt;next = ptr-&gt;head;
+<span class="lineNum">     446 </span>            :                 ptr-&gt;head = tmp2;
+<span class="lineNum">     447 </span>            :                 ptr-&gt;entryCount ++;
+<span class="lineNum">     448 </span>            :                 ptr-&gt;foundEntry = tmp2;
+<span class="lineNum">     449 </span>            :                 ptr-&gt;foundEntryNumber = 0;
+<span class="lineNum">     450 </span>            :                 return GF_OK;
+<span class="lineNum">     451 </span>            :         }
+<span class="lineNum">     452 </span>            : 
+<span class="lineNum">     453 </span>            :         tmp = ptr-&gt;foundEntry;
+<span class="lineNum">     454 </span>            :         if ( position &lt; (u32) ptr-&gt;foundEntryNumber ) {
+<span class="lineNum">     455 </span>            :                 for (i = ptr-&gt;foundEntryNumber; i &gt;= position; i-- ) {
+<span class="lineNum">     456 </span>            :                         tmp = tmp-&gt;prev;
+<span class="lineNum">     457 </span>            :                 }
+<span class="lineNum">     458 </span>            :                 tmp = tmp-&gt;prev;
+<span class="lineNum">     459 </span>            :         } else {
+<span class="lineNum">     460 </span>            :                 for (i = ptr-&gt;foundEntryNumber; i &lt; position; i++ ) {
+<span class="lineNum">     461 </span>            :                         tmp = tmp-&gt;next;
+<span class="lineNum">     462 </span>            :                 }
+<span class="lineNum">     463 </span>            :         }
+<span class="lineNum">     464 </span>            :         tmp2-&gt;next = tmp-&gt;next;
+<span class="lineNum">     465 </span>            :         tmp2-&gt;next-&gt;prev = tmp2;
+<span class="lineNum">     466 </span>            :         tmp2-&gt;prev = tmp;
+<span class="lineNum">     467 </span>            :         tmp2-&gt;prev-&gt;next = tmp2;
+<span class="lineNum">     468 </span>            :         ptr-&gt;entryCount ++;
+<span class="lineNum">     469 </span>            :         ptr-&gt;foundEntry = tmp2;
+<span class="lineNum">     470 </span>            :         ptr-&gt;foundEntryNumber = position;
+<span class="lineNum">     471 </span>            :         return GF_OK;
+<span class="lineNum">     472 </span>            : }
+<span class="lineNum">     473 </span>            : 
+<span class="lineNum">     474 </span>            : #elif defined(GF_LIST_ARRAY)
+<span class="lineNum">     475 </span>            : 
+<span class="lineNum">     476 </span>            : struct _tag_array
+<span class="lineNum">     477 </span>            : {
+<span class="lineNum">     478 </span>            :         void **slots;
+<span class="lineNum">     479 </span>            :         u32 entryCount;
+<span class="lineNum">     480 </span>            : };
+<span class="lineNum">     481 </span>            : 
+<span class="lineNum">     482 </span>            : 
+<span class="lineNum">     483 </span>            : GF_EXPORT
+<span class="lineNum">     484 </span>            : GF_List * gf_list_new()
+<span class="lineNum">     485 </span>            : {
+<span class="lineNum">     486 </span>            :         GF_List *nlist = (GF_List *) gf_malloc(sizeof(GF_List));
+<span class="lineNum">     487 </span>            :         if (! nlist) return NULL;
+<span class="lineNum">     488 </span>            :         nlist-&gt;slots = NULL;
+<span class="lineNum">     489 </span>            :         nlist-&gt;entryCount = 0;
+<span class="lineNum">     490 </span>            :         return nlist;
+<span class="lineNum">     491 </span>            : }
+<span class="lineNum">     492 </span>            : 
+<span class="lineNum">     493 </span>            : GF_EXPORT
+<span class="lineNum">     494 </span>            : void gf_list_del(GF_List *ptr)
+<span class="lineNum">     495 </span>            : {
+<span class="lineNum">     496 </span>            :         if (!ptr) return;
+<span class="lineNum">     497 </span>            :         gf_free(ptr-&gt;slots);
+<span class="lineNum">     498 </span>            :         gf_free(ptr);
+<span class="lineNum">     499 </span>            : }
+<span class="lineNum">     500 </span>            : 
+<span class="lineNum">     501 </span>            : GF_EXPORT
+<span class="lineNum">     502 </span>            : GF_Err gf_list_add(GF_List *ptr, void* item)
+<span class="lineNum">     503 </span>            : {
+<span class="lineNum">     504 </span>            :         if (! ptr) return GF_BAD_PARAM;
+<span class="lineNum">     505 </span>            : 
+<span class="lineNum">     506 </span>            :         ptr-&gt;entryCount ++;
+<span class="lineNum">     507 </span>            :         ptr-&gt;slots = (void **) gf_realloc(ptr-&gt;slots, ptr-&gt;entryCount*sizeof(void*));
+<span class="lineNum">     508 </span>            :         if (!ptr-&gt;slots) {
+<span class="lineNum">     509 </span>            :                 ptr-&gt;entryCount = 0;
+<span class="lineNum">     510 </span>            :                 return GF_OUT_OF_MEM;
+<span class="lineNum">     511 </span>            :         }
+<span class="lineNum">     512 </span>            :         ptr-&gt;slots[ptr-&gt;entryCount-1] = item;
+<span class="lineNum">     513 </span>            :         return GF_OK;
+<span class="lineNum">     514 </span>            : }
+<span class="lineNum">     515 </span>            : 
+<span class="lineNum">     516 </span>            : GF_EXPORT
+<span class="lineNum">     517 </span>            : u32 gf_list_count(GF_List *ptr)
+<span class="lineNum">     518 </span>            : {
+<span class="lineNum">     519 </span>            :         return ptr ? ptr-&gt;entryCount : 0;
+<span class="lineNum">     520 </span>            : }
+<span class="lineNum">     521 </span>            : 
+<span class="lineNum">     522 </span>            : GF_EXPORT
+<span class="lineNum">     523 </span>            : void *gf_list_get(GF_List *ptr, u32 itemNumber)
+<span class="lineNum">     524 </span>            : {
+<span class="lineNum">     525 </span>            :         if(!ptr || (itemNumber &gt;= ptr-&gt;entryCount)) return NULL;
+<span class="lineNum">     526 </span>            :         return ptr-&gt;slots[itemNumber];
+<span class="lineNum">     527 </span>            : }
+<span class="lineNum">     528 </span>            : 
+<span class="lineNum">     529 </span>            : GF_EXPORT
+<span class="lineNum">     530 </span>            : void *gf_list_last(GF_List *ptr)
+<span class="lineNum">     531 </span>            : {
+<span class="lineNum">     532 </span>            :         if(!ptr || !ptr-&gt;entryCount) return NULL;
+<span class="lineNum">     533 </span>            :         return ptr-&gt;slots[ptr-&gt;entryCount-1];
+<span class="lineNum">     534 </span>            : }
+<span class="lineNum">     535 </span>            : 
+<span class="lineNum">     536 </span>            : 
+<span class="lineNum">     537 </span>            : /*WARNING: itemNumber is from 0 to entryCount - 1*/
+<span class="lineNum">     538 </span>            : GF_EXPORT
+<span class="lineNum">     539 </span>            : GF_Err gf_list_rem(GF_List *ptr, u32 itemNumber)
+<span class="lineNum">     540 </span>            : {
+<span class="lineNum">     541 </span>            :         u32 i;
+<span class="lineNum">     542 </span>            :         if ( !ptr || !ptr-&gt;slots || !ptr-&gt;entryCount) return GF_BAD_PARAM;
+<span class="lineNum">     543 </span>            :         i = ptr-&gt;entryCount - itemNumber - 1;
+<span class="lineNum">     544 </span>            :         if (i) memmove(&amp;ptr-&gt;slots[itemNumber], &amp; ptr-&gt;slots[itemNumber +1], sizeof(void *)*i);
+<span class="lineNum">     545 </span>            :         ptr-&gt;slots[ptr-&gt;entryCount-1] = NULL;
+<span class="lineNum">     546 </span>            :         ptr-&gt;entryCount -= 1;
+<span class="lineNum">     547 </span>            :         ptr-&gt;slots = (void **) gf_realloc(ptr-&gt;slots, sizeof(void*)*ptr-&gt;entryCount);
+<span class="lineNum">     548 </span>            :         return GF_OK;
+<span class="lineNum">     549 </span>            : }
+<span class="lineNum">     550 </span>            : 
+<span class="lineNum">     551 </span>            : GF_EXPORT
+<span class="lineNum">     552 </span>            : GF_Err gf_list_rem_last(GF_List *ptr)
+<span class="lineNum">     553 </span>            : {
+<span class="lineNum">     554 </span>            :         if ( !ptr || !ptr-&gt;slots || !ptr-&gt;entryCount) return GF_BAD_PARAM;
+<span class="lineNum">     555 </span>            :         ptr-&gt;entryCount -= 1;
+<span class="lineNum">     556 </span>            :         ptr-&gt;slots = (void **) gf_realloc(ptr-&gt;slots, sizeof(void*)*ptr-&gt;entryCount);
+<span class="lineNum">     557 </span>            :         return GF_OK;
+<span class="lineNum">     558 </span>            : }
+<span class="lineNum">     559 </span>            : 
+<span class="lineNum">     560 </span>            : 
+<span class="lineNum">     561 </span>            : /*WARNING: position is from 0 to entryCount - 1*/
+<span class="lineNum">     562 </span>            : GF_EXPORT
+<span class="lineNum">     563 </span>            : GF_Err gf_list_insert(GF_List *ptr, void *item, u32 position)
+<span class="lineNum">     564 </span>            : {
+<span class="lineNum">     565 </span>            :         u32 i;
+<span class="lineNum">     566 </span>            :         if (!ptr || !item) return GF_BAD_PARAM;
+<span class="lineNum">     567 </span>            :         /*if last entry or first of an empty array...*/
+<span class="lineNum">     568 </span>            :         if (position &gt;= ptr-&gt;entryCount) return gf_list_add(ptr, item);
+<span class="lineNum">     569 </span>            :         ptr-&gt;slots = (void **) gf_realloc(ptr-&gt;slots, (ptr-&gt;entryCount+1)*sizeof(void*));
+<span class="lineNum">     570 </span>            :         i = ptr-&gt;entryCount - position;
+<span class="lineNum">     571 </span>            :         memmove(&amp;ptr-&gt;slots[position + 1], &amp;ptr-&gt;slots[position], sizeof(void *)*i);
+<span class="lineNum">     572 </span>            :         ptr-&gt;entryCount++;
+<span class="lineNum">     573 </span>            :         ptr-&gt;slots[position] = item;
+<span class="lineNum">     574 </span>            :         return GF_OK;
+<span class="lineNum">     575 </span>            : }
+<span class="lineNum">     576 </span>            : 
+<span class="lineNum">     577 </span>            : GF_EXPORT
+<span class="lineNum">     578 </span>            : void gf_list_reset(GF_List *ptr)
+<span class="lineNum">     579 </span>            : {
+<span class="lineNum">     580 </span>            :         if (ptr) {
+<span class="lineNum">     581 </span>            :                 ptr-&gt;entryCount = 0;
+<span class="lineNum">     582 </span>            :                 gf_free(ptr-&gt;slots);
+<span class="lineNum">     583 </span>            :                 ptr-&gt;slots = NULL;
+<span class="lineNum">     584 </span>            :         }
+<span class="lineNum">     585 </span>            : }
+<span class="lineNum">     586 </span>            : 
+<span class="lineNum">     587 </span>            : #else   /*GF_LIST_ARRAY_GROW*/
+<span class="lineNum">     588 </span>            : 
+<span class="lineNum">     589 </span>            : 
+<span class="lineNum">     590 </span>            : struct _tag_array
+<span class="lineNum">     591 </span>            : {
+<span class="lineNum">     592 </span>            :         void **slots;
+<span class="lineNum">     593 </span>            :         u32 entryCount;
+<span class="lineNum">     594 </span>            :         u32 allocSize;
+<span class="lineNum">     595 </span>            : };
+<a name="596"><span class="lineNum">     596 </span>            : </a>
+<span class="lineNum">     597 </span>            : GF_EXPORT
+<span class="lineNum">     598 </span>            : GF_List * gf_list_new()
+<span class="lineNum">     599 </span>            : {
+<span class="lineNum">     600 </span>            :         GF_List *nlist;
+<span class="lineNum">     601 </span>            : 
+<span class="lineNum">     602 </span><span class="lineCov">     818424 :         nlist = (GF_List *) gf_malloc(sizeof(GF_List));</span>
+<span class="lineNum">     603 </span><span class="lineCov">     409212 :         if (! nlist) return NULL;</span>
+<span class="lineNum">     604 </span>            : 
+<span class="lineNum">     605 </span><span class="lineCov">     409212 :         nlist-&gt;slots = NULL;</span>
+<span class="lineNum">     606 </span><span class="lineCov">     409212 :         nlist-&gt;entryCount = 0;</span>
+<span class="lineNum">     607 </span><span class="lineCov">     409212 :         nlist-&gt;allocSize = 0;</span>
+<span class="lineNum">     608 </span><span class="lineCov">     409212 :         return nlist;</span>
+<span class="lineNum">     609 </span><span class="lineCov">     409212 : }</span>
+<a name="610"><span class="lineNum">     610 </span>            : </a>
+<span class="lineNum">     611 </span>            : GF_EXPORT
+<span class="lineNum">     612 </span>            : void gf_list_del(GF_List *ptr)
+<span class="lineNum">     613 </span>            : {
+<span class="lineNum">     614 </span><span class="lineCov">     832192 :         if (!ptr) return;</span>
+<span class="lineNum">     615 </span><span class="lineCov">     409204 :         gf_free(ptr-&gt;slots);</span>
+<span class="lineNum">     616 </span><span class="lineCov">     409204 :         gf_free(ptr);</span>
+<a name="617"><span class="lineNum">     617 </span><span class="lineCov">     825300 : }</span></a>
+<span class="lineNum">     618 </span>            : 
+<span class="lineNum">     619 </span>            : static void realloc_chain(GF_List *ptr)
+<span class="lineNum">     620 </span>            : {
+<span class="lineNum">     621 </span><span class="lineCov">     483924 :         GF_LIST_REALLOC(ptr-&gt;allocSize);</span>
+<span class="lineNum">     622 </span><span class="lineCov">     155664 :         ptr-&gt;slots = (void**)gf_realloc(ptr-&gt;slots, ptr-&gt;allocSize*sizeof(void*));</span>
+<span class="lineNum">     623 </span><span class="lineCov">     155664 : }</span>
+<a name="624"><span class="lineNum">     624 </span>            : </a>
+<span class="lineNum">     625 </span>            : GF_EXPORT
+<span class="lineNum">     626 </span>            : GF_Err gf_list_add(GF_List *ptr, void* item)
+<span class="lineNum">     627 </span>            : {
+<span class="lineNum">     628 </span><span class="lineCov">    1256126 :         if (! ptr) return GF_BAD_PARAM;</span>
+<span class="lineNum">     629 </span><span class="lineCov">     783727 :         if (ptr-&gt;allocSize==ptr-&gt;entryCount) realloc_chain(ptr);</span>
+<span class="lineNum">     630 </span><span class="lineCov">     628063 :         if (!ptr-&gt;slots) return GF_OUT_OF_MEM;</span>
+<span class="lineNum">     631 </span>            : 
+<span class="lineNum">     632 </span><span class="lineCov">     628063 :         ptr-&gt;slots[ptr-&gt;entryCount] = item;</span>
+<span class="lineNum">     633 </span><span class="lineCov">     628063 :         ptr-&gt;entryCount ++;</span>
+<span class="lineNum">     634 </span><span class="lineCov">     628063 :         return GF_OK;</span>
+<span class="lineNum">     635 </span><span class="lineCov">     628063 : }</span>
+<a name="636"><span class="lineNum">     636 </span>            : </a>
+<span class="lineNum">     637 </span>            : GF_EXPORT
+<span class="lineNum">     638 </span>            : u32 gf_list_count(const GF_List *ptr)
+<span class="lineNum">     639 </span>            : {
+<span class="lineNum">     640 </span><span class="lineCov">   29168759 :         if (!ptr) return 0;</span>
+<span class="lineNum">     641 </span><span class="lineCov">    3435772 :         return ptr-&gt;entryCount;</span>
+<span class="lineNum">     642 </span><span class="lineCov">   10868177 : }</span>
+<a name="643"><span class="lineNum">     643 </span>            : </a>
+<span class="lineNum">     644 </span>            : GF_EXPORT
+<span class="lineNum">     645 </span>            : void *gf_list_get(GF_List *ptr, u32 itemNumber)
+<span class="lineNum">     646 </span>            : {
+<span class="lineNum">     647 </span><span class="lineCov">   32806765 :         if(!ptr || (itemNumber &gt;= ptr-&gt;entryCount)) return NULL;</span>
+<span class="lineNum">     648 </span><span class="lineCov">   10203179 :         return ptr-&gt;slots[itemNumber];</span>
+<span class="lineNum">     649 </span><span class="lineCov">   10752486 : }</span>
+<a name="650"><span class="lineNum">     650 </span>            : </a>
+<span class="lineNum">     651 </span>            : GF_EXPORT
+<span class="lineNum">     652 </span>            : void *gf_list_last(GF_List *ptr)
+<span class="lineNum">     653 </span>            : {
+<span class="lineNum">     654 </span><span class="lineCov">    1022503 :         if(!ptr || !ptr-&gt;entryCount) return NULL;</span>
+<span class="lineNum">     655 </span><span class="lineCov">     248715 :         return ptr-&gt;slots[ptr-&gt;entryCount-1];</span>
+<span class="lineNum">     656 </span><span class="lineCov">     318325 : }</span>
+<span class="lineNum">     657 </span>            : 
+<span class="lineNum">     658 </span>            : 
+<a name="659"><span class="lineNum">     659 </span>            : /*WARNING: itemNumber is from 0 to entryCount - 1*/</a>
+<span class="lineNum">     660 </span>            : GF_EXPORT
+<span class="lineNum">     661 </span>            : GF_Err gf_list_rem(GF_List *ptr, u32 itemNumber)
+<span class="lineNum">     662 </span>            : {
+<span class="lineNum">     663 </span>            :         u32 i;
+<span class="lineNum">     664 </span><span class="lineCov">    1201652 :         if ( !ptr || !ptr-&gt;slots || !ptr-&gt;entryCount) return GF_BAD_PARAM;</span>
+<span class="lineNum">     665 </span><span class="lineCov">     300413 :         i = ptr-&gt;entryCount - itemNumber - 1;</span>
+<span class="lineNum">     666 </span><span class="lineCov">     514209 :         if (i) memmove(&amp;ptr-&gt;slots[itemNumber], &amp; ptr-&gt;slots[itemNumber +1], sizeof(void *)*i);</span>
+<span class="lineNum">     667 </span><span class="lineCov">     300413 :         ptr-&gt;slots[ptr-&gt;entryCount-1] = NULL;</span>
+<span class="lineNum">     668 </span><span class="lineCov">     300413 :         ptr-&gt;entryCount -= 1;</span>
+<span class="lineNum">     669 </span><span class="lineCov">     300413 :         return GF_OK;</span>
+<span class="lineNum">     670 </span><span class="lineCov">     300413 : }</span>
+<a name="671"><span class="lineNum">     671 </span>            : </a>
+<span class="lineNum">     672 </span>            : GF_EXPORT
+<span class="lineNum">     673 </span>            : GF_Err gf_list_rem_last(GF_List *ptr)
+<span class="lineNum">     674 </span>            : {
+<span class="lineNum">     675 </span><span class="lineCov">     263664 :         if ( !ptr || !ptr-&gt;slots || !ptr-&gt;entryCount) return GF_BAD_PARAM;</span>
+<span class="lineNum">     676 </span><span class="lineCov">      65916 :         ptr-&gt;slots[ptr-&gt;entryCount-1] = NULL;</span>
+<span class="lineNum">     677 </span><span class="lineCov">      65916 :         ptr-&gt;entryCount -= 1;</span>
+<span class="lineNum">     678 </span><span class="lineCov">      65916 :         return GF_OK;</span>
+<span class="lineNum">     679 </span><span class="lineCov">      65916 : }</span>
+<span class="lineNum">     680 </span>            : 
+<a name="681"><span class="lineNum">     681 </span>            : /*WARNING: position is from 0 to entryCount - 1*/</a>
+<span class="lineNum">     682 </span>            : GF_EXPORT
+<span class="lineNum">     683 </span>            : GF_Err gf_list_insert(GF_List *ptr, void *item, u32 position)
+<span class="lineNum">     684 </span>            : {
+<span class="lineNum">     685 </span>            :         u32 i;
+<span class="lineNum">     686 </span><span class="lineCov">       4442 :         if (!ptr || !item) return GF_BAD_PARAM;</span>
+<span class="lineNum">     687 </span>            :         /*if last entry or first of an empty array...*/
+<span class="lineNum">     688 </span><span class="lineCov">       2928 :         if (position &gt;= ptr-&gt;entryCount) return gf_list_add(ptr, item);</span>
+<span class="lineNum">     689 </span><span class="lineCov">       1514 :         if (ptr-&gt;allocSize==ptr-&gt;entryCount) realloc_chain(ptr);</span>
+<span class="lineNum">     690 </span>            : 
+<span class="lineNum">     691 </span><span class="lineCov">       1514 :         i = ptr-&gt;entryCount - position;</span>
+<span class="lineNum">     692 </span><span class="lineCov">       1514 :         memmove(&amp;ptr-&gt;slots[position + 1], &amp;ptr-&gt;slots[position], sizeof(void *)*i);</span>
+<span class="lineNum">     693 </span><span class="lineCov">       1514 :         ptr-&gt;entryCount++;</span>
+<span class="lineNum">     694 </span><span class="lineCov">       1514 :         ptr-&gt;slots[position] = item;</span>
+<span class="lineNum">     695 </span><span class="lineCov">       1514 :         return GF_OK;</span>
+<span class="lineNum">     696 </span><span class="lineCov">       2221 : }</span>
+<a name="697"><span class="lineNum">     697 </span>            : </a>
+<span class="lineNum">     698 </span>            : GF_EXPORT
+<span class="lineNum">     699 </span>            : void gf_list_reset(GF_List *ptr)
+<span class="lineNum">     700 </span>            : {
+<span class="lineNum">     701 </span><span class="lineCov">      22409 :         if (ptr) ptr-&gt;entryCount = 0;</span>
+<span class="lineNum">     702 </span><span class="lineCov">       7470 : }</span>
+<span class="lineNum">     703 </span>            : 
+<span class="lineNum">     704 </span>            : #endif
+<a name="705"><span class="lineNum">     705 </span>            : </a>
+<span class="lineNum">     706 </span>            : GF_EXPORT
+<span class="lineNum">     707 </span>            : s32 gf_list_find(GF_List *ptr, void *item)
+<span class="lineNum">     708 </span>            : {
+<span class="lineNum">     709 </span>            :         u32 i, count;
+<span class="lineNum">     710 </span><span class="lineCov">     225330 :         count = gf_list_count(ptr);</span>
+<span class="lineNum">     711 </span><span class="lineCov">    2413074 :         for (i=0; i&lt;count; i++) {</span>
+<span class="lineNum">     712 </span><span class="lineCov">    1197488 :                 if (gf_list_get(ptr, i) == item) return (s32) i;</span>
+<span class="lineNum">     713 </span>            :         }
+<span class="lineNum">     714 </span><span class="lineCov">      60857 :         return -1;</span>
+<span class="lineNum">     715 </span><span class="lineCov">     112665 : }</span>
+<a name="716"><span class="lineNum">     716 </span>            : </a>
+<span class="lineNum">     717 </span>            : GF_EXPORT
+<span class="lineNum">     718 </span>            : s32 gf_list_del_item(GF_List *ptr, void *item)
+<span class="lineNum">     719 </span>            : {
+<span class="lineNum">     720 </span><span class="lineCov">     135270 :         s32 i = gf_list_find(ptr, item);</span>
+<span class="lineNum">     721 </span><span class="lineCov">      97364 :         if (i&gt;=0) gf_list_rem(ptr, (u32) i);</span>
+<span class="lineNum">     722 </span><span class="lineCov">      67635 :         return i;</span>
+<span class="lineNum">     723 </span>            : }
+<a name="724"><span class="lineNum">     724 </span>            : </a>
+<span class="lineNum">     725 </span>            : GF_EXPORT
+<span class="lineNum">     726 </span>            : void *gf_list_enum(GF_List *ptr, u32 *pos)
+<span class="lineNum">     727 </span>            : {
+<span class="lineNum">     728 </span>            :         void *res;
+<span class="lineNum">     729 </span><span class="lineCov">    8865208 :         if (!ptr || !pos) return NULL;</span>
+<span class="lineNum">     730 </span><span class="lineCov">    4427477 :         res = gf_list_get(ptr, *pos);</span>
+<span class="lineNum">     731 </span><span class="lineCov">    4427477 :         (*pos)++;</span>
+<span class="lineNum">     732 </span><span class="lineCov">    4427477 :         return res;</span>
+<span class="lineNum">     733 </span><span class="lineCov">    4430895 : }</span>
+<a name="734"><span class="lineNum">     734 </span>            : </a>
+<span class="lineNum">     735 </span>            : GF_EXPORT
+<span class="lineNum">     736 </span>            : void *gf_list_rev_enum(GF_List *ptr, u32 *pos) {
+<span class="lineNum">     737 </span>            :         void *res;
+<span class="lineNum">     738 </span><span class="lineNoCov">          0 :         if (!ptr || !pos) return NULL;</span>
+<span class="lineNum">     739 </span><span class="lineNoCov">          0 :         res = gf_list_get(ptr, gf_list_count (ptr) - *pos - 1 );</span>
+<span class="lineNum">     740 </span><span class="lineNoCov">          0 :         (*pos)++;</span>
+<span class="lineNum">     741 </span><span class="lineNoCov">          0 :         return res;</span>
+<span class="lineNum">     742 </span><span class="lineNoCov">          0 : }</span>
+<a name="743"><span class="lineNum">     743 </span>            : </a>
+<span class="lineNum">     744 </span>            : GF_EXPORT
+<span class="lineNum">     745 </span>            : GF_Err gf_list_swap(GF_List *l1, GF_List *l2)
+<span class="lineNum">     746 </span>            : {
+<span class="lineNum">     747 </span>            :         GF_Err e;
+<span class="lineNum">     748 </span><span class="lineNoCov">          0 :         u32 count = gf_list_count(l1);</span>
+<span class="lineNum">     749 </span><span class="lineNoCov">          0 :         if (!l1 || !l2) return GF_BAD_PARAM;</span>
+<span class="lineNum">     750 </span><span class="lineNoCov">          0 :         if (l1 == l2) return GF_OK;</span>
+<span class="lineNum">     751 </span>            : 
+<span class="lineNum">     752 </span><span class="lineNoCov">          0 :         while (gf_list_count(l2)) {</span>
+<span class="lineNum">     753 </span><span class="lineNoCov">          0 :                 void *ptr = gf_list_get(l2, 0);</span>
+<span class="lineNum">     754 </span><span class="lineNoCov">          0 :                 e = gf_list_rem(l2, 0);</span>
+<span class="lineNum">     755 </span><span class="lineNoCov">          0 :                 if (e) return e;</span>
+<span class="lineNum">     756 </span><span class="lineNoCov">          0 :                 e = gf_list_add(l1, ptr);</span>
+<span class="lineNum">     757 </span><span class="lineNoCov">          0 :                 if (e) return e;</span>
+<span class="lineNum">     758 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     759 </span><span class="lineNoCov">          0 :         while (count) {</span>
+<span class="lineNum">     760 </span><span class="lineNoCov">          0 :                 void *ptr = gf_list_get(l1, 0);</span>
+<span class="lineNum">     761 </span><span class="lineNoCov">          0 :                 e = gf_list_rem(l1, 0);</span>
+<span class="lineNum">     762 </span><span class="lineNoCov">          0 :                 if (e) return e;</span>
+<span class="lineNum">     763 </span><span class="lineNoCov">          0 :                 count--;</span>
+<span class="lineNum">     764 </span><span class="lineNoCov">          0 :                 e = gf_list_add(l2, ptr);</span>
+<span class="lineNum">     765 </span><span class="lineNoCov">          0 :                 if (e) return e;</span>
+<span class="lineNum">     766 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     767 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">     768 </span><span class="lineNoCov">          0 : }</span>
+<a name="769"><span class="lineNum">     769 </span>            : </a>
+<span class="lineNum">     770 </span>            : GF_EXPORT
+<span class="lineNum">     771 </span>            : GF_Err gf_list_transfer(GF_List *l1, GF_List *l2)
+<span class="lineNum">     772 </span>            : {
+<span class="lineNum">     773 </span>            :         GF_Err e;
+<span class="lineNum">     774 </span><span class="lineNoCov">          0 :         if (!l1 || !l2) return GF_BAD_PARAM;</span>
+<span class="lineNum">     775 </span><span class="lineNoCov">          0 :         if (l1 == l2) return GF_OK;</span>
+<span class="lineNum">     776 </span>            : 
+<span class="lineNum">     777 </span><span class="lineNoCov">          0 :         while (gf_list_count(l2)) {</span>
+<span class="lineNum">     778 </span><span class="lineNoCov">          0 :                 void *ptr = gf_list_get(l2, 0);</span>
+<span class="lineNum">     779 </span><span class="lineNoCov">          0 :                 e = gf_list_rem(l2, 0);</span>
+<span class="lineNum">     780 </span><span class="lineNoCov">          0 :                 if (e) return e;</span>
+<span class="lineNum">     781 </span><span class="lineNoCov">          0 :                 e = gf_list_add(l1, ptr);</span>
+<span class="lineNum">     782 </span><span class="lineNoCov">          0 :                 if (e) return e;</span>
+<span class="lineNum">     783 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     784 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<span class="lineNum">     785 </span><span class="lineNoCov">          0 : }</span>
+<a name="786"><span class="lineNum">     786 </span>            : </a>
+<span class="lineNum">     787 </span>            : GF_EXPORT
+<span class="lineNum">     788 </span>            : GF_List* gf_list_clone(GF_List *ptr) {
+<span class="lineNum">     789 </span>            :         GF_List* new_list;
+<span class="lineNum">     790 </span><span class="lineNoCov">          0 :         u32 i = 0;</span>
+<span class="lineNum">     791 </span>            :         void* item;
+<span class="lineNum">     792 </span><span class="lineNoCov">          0 :         if (!ptr) return NULL;</span>
+<span class="lineNum">     793 </span><span class="lineNoCov">          0 :         new_list = gf_list_new();</span>
+<span class="lineNum">     794 </span><span class="lineNoCov">          0 :         while ((item = gf_list_enum(ptr, &amp;i)))</span>
+<span class="lineNum">     795 </span><span class="lineNoCov">          0 :                 gf_list_add(new_list, item);</span>
+<span class="lineNum">     796 </span>            : 
+<span class="lineNum">     797 </span><span class="lineNoCov">          0 :         return new_list;</span>
+<span class="lineNum">     798 </span><span class="lineNoCov">          0 : }</span>
+<a name="799"><span class="lineNum">     799 </span>            : </a>
+<span class="lineNum">     800 </span>            : GF_EXPORT
+<span class="lineNum">     801 </span>            : void gf_list_reverse(GF_List *ptr) {
+<span class="lineNum">     802 </span>            :         GF_List* saved_order;
+<span class="lineNum">     803 </span>            :         void* item;
+<span class="lineNum">     804 </span><span class="lineNoCov">          0 :         u32 i = 0;</span>
+<span class="lineNum">     805 </span><span class="lineNoCov">          0 :         if (!ptr) return;</span>
+<span class="lineNum">     806 </span><span class="lineNoCov">          0 :         saved_order = gf_list_clone(ptr);</span>
+<span class="lineNum">     807 </span><span class="lineNoCov">          0 :         gf_list_reset(ptr);</span>
+<span class="lineNum">     808 </span>            : 
+<span class="lineNum">     809 </span><span class="lineNoCov">          0 :         while ((item = gf_list_enum(saved_order, &amp;i))) {</span>
+<span class="lineNum">     810 </span><span class="lineNoCov">          0 :                 gf_list_insert(ptr, item, 0);</span>
+<span class="lineNum">     811 </span>            :         }
+<span class="lineNum">     812 </span>            : 
+<span class="lineNum">     813 </span><span class="lineNoCov">          0 :         gf_list_del(saved_order);</span>
+<span class="lineNum">     814 </span><span class="lineNoCov">          0 : }</span>
+<a name="815"><span class="lineNum">     815 </span>            : </a>
+<span class="lineNum">     816 </span>            : GF_EXPORT
+<span class="lineNum">     817 </span>            : void* gf_list_pop_front(GF_List *ptr) {
+<span class="lineNum">     818 </span>            :         void * item;
+<span class="lineNum">     819 </span><span class="lineNoCov">          0 :         if (!ptr) return NULL;</span>
+<span class="lineNum">     820 </span>            : 
+<span class="lineNum">     821 </span><span class="lineNoCov">          0 :         item = gf_list_get(ptr, 0);</span>
+<span class="lineNum">     822 </span><span class="lineNoCov">          0 :         gf_list_rem(ptr, 0);</span>
+<span class="lineNum">     823 </span>            : 
+<span class="lineNum">     824 </span><span class="lineNoCov">          0 :         return item;</span>
+<span class="lineNum">     825 </span><span class="lineNoCov">          0 : }</span>
+<a name="826"><span class="lineNum">     826 </span>            : </a>
+<span class="lineNum">     827 </span>            : GF_EXPORT
+<span class="lineNum">     828 </span>            : void* gf_list_pop_back(GF_List *ptr) {
+<span class="lineNum">     829 </span>            :         void * item;
+<span class="lineNum">     830 </span><span class="lineCov">         12 :         if (!ptr) return NULL;</span>
+<span class="lineNum">     831 </span>            : 
+<span class="lineNum">     832 </span><span class="lineCov">          6 :         item = gf_list_last(ptr);</span>
+<span class="lineNum">     833 </span><span class="lineCov">          6 :         gf_list_rem_last(ptr);</span>
+<span class="lineNum">     834 </span>            : 
+<span class="lineNum">     835 </span><span class="lineCov">          6 :         return item;</span>
+<span class="lineNum">     836 </span><span class="lineCov">          6 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

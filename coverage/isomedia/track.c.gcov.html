@@ -1,0 +1,1249 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - isomedia/track.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">isomedia</a> - track.c<span style="font-size: 80%;"> (source / <a href="track.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">368</td>
+            <td class="headerCovTableEntry">612</td>
+            <td class="headerCovTableEntryLo">60.1 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-05-14 22:31:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntry">13</td>
+            <td class="headerCovTableEntryHi">92.3 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *                      GPAC - Multimedia Framework C SDK
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *                      Authors: Jean Le Feuvre
+<span class="lineNum">       5 </span>            :  *                      Copyright (c) Telecom ParisTech 2000-2012
+<span class="lineNum">       6 </span>            :  *                                      All rights reserved
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  *  This file is part of GPAC / ISO Media File Format sub-project
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  *  GPAC is free software; you can redistribute it and/or modify
+<span class="lineNum">      11 </span>            :  *  it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">      12 </span>            :  *  the Free Software Foundation; either version 2, or (at your option)
+<span class="lineNum">      13 </span>            :  *  any later version.
+<span class="lineNum">      14 </span>            :  *
+<span class="lineNum">      15 </span>            :  *  GPAC is distributed in the hope that it will be useful,
+<span class="lineNum">      16 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      17 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      18 </span>            :  *  GNU Lesser General Public License for more details.
+<span class="lineNum">      19 </span>            :  *
+<span class="lineNum">      20 </span>            :  *  You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      21 </span>            :  *  License along with this library; see the file COPYING.  If not, write to
+<span class="lineNum">      22 </span>            :  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+<span class="lineNum">      23 </span>            :  *
+<span class="lineNum">      24 </span>            :  */
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : #include &lt;gpac/internal/isomedia_dev.h&gt;
+<span class="lineNum">      27 </span>            : #include &lt;gpac/constants.h&gt;
+<span class="lineNum">      28 </span>            : 
+<a name="29"><span class="lineNum">      29 </span>            : #ifndef GPAC_DISABLE_ISOM</a>
+<span class="lineNum">      30 </span>            : 
+<span class="lineNum">      31 </span>            : GF_TrackBox *GetTrackbyID(GF_MovieBox *moov, u32 TrackID)
+<span class="lineNum">      32 </span>            : {
+<span class="lineNum">      33 </span>            :         GF_TrackBox *trak;
+<span class="lineNum">      34 </span><span class="lineCov">         60 :         u32 i;</span>
+<span class="lineNum">      35 </span><span class="lineCov">         30 :         if (!moov) return NULL;</span>
+<span class="lineNum">      36 </span><span class="lineCov">         30 :         i=0;</span>
+<span class="lineNum">      37 </span><span class="lineCov">         74 :         while ((trak = (GF_TrackBox *)gf_list_enum(moov-&gt;trackList, &amp;i))) {</span>
+<span class="lineNum">      38 </span><span class="lineCov">         62 :                 if (trak-&gt;Header-&gt;trackID == TrackID) return trak;</span>
+<span class="lineNum">      39 </span>            :         }
+<span class="lineNum">      40 </span><span class="lineCov">          6 :         return NULL;</span>
+<a name="41"><span class="lineNum">      41 </span><span class="lineCov">         30 : }</span></a>
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            : GF_TrackBox *gf_isom_get_track(GF_MovieBox *moov, u32 trackNumber)
+<span class="lineNum">      44 </span>            : {
+<span class="lineNum">      45 </span>            :         GF_TrackBox *trak;
+<span class="lineNum">      46 </span><span class="lineCov">    2399082 :         if (!moov || !trackNumber || (trackNumber &gt; gf_list_count(moov-&gt;trackList))) return NULL;</span>
+<span class="lineNum">      47 </span><span class="lineCov">     799694 :         trak = (GF_TrackBox*)gf_list_get(moov-&gt;trackList, trackNumber - 1);</span>
+<span class="lineNum">      48 </span><span class="lineCov">     799694 :         return trak;</span>
+<span class="lineNum">      49 </span>            : 
+<span class="lineNum">      50 </span><span class="lineCov">     799694 : }</span>
+<span class="lineNum">      51 </span>            : 
+<a name="52"><span class="lineNum">      52 </span>            : //get the number of a track given its ID</a>
+<span class="lineNum">      53 </span>            : //return 0 if not found error
+<span class="lineNum">      54 </span>            : u32 gf_isom_get_tracknum_from_id(GF_MovieBox *moov, u32 trackID)
+<span class="lineNum">      55 </span>            : {
+<span class="lineNum">      56 </span><span class="lineCov">      42924 :         u32 i;</span>
+<span class="lineNum">      57 </span>            :         GF_TrackBox *trak;
+<span class="lineNum">      58 </span><span class="lineCov">      21462 :         i=0;</span>
+<span class="lineNum">      59 </span><span class="lineCov">      52825 :         while ((trak = (GF_TrackBox *)gf_list_enum(moov-&gt;trackList, &amp;i))) {</span>
+<span class="lineNum">      60 </span><span class="lineCov">      52825 :                 if (trak-&gt;Header-&gt;trackID == trackID) return i;</span>
+<span class="lineNum">      61 </span>            :         }
+<span class="lineNum">      62 </span><span class="lineNoCov">          0 :         return 0;</span>
+<span class="lineNum">      63 </span><span class="lineCov">      21462 : }</span>
+<a name="64"><span class="lineNum">      64 </span>            : </a>
+<span class="lineNum">      65 </span>            : //extraction of the ESD from the track
+<span class="lineNum">      66 </span>            : GF_Err GetESD(GF_MovieBox *moov, u32 trackID, u32 StreamDescIndex, GF_ESD **outESD)
+<span class="lineNum">      67 </span>            : {
+<span class="lineNum">      68 </span>            :         GF_Err e;
+<span class="lineNum">      69 </span><span class="lineCov">      14672 :         GF_ESD *esd;</span>
+<span class="lineNum">      70 </span>            :         u32 track_num = 0;
+<span class="lineNum">      71 </span>            :         u32 k;
+<span class="lineNum">      72 </span>            :         GF_SampleTableBox *stbl;
+<span class="lineNum">      73 </span>            :         GF_TrackBox *trak, *OCRTrack;
+<span class="lineNum">      74 </span><span class="lineCov">       7336 :         GF_TrackReferenceTypeBox *dpnd;</span>
+<span class="lineNum">      75 </span>            :         GF_SLConfig *slc;
+<span class="lineNum">      76 </span><span class="lineCov">       7336 :         GF_MPEGSampleEntryBox *entry;</span>
+<span class="lineNum">      77 </span>            : 
+<span class="lineNum">      78 </span><span class="lineCov">       7336 :         if (!moov) return GF_ISOM_INVALID_FILE;</span>
+<span class="lineNum">      79 </span>            : 
+<span class="lineNum">      80 </span><span class="lineCov">       7336 :         track_num = gf_isom_get_tracknum_from_id(moov, trackID);</span>
+<span class="lineNum">      81 </span><span class="lineCov">       7336 :         dpnd = NULL;</span>
+<span class="lineNum">      82 </span><span class="lineCov">       7336 :         *outESD = NULL;</span>
+<span class="lineNum">      83 </span>            : 
+<span class="lineNum">      84 </span><span class="lineCov">       7336 :         trak = gf_isom_get_track(moov, track_num);</span>
+<span class="lineNum">      85 </span><span class="lineCov">       7336 :         if (!trak) return GF_ISOM_INVALID_FILE;</span>
+<span class="lineNum">      86 </span>            : 
+<span class="lineNum">      87 </span><span class="lineCov">       7336 :         e = Media_GetESD(trak-&gt;Media, StreamDescIndex, &amp;esd, 0);</span>
+<span class="lineNum">      88 </span><span class="lineCov">       7381 :         if (e) return e;</span>
+<span class="lineNum">      89 </span>            : 
+<span class="lineNum">      90 </span><span class="lineCov">       7291 :         e = Media_GetSampleDesc(trak-&gt;Media, StreamDescIndex, (GF_SampleEntryBox **) &amp;entry, NULL);</span>
+<span class="lineNum">      91 </span><span class="lineCov">       7291 :         if (e) return e;</span>
+<span class="lineNum">      92 </span>            :         //set the ID
+<span class="lineNum">      93 </span><span class="lineCov">       7291 :         esd-&gt;ESID = trackID;</span>
+<span class="lineNum">      94 </span>            : 
+<span class="lineNum">      95 </span>            :         //find stream dependencies
+<span class="lineNum">      96 </span><span class="lineCov">      43544 :         for (k=0; k&lt;2; k++) {</span>
+<span class="lineNum">      97 </span>            :                 u32 ref = GF_ISOM_BOX_TYPE_DPND;
+<span class="lineNum">      98 </span><span class="lineCov">      14536 :                 if (k==1) ref = GF_4CC('s', 'b', 'a', 's');</span>
+<span class="lineNum">      99 </span>            :                 
+<span class="lineNum">     100 </span><span class="lineCov">      14536 :                 e = Track_FindRef(trak, ref , &amp;dpnd);</span>
+<span class="lineNum">     101 </span><span class="lineCov">      14536 :                 if (e) return e;</span>
+<span class="lineNum">     102 </span><span class="lineCov">      14536 :                 if (dpnd) {</span>
+<span class="lineNum">     103 </span>            :                         //ONLY ONE STREAM DEPENDENCY IS ALLOWED
+<span class="lineNum">     104 </span><span class="lineCov">         55 :                         if (dpnd-&gt;trackIDCount != 1) return GF_ISOM_INVALID_MEDIA;</span>
+<span class="lineNum">     105 </span>            :                         //fix the spec: where is the index located ??
+<span class="lineNum">     106 </span><span class="lineCov">         55 :                         esd-&gt;dependsOnESID = dpnd-&gt;trackIDs[0];</span>
+<span class="lineNum">     107 </span><span class="lineCov">         55 :                         break;</span>
+<span class="lineNum">     108 </span>            :                 } else {
+<span class="lineNum">     109 </span><span class="lineCov">      14481 :                         esd-&gt;dependsOnESID = 0;</span>
+<span class="lineNum">     110 </span>            :                 }
+<span class="lineNum">     111 </span><span class="lineCov">      14481 :         }</span>
+<span class="lineNum">     112 </span>            : 
+<span class="lineNum">     113 </span><span class="lineCov">       7291 :         if (trak-&gt;udta) {</span>
+<span class="lineNum">     114 </span>            :                 GF_UserDataMap *map;
+<span class="lineNum">     115 </span><span class="lineCov">          8 :                 u32 i = 0;</span>
+<span class="lineNum">     116 </span><span class="lineCov">         24 :                 while ((map = (GF_UserDataMap*)gf_list_enum(trak-&gt;udta-&gt;recordList, &amp;i))) {</span>
+<span class="lineNum">     117 </span><span class="lineCov">          8 :                         if (map-&gt;boxType == GF_4CC('A','U','X','V')) {</span>
+<span class="lineNum">     118 </span><span class="lineNoCov">          0 :                                 GF_Descriptor *d = gf_odf_desc_new(GF_ODF_AUX_VIDEO_DATA);</span>
+<span class="lineNum">     119 </span><span class="lineNoCov">          0 :                                 gf_list_add(esd-&gt;extensionDescriptors, d);</span>
+<span class="lineNum">     120 </span>            :                                 break;
+<span class="lineNum">     121 </span>            :                         }
+<span class="lineNum">     122 </span>            :                 }
+<span class="lineNum">     123 </span><span class="lineCov">          8 :         }</span>
+<span class="lineNum">     124 </span>            : 
+<span class="lineNum">     125 </span>            :         //OK, get the OCR (in a REAL MP4File, OCR is 0 in ESD and is specified through track reference
+<span class="lineNum">     126 </span><span class="lineCov">       7291 :         dpnd = NULL;</span>
+<span class="lineNum">     127 </span>            :         OCRTrack = NULL;
+<span class="lineNum">     128 </span>            :         //find OCR dependencies
+<span class="lineNum">     129 </span><span class="lineCov">       7291 :         e = Track_FindRef(trak, GF_ISOM_BOX_TYPE_SYNC, &amp;dpnd);</span>
+<span class="lineNum">     130 </span><span class="lineCov">       7291 :         if (e) return e;</span>
+<span class="lineNum">     131 </span><span class="lineCov">       7291 :         if (dpnd) {</span>
+<span class="lineNum">     132 </span><span class="lineCov">        441 :                 if (dpnd-&gt;trackIDCount != 1) return GF_ISOM_INVALID_MEDIA;</span>
+<span class="lineNum">     133 </span><span class="lineCov">        441 :                 esd-&gt;OCRESID = dpnd-&gt;trackIDs[0];</span>
+<span class="lineNum">     134 </span><span class="lineCov">        441 :                 OCRTrack = gf_isom_get_track_from_id(trak-&gt;moov, dpnd-&gt;trackIDs[0]);</span>
+<span class="lineNum">     135 </span>            : 
+<span class="lineNum">     136 </span><span class="lineCov">        882 :                 while (OCRTrack) {</span>
+<span class="lineNum">     137 </span>            :                         /*if we have a dependency on a track that doesn't have OCR dep, remove that dependency*/
+<span class="lineNum">     138 </span><span class="lineCov">        441 :                         e = Track_FindRef(OCRTrack, GF_ISOM_BOX_TYPE_SYNC, &amp;dpnd);</span>
+<span class="lineNum">     139 </span><span class="lineCov">        841 :                         if (e || !dpnd || !dpnd-&gt;trackIDCount) {</span>
+<span class="lineNum">     140 </span>            :                                 OCRTrack = NULL;
+<span class="lineNum">     141 </span><span class="lineCov">         41 :                                 goto default_sync;</span>
+<span class="lineNum">     142 </span>            :                         }
+<span class="lineNum">     143 </span>            :                         /*this is explicit desync*/
+<span class="lineNum">     144 </span><span class="lineCov">       1200 :                         if (dpnd &amp;&amp; ((dpnd-&gt;trackIDs[0]==0) || (dpnd-&gt;trackIDs[0]==OCRTrack-&gt;Header-&gt;trackID))) break;</span>
+<span class="lineNum">     145 </span>            :                         /*loop in OCRs, break it*/
+<span class="lineNum">     146 </span><span class="lineNoCov">          0 :                         if (esd-&gt;ESID == OCRTrack-&gt;Header-&gt;trackID) {</span>
+<span class="lineNum">     147 </span>            :                                 OCRTrack = NULL;
+<span class="lineNum">     148 </span><span class="lineNoCov">          0 :                                 goto default_sync;</span>
+<span class="lineNum">     149 </span>            :                         }
+<span class="lineNum">     150 </span>            :                         /*check next*/
+<span class="lineNum">     151 </span><span class="lineNoCov">          0 :                         OCRTrack = gf_isom_get_track_from_id(trak-&gt;moov, dpnd-&gt;trackIDs[0]);</span>
+<span class="lineNum">     152 </span>            :                 }
+<span class="lineNum">     153 </span><span class="lineCov">        400 :                 if (!OCRTrack) goto default_sync;</span>
+<span class="lineNum">     154 </span>            :         } else {
+<span class="lineNum">     155 </span>            : default_sync:
+<span class="lineNum">     156 </span>            :                 /*all tracks are sync'ed by default*/
+<span class="lineNum">     157 </span><span class="lineCov">       6891 :                 if (trak-&gt;moov-&gt;mov-&gt;es_id_default_sync&lt;0) {</span>
+<span class="lineNum">     158 </span><span class="lineCov">       1648 :                         if (esd-&gt;OCRESID)</span>
+<span class="lineNum">     159 </span><span class="lineNoCov">          0 :                                 trak-&gt;moov-&gt;mov-&gt;es_id_default_sync = esd-&gt;OCRESID;</span>
+<span class="lineNum">     160 </span>            :                         else
+<span class="lineNum">     161 </span><span class="lineCov">       1648 :                                 trak-&gt;moov-&gt;mov-&gt;es_id_default_sync = esd-&gt;ESID;</span>
+<span class="lineNum">     162 </span>            :                 }
+<span class="lineNum">     163 </span><span class="lineCov">      12950 :                 if (trak-&gt;moov-&gt;mov-&gt;es_id_default_sync) esd-&gt;OCRESID = (u16) trak-&gt;moov-&gt;mov-&gt;es_id_default_sync;</span>
+<span class="lineNum">     164 </span>            :                 /*cf ESD writer*/
+<span class="lineNum">     165 </span><span class="lineCov">      11717 :                 if (esd-&gt;OCRESID == esd-&gt;ESID) esd-&gt;OCRESID = 0;</span>
+<span class="lineNum">     166 </span>            :         }
+<span class="lineNum">     167 </span>            : 
+<span class="lineNum">     168 </span>            : 
+<span class="lineNum">     169 </span>            : 
+<span class="lineNum">     170 </span>            :         //update the IPI stuff if needed
+<span class="lineNum">     171 </span><span class="lineCov">       7291 :         if (esd-&gt;ipiPtr != NULL) {</span>
+<span class="lineNum">     172 </span><span class="lineNoCov">          0 :                 dpnd = NULL;</span>
+<span class="lineNum">     173 </span><span class="lineNoCov">          0 :                 e = Track_FindRef(trak, GF_ISOM_BOX_TYPE_IPIR, &amp;dpnd);</span>
+<span class="lineNum">     174 </span><span class="lineNoCov">          0 :                 if (e) return e;</span>
+<span class="lineNum">     175 </span><span class="lineNoCov">          0 :                 if (dpnd) {</span>
+<span class="lineNum">     176 </span><span class="lineNoCov">          0 :                         if (esd-&gt;ipiPtr-&gt;tag != GF_ODF_ISOM_IPI_PTR_TAG) return GF_ISOM_INVALID_FILE;</span>
+<span class="lineNum">     177 </span>            :                         //OK, retrieve the ID: the IPI_ES_Id is currently the ref track
+<span class="lineNum">     178 </span><span class="lineNoCov">          0 :                         esd-&gt;ipiPtr-&gt;IPI_ES_Id = dpnd-&gt;trackIDs[esd-&gt;ipiPtr-&gt;IPI_ES_Id - 1];</span>
+<span class="lineNum">     179 </span>            :                         //and change the tag
+<span class="lineNum">     180 </span><span class="lineNoCov">          0 :                         esd-&gt;ipiPtr-&gt;tag = GF_ODF_IPI_PTR_TAG;</span>
+<span class="lineNum">     181 </span>            :                 } else {
+<span class="lineNum">     182 </span><span class="lineNoCov">          0 :                         return GF_ISOM_INVALID_FILE;</span>
+<span class="lineNum">     183 </span>            :                 }
+<span class="lineNum">     184 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     185 </span>            : 
+<span class="lineNum">     186 </span><span class="lineCov">      14532 :         if ((trak-&gt;Media-&gt;mediaHeader-&gt;packedLanguage[0] != 'u')</span>
+<span class="lineNum">     187 </span><span class="lineCov">      14532 :                 || (trak-&gt;Media-&gt;mediaHeader-&gt;packedLanguage[1] != 'n')</span>
+<span class="lineNum">     188 </span><span class="lineCov">      14482 :                 || (trak-&gt;Media-&gt;mediaHeader-&gt;packedLanguage[2] != 'd') ) {</span>
+<span class="lineNum">     189 </span><span class="lineCov">        100 :                 if (!esd-&gt;langDesc) esd-&gt;langDesc = (GF_Language *) gf_odf_desc_new(GF_ODF_LANG_TAG);</span>
+<span class="lineNum">     190 </span>            : 
+<span class="lineNum">     191 </span><span class="lineCov">         50 :                 esd-&gt;langDesc-&gt;langCode = trak-&gt;Media-&gt;mediaHeader-&gt;packedLanguage[0];</span>
+<span class="lineNum">     192 </span><span class="lineCov">         50 :                 esd-&gt;langDesc-&gt;langCode &lt;&lt;= 8;</span>
+<span class="lineNum">     193 </span><span class="lineCov">         50 :                 esd-&gt;langDesc-&gt;langCode |= trak-&gt;Media-&gt;mediaHeader-&gt;packedLanguage[1];</span>
+<span class="lineNum">     194 </span><span class="lineCov">         50 :                 esd-&gt;langDesc-&gt;langCode &lt;&lt;= 8;</span>
+<span class="lineNum">     195 </span><span class="lineCov">         50 :                 esd-&gt;langDesc-&gt;langCode |= trak-&gt;Media-&gt;mediaHeader-&gt;packedLanguage[2];</span>
+<span class="lineNum">     196 </span><span class="lineCov">         50 :         }</span>
+<span class="lineNum">     197 </span>            : 
+<span class="lineNum">     198 </span>            : 
+<span class="lineNum">     199 </span>            :         {
+<span class="lineNum">     200 </span><span class="lineCov">       7291 :                 u16 rvc_predefined;</span>
+<span class="lineNum">     201 </span><span class="lineCov">       7291 :                 char *rvc_cfg_data;</span>
+<span class="lineNum">     202 </span><span class="lineCov">       7291 :                 const char *mime_type;</span>
+<span class="lineNum">     203 </span><span class="lineCov">       7291 :                 u32 rvc_cfg_size;</span>
+<span class="lineNum">     204 </span><span class="lineCov">       7291 :                 e = gf_isom_get_rvc_config(moov-&gt;mov, track_num, 1, &amp;rvc_predefined, &amp;rvc_cfg_data, &amp;rvc_cfg_size, &amp;mime_type);</span>
+<span class="lineNum">     205 </span><span class="lineCov">       7291 :                 if (e==GF_OK) {</span>
+<span class="lineNum">     206 </span><span class="lineNoCov">          0 :                         if (rvc_predefined) {</span>
+<span class="lineNum">     207 </span><span class="lineNoCov">          0 :                                 esd-&gt;decoderConfig-&gt;predefined_rvc_config = rvc_predefined;</span>
+<span class="lineNum">     208 </span><span class="lineNoCov">          0 :                         } else {</span>
+<span class="lineNum">     209 </span><span class="lineNoCov">          0 :                                 esd-&gt;decoderConfig-&gt;rvc_config = (GF_DefaultDescriptor *) gf_odf_desc_new(GF_ODF_DSI_TAG);</span>
+<span class="lineNum">     210 </span><span class="lineNoCov">          0 :                                 if (mime_type &amp;&amp; !strcmp(mime_type, &quot;application/rvc-config+xml+gz&quot;) ) {</span>
+<span class="lineNum">     211 </span>            : #if !defined(GPAC_DISABLE_CORE_TOOLS) &amp;&amp; !defined(GPAC_DISABLE_ZLIB)
+<span class="lineNum">     212 </span><span class="lineNoCov">          0 :                                         gf_gz_decompress_payload(rvc_cfg_data, rvc_cfg_size, &amp;esd-&gt;decoderConfig-&gt;rvc_config-&gt;data, &amp;esd-&gt;decoderConfig-&gt;rvc_config-&gt;dataLength);</span>
+<span class="lineNum">     213 </span><span class="lineNoCov">          0 :                                         gf_free(rvc_cfg_data);</span>
+<span class="lineNum">     214 </span>            : #endif
+<span class="lineNum">     215 </span><span class="lineNoCov">          0 :                                 } else {</span>
+<span class="lineNum">     216 </span><span class="lineNoCov">          0 :                                         esd-&gt;decoderConfig-&gt;rvc_config-&gt;data = rvc_cfg_data;</span>
+<span class="lineNum">     217 </span><span class="lineNoCov">          0 :                                         esd-&gt;decoderConfig-&gt;rvc_config-&gt;dataLength = rvc_cfg_size;</span>
+<span class="lineNum">     218 </span>            :                                 }
+<span class="lineNum">     219 </span>            :                         }
+<span class="lineNum">     220 </span>            :                 }
+<span class="lineNum">     221 </span><span class="lineCov">       7291 :         }</span>
+<span class="lineNum">     222 </span>            : 
+<span class="lineNum">     223 </span>            : 
+<span class="lineNum">     224 </span>            :         /*normally all files shall be stored with predefined=SLPredef_MP4, but of course some are broken (philips)
+<span class="lineNum">     225 </span>            :         so we just check the ESD_URL. If set, use the given cfg, otherwise always rewrite it*/
+<span class="lineNum">     226 </span><span class="lineCov">       7291 :         if (esd-&gt;URLString != NULL) {</span>
+<span class="lineNum">     227 </span><span class="lineNoCov">          0 :                 *outESD = esd;</span>
+<span class="lineNum">     228 </span><span class="lineNoCov">          0 :                 return GF_OK;</span>
+<span class="lineNum">     229 </span>            :         }
+<span class="lineNum">     230 </span>            : 
+<span class="lineNum">     231 </span>            :         //if we are in publishing mode and we have an SLConfig specified, use it as is
+<span class="lineNum">     232 </span><span class="lineCov">       7291 :         switch (entry-&gt;type) {</span>
+<span class="lineNum">     233 </span>            :         case GF_ISOM_BOX_TYPE_MP4V:
+<span class="lineNum">     234 </span><span class="lineCov">        476 :                 slc = ((GF_MPEGVisualSampleEntryBox *)entry)-&gt;slc;</span>
+<span class="lineNum">     235 </span><span class="lineCov">        476 :                 break;</span>
+<span class="lineNum">     236 </span>            :         case GF_ISOM_BOX_TYPE_MP4A:
+<span class="lineNum">     237 </span><span class="lineCov">        181 :                 slc = ((GF_MPEGAudioSampleEntryBox *)entry)-&gt;slc;</span>
+<span class="lineNum">     238 </span><span class="lineCov">        181 :                 break;</span>
+<span class="lineNum">     239 </span>            :         case GF_ISOM_BOX_TYPE_MP4S:
+<span class="lineNum">     240 </span><span class="lineCov">       5377 :                 slc = entry-&gt;slc;</span>
+<span class="lineNum">     241 </span><span class="lineCov">       5377 :                 break;</span>
+<span class="lineNum">     242 </span>            :         default:
+<span class="lineNum">     243 </span>            :                 slc = NULL;
+<span class="lineNum">     244 </span><span class="lineCov">       1257 :                 break;</span>
+<span class="lineNum">     245 </span>            :         }
+<span class="lineNum">     246 </span><span class="lineCov">      14582 :         if (slc) {</span>
+<span class="lineNum">     247 </span><span class="lineCov">       7291 :                 gf_odf_desc_del((GF_Descriptor *)esd-&gt;slConfig);</span>
+<span class="lineNum">     248 </span><span class="lineNoCov">          0 :                 gf_odf_desc_copy((GF_Descriptor *)slc, (GF_Descriptor **)&amp;esd-&gt;slConfig);</span>
+<span class="lineNum">     249 </span><span class="lineNoCov">          0 :                 *outESD = esd;</span>
+<span class="lineNum">     250 </span><span class="lineNoCov">          0 :                 return GF_OK;</span>
+<span class="lineNum">     251 </span>            :         }
+<span class="lineNum">     252 </span>            :         //otherwise use the regular mapping
+<span class="lineNum">     253 </span>            : 
+<span class="lineNum">     254 </span>            :         //this is a desc for a media in the file, let's rewrite some param
+<span class="lineNum">     255 </span><span class="lineCov">       7291 :         esd-&gt;slConfig-&gt;timestampLength = 32;</span>
+<span class="lineNum">     256 </span><span class="lineCov">       7291 :         esd-&gt;slConfig-&gt;timestampResolution = trak-&gt;Media-&gt;mediaHeader-&gt;timeScale;</span>
+<span class="lineNum">     257 </span>            :         //NO OCR from MP4File streams (eg, constant OC Res one)
+<span class="lineNum">     258 </span><span class="lineCov">       7291 :         esd-&gt;slConfig-&gt;OCRLength = 0;</span>
+<span class="lineNum">     259 </span><span class="lineCov">       7291 :         esd-&gt;slConfig-&gt;OCRResolution = 0;</span>
+<span class="lineNum">     260 </span>            : //      if (OCRTrack) esd-&gt;slConfig-&gt;OCRResolution = OCRTrack-&gt;Media-&gt;mediaHeader-&gt;timeScale;
+<span class="lineNum">     261 </span>            : 
+<span class="lineNum">     262 </span><span class="lineCov">       7291 :         stbl = trak-&gt;Media-&gt;information-&gt;sampleTable;</span>
+<span class="lineNum">     263 </span>            :         // a little optimization here: if all our samples are sync,
+<span class="lineNum">     264 </span>            :         //set the RAPOnly to true... for external users...
+<span class="lineNum">     265 </span><span class="lineCov">       7291 :         if (! stbl-&gt;SyncSample) {</span>
+<span class="lineNum">     266 </span>            :                 if (
+<span class="lineNum">     267 </span>            : #ifndef GPAC_DISABLE_ISOM_FRAGMENTS
+<span class="lineNum">     268 </span><span class="lineCov">       6378 :                     moov-&gt;mvex &amp;&amp;</span>
+<span class="lineNum">     269 </span>            : #endif
+<span class="lineNum">     270 </span><span class="lineNoCov">          0 :                     (esd-&gt;decoderConfig-&gt;streamType==GF_STREAM_VISUAL)) {</span>
+<span class="lineNum">     271 </span><span class="lineNoCov">          0 :                         esd-&gt;slConfig-&gt;hasRandomAccessUnitsOnlyFlag = 0;</span>
+<span class="lineNum">     272 </span><span class="lineNoCov">          0 :                         esd-&gt;slConfig-&gt;useRandomAccessPointFlag = 1;</span>
+<span class="lineNum">     273 </span><span class="lineNoCov">          0 :                         stbl-&gt;SyncSample = (GF_SyncSampleBox *) gf_isom_box_new(GF_ISOM_BOX_TYPE_STSS);</span>
+<span class="lineNum">     274 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     275 </span><span class="lineCov">       6378 :                         esd-&gt;slConfig-&gt;hasRandomAccessUnitsOnlyFlag = 1;</span>
+<span class="lineNum">     276 </span><span class="lineCov">       6378 :                         esd-&gt;slConfig-&gt;useRandomAccessPointFlag = 0;</span>
+<span class="lineNum">     277 </span>            :                 }
+<span class="lineNum">     278 </span>            :         } else {
+<span class="lineNum">     279 </span><span class="lineCov">        913 :                 esd-&gt;slConfig-&gt;hasRandomAccessUnitsOnlyFlag = 0;</span>
+<span class="lineNum">     280 </span>            :                 //signal we are NOT using sync points if no info is present in the table
+<span class="lineNum">     281 </span><span class="lineCov">        913 :                 esd-&gt;slConfig-&gt;useRandomAccessPointFlag = stbl-&gt;SyncSample-&gt;nb_entries ? 1 : 0;</span>
+<span class="lineNum">     282 </span>            :         }
+<span class="lineNum">     283 </span>            :         //do we have DegradationPriority ?
+<span class="lineNum">     284 </span><span class="lineCov">      14582 :         if (stbl-&gt;DegradationPriority) {</span>
+<span class="lineNum">     285 </span><span class="lineCov">       7291 :                 esd-&gt;slConfig-&gt;degradationPriorityLength = 15;</span>
+<span class="lineNum">     286 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     287 </span><span class="lineCov">       7291 :                 esd-&gt;slConfig-&gt;degradationPriorityLength = 0;</span>
+<span class="lineNum">     288 </span>            :         }
+<span class="lineNum">     289 </span>            :         //paddingBits
+<span class="lineNum">     290 </span><span class="lineCov">       7291 :         if (stbl-&gt;PaddingBits) {</span>
+<span class="lineNum">     291 </span><span class="lineNoCov">          0 :                 esd-&gt;slConfig-&gt;usePaddingFlag = 1;</span>
+<span class="lineNum">     292 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     293 </span>            :         //change to support reflecting OD streams
+<span class="lineNum">     294 </span><span class="lineCov">       7291 :         esd-&gt;slConfig-&gt;useAccessUnitEndFlag = 1;</span>
+<span class="lineNum">     295 </span><span class="lineCov">       7291 :         esd-&gt;slConfig-&gt;useAccessUnitStartFlag = 1;</span>
+<span class="lineNum">     296 </span>            : 
+<span class="lineNum">     297 </span>            :         //signal we do have padding flag (since we only use logical SL packet
+<span class="lineNum">     298 </span>            :         //the user can decide whether to use the info or not
+<span class="lineNum">     299 </span><span class="lineCov">       7291 :         esd-&gt;slConfig-&gt;usePaddingFlag = stbl-&gt;PaddingBits ? 1 : 0;</span>
+<span class="lineNum">     300 </span>            : 
+<span class="lineNum">     301 </span>            :         //same with degradation priority
+<span class="lineNum">     302 </span><span class="lineCov">       7291 :         esd-&gt;slConfig-&gt;degradationPriorityLength = stbl-&gt;DegradationPriority ? 32 : 0;</span>
+<span class="lineNum">     303 </span>            : 
+<span class="lineNum">     304 </span>            :         //this new SL will be OUT OF THE FILE. Let's set its predefined to 0
+<span class="lineNum">     305 </span><span class="lineCov">       7291 :         esd-&gt;slConfig-&gt;predefined = 0;</span>
+<span class="lineNum">     306 </span>            : 
+<span class="lineNum">     307 </span>            : 
+<span class="lineNum">     308 </span><span class="lineCov">       7291 :         *outESD = esd;</span>
+<span class="lineNum">     309 </span><span class="lineCov">       7291 :         return GF_OK;</span>
+<span class="lineNum">     310 </span><span class="lineCov">       7336 : }</span>
+<span class="lineNum">     311 </span>            : 
+<a name="312"><span class="lineNum">     312 </span>            : </a>
+<span class="lineNum">     313 </span>            : //extraction of the ESD from the track for the given time
+<span class="lineNum">     314 </span>            : GF_Err GetESDForTime(GF_MovieBox *moov, u32 trackID, u64 CTS, GF_ESD **outESD)
+<span class="lineNum">     315 </span>            : {
+<span class="lineNum">     316 </span>            :         GF_Err e;
+<span class="lineNum">     317 </span><span class="lineCov">       5440 :         u32 sampleDescIndex;</span>
+<span class="lineNum">     318 </span>            :         GF_TrackBox *trak;
+<span class="lineNum">     319 </span>            : 
+<span class="lineNum">     320 </span><span class="lineCov">       2720 :         trak = gf_isom_get_track(moov, gf_isom_get_tracknum_from_id(moov, trackID));</span>
+<span class="lineNum">     321 </span><span class="lineCov">       2720 :         if (!trak) return GF_ISOM_INVALID_FILE;</span>
+<span class="lineNum">     322 </span>            : 
+<span class="lineNum">     323 </span><span class="lineCov">       2720 :         e = Media_GetSampleDescIndex(trak-&gt;Media, CTS, &amp;sampleDescIndex );</span>
+<span class="lineNum">     324 </span><span class="lineCov">       2720 :         if (e) return e;</span>
+<span class="lineNum">     325 </span><span class="lineCov">       2720 :         return GetESD(moov, trackID, sampleDescIndex, outESD);</span>
+<span class="lineNum">     326 </span><span class="lineCov">       2720 : }</span>
+<a name="327"><span class="lineNum">     327 </span>            : </a>
+<span class="lineNum">     328 </span>            : 
+<span class="lineNum">     329 </span>            : GF_Err Track_FindRef(GF_TrackBox *trak, u32 ReferenceType, GF_TrackReferenceTypeBox **dpnd)
+<span class="lineNum">     330 </span>            : {
+<span class="lineNum">     331 </span>            :         GF_TrackReferenceBox *ref;
+<span class="lineNum">     332 </span>            :         GF_TrackReferenceTypeBox *a;
+<span class="lineNum">     333 </span><span class="lineCov">      95462 :         u32 i;</span>
+<span class="lineNum">     334 </span><span class="lineCov">      47731 :         if (! trak) return GF_BAD_PARAM;</span>
+<span class="lineNum">     335 </span><span class="lineCov">      47731 :         if (! trak-&gt;References) {</span>
+<span class="lineNum">     336 </span><span class="lineCov">      30156 :                 *dpnd = NULL;</span>
+<span class="lineNum">     337 </span><span class="lineCov">      30156 :                 return GF_OK;</span>
+<span class="lineNum">     338 </span>            :         }
+<span class="lineNum">     339 </span>            :         ref = trak-&gt;References;
+<span class="lineNum">     340 </span><span class="lineCov">      17575 :         i=0;</span>
+<span class="lineNum">     341 </span><span class="lineCov">      57375 :         while ((a = (GF_TrackReferenceTypeBox *)gf_list_enum(ref-&gt;other_boxes, &amp;i))) {</span>
+<span class="lineNum">     342 </span><span class="lineCov">      31291 :                 if (a-&gt;reference_type == ReferenceType) {</span>
+<span class="lineNum">     343 </span><span class="lineCov">       9066 :                         *dpnd = a;</span>
+<span class="lineNum">     344 </span><span class="lineCov">       9066 :                         return GF_OK;</span>
+<span class="lineNum">     345 </span>            :                 }
+<span class="lineNum">     346 </span>            :         }
+<span class="lineNum">     347 </span><span class="lineCov">       8509 :         *dpnd = NULL;</span>
+<span class="lineNum">     348 </span><span class="lineCov">       8509 :         return GF_OK;</span>
+<a name="349"><span class="lineNum">     349 </span><span class="lineCov">      47731 : }</span></a>
+<span class="lineNum">     350 </span>            : 
+<span class="lineNum">     351 </span>            : Bool Track_IsMPEG4Stream(u32 HandlerType)
+<span class="lineNum">     352 </span>            : {
+<span class="lineNum">     353 </span><span class="lineCov">       6178 :         switch (HandlerType) {</span>
+<span class="lineNum">     354 </span>            :         case GF_ISOM_MEDIA_VISUAL:
+<span class="lineNum">     355 </span>            :         case GF_ISOM_MEDIA_AUDIO:
+<span class="lineNum">     356 </span>            :         case GF_ISOM_MEDIA_SUBPIC:
+<span class="lineNum">     357 </span>            :         case GF_ISOM_MEDIA_OD:
+<span class="lineNum">     358 </span>            :         case GF_ISOM_MEDIA_OCR:
+<span class="lineNum">     359 </span>            :         case GF_ISOM_MEDIA_SCENE:
+<span class="lineNum">     360 </span>            :         case GF_ISOM_MEDIA_MPEG7:
+<span class="lineNum">     361 </span>            :         case GF_ISOM_MEDIA_OCI:
+<span class="lineNum">     362 </span>            :         case GF_ISOM_MEDIA_IPMP:
+<span class="lineNum">     363 </span>            :         case GF_ISOM_MEDIA_MPEGJ:
+<span class="lineNum">     364 </span>            :         case GF_ISOM_MEDIA_ESM:
+<span class="lineNum">     365 </span><span class="lineCov">       3073 :                 return 1;</span>
+<span class="lineNum">     366 </span>            :         /*Timedtext is NOT an MPEG-4 stream*/
+<span class="lineNum">     367 </span>            :         default:
+<span class="lineNum">     368 </span>            :                 /*consider xxsm as MPEG-4 handlers*/
+<span class="lineNum">     369 </span><span class="lineCov">         16 :                 if ( (((HandlerType&gt;&gt;8) &amp; 0xFF)== 's') &amp;&amp; ((HandlerType&amp; 0xFF)== 'm'))</span>
+<span class="lineNum">     370 </span><span class="lineNoCov">          0 :                         return 1;</span>
+<span class="lineNum">     371 </span><span class="lineCov">         16 :                 return 0;</span>
+<span class="lineNum">     372 </span>            :         }
+<span class="lineNum">     373 </span><span class="lineCov">       3089 : }</span>
+<a name="374"><span class="lineNum">     374 </span>            : </a>
+<span class="lineNum">     375 </span>            : 
+<span class="lineNum">     376 </span>            : GF_Err SetTrackDuration(GF_TrackBox *trak)
+<span class="lineNum">     377 </span>            : {
+<span class="lineNum">     378 </span>            :         u64 trackDuration;
+<span class="lineNum">     379 </span><span class="lineCov">     399270 :         u32 i;</span>
+<span class="lineNum">     380 </span>            :         GF_EdtsEntry *ent;
+<span class="lineNum">     381 </span>            :         GF_EditListBox *elst;
+<span class="lineNum">     382 </span>            :         GF_Err e;
+<span class="lineNum">     383 </span>            : 
+<span class="lineNum">     384 </span>            :         //the total duration is the media duration: adjust it in case...
+<span class="lineNum">     385 </span><span class="lineCov">     199635 :         e = Media_SetDuration(trak);</span>
+<span class="lineNum">     386 </span><span class="lineCov">     199635 :         if (e) return e;</span>
+<span class="lineNum">     387 </span>            : 
+<span class="lineNum">     388 </span>            :         //assert the timeScales are non-NULL
+<span class="lineNum">     389 </span><span class="lineCov">     399270 :         if (!trak-&gt;moov-&gt;mvhd-&gt;timeScale || !trak-&gt;Media-&gt;mediaHeader-&gt;timeScale) return GF_ISOM_INVALID_FILE;</span>
+<span class="lineNum">     390 </span><span class="lineCov">     199635 :         trackDuration = (trak-&gt;Media-&gt;mediaHeader-&gt;duration * trak-&gt;moov-&gt;mvhd-&gt;timeScale) / trak-&gt;Media-&gt;mediaHeader-&gt;timeScale;</span>
+<span class="lineNum">     391 </span>            : 
+<span class="lineNum">     392 </span>            :         //if we have an edit list, the duration is the sum of all the editList
+<span class="lineNum">     393 </span>            :         //entries' duration (always expressed in MovieTimeScale)
+<span class="lineNum">     394 </span><span class="lineCov">     202348 :         if (trak-&gt;editBox &amp;&amp; trak-&gt;editBox-&gt;editList) {</span>
+<span class="lineNum">     395 </span>            :                 trackDuration = 0;
+<span class="lineNum">     396 </span>            :                 elst = trak-&gt;editBox-&gt;editList;
+<span class="lineNum">     397 </span><span class="lineCov">       2713 :                 i=0;</span>
+<span class="lineNum">     398 </span><span class="lineCov">      10856 :                 while ((ent = (GF_EdtsEntry*)gf_list_enum(elst-&gt;entryList, &amp;i))) {</span>
+<span class="lineNum">     399 </span><span class="lineCov">       2715 :                         trackDuration += ent-&gt;segmentDuration;</span>
+<span class="lineNum">     400 </span>            :                 }
+<span class="lineNum">     401 </span>            :         }
+<span class="lineNum">     402 </span><span class="lineCov">     199635 :         if (!trackDuration) {</span>
+<span class="lineNum">     403 </span><span class="lineCov">       2010 :                 trackDuration = (trak-&gt;Media-&gt;mediaHeader-&gt;duration * trak-&gt;moov-&gt;mvhd-&gt;timeScale) / trak-&gt;Media-&gt;mediaHeader-&gt;timeScale;</span>
+<span class="lineNum">     404 </span><span class="lineCov">       2010 :         }</span>
+<span class="lineNum">     405 </span><span class="lineCov">     199635 :         trak-&gt;Header-&gt;duration = trackDuration;</span>
+<span class="lineNum">     406 </span><span class="lineCov">     199635 :         if (!trak-&gt;moov-&gt;mov-&gt;keep_utc)</span>
+<span class="lineNum">     407 </span><span class="lineCov">     199635 :                 trak-&gt;Header-&gt;modificationTime = gf_isom_get_mp4time();</span>
+<span class="lineNum">     408 </span><span class="lineCov">     199635 :         return GF_OK;</span>
+<span class="lineNum">     409 </span><span class="lineCov">     199635 : }</span>
+<span class="lineNum">     410 </span>            : 
+<span class="lineNum">     411 </span>            : 
+<a name="412"><span class="lineNum">     412 </span>            : #ifndef GPAC_DISABLE_ISOM_FRAGMENTS</a>
+<span class="lineNum">     413 </span>            : 
+<span class="lineNum">     414 </span>            : GF_Err MergeTrack(GF_TrackBox *trak, GF_TrackFragmentBox *traf, u64 moof_offset, Bool is_first_merge)
+<span class="lineNum">     415 </span>            : {
+<span class="lineNum">     416 </span><span class="lineCov">          6 :         u32 i, j, chunk_size;</span>
+<span class="lineNum">     417 </span>            :         u64 base_offset, data_offset;
+<span class="lineNum">     418 </span>            :         u32 def_duration, DescIndex, def_size, def_flags;
+<span class="lineNum">     419 </span>            :         u32 duration, size, flags, cts_offset, prev_trun_data_offset;
+<span class="lineNum">     420 </span>            :         u8 pad, sync;
+<span class="lineNum">     421 </span>            :         u16 degr;
+<span class="lineNum">     422 </span>            :         GF_TrackFragmentRunBox *trun;
+<span class="lineNum">     423 </span>            :         GF_TrunEntry *ent;
+<span class="lineNum">     424 </span>            : 
+<span class="lineNum">     425 </span>            :         void stbl_AppendTime(GF_SampleTableBox *stbl, u32 duration);
+<span class="lineNum">     426 </span>            :         void stbl_AppendSize(GF_SampleTableBox *stbl, u32 size);
+<span class="lineNum">     427 </span>            :         void stbl_AppendChunk(GF_SampleTableBox *stbl, u64 offset);
+<span class="lineNum">     428 </span>            :         void stbl_AppendSampleToChunk(GF_SampleTableBox *stbl, u32 DescIndex, u32 samplesInChunk);
+<span class="lineNum">     429 </span>            :         void stbl_AppendCTSOffset(GF_SampleTableBox *stbl, s32 CTSOffset);
+<span class="lineNum">     430 </span>            :         void stbl_AppendRAP(GF_SampleTableBox *stbl, u8 isRap);
+<span class="lineNum">     431 </span>            :         void stbl_AppendPadding(GF_SampleTableBox *stbl, u8 padding);
+<span class="lineNum">     432 </span>            :         void stbl_AppendDegradation(GF_SampleTableBox *stbl, u16 DegradationPriority);
+<span class="lineNum">     433 </span>            : 
+<span class="lineNum">     434 </span><span class="lineCov">          3 :         if (trak-&gt;Header-&gt;trackID != traf-&gt;tfhd-&gt;trackID) return GF_OK;</span>
+<span class="lineNum">     435 </span>            : 
+<span class="lineNum">     436 </span>            :         //setup all our defaults
+<span class="lineNum">     437 </span><span class="lineCov">          9 :         DescIndex = (traf-&gt;tfhd-&gt;flags &amp; GF_ISOM_TRAF_SAMPLE_DESC) ? traf-&gt;tfhd-&gt;sample_desc_index : traf-&gt;trex-&gt;def_sample_desc_index;</span>
+<span class="lineNum">     438 </span><span class="lineCov">          9 :         def_duration = (traf-&gt;tfhd-&gt;flags &amp; GF_ISOM_TRAF_SAMPLE_DUR) ? traf-&gt;tfhd-&gt;def_sample_duration : traf-&gt;trex-&gt;def_sample_duration;</span>
+<span class="lineNum">     439 </span><span class="lineCov">          9 :         def_size = (traf-&gt;tfhd-&gt;flags &amp; GF_ISOM_TRAF_SAMPLE_SIZE) ? traf-&gt;tfhd-&gt;def_sample_size : traf-&gt;trex-&gt;def_sample_size;</span>
+<span class="lineNum">     440 </span><span class="lineCov">          9 :         def_flags = (traf-&gt;tfhd-&gt;flags &amp; GF_ISOM_TRAF_SAMPLE_FLAGS) ? traf-&gt;tfhd-&gt;def_sample_flags : traf-&gt;trex-&gt;def_sample_flags;</span>
+<span class="lineNum">     441 </span>            : 
+<span class="lineNum">     442 </span>            :         //locate base offset
+<span class="lineNum">     443 </span><span class="lineCov">          9 :         base_offset = (traf-&gt;tfhd-&gt;flags &amp; GF_ISOM_TRAF_BASE_OFFSET) ? traf-&gt;tfhd-&gt;base_data_offset : moof_offset;</span>
+<span class="lineNum">     444 </span>            : 
+<span class="lineNum">     445 </span>            :         chunk_size = 0;
+<span class="lineNum">     446 </span>            :         prev_trun_data_offset = 0;
+<span class="lineNum">     447 </span>            : 
+<span class="lineNum">     448 </span>            :         /*in playback mode*/
+<span class="lineNum">     449 </span><span class="lineCov">          3 :         if (traf-&gt;tfdt &amp;&amp; is_first_merge) {</span>
+<span class="lineNum">     450 </span>            : #ifndef GPAC_DISABLE_LOG
+<span class="lineNum">     451 </span><span class="lineNoCov">          0 :                 if (trak-&gt;moov-&gt;mov-&gt;NextMoofNumber &amp;&amp; trak-&gt;present_in_scalable_segment &amp;&amp; trak-&gt;sample_count_at_seg_start &amp;&amp; (trak-&gt;dts_at_seg_start != traf-&gt;tfdt-&gt;baseMediaDecodeTime)) {</span>
+<span class="lineNum">     452 </span><span class="lineNoCov">          0 :                         s32 drift = (s32) ((s64) traf-&gt;tfdt-&gt;baseMediaDecodeTime - (s64)trak-&gt;dts_at_seg_start);</span>
+<span class="lineNum">     453 </span><span class="lineNoCov">          0 :                         if (drift&lt;0)  {</span>
+<span class="lineNum">     454 </span><span class="lineNoCov">          0 :                                 GF_LOG(GF_LOG_WARNING, GF_LOG_CONTAINER, (&quot;[iso file] Warning: TFDT timing &quot;LLD&quot; less than cumulated timing &quot;LLD&quot; - using tfdt\n&quot;, traf-&gt;tfdt-&gt;baseMediaDecodeTime, trak-&gt;dts_at_seg_start ));</span>
+<span class="lineNum">     455 </span>            :                         } else {
+<span class="lineNum">     456 </span><span class="lineNoCov">          0 :                                 GF_LOG(GF_LOG_INFO, GF_LOG_CONTAINER, (&quot;[iso file] TFDT timing &quot;LLD&quot; higher than cumulated timing &quot;LLD&quot; (last sample got extended in duration)\n&quot;, traf-&gt;tfdt-&gt;baseMediaDecodeTime, trak-&gt;dts_at_seg_start ));</span>
+<span class="lineNum">     457 </span>            :                         }
+<span class="lineNum">     458 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     459 </span>            : #endif
+<span class="lineNum">     460 </span><span class="lineNoCov">          0 :                 trak-&gt;dts_at_seg_start = traf-&gt;tfdt-&gt;baseMediaDecodeTime;</span>
+<span class="lineNum">     461 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     462 </span>            : 
+<span class="lineNum">     463 </span><span class="lineCov">          3 :         i=0;</span>
+<span class="lineNum">     464 </span><span class="lineCov">          9 :         while ((trun = (GF_TrackFragmentRunBox *)gf_list_enum(traf-&gt;TrackRuns, &amp;i))) {</span>
+<span class="lineNum">     465 </span>            :                 //merge the run
+<span class="lineNum">     466 </span><span class="lineCov">         12 :                 for (j=0; j&lt;trun-&gt;sample_count; j++) {</span>
+<span class="lineNum">     467 </span><span class="lineCov">          3 :                         ent = (GF_TrunEntry*)gf_list_get(trun-&gt;entries, j);</span>
+<span class="lineNum">     468 </span>            :                         size = def_size;
+<span class="lineNum">     469 </span>            :                         duration = def_duration;
+<span class="lineNum">     470 </span>            :                         flags = def_flags;
+<span class="lineNum">     471 </span>            : 
+<span class="lineNum">     472 </span><span class="lineCov">          3 :                         if (ent) {</span>
+<span class="lineNum">     473 </span><span class="lineCov">          6 :                                 if (trun-&gt;flags &amp; GF_ISOM_TRUN_DURATION) duration = ent-&gt;Duration;</span>
+<span class="lineNum">     474 </span><span class="lineCov">          6 :                                 if (trun-&gt;flags &amp; GF_ISOM_TRUN_SIZE) size = ent-&gt;size;</span>
+<span class="lineNum">     475 </span><span class="lineCov">          3 :                                 if (trun-&gt;flags &amp; GF_ISOM_TRUN_FLAGS) {</span>
+<span class="lineNum">     476 </span><span class="lineCov">          3 :                                         flags = ent-&gt;flags;</span>
+<span class="lineNum">     477 </span><span class="lineCov">          3 :                                 } else if (!j &amp;&amp; (trun-&gt;flags &amp; GF_ISOM_TRUN_FIRST_FLAG)) {</span>
+<span class="lineNum">     478 </span><span class="lineNoCov">          0 :                                         flags = trun-&gt;first_sample_flags;</span>
+<span class="lineNum">     479 </span><span class="lineNoCov">          0 :                                 }</span>
+<span class="lineNum">     480 </span>            :                         }
+<span class="lineNum">     481 </span>            :                         //add size first
+<span class="lineNum">     482 </span><span class="lineCov">          3 :                         stbl_AppendSize(trak-&gt;Media-&gt;information-&gt;sampleTable, size);</span>
+<span class="lineNum">     483 </span>            :                         //then TS
+<span class="lineNum">     484 </span><span class="lineCov">          3 :                         stbl_AppendTime(trak-&gt;Media-&gt;information-&gt;sampleTable, duration);</span>
+<span class="lineNum">     485 </span>            :                         //add chunk on first sample
+<span class="lineNum">     486 </span><span class="lineCov">          3 :                         if (!j) {</span>
+<span class="lineNum">     487 </span>            :                                 data_offset = base_offset;
+<span class="lineNum">     488 </span>            :                                 //aggregated offset if base-data-offset-present is not set AND if default-base-is-moof is not set
+<span class="lineNum">     489 </span><span class="lineCov">          6 :                                 if (!(traf-&gt;tfhd-&gt;flags &amp; GF_ISOM_TRAF_BASE_OFFSET) &amp;&amp; !(traf-&gt;tfhd-&gt;flags &amp; GF_ISOM_MOOF_BASE_OFFSET) )</span>
+<span class="lineNum">     490 </span><span class="lineCov">          3 :                                         data_offset += chunk_size;</span>
+<span class="lineNum">     491 </span>            : 
+<span class="lineNum">     492 </span><span class="lineCov">          3 :                                 if (trun-&gt;flags &amp; GF_ISOM_TRUN_DATA_OFFSET) {</span>
+<span class="lineNum">     493 </span><span class="lineCov">          3 :                                         data_offset += trun-&gt;data_offset;</span>
+<span class="lineNum">     494 </span>            :                                         /*reset chunk size since data is now relative to this trun*/
+<span class="lineNum">     495 </span>            :                                         chunk_size = 0;
+<span class="lineNum">     496 </span>            :                                         /*remember this data offset for following trun*/
+<span class="lineNum">     497 </span>            :                                         prev_trun_data_offset = trun-&gt;data_offset;
+<span class="lineNum">     498 </span><span class="lineCov">          3 :                                 } else {</span>
+<span class="lineNum">     499 </span>            :                                         /*data offset is previous chunk size plus previous offset of the trun*/
+<span class="lineNum">     500 </span><span class="lineNoCov">          0 :                                         data_offset += prev_trun_data_offset;</span>
+<span class="lineNum">     501 </span>            :                                 }
+<span class="lineNum">     502 </span><span class="lineCov">          3 :                                 stbl_AppendChunk(trak-&gt;Media-&gt;information-&gt;sampleTable, data_offset);</span>
+<span class="lineNum">     503 </span>            :                                 //then sampleToChunk
+<span class="lineNum">     504 </span><span class="lineCov">          6 :                                 stbl_AppendSampleToChunk(trak-&gt;Media-&gt;information-&gt;sampleTable,</span>
+<span class="lineNum">     505 </span><span class="lineCov">          3 :                                                          DescIndex, trun-&gt;sample_count);</span>
+<span class="lineNum">     506 </span><span class="lineCov">          3 :                         }</span>
+<span class="lineNum">     507 </span><span class="lineCov">          3 :                         chunk_size += size;</span>
+<span class="lineNum">     508 </span>            : 
+<span class="lineNum">     509 </span>            : 
+<span class="lineNum">     510 </span>            :                         //CTS
+<span class="lineNum">     511 </span><span class="lineCov">          6 :                         cts_offset = (trun-&gt;flags &amp; GF_ISOM_TRUN_CTS_OFFSET) ? ent-&gt;CTS_Offset : 0;</span>
+<span class="lineNum">     512 </span><span class="lineCov">          3 :                         stbl_AppendCTSOffset(trak-&gt;Media-&gt;information-&gt;sampleTable, cts_offset);</span>
+<span class="lineNum">     513 </span>            : 
+<span class="lineNum">     514 </span>            :                         //flags
+<span class="lineNum">     515 </span><span class="lineCov">          3 :                         sync = GF_ISOM_GET_FRAG_SYNC(flags);</span>
+<span class="lineNum">     516 </span><span class="lineCov">          6 :                         if (trak-&gt;Media-&gt;information-&gt;sampleTable-&gt;no_sync_found &amp;&amp; sync) {</span>
+<span class="lineNum">     517 </span><span class="lineCov">          3 :                                 trak-&gt;Media-&gt;information-&gt;sampleTable-&gt;no_sync_found = 0;</span>
+<span class="lineNum">     518 </span><span class="lineCov">          3 :                         }</span>
+<span class="lineNum">     519 </span><span class="lineCov">          3 :                         stbl_AppendRAP(trak-&gt;Media-&gt;information-&gt;sampleTable, sync);</span>
+<span class="lineNum">     520 </span><span class="lineCov">          3 :                         pad = GF_ISOM_GET_FRAG_PAD(flags);</span>
+<span class="lineNum">     521 </span><span class="lineCov">          3 :                         if (pad) stbl_AppendPadding(trak-&gt;Media-&gt;information-&gt;sampleTable, pad);</span>
+<span class="lineNum">     522 </span><span class="lineCov">          3 :                         degr = GF_ISOM_GET_FRAG_DEG(flags);</span>
+<span class="lineNum">     523 </span><span class="lineCov">          6 :                         if (degr) stbl_AppendDegradation(trak-&gt;Media-&gt;information-&gt;sampleTable, degr);</span>
+<span class="lineNum">     524 </span>            : 
+<span class="lineNum">     525 </span><span class="lineCov">          3 :                         stbl_AppendDependencyType(trak-&gt;Media-&gt;information-&gt;sampleTable, GF_ISOM_GET_FRAG_LEAD(flags), GF_ISOM_GET_FRAG_DEPENDS(flags), GF_ISOM_GET_FRAG_DEPENDED(flags), GF_ISOM_GET_FRAG_REDUNDANT(flags));</span>
+<span class="lineNum">     526 </span>            :                 }
+<span class="lineNum">     527 </span>            :         }
+<span class="lineNum">     528 </span>            :         /*merge sample groups*/
+<span class="lineNum">     529 </span><span class="lineCov">          3 :         if (traf-&gt;sampleGroups) {</span>
+<span class="lineNum">     530 </span>            :                 GF_List *groups;
+<span class="lineNum">     531 </span>            :                 GF_List *groupDescs;
+<span class="lineNum">     532 </span>            :                 Bool is_identical_sgpd = GF_TRUE;
+<span class="lineNum">     533 </span>            :                 u32 *new_idx = NULL;
+<span class="lineNum">     534 </span>            : 
+<span class="lineNum">     535 </span><span class="lineNoCov">          0 :                 if (!trak-&gt;Media-&gt;information-&gt;sampleTable-&gt;sampleGroups)</span>
+<span class="lineNum">     536 </span><span class="lineNoCov">          0 :                         trak-&gt;Media-&gt;information-&gt;sampleTable-&gt;sampleGroups = gf_list_new();</span>
+<span class="lineNum">     537 </span>            : 
+<span class="lineNum">     538 </span><span class="lineNoCov">          0 :                 if (!trak-&gt;Media-&gt;information-&gt;sampleTable-&gt;sampleGroupsDescription)</span>
+<span class="lineNum">     539 </span><span class="lineNoCov">          0 :                         trak-&gt;Media-&gt;information-&gt;sampleTable-&gt;sampleGroupsDescription = gf_list_new();</span>
+<span class="lineNum">     540 </span>            : 
+<span class="lineNum">     541 </span><span class="lineNoCov">          0 :                 groupDescs = trak-&gt;Media-&gt;information-&gt;sampleTable-&gt;sampleGroupsDescription;</span>
+<span class="lineNum">     542 </span><span class="lineNoCov">          0 :                 for (i=0; i&lt;gf_list_count(traf-&gt;sampleGroupsDescription); i++) {</span>
+<span class="lineNum">     543 </span>            :                         GF_SampleGroupDescriptionBox *new_sgdesc = NULL;
+<span class="lineNum">     544 </span><span class="lineNoCov">          0 :                         GF_SampleGroupDescriptionBox *sgdesc = gf_list_get(traf-&gt;sampleGroupsDescription, i);</span>
+<span class="lineNum">     545 </span><span class="lineNoCov">          0 :                         for (j=0; j&lt;gf_list_count(groupDescs); j++) {</span>
+<span class="lineNum">     546 </span><span class="lineNoCov">          0 :                                 new_sgdesc = gf_list_get(groupDescs, j);</span>
+<span class="lineNum">     547 </span><span class="lineNoCov">          0 :                                 if (new_sgdesc-&gt;grouping_type==sgdesc-&gt;grouping_type) break;</span>
+<span class="lineNum">     548 </span>            :                                 new_sgdesc = NULL;
+<span class="lineNum">     549 </span>            :                         }
+<span class="lineNum">     550 </span>            :                         /*new description, move it to our sample table*/
+<span class="lineNum">     551 </span><span class="lineNoCov">          0 :                         if (!new_sgdesc) {</span>
+<span class="lineNum">     552 </span><span class="lineNoCov">          0 :                                 gf_list_add(groupDescs, sgdesc);</span>
+<span class="lineNum">     553 </span><span class="lineNoCov">          0 :                                 gf_list_rem(traf-&gt;sampleGroupsDescription, i);</span>
+<span class="lineNum">     554 </span><span class="lineNoCov">          0 :                                 i--;</span>
+<span class="lineNum">     555 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     556 </span>            :                         /*merge descriptions*/
+<span class="lineNum">     557 </span>            :                         else {
+<span class="lineNum">     558 </span>            :                                 u32 count;
+<span class="lineNum">     559 </span>            : 
+<span class="lineNum">     560 </span><span class="lineNoCov">          0 :                                 is_identical_sgpd = gf_isom_is_identical_sgpd(new_sgdesc, sgdesc, 0);</span>
+<span class="lineNum">     561 </span><span class="lineNoCov">          0 :                                 if (is_identical_sgpd)</span>
+<span class="lineNum">     562 </span><span class="lineNoCov">          0 :                                         continue;</span>
+<span class="lineNum">     563 </span>            : 
+<span class="lineNum">     564 </span><span class="lineNoCov">          0 :                                 new_idx = (u32 *)gf_malloc(gf_list_count(sgdesc-&gt;group_descriptions)*sizeof(u32));</span>
+<span class="lineNum">     565 </span>            :                                 count = 0;
+<span class="lineNum">     566 </span><span class="lineNoCov">          0 :                                 while (gf_list_count(sgdesc-&gt;group_descriptions)) {</span>
+<span class="lineNum">     567 </span><span class="lineNoCov">          0 :                                         void *sgpd_entry = gf_list_get(sgdesc-&gt;group_descriptions, 0);</span>
+<span class="lineNum">     568 </span>            :                                         Bool new_entry = GF_TRUE;
+<span class="lineNum">     569 </span>            : 
+<span class="lineNum">     570 </span><span class="lineNoCov">          0 :                                         for (j = 0; j &lt; gf_list_count(new_sgdesc-&gt;group_descriptions); j++) {</span>
+<span class="lineNum">     571 </span><span class="lineNoCov">          0 :                                                 void *ptr = gf_list_get(new_sgdesc-&gt;group_descriptions, j);</span>
+<span class="lineNum">     572 </span><span class="lineNoCov">          0 :                                                 if (gf_isom_is_identical_sgpd(sgpd_entry, ptr, new_sgdesc-&gt;grouping_type)) {</span>
+<span class="lineNum">     573 </span><span class="lineNoCov">          0 :                                                         new_idx[count] = j + 1;</span>
+<span class="lineNum">     574 </span><span class="lineNoCov">          0 :                                                         count ++;</span>
+<span class="lineNum">     575 </span>            :                                                         new_entry = GF_FALSE;
+<span class="lineNum">     576 </span><span class="lineNoCov">          0 :                                                         gf_free(sgpd_entry);</span>
+<span class="lineNum">     577 </span><span class="lineNoCov">          0 :                                                         break;</span>
+<span class="lineNum">     578 </span>            :                                                 }
+<span class="lineNum">     579 </span><span class="lineNoCov">          0 :                                         }</span>
+<span class="lineNum">     580 </span>            : 
+<span class="lineNum">     581 </span><span class="lineNoCov">          0 :                                         if (new_entry) {</span>
+<span class="lineNum">     582 </span><span class="lineNoCov">          0 :                                                 gf_list_add(new_sgdesc-&gt;group_descriptions, sgpd_entry);</span>
+<span class="lineNum">     583 </span><span class="lineNoCov">          0 :                                                 new_idx[count] = gf_list_count(new_sgdesc-&gt;group_descriptions);</span>
+<span class="lineNum">     584 </span><span class="lineNoCov">          0 :                                                 count ++;</span>
+<span class="lineNum">     585 </span><span class="lineNoCov">          0 :                                         }</span>
+<span class="lineNum">     586 </span>            : 
+<span class="lineNum">     587 </span><span class="lineNoCov">          0 :                                         gf_list_rem(sgdesc-&gt;group_descriptions, 0);</span>
+<span class="lineNum">     588 </span>            :                                 }
+<span class="lineNum">     589 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     590 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     591 </span>            : 
+<span class="lineNum">     592 </span><span class="lineNoCov">          0 :                 groups = trak-&gt;Media-&gt;information-&gt;sampleTable-&gt;sampleGroups;</span>
+<span class="lineNum">     593 </span><span class="lineNoCov">          0 :                 for (i=0; i&lt;gf_list_count(traf-&gt;sampleGroups); i++) {</span>
+<span class="lineNum">     594 </span>            :                         GF_SampleGroupBox *stbl_group = NULL;
+<span class="lineNum">     595 </span><span class="lineNoCov">          0 :                         GF_SampleGroupBox *frag_group = gf_list_get(traf-&gt;sampleGroups, i);</span>
+<span class="lineNum">     596 </span>            : 
+<span class="lineNum">     597 </span>            : 
+<span class="lineNum">     598 </span><span class="lineNoCov">          0 :                         for (j=0; j&lt;gf_list_count(groups); j++) {</span>
+<span class="lineNum">     599 </span><span class="lineNoCov">          0 :                                 stbl_group = gf_list_get(groups, j);</span>
+<span class="lineNum">     600 </span><span class="lineNoCov">          0 :                                 if ((frag_group-&gt;grouping_type==stbl_group-&gt;grouping_type) &amp;&amp; (frag_group-&gt;grouping_type_parameter==stbl_group-&gt;grouping_type_parameter))</span>
+<span class="lineNum">     601 </span>            :                                         break;
+<span class="lineNum">     602 </span>            :                                 stbl_group = NULL;
+<span class="lineNum">     603 </span>            :                         }
+<span class="lineNum">     604 </span><span class="lineNoCov">          0 :                         if (!stbl_group) {</span>
+<span class="lineNum">     605 </span><span class="lineNoCov">          0 :                                 stbl_group = (GF_SampleGroupBox *) gf_isom_box_new(GF_ISOM_BOX_TYPE_SBGP);</span>
+<span class="lineNum">     606 </span><span class="lineNoCov">          0 :                                 stbl_group-&gt;grouping_type = frag_group-&gt;grouping_type;</span>
+<span class="lineNum">     607 </span><span class="lineNoCov">          0 :                                 stbl_group-&gt;grouping_type_parameter = frag_group-&gt;grouping_type_parameter;</span>
+<span class="lineNum">     608 </span><span class="lineNoCov">          0 :                                 stbl_group-&gt;version = frag_group-&gt;version;</span>
+<span class="lineNum">     609 </span><span class="lineNoCov">          0 :                                 gf_list_add(groups, stbl_group);</span>
+<span class="lineNum">     610 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     611 </span>            : 
+<span class="lineNum">     612 </span><span class="lineNoCov">          0 :                         if (is_identical_sgpd) {</span>
+<span class="lineNum">     613 </span>            :                                 //adjust sgpd index: in traf index start at 0x1001
+<span class="lineNum">     614 </span><span class="lineNoCov">          0 :                                 for (j = 0; j &lt; frag_group-&gt;entry_count; j++)</span>
+<span class="lineNum">     615 </span><span class="lineNoCov">          0 :                                         frag_group-&gt;sample_entries[j].group_description_index &amp;= 0x0FFFF;</span>
+<span class="lineNum">     616 </span><span class="lineNoCov">          0 :                                 if (frag_group-&gt;entry_count &amp;&amp; stbl_group-&gt;entry_count &amp;&amp;</span>
+<span class="lineNum">     617 </span><span class="lineNoCov">          0 :                                         (frag_group-&gt;sample_entries[0].group_description_index==stbl_group-&gt;sample_entries[stbl_group-&gt;entry_count-1].group_description_index)</span>
+<span class="lineNum">     618 </span>            :                                    ) {
+<span class="lineNum">     619 </span><span class="lineNoCov">          0 :                                         stbl_group-&gt;sample_entries[stbl_group-&gt;entry_count - 1].sample_count += frag_group-&gt;sample_entries[0].sample_count;</span>
+<span class="lineNum">     620 </span><span class="lineNoCov">          0 :                                         if (frag_group-&gt;entry_count&gt;1) {</span>
+<span class="lineNum">     621 </span><span class="lineNoCov">          0 :                                                 stbl_group-&gt;sample_entries = gf_realloc(stbl_group-&gt;sample_entries, sizeof(GF_SampleGroupEntry) * (stbl_group-&gt;entry_count + frag_group-&gt;entry_count - 1));</span>
+<span class="lineNum">     622 </span><span class="lineNoCov">          0 :                                                 memcpy(&amp;stbl_group-&gt;sample_entries[stbl_group-&gt;entry_count], &amp;frag_group-&gt;sample_entries[1], sizeof(GF_SampleGroupEntry) * (frag_group-&gt;entry_count - 1));</span>
+<span class="lineNum">     623 </span><span class="lineNoCov">          0 :                                                 stbl_group-&gt;entry_count += frag_group-&gt;entry_count - 1;</span>
+<span class="lineNum">     624 </span><span class="lineNoCov">          0 :                                         }</span>
+<span class="lineNum">     625 </span>            :                                 } else {
+<span class="lineNum">     626 </span><span class="lineNoCov">          0 :                                         stbl_group-&gt;sample_entries = gf_realloc(stbl_group-&gt;sample_entries, sizeof(GF_SampleGroupEntry) * (stbl_group-&gt;entry_count + frag_group-&gt;entry_count));</span>
+<span class="lineNum">     627 </span><span class="lineNoCov">          0 :                                         memcpy(&amp;stbl_group-&gt;sample_entries[stbl_group-&gt;entry_count], &amp;frag_group-&gt;sample_entries[0], sizeof(GF_SampleGroupEntry) * frag_group-&gt;entry_count);</span>
+<span class="lineNum">     628 </span><span class="lineNoCov">          0 :                                         stbl_group-&gt;entry_count += frag_group-&gt;entry_count;</span>
+<span class="lineNum">     629 </span>            :                                 }
+<span class="lineNum">     630 </span>            :                         } else {
+<span class="lineNum">     631 </span><span class="lineNoCov">          0 :                                 stbl_group-&gt;sample_entries = gf_realloc(stbl_group-&gt;sample_entries, sizeof(GF_SampleGroupEntry) * (stbl_group-&gt;entry_count + frag_group-&gt;entry_count));</span>
+<span class="lineNum">     632 </span>            :                                 //adjust sgpd index
+<span class="lineNum">     633 </span><span class="lineNoCov">          0 :                                 for (j = 0; j &lt; frag_group-&gt;entry_count; j++)</span>
+<span class="lineNum">     634 </span><span class="lineNoCov">          0 :                                         frag_group-&gt;sample_entries[j].group_description_index = new_idx[j];</span>
+<span class="lineNum">     635 </span><span class="lineNoCov">          0 :                                 memcpy(&amp;stbl_group-&gt;sample_entries[stbl_group-&gt;entry_count], &amp;frag_group-&gt;sample_entries[0], sizeof(GF_SampleGroupEntry) * frag_group-&gt;entry_count);</span>
+<span class="lineNum">     636 </span><span class="lineNoCov">          0 :                                 stbl_group-&gt;entry_count += frag_group-&gt;entry_count;</span>
+<span class="lineNum">     637 </span>            :                         }
+<span class="lineNum">     638 </span>            :                 }
+<span class="lineNum">     639 </span>            : 
+<span class="lineNum">     640 </span><span class="lineNoCov">          0 :                 if (new_idx) gf_free(new_idx);</span>
+<span class="lineNum">     641 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     642 </span>            : 
+<span class="lineNum">     643 </span><span class="lineCov">          3 :         if (gf_isom_is_cenc_media(trak-&gt;moov-&gt;mov, gf_isom_get_tracknum_from_id(trak-&gt;moov, trak-&gt;Header-&gt;trackID), 1)) {</span>
+<span class="lineNum">     644 </span>            :                 /*Merge sample auxiliary encryption information*/
+<span class="lineNum">     645 </span>            :                 GF_SampleEncryptionBox *senc = NULL;
+<span class="lineNum">     646 </span>            :                 GF_List *sais = NULL;
+<span class="lineNum">     647 </span>            : 
+<span class="lineNum">     648 </span><span class="lineNoCov">          0 :                 if (traf-&gt;piff_sample_encryption) {</span>
+<span class="lineNum">     649 </span><span class="lineNoCov">          0 :                         for (i = 0; i &lt; gf_list_count(trak-&gt;Media-&gt;information-&gt;sampleTable-&gt;other_boxes); i++) {</span>
+<span class="lineNum">     650 </span><span class="lineNoCov">          0 :                                 GF_Box *a = (GF_Box *)gf_list_get(trak-&gt;Media-&gt;information-&gt;sampleTable-&gt;other_boxes, i);</span>
+<span class="lineNum">     651 </span><span class="lineNoCov">          0 :                                 if ((a-&gt;type ==GF_ISOM_BOX_TYPE_UUID) &amp;&amp; (((GF_UUIDBox *)a)-&gt;internal_4cc == GF_ISOM_BOX_UUID_PSEC)) {</span>
+<span class="lineNum">     652 </span><span class="lineNoCov">          0 :                                         senc = (GF_SampleEncryptionBox *)a;</span>
+<span class="lineNum">     653 </span><span class="lineNoCov">          0 :                                         break;</span>
+<span class="lineNum">     654 </span>            :                                 }
+<span class="lineNum">     655 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     656 </span><span class="lineNoCov">          0 :                         if (!senc) {</span>
+<span class="lineNum">     657 </span><span class="lineNoCov">          0 :                                 senc = (GF_SampleEncryptionBox *)gf_isom_create_piff_psec_box(1, 0x2, 0, 0, NULL);</span>
+<span class="lineNum">     658 </span><span class="lineNoCov">          0 :                                 if (!trak-&gt;Media-&gt;information-&gt;sampleTable-&gt;other_boxes) trak-&gt;Media-&gt;information-&gt;sampleTable-&gt;other_boxes = gf_list_new();</span>
+<span class="lineNum">     659 </span><span class="lineNoCov">          0 :                                 gf_list_add(trak-&gt;Media-&gt;information-&gt;sampleTable-&gt;other_boxes, senc);</span>
+<span class="lineNum">     660 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     661 </span>            : 
+<span class="lineNum">     662 </span><span class="lineNoCov">          0 :                         sais = traf-&gt;piff_sample_encryption-&gt;samp_aux_info;</span>
+<span class="lineNum">     663 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     664 </span><span class="lineNoCov">          0 :                 else if (traf-&gt;sample_encryption) {</span>
+<span class="lineNum">     665 </span><span class="lineNoCov">          0 :                         for (i = 0; i &lt; gf_list_count(trak-&gt;Media-&gt;information-&gt;sampleTable-&gt;other_boxes); i++) {</span>
+<span class="lineNum">     666 </span><span class="lineNoCov">          0 :                                 GF_Box *a = (GF_Box *)gf_list_get(trak-&gt;Media-&gt;information-&gt;sampleTable-&gt;other_boxes, i);</span>
+<span class="lineNum">     667 </span><span class="lineNoCov">          0 :                                 if (a-&gt;type ==GF_ISOM_BOX_TYPE_SENC) {</span>
+<span class="lineNum">     668 </span><span class="lineNoCov">          0 :                                         senc = (GF_SampleEncryptionBox *)a;</span>
+<span class="lineNum">     669 </span><span class="lineNoCov">          0 :                                         break;</span>
+<span class="lineNum">     670 </span>            :                                 }
+<span class="lineNum">     671 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     672 </span><span class="lineNoCov">          0 :                         if (!senc) {</span>
+<span class="lineNum">     673 </span><span class="lineNoCov">          0 :                                 senc = gf_isom_create_samp_enc_box(1, 0x2);</span>
+<span class="lineNum">     674 </span><span class="lineNoCov">          0 :                                 if (!trak-&gt;Media-&gt;information-&gt;sampleTable-&gt;other_boxes) trak-&gt;Media-&gt;information-&gt;sampleTable-&gt;other_boxes = gf_list_new();</span>
+<span class="lineNum">     675 </span><span class="lineNoCov">          0 :                                 gf_list_add(trak-&gt;Media-&gt;information-&gt;sampleTable-&gt;other_boxes, senc);</span>
+<span class="lineNum">     676 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">     677 </span>            : 
+<span class="lineNum">     678 </span><span class="lineNoCov">          0 :                         sais = traf-&gt;sample_encryption-&gt;samp_aux_info;</span>
+<span class="lineNum">     679 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     680 </span>            : 
+<span class="lineNum">     681 </span>            :                 /*get sample auxiliary information by saiz/saio rather than by parsing senc box*/
+<span class="lineNum">     682 </span><span class="lineNoCov">          0 :                 if (gf_isom_cenc_has_saiz_saio_traf(traf)) {</span>
+<span class="lineNum">     683 </span>            :                         //GF_BitStream *bs;
+<span class="lineNum">     684 </span>            :                         u32 size, nb_saio;
+<span class="lineNum">     685 </span>            :                         u64 offset;
+<span class="lineNum">     686 </span>            :                         GF_SampleAuxiliaryInfoOffsetBox *saio = NULL;
+<span class="lineNum">     687 </span>            :                         GF_SampleAuxiliaryInfoSizeBox *saiz = NULL;
+<span class="lineNum">     688 </span>            :                         //GF_CENCSampleAuxInfo *sai;
+<span class="lineNum">     689 </span>            :                         //char *buffer;
+<span class="lineNum">     690 </span>            : 
+<span class="lineNum">     691 </span>            :                         offset = nb_saio = 0;
+<span class="lineNum">     692 </span>            : 
+<span class="lineNum">     693 </span><span class="lineNoCov">          0 :                         for (i = 0; i &lt; gf_list_count(traf-&gt;sai_offsets); i++) {</span>
+<span class="lineNum">     694 </span><span class="lineNoCov">          0 :                                 saio = (GF_SampleAuxiliaryInfoOffsetBox *)gf_list_get(traf-&gt;sai_offsets, i);</span>
+<span class="lineNum">     695 </span>            :                                 /*if we have only 1 sai_offsets, assume that its type is cenc*/
+<span class="lineNum">     696 </span><span class="lineNoCov">          0 :                                 if ((saio-&gt;aux_info_type == GF_4CC('c', 'e', 'n', 'c')) || (gf_list_count(traf-&gt;sai_offsets) == 1)) {</span>
+<span class="lineNum">     697 </span><span class="lineNoCov">          0 :                                         offset = (saio-&gt;version ? saio-&gt;offsets_large[0] : saio-&gt;offsets[0]) + moof_offset;</span>
+<span class="lineNum">     698 </span><span class="lineNoCov">          0 :                                         nb_saio = saio-&gt;entry_count;</span>
+<span class="lineNum">     699 </span><span class="lineNoCov">          0 :                                         break;</span>
+<span class="lineNum">     700 </span>            :                                 }
+<span class="lineNum">     701 </span>            :                         }
+<span class="lineNum">     702 </span><span class="lineNoCov">          0 :                         for (i = 0; i &lt; gf_list_count(traf-&gt;sai_sizes); i++) {</span>
+<span class="lineNum">     703 </span><span class="lineNoCov">          0 :                                 saiz = (GF_SampleAuxiliaryInfoSizeBox *)gf_list_get(traf-&gt;sai_sizes, i);</span>
+<span class="lineNum">     704 </span>            :                                 /*if we have only 1 sai_sizes, assume that its type is cenc*/
+<span class="lineNum">     705 </span><span class="lineNoCov">          0 :                                 if ((saiz-&gt;aux_info_type == GF_4CC('c', 'e', 'n', 'c'))  || (gf_list_count(traf-&gt;sai_sizes) == 1)) {</span>
+<span class="lineNum">     706 </span>            :                                         break;
+<span class="lineNum">     707 </span>            :                                 }
+<span class="lineNum">     708 </span>            :                         }
+<span class="lineNum">     709 </span><span class="lineNoCov">          0 :                         if (saiz &amp;&amp; saio) {</span>
+<span class="lineNum">     710 </span><span class="lineNoCov">          0 :                                 for (i = 0; i &lt; saiz-&gt;sample_count; i++) {</span>
+<span class="lineNum">     711 </span><span class="lineNoCov">          0 :                                         if (nb_saio != 1)</span>
+<span class="lineNum">     712 </span><span class="lineNoCov">          0 :                                                 offset = (saio-&gt;version ? saio-&gt;offsets_large[i] : saio-&gt;offsets[i]) + moof_offset;</span>
+<span class="lineNum">     713 </span><span class="lineNoCov">          0 :                                         size = saiz-&gt;default_sample_info_size ? saiz-&gt;default_sample_info_size : saiz-&gt;sample_info_size[i];</span>
+<span class="lineNum">     714 </span>            : 
+<span class="lineNum">     715 </span>            :                                         /*cur_position = gf_bs_get_position(trak-&gt;moov-&gt;mov-&gt;movieFileMap-&gt;bs);
+<span class="lineNum">     716 </span>            :                                         gf_bs_seek(trak-&gt;moov-&gt;mov-&gt;movieFileMap-&gt;bs, offset);
+<span class="lineNum">     717 </span>            :                                         buffer = (char *)gf_malloc(size);
+<span class="lineNum">     718 </span>            :                                         gf_bs_read_data(trak-&gt;moov-&gt;mov-&gt;movieFileMap-&gt;bs, buffer, size);
+<span class="lineNum">     719 </span>            :                                         gf_bs_seek(trak-&gt;moov-&gt;mov-&gt;movieFileMap-&gt;bs, cur_position);
+<span class="lineNum">     720 </span>            : 
+<span class="lineNum">     721 </span>            :                                         sai = (GF_CENCSampleAuxInfo *)gf_malloc(sizeof(GF_CENCSampleAuxInfo));
+<span class="lineNum">     722 </span>            :                                         bs = gf_bs_new(buffer, size, GF_BITSTREAM_READ);
+<span class="lineNum">     723 </span>            :                                         gf_bs_read_data(bs, (char *)sai-&gt;IV, 16);
+<span class="lineNum">     724 </span>            :                                         if (size &gt; 16) {
+<span class="lineNum">     725 </span>            :                                                 sai-&gt;subsample_count = gf_bs_read_u16(bs);
+<span class="lineNum">     726 </span>            :                                                 sai-&gt;subsamples = (GF_CENCSubSampleEntry *)gf_malloc(sizeof(GF_CENCSubSampleEntry)*sai-&gt;subsample_count);
+<span class="lineNum">     727 </span>            :                                                 for (j = 0; j &lt; sai-&gt;subsample_count; j++) {
+<span class="lineNum">     728 </span>            :                                                         sai-&gt;subsamples[j].bytes_clear_data = gf_bs_read_u16(bs);
+<span class="lineNum">     729 </span>            :                                                         sai-&gt;subsamples[j].bytes_encrypted_data = gf_bs_read_u32(bs);
+<span class="lineNum">     730 </span>            :                                                 }
+<span class="lineNum">     731 </span>            :                                                 gf_bs_del(bs);
+<span class="lineNum">     732 </span>            :                                         }
+<span class="lineNum">     733 </span>            :                                         gf_list_add(senc-&gt;samp_aux_info, sai);
+<span class="lineNum">     734 </span>            :                                         if (sai-&gt;subsample_count) senc-&gt;flags = 0x00000002;*/
+<span class="lineNum">     735 </span><span class="lineNoCov">          0 :                                         gf_isom_cenc_merge_saiz_saio(senc, trak-&gt;Media-&gt;information-&gt;sampleTable, offset, size);</span>
+<span class="lineNum">     736 </span><span class="lineNoCov">          0 :                                         if (nb_saio == 1)</span>
+<span class="lineNum">     737 </span><span class="lineNoCov">          0 :                                                 offset += size;</span>
+<span class="lineNum">     738 </span>            :                                 }
+<span class="lineNum">     739 </span>            :                         }
+<span class="lineNum">     740 </span><span class="lineNoCov">          0 :                 } else if (sais) {</span>
+<span class="lineNum">     741 </span><span class="lineNoCov">          0 :                         for (i = 0; i &lt; gf_list_count(sais); i++) {</span>
+<span class="lineNum">     742 </span>            :                                 GF_CENCSampleAuxInfo *sai, *new_sai;
+<span class="lineNum">     743 </span>            : 
+<span class="lineNum">     744 </span><span class="lineNoCov">          0 :                                 sai = (GF_CENCSampleAuxInfo *)gf_list_get(sais, i);</span>
+<span class="lineNum">     745 </span>            : 
+<span class="lineNum">     746 </span><span class="lineNoCov">          0 :                                 new_sai = (GF_CENCSampleAuxInfo *)gf_malloc(sizeof(GF_CENCSampleAuxInfo));</span>
+<span class="lineNum">     747 </span><span class="lineNoCov">          0 :                                 new_sai-&gt;IV_size = sai-&gt;IV_size;</span>
+<span class="lineNum">     748 </span><span class="lineNoCov">          0 :                                 memmove((char *)new_sai-&gt;IV, (const char*)sai-&gt;IV, 16);</span>
+<span class="lineNum">     749 </span><span class="lineNoCov">          0 :                                 new_sai-&gt;subsample_count = sai-&gt;subsample_count;</span>
+<span class="lineNum">     750 </span><span class="lineNoCov">          0 :                                 new_sai-&gt;subsamples = (GF_CENCSubSampleEntry *)gf_malloc(new_sai-&gt;subsample_count*sizeof(GF_CENCSubSampleEntry));</span>
+<span class="lineNum">     751 </span><span class="lineNoCov">          0 :                                 memmove(new_sai-&gt;subsamples, sai-&gt;subsamples, new_sai-&gt;subsample_count*sizeof(GF_CENCSubSampleEntry));</span>
+<span class="lineNum">     752 </span>            : 
+<span class="lineNum">     753 </span><span class="lineNoCov">          0 :                                 gf_list_add(senc-&gt;samp_aux_info, new_sai);</span>
+<span class="lineNum">     754 </span><span class="lineNoCov">          0 :                                 if (sai-&gt;subsample_count) senc-&gt;flags = 0x00000002;</span>
+<span class="lineNum">     755 </span>            :                         }
+<span class="lineNum">     756 </span>            :                 }
+<span class="lineNum">     757 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     758 </span><span class="lineCov">          3 :         return GF_OK;</span>
+<span class="lineNum">     759 </span><span class="lineCov">          3 : }</span>
+<span class="lineNum">     760 </span>            : 
+<span class="lineNum">     761 </span>            : #endif
+<span class="lineNum">     762 </span>            : 
+<span class="lineNum">     763 </span>            : 
+<span class="lineNum">     764 </span>            : #ifndef GPAC_DISABLE_ISOM_WRITE
+<a name="765"><span class="lineNum">     765 </span>            : </a>
+<span class="lineNum">     766 </span>            : //used to check if a TrackID is available
+<span class="lineNum">     767 </span>            : u8 RequestTrack(GF_MovieBox *moov, u32 TrackID)
+<span class="lineNum">     768 </span>            : {
+<span class="lineNum">     769 </span><span class="lineCov">       3278 :         u32 i;</span>
+<span class="lineNum">     770 </span>            :         GF_TrackBox *trak;
+<span class="lineNum">     771 </span>            : 
+<span class="lineNum">     772 </span><span class="lineCov">       1639 :         i=0;</span>
+<span class="lineNum">     773 </span><span class="lineCov">       4079 :         while ((trak = (GF_TrackBox *)gf_list_enum(moov-&gt;trackList, &amp;i))) {</span>
+<span class="lineNum">     774 </span><span class="lineCov">        812 :                 if (trak-&gt;Header-&gt;trackID == TrackID) {</span>
+<span class="lineNum">     775 </span><span class="lineCov">         11 :                         gf_isom_set_last_error(moov-&gt;mov, GF_BAD_PARAM);</span>
+<span class="lineNum">     776 </span><span class="lineCov">         11 :                         return 0;</span>
+<span class="lineNum">     777 </span>            :                 }
+<span class="lineNum">     778 </span>            :         }
+<span class="lineNum">     779 </span><span class="lineCov">       1628 :         return 1;</span>
+<a name="780"><span class="lineNum">     780 </span><span class="lineCov">       1639 : }</span></a>
+<span class="lineNum">     781 </span>            : 
+<span class="lineNum">     782 </span>            : GF_Err Track_RemoveRef(GF_TrackBox *trak, u32 ReferenceType)
+<span class="lineNum">     783 </span>            : {
+<span class="lineNum">     784 </span>            :         GF_TrackReferenceBox *ref;
+<span class="lineNum">     785 </span>            :         GF_Box *a;
+<span class="lineNum">     786 </span><span class="lineNoCov">          0 :         u32 i;</span>
+<span class="lineNum">     787 </span><span class="lineNoCov">          0 :         if (! trak) return GF_BAD_PARAM;</span>
+<span class="lineNum">     788 </span><span class="lineNoCov">          0 :         if (! trak-&gt;References) return GF_OK;</span>
+<span class="lineNum">     789 </span>            :         ref = trak-&gt;References;
+<span class="lineNum">     790 </span><span class="lineNoCov">          0 :         i=0;</span>
+<span class="lineNum">     791 </span><span class="lineNoCov">          0 :         while ((a = (GF_Box *)gf_list_enum(ref-&gt;other_boxes, &amp;i))) {</span>
+<span class="lineNum">     792 </span><span class="lineNoCov">          0 :                 if (a-&gt;type == ReferenceType) {</span>
+<span class="lineNum">     793 </span><span class="lineNoCov">          0 :                         gf_isom_box_del(a);</span>
+<span class="lineNum">     794 </span><span class="lineNoCov">          0 :                         gf_list_rem(ref-&gt;other_boxes, i-1);</span>
+<span class="lineNum">     795 </span><span class="lineNoCov">          0 :                         return GF_OK;</span>
+<span class="lineNum">     796 </span>            :                 }
+<span class="lineNum">     797 </span>            :         }
+<span class="lineNum">     798 </span><span class="lineNoCov">          0 :         return GF_OK;</span>
+<a name="799"><span class="lineNum">     799 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     800 </span>            : 
+<span class="lineNum">     801 </span>            : GF_Err NewMedia(GF_MediaBox **mdia, u32 MediaType, u32 TimeScale)
+<span class="lineNum">     802 </span>            : {
+<span class="lineNum">     803 </span>            :         GF_MediaHeaderBox *mdhd;
+<span class="lineNum">     804 </span>            :         GF_Box *mediaInfo;
+<span class="lineNum">     805 </span>            :         GF_HandlerBox *hdlr;
+<span class="lineNum">     806 </span>            :         GF_MediaInformationBox *minf;
+<span class="lineNum">     807 </span>            :         GF_DataInformationBox *dinf;
+<span class="lineNum">     808 </span>            :         GF_SampleTableBox *stbl;
+<span class="lineNum">     809 </span>            :         GF_DataReferenceBox *dref;
+<span class="lineNum">     810 </span>            :         char *str;
+<span class="lineNum">     811 </span>            : 
+<span class="lineNum">     812 </span>            :         GF_Err e;
+<span class="lineNum">     813 </span>            : 
+<span class="lineNum">     814 </span><span class="lineCov">       3246 :         if (*mdia || !mdia) return GF_BAD_PARAM;</span>
+<span class="lineNum">     815 </span>            : 
+<span class="lineNum">     816 </span>            :         minf = NULL;
+<span class="lineNum">     817 </span>            :         mdhd = NULL;
+<span class="lineNum">     818 </span>            :         hdlr = NULL;
+<span class="lineNum">     819 </span>            :         dinf = NULL;
+<span class="lineNum">     820 </span>            :         stbl = NULL;
+<span class="lineNum">     821 </span>            :         dref = NULL;
+<span class="lineNum">     822 </span>            :         mediaInfo = NULL;
+<span class="lineNum">     823 </span>            : 
+<span class="lineNum">     824 </span>            :         //first create the media
+<span class="lineNum">     825 </span><span class="lineCov">       1623 :         *mdia = (GF_MediaBox *) gf_isom_box_new(GF_ISOM_BOX_TYPE_MDIA);</span>
+<span class="lineNum">     826 </span><span class="lineCov">       1623 :         mdhd = (GF_MediaHeaderBox *) gf_isom_box_new(GF_ISOM_BOX_TYPE_MDHD);</span>
+<span class="lineNum">     827 </span>            : 
+<span class="lineNum">     828 </span>            :         //&quot;handler name&quot; is for debugging purposes. Let's stick our name here ;)
+<span class="lineNum">     829 </span><span class="lineCov">       1623 :         switch (MediaType) {</span>
+<span class="lineNum">     830 </span>            :         case GF_ISOM_MEDIA_VISUAL:
+<span class="lineNum">     831 </span><span class="lineCov">        263 :                 mediaInfo = gf_isom_box_new(GF_ISOM_BOX_TYPE_VMHD);</span>
+<span class="lineNum">     832 </span>            :                 str = &quot;GPAC ISO Video Handler&quot;;
+<span class="lineNum">     833 </span><span class="lineCov">        263 :                 break;</span>
+<span class="lineNum">     834 </span>            :         case GF_ISOM_MEDIA_AUDIO:
+<span class="lineNum">     835 </span><span class="lineCov">         57 :                 mediaInfo = gf_isom_box_new(GF_ISOM_BOX_TYPE_SMHD);</span>
+<span class="lineNum">     836 </span>            :                 str = &quot;GPAC ISO Audio Handler&quot;;
+<span class="lineNum">     837 </span><span class="lineCov">         57 :                 break;</span>
+<span class="lineNum">     838 </span>            :         case GF_ISOM_MEDIA_HINT:
+<span class="lineNum">     839 </span><span class="lineCov">          2 :                 mediaInfo = gf_isom_box_new(GF_ISOM_BOX_TYPE_HMHD);</span>
+<span class="lineNum">     840 </span>            :                 str = &quot;GPAC ISO Hint Handler&quot;;
+<span class="lineNum">     841 </span><span class="lineCov">          2 :                 break;</span>
+<span class="lineNum">     842 </span>            :         case GF_ISOM_MEDIA_META:
+<span class="lineNum">     843 </span><span class="lineCov">         11 :                 mediaInfo = gf_isom_box_new(GF_ISOM_BOX_TYPE_NMHD);</span>
+<span class="lineNum">     844 </span>            :                 str = &quot;GPAC Timed MetaData Handler&quot;;
+<span class="lineNum">     845 </span><span class="lineCov">         11 :                 break;</span>
+<span class="lineNum">     846 </span>            :         case GF_ISOM_MEDIA_OD:
+<span class="lineNum">     847 </span><span class="lineCov">        200 :                 mediaInfo = gf_isom_box_new(GF_ISOM_BOX_TYPE_NMHD);</span>
+<span class="lineNum">     848 </span>            :                 str = &quot;GPAC MPEG-4 OD Handler&quot;;
+<span class="lineNum">     849 </span><span class="lineCov">        200 :                 break;</span>
+<span class="lineNum">     850 </span>            :         case GF_ISOM_MEDIA_OCR:
+<span class="lineNum">     851 </span><span class="lineCov">          2 :                 mediaInfo = gf_isom_box_new(GF_ISOM_BOX_TYPE_NMHD);</span>
+<span class="lineNum">     852 </span>            :                 str = &quot;GPAC MPEG-4 OCR Handler&quot;;
+<span class="lineNum">     853 </span><span class="lineCov">          2 :                 break;</span>
+<span class="lineNum">     854 </span>            :         case GF_ISOM_MEDIA_SCENE:
+<span class="lineNum">     855 </span><span class="lineCov">       1007 :                 mediaInfo = gf_isom_box_new(GF_ISOM_BOX_TYPE_NMHD);</span>
+<span class="lineNum">     856 </span>            :                 str = &quot;GPAC MPEG-4 Scene Description Handler&quot;;
+<span class="lineNum">     857 </span><span class="lineCov">       1007 :                 break;</span>
+<span class="lineNum">     858 </span>            :         case GF_ISOM_MEDIA_MPEG7:
+<span class="lineNum">     859 </span><span class="lineNoCov">          0 :                 mediaInfo = gf_isom_box_new(GF_ISOM_BOX_TYPE_NMHD);</span>
+<span class="lineNum">     860 </span>            :                 str = &quot;GPAC MPEG-4 MPEG-7 Handler&quot;;
+<span class="lineNum">     861 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     862 </span>            :         case GF_ISOM_MEDIA_OCI:
+<span class="lineNum">     863 </span><span class="lineNoCov">          0 :                 mediaInfo = gf_isom_box_new(GF_ISOM_BOX_TYPE_NMHD);</span>
+<span class="lineNum">     864 </span>            :                 str = &quot;GPAC MPEG-4 OCI Handler&quot;;
+<span class="lineNum">     865 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     866 </span>            :         case GF_ISOM_MEDIA_IPMP:
+<span class="lineNum">     867 </span><span class="lineNoCov">          0 :                 mediaInfo = gf_isom_box_new(GF_ISOM_BOX_TYPE_NMHD);</span>
+<span class="lineNum">     868 </span>            :                 str = &quot;GPAC MPEG-4 IPMP Handler&quot;;
+<span class="lineNum">     869 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     870 </span>            :         case GF_ISOM_MEDIA_MPEGJ:
+<span class="lineNum">     871 </span><span class="lineNoCov">          0 :                 mediaInfo = gf_isom_box_new(GF_ISOM_BOX_TYPE_NMHD);</span>
+<span class="lineNum">     872 </span>            :                 str = &quot;GPAC MPEG-4 MPEG-J Handler&quot;;
+<span class="lineNum">     873 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     874 </span>            :         case GF_ISOM_MEDIA_TEXT:
+<span class="lineNum">     875 </span>            :         case GF_ISOM_MEDIA_SUBT:
+<span class="lineNum">     876 </span><span class="lineCov">         69 :                 mediaInfo = gf_isom_box_new(GF_ISOM_BOX_TYPE_NMHD);</span>
+<span class="lineNum">     877 </span>            :                 str = &quot;GPAC Streaming Text Handler&quot;;
+<span class="lineNum">     878 </span><span class="lineCov">         69 :                 break;</span>
+<span class="lineNum">     879 </span>            :         case GF_ISOM_MEDIA_MPEG_SUBT:
+<span class="lineNum">     880 </span><span class="lineCov">          9 :                 mediaInfo = gf_isom_box_new(GF_ISOM_BOX_TYPE_STHD);</span>
+<span class="lineNum">     881 </span>            :                 str = &quot;GPAC MPEG Subtitle Handler&quot;;
+<span class="lineNum">     882 </span><span class="lineCov">          9 :                 break;</span>
+<span class="lineNum">     883 </span>            :         case GF_ISOM_MEDIA_DIMS:
+<span class="lineNum">     884 </span><span class="lineNoCov">          0 :                 mediaInfo = gf_isom_box_new(GF_ISOM_BOX_TYPE_VMHD);</span>
+<span class="lineNum">     885 </span>            :                 MediaType = GF_ISOM_MEDIA_SCENE;
+<span class="lineNum">     886 </span>            :                 str = &quot;GPAC DIMS Handler&quot;;
+<span class="lineNum">     887 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     888 </span>            :         default:
+<span class="lineNum">     889 </span><span class="lineCov">          3 :                 mediaInfo = gf_isom_box_new(GF_ISOM_BOX_TYPE_NMHD);</span>
+<span class="lineNum">     890 </span>            :                 str = &quot;GPAC IsoMedia Handler&quot;;
+<span class="lineNum">     891 </span><span class="lineCov">          3 :                 break;</span>
+<span class="lineNum">     892 </span>            :         }
+<span class="lineNum">     893 </span><span class="lineCov">       1623 :         hdlr = (GF_HandlerBox *) gf_isom_box_new(GF_ISOM_BOX_TYPE_HDLR);</span>
+<span class="lineNum">     894 </span><span class="lineCov">       1623 :         minf = (GF_MediaInformationBox *) gf_isom_box_new(GF_ISOM_BOX_TYPE_MINF);</span>
+<span class="lineNum">     895 </span>            : 
+<span class="lineNum">     896 </span><span class="lineCov">       1623 :         mdhd-&gt;timeScale = TimeScale;</span>
+<span class="lineNum">     897 </span><span class="lineCov">       1623 :         hdlr-&gt;handlerType = MediaType;</span>
+<span class="lineNum">     898 </span><span class="lineCov">       1623 :         hdlr-&gt;nameUTF8 = gf_strdup(str);</span>
+<span class="lineNum">     899 </span>            : 
+<span class="lineNum">     900 </span>            :         //first set-up the sample table...
+<span class="lineNum">     901 </span><span class="lineCov">       1623 :         stbl = (GF_SampleTableBox *) gf_isom_box_new(GF_ISOM_BOX_TYPE_STBL);</span>
+<span class="lineNum">     902 </span><span class="lineCov">       1623 :         dinf = (GF_DataInformationBox *) gf_isom_box_new(GF_ISOM_BOX_TYPE_DINF);</span>
+<span class="lineNum">     903 </span><span class="lineCov">       1623 :         stbl-&gt;SampleDescription = (GF_SampleDescriptionBox *) gf_isom_box_new(GF_ISOM_BOX_TYPE_STSD);</span>
+<span class="lineNum">     904 </span><span class="lineCov">       1623 :         stbl-&gt;ChunkOffset = gf_isom_box_new(GF_ISOM_BOX_TYPE_STCO);</span>
+<span class="lineNum">     905 </span>            :         //by default create a regular table
+<span class="lineNum">     906 </span><span class="lineCov">       1623 :         stbl-&gt;SampleSize = (GF_SampleSizeBox *) gf_isom_box_new(GF_ISOM_BOX_TYPE_STSZ);</span>
+<span class="lineNum">     907 </span><span class="lineCov">       1623 :         stbl-&gt;SampleToChunk = (GF_SampleToChunkBox *) gf_isom_box_new(GF_ISOM_BOX_TYPE_STSC);</span>
+<span class="lineNum">     908 </span><span class="lineCov">       1623 :         stbl-&gt;TimeToSample = (GF_TimeToSampleBox *) gf_isom_box_new(GF_ISOM_BOX_TYPE_STTS);</span>
+<span class="lineNum">     909 </span>            : 
+<span class="lineNum">     910 </span>            :         //Create a data reference WITHOUT DATA ENTRY (we don't know anything yet about the media Data)
+<span class="lineNum">     911 </span><span class="lineCov">       1623 :         dref = (GF_DataReferenceBox *) gf_isom_box_new(GF_ISOM_BOX_TYPE_DREF);</span>
+<span class="lineNum">     912 </span><span class="lineCov">       1623 :         e = dinf_AddBox((GF_Box*)dinf, (GF_Box *)dref);</span>
+<span class="lineNum">     913 </span><span class="lineCov">       1623 :         if (e) goto err_exit;</span>
+<span class="lineNum">     914 </span>            : 
+<span class="lineNum">     915 </span><span class="lineCov">       1623 :         e = minf_AddBox((GF_Box*)minf, (GF_Box *) mediaInfo);</span>
+<span class="lineNum">     916 </span><span class="lineCov">       1623 :         if (e) goto err_exit;</span>
+<span class="lineNum">     917 </span><span class="lineCov">       1623 :         e = minf_AddBox((GF_Box*)minf, (GF_Box *) stbl);</span>
+<span class="lineNum">     918 </span><span class="lineCov">       1623 :         if (e) goto err_exit;</span>
+<span class="lineNum">     919 </span><span class="lineCov">       1623 :         e = minf_AddBox((GF_Box*)minf, (GF_Box *) dinf);</span>
+<span class="lineNum">     920 </span><span class="lineCov">       1623 :         if (e) goto err_exit;</span>
+<span class="lineNum">     921 </span>            : 
+<span class="lineNum">     922 </span><span class="lineCov">       1623 :         e = mdia_AddBox((GF_Box*)*mdia, (GF_Box *) mdhd);</span>
+<span class="lineNum">     923 </span><span class="lineCov">       1623 :         if (e) goto err_exit;</span>
+<span class="lineNum">     924 </span><span class="lineCov">       1623 :         e = mdia_AddBox((GF_Box*)*mdia, (GF_Box *) minf);</span>
+<span class="lineNum">     925 </span><span class="lineCov">       1623 :         if (e) goto err_exit;</span>
+<span class="lineNum">     926 </span><span class="lineCov">       1623 :         e = mdia_AddBox((GF_Box*)*mdia, (GF_Box *) hdlr);</span>
+<span class="lineNum">     927 </span><span class="lineCov">       1623 :         if (e) goto err_exit;</span>
+<span class="lineNum">     928 </span>            : 
+<span class="lineNum">     929 </span><span class="lineCov">       1623 :         return GF_OK;</span>
+<span class="lineNum">     930 </span>            : 
+<span class="lineNum">     931 </span>            : err_exit:
+<span class="lineNum">     932 </span><span class="lineNoCov">          0 :         if (mdhd) gf_isom_box_del((GF_Box *)mdhd);</span>
+<span class="lineNum">     933 </span><span class="lineNoCov">          0 :         if (minf) gf_isom_box_del((GF_Box *)minf);</span>
+<span class="lineNum">     934 </span><span class="lineNoCov">          0 :         if (hdlr) {</span>
+<span class="lineNum">     935 </span><span class="lineNoCov">          0 :                 if (hdlr-&gt;nameUTF8) gf_free(hdlr-&gt;nameUTF8);</span>
+<span class="lineNum">     936 </span><span class="lineNoCov">          0 :                 gf_isom_box_del((GF_Box *)hdlr);</span>
+<span class="lineNum">     937 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     938 </span><span class="lineNoCov">          0 :         return e;</span>
+<span class="lineNum">     939 </span>            : 
+<a name="940"><span class="lineNum">     940 </span><span class="lineCov">       1623 : }</span></a>
+<span class="lineNum">     941 </span>            : 
+<span class="lineNum">     942 </span>            : GF_Err Track_SetStreamDescriptor(GF_TrackBox *trak, u32 StreamDescriptionIndex, u32 DataReferenceIndex, GF_ESD *esd, u32 *outStreamIndex)
+<span class="lineNum">     943 </span>            : {
+<span class="lineNum">     944 </span>            :         GF_Err e;
+<span class="lineNum">     945 </span>            :         GF_MPEGSampleEntryBox *entry;
+<span class="lineNum">     946 </span>            :         GF_MPEGVisualSampleEntryBox *entry_v;
+<span class="lineNum">     947 </span>            :         GF_MPEGAudioSampleEntryBox *entry_a;
+<span class="lineNum">     948 </span>            :         GF_TrackReferenceBox *tref;
+<span class="lineNum">     949 </span><span class="lineCov">       5724 :         GF_TrackReferenceTypeBox *dpnd;</span>
+<span class="lineNum">     950 </span><span class="lineCov">       2862 :         u16 tmpRef;</span>
+<span class="lineNum">     951 </span>            : 
+<span class="lineNum">     952 </span>            :         entry = NULL;
+<span class="lineNum">     953 </span>            :         tref = NULL;
+<span class="lineNum">     954 </span>            : 
+<span class="lineNum">     955 </span><span class="lineCov">       5724 :         if (!trak || !esd || (!outStreamIndex &amp;&amp; !DataReferenceIndex) ) return GF_BAD_PARAM;</span>
+<span class="lineNum">     956 </span><span class="lineCov">       2865 :         if (!Track_IsMPEG4Stream(trak-&gt;Media-&gt;handler-&gt;handlerType)) return GF_ISOM_INVALID_MEDIA;</span>
+<span class="lineNum">     957 </span>            : 
+<span class="lineNum">     958 </span>            : 
+<span class="lineNum">     959 </span><span class="lineCov">       2859 :         esd-&gt;ESID = 0;</span>
+<span class="lineNum">     960 </span>            :         //set SL to predefined if no url
+<span class="lineNum">     961 </span><span class="lineCov">       2859 :         if (esd-&gt;URLString == NULL) {</span>
+<span class="lineNum">     962 </span><span class="lineCov">       2859 :                 if (!esd-&gt;slConfig) esd-&gt;slConfig = (GF_SLConfig*) gf_odf_desc_new(GF_ODF_SLC_TAG);</span>
+<span class="lineNum">     963 </span><span class="lineCov">       2859 :                 esd-&gt;slConfig-&gt;predefined = SLPredef_MP4;</span>
+<span class="lineNum">     964 </span><span class="lineCov">       2859 :                 esd-&gt;slConfig-&gt;durationFlag = 0;</span>
+<span class="lineNum">     965 </span><span class="lineCov">       2859 :                 esd-&gt;slConfig-&gt;useTimestampsFlag = 1;</span>
+<span class="lineNum">     966 </span><span class="lineCov">       2859 :         }</span>
+<span class="lineNum">     967 </span>            : 
+<span class="lineNum">     968 </span>            :         //get the REF box if needed
+<span class="lineNum">     969 </span><span class="lineCov">       5693 :         if (esd-&gt;dependsOnESID  || esd-&gt;OCRESID ) {</span>
+<span class="lineNum">     970 </span><span class="lineCov">        221 :                 if (!trak-&gt;References) {</span>
+<span class="lineNum">     971 </span><span class="lineCov">        108 :                         tref = (GF_TrackReferenceBox *) gf_isom_box_new(GF_ISOM_BOX_TYPE_TREF);</span>
+<span class="lineNum">     972 </span><span class="lineCov">        108 :                         e = trak_AddBox((GF_Box*)trak, (GF_Box *)tref);</span>
+<span class="lineNum">     973 </span><span class="lineCov">        108 :                         if (e) return e;</span>
+<span class="lineNum">     974 </span>            :                 }
+<span class="lineNum">     975 </span><span class="lineCov">        221 :                 tref = trak-&gt;References;</span>
+<span class="lineNum">     976 </span><span class="lineCov">        221 :         }</span>
+<span class="lineNum">     977 </span>            : 
+<span class="lineNum">     978 </span>            :         //Update Stream dependancies
+<span class="lineNum">     979 </span><span class="lineCov">       2859 :         e = Track_FindRef(trak, GF_ISOM_REF_DECODE, &amp;dpnd);</span>
+<span class="lineNum">     980 </span><span class="lineCov">       2859 :         if (e) return e;</span>
+<span class="lineNum">     981 </span><span class="lineCov">       5707 :         if (!dpnd &amp;&amp; esd-&gt;dependsOnESID) {</span>
+<span class="lineNum">     982 </span><span class="lineCov">         14 :                 dpnd = (GF_TrackReferenceTypeBox *) gf_isom_box_new(GF_ISOM_BOX_TYPE_REFT);</span>
+<span class="lineNum">     983 </span><span class="lineCov">         14 :                 dpnd-&gt;reference_type = GF_ISOM_BOX_TYPE_DPND;</span>
+<span class="lineNum">     984 </span><span class="lineCov">         14 :                 e = tref_AddBox((GF_Box*)tref, (GF_Box *) dpnd);</span>
+<span class="lineNum">     985 </span><span class="lineCov">         14 :                 if (e) return e;</span>
+<span class="lineNum">     986 </span><span class="lineCov">         14 :                 e = reftype_AddRefTrack(dpnd, esd-&gt;dependsOnESID, NULL);</span>
+<span class="lineNum">     987 </span><span class="lineCov">         14 :                 if (e) return e;</span>
+<span class="lineNum">     988 </span><span class="lineCov">       2856 :         } else if (dpnd &amp;&amp; !esd-&gt;dependsOnESID) {</span>
+<span class="lineNum">     989 </span><span class="lineNoCov">          0 :                 Track_RemoveRef(trak, GF_ISOM_BOX_TYPE_DPND);</span>
+<span class="lineNum">     990 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     991 </span><span class="lineCov">       2859 :         esd-&gt;dependsOnESID = 0;</span>
+<span class="lineNum">     992 </span>            : 
+<span class="lineNum">     993 </span>            :         //Update GF_Clock dependancies
+<span class="lineNum">     994 </span><span class="lineCov">       2859 :         e = Track_FindRef(trak, GF_ISOM_REF_OCR, &amp;dpnd);</span>
+<span class="lineNum">     995 </span><span class="lineCov">       2859 :         if (e) return e;</span>
+<span class="lineNum">     996 </span><span class="lineCov">       5608 :         if (!dpnd &amp;&amp; esd-&gt;OCRESID) {</span>
+<span class="lineNum">     997 </span><span class="lineCov">        108 :                 dpnd = (GF_TrackReferenceTypeBox *) gf_isom_box_new(GF_ISOM_BOX_TYPE_REFT);</span>
+<span class="lineNum">     998 </span><span class="lineCov">        108 :                 dpnd-&gt;reference_type = GF_ISOM_BOX_TYPE_SYNC;</span>
+<span class="lineNum">     999 </span><span class="lineCov">        108 :                 e = tref_AddBox((GF_Box*)tref, (GF_Box *) dpnd);</span>
+<span class="lineNum">    1000 </span><span class="lineCov">        108 :                 if (e) return e;</span>
+<span class="lineNum">    1001 </span><span class="lineCov">        108 :                 e = reftype_AddRefTrack(dpnd, esd-&gt;OCRESID, NULL);</span>
+<span class="lineNum">    1002 </span><span class="lineCov">        108 :                 if (e) return e;</span>
+<span class="lineNum">    1003 </span><span class="lineCov">       2861 :         } else if (dpnd &amp;&amp; !esd-&gt;OCRESID) {</span>
+<span class="lineNum">    1004 </span><span class="lineNoCov">          0 :                 Track_RemoveRef(trak, GF_ISOM_BOX_TYPE_SYNC);</span>
+<span class="lineNum">    1005 </span><span class="lineCov">       2861 :         } else if (dpnd &amp;&amp; esd-&gt;OCRESID) {</span>
+<span class="lineNum">    1006 </span><span class="lineCov">        110 :                 if (dpnd-&gt;trackIDCount != 1) return GF_ISOM_INVALID_MEDIA;</span>
+<span class="lineNum">    1007 </span><span class="lineCov">        110 :                 dpnd-&gt;trackIDs[0] = esd-&gt;OCRESID;</span>
+<span class="lineNum">    1008 </span><span class="lineCov">        110 :         }</span>
+<span class="lineNum">    1009 </span><span class="lineCov">       2859 :         esd-&gt;OCRESID = 0;</span>
+<span class="lineNum">    1010 </span>            : 
+<span class="lineNum">    1011 </span>            :         //brand new case: we have to change the IPI desc
+<span class="lineNum">    1012 </span><span class="lineCov">       2859 :         if (esd-&gt;ipiPtr) {</span>
+<span class="lineNum">    1013 </span><span class="lineNoCov">          0 :                 e = Track_FindRef(trak, GF_ISOM_REF_IPI, &amp;dpnd);</span>
+<span class="lineNum">    1014 </span><span class="lineNoCov">          0 :                 if (e) return e;</span>
+<span class="lineNum">    1015 </span><span class="lineNoCov">          0 :                 if (!dpnd) {</span>
+<span class="lineNum">    1016 </span><span class="lineNoCov">          0 :                         tmpRef = 0;</span>
+<span class="lineNum">    1017 </span><span class="lineNoCov">          0 :                         dpnd = (GF_TrackReferenceTypeBox *) gf_isom_box_new(GF_ISOM_BOX_TYPE_REFT);</span>
+<span class="lineNum">    1018 </span><span class="lineNoCov">          0 :                         dpnd-&gt;reference_type = GF_ISOM_BOX_TYPE_IPIR;</span>
+<span class="lineNum">    1019 </span><span class="lineNoCov">          0 :                         e = tref_AddBox((GF_Box*)tref, (GF_Box *) dpnd);</span>
+<span class="lineNum">    1020 </span><span class="lineNoCov">          0 :                         if (e) return e;</span>
+<span class="lineNum">    1021 </span><span class="lineNoCov">          0 :                         e = reftype_AddRefTrack(dpnd, esd-&gt;ipiPtr-&gt;IPI_ES_Id, &amp;tmpRef);</span>
+<span class="lineNum">    1022 </span><span class="lineNoCov">          0 :                         if (e) return e;</span>
+<span class="lineNum">    1023 </span>            :                         //and replace the tag and value...
+<span class="lineNum">    1024 </span><span class="lineNoCov">          0 :                         esd-&gt;ipiPtr-&gt;IPI_ES_Id = tmpRef;</span>
+<span class="lineNum">    1025 </span><span class="lineNoCov">          0 :                         esd-&gt;ipiPtr-&gt;tag = GF_ODF_ISOM_IPI_PTR_TAG;</span>
+<span class="lineNum">    1026 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">    1027 </span>            :                         //Watch out! ONLY ONE IPI dependancy is allowed per stream
+<span class="lineNum">    1028 </span><span class="lineNoCov">          0 :                         if (dpnd-&gt;trackIDCount != 1) return GF_ISOM_INVALID_MEDIA;</span>
+<span class="lineNum">    1029 </span>            :                         //if an existing one is there, what shall we do ???
+<span class="lineNum">    1030 </span>            :                         //donno, erase it
+<span class="lineNum">    1031 </span><span class="lineNoCov">          0 :                         dpnd-&gt;trackIDs[0] = esd-&gt;ipiPtr-&gt;IPI_ES_Id;</span>
+<span class="lineNum">    1032 </span>            :                         //and replace the tag and value...
+<span class="lineNum">    1033 </span><span class="lineNoCov">          0 :                         esd-&gt;ipiPtr-&gt;IPI_ES_Id = 1;</span>
+<span class="lineNum">    1034 </span><span class="lineNoCov">          0 :                         esd-&gt;ipiPtr-&gt;tag = GF_ODF_ISOM_IPI_PTR_TAG;</span>
+<span class="lineNum">    1035 </span>            :                 }
+<span class="lineNum">    1036 </span>            :         }
+<span class="lineNum">    1037 </span>            : 
+<span class="lineNum">    1038 </span>            :         /*don't store the lang desc in ESD, use the media header language info*/
+<span class="lineNum">    1039 </span><span class="lineCov">       2859 :         if (esd-&gt;langDesc) {</span>
+<span class="lineNum">    1040 </span><span class="lineCov">         13 :                 trak-&gt;Media-&gt;mediaHeader-&gt;packedLanguage[0] = (esd-&gt;langDesc-&gt;langCode&gt;&gt;16)&amp;0xFF;</span>
+<span class="lineNum">    1041 </span><span class="lineCov">         13 :                 trak-&gt;Media-&gt;mediaHeader-&gt;packedLanguage[1] = (esd-&gt;langDesc-&gt;langCode&gt;&gt;8)&amp;0xFF;</span>
+<span class="lineNum">    1042 </span><span class="lineCov">         13 :                 trak-&gt;Media-&gt;mediaHeader-&gt;packedLanguage[2] = (esd-&gt;langDesc-&gt;langCode)&amp;0xFF;</span>
+<span class="lineNum">    1043 </span><span class="lineCov">         13 :                 gf_odf_desc_del((GF_Descriptor *)esd-&gt;langDesc);</span>
+<span class="lineNum">    1044 </span><span class="lineCov">         13 :                 esd-&gt;langDesc = NULL;</span>
+<span class="lineNum">    1045 </span><span class="lineCov">         13 :         }</span>
+<span class="lineNum">    1046 </span>            : 
+<span class="lineNum">    1047 </span>            :         //we have a streamDescritpionIndex, use it
+<span class="lineNum">    1048 </span><span class="lineCov">       5718 :         if (StreamDescriptionIndex) {</span>
+<span class="lineNum">    1049 </span><span class="lineCov">       4306 :                 entry = (GF_MPEGSampleEntryBox*)gf_list_get(trak-&gt;Media-&gt;information-&gt;sampleTable-&gt;SampleDescription-&gt;other_boxes, StreamDescriptionIndex - 1);</span>
+<span class="lineNum">    1050 </span><span class="lineCov">       1447 :                 if (!entry) return GF_ISOM_INVALID_FILE;</span>
+<span class="lineNum">    1051 </span>            : 
+<span class="lineNum">    1052 </span><span class="lineCov">       2894 :                 switch (entry-&gt;type) {</span>
+<span class="lineNum">    1053 </span>            :                 case GF_ISOM_BOX_TYPE_MP4S:
+<span class="lineNum">    1054 </span>            :                         //OK, delete the previous ESD
+<span class="lineNum">    1055 </span><span class="lineCov">        809 :                         gf_odf_desc_del((GF_Descriptor *) entry-&gt;esd-&gt;desc);</span>
+<span class="lineNum">    1056 </span><span class="lineCov">        809 :                         entry-&gt;esd-&gt;desc = esd;</span>
+<span class="lineNum">    1057 </span><span class="lineCov">        809 :                         break;</span>
+<span class="lineNum">    1058 </span>            :                 case GF_ISOM_BOX_TYPE_MP4V:
+<span class="lineNum">    1059 </span><span class="lineCov">         96 :                         entry_v = (GF_MPEGVisualSampleEntryBox*) entry;</span>
+<span class="lineNum">    1060 </span>            :                         //OK, delete the previous ESD
+<span class="lineNum">    1061 </span><span class="lineCov">         96 :                         gf_odf_desc_del((GF_Descriptor *) entry_v-&gt;esd-&gt;desc);</span>
+<span class="lineNum">    1062 </span><span class="lineCov">         96 :                         entry_v-&gt;esd-&gt;desc = esd;</span>
+<span class="lineNum">    1063 </span><span class="lineCov">         96 :                         break;</span>
+<span class="lineNum">    1064 </span>            :                 case GF_ISOM_BOX_TYPE_MP4A:
+<span class="lineNum">    1065 </span><span class="lineCov">         48 :                         entry_a = (GF_MPEGAudioSampleEntryBox*) entry;</span>
+<span class="lineNum">    1066 </span>            :                         //OK, delete the previous ESD
+<span class="lineNum">    1067 </span><span class="lineCov">         48 :                         gf_odf_desc_del((GF_Descriptor *) entry_a-&gt;esd-&gt;desc);</span>
+<span class="lineNum">    1068 </span><span class="lineCov">         48 :                         entry_a-&gt;esd-&gt;desc = esd;</span>
+<span class="lineNum">    1069 </span><span class="lineCov">         48 :                         break;</span>
+<span class="lineNum">    1070 </span>            :                 case GF_ISOM_BOX_TYPE_AVC1:
+<span class="lineNum">    1071 </span>            :                 case GF_ISOM_BOX_TYPE_AVC2:
+<span class="lineNum">    1072 </span>            :                 case GF_ISOM_BOX_TYPE_AVC3:
+<span class="lineNum">    1073 </span>            :                 case GF_ISOM_BOX_TYPE_AVC4:
+<span class="lineNum">    1074 </span>            :                 case GF_ISOM_BOX_TYPE_SVC1:
+<span class="lineNum">    1075 </span>            :                 case GF_ISOM_BOX_TYPE_HVC1:
+<span class="lineNum">    1076 </span>            :                 case GF_ISOM_BOX_TYPE_HEV1:
+<span class="lineNum">    1077 </span>            :                 case GF_ISOM_BOX_TYPE_HVC2:
+<span class="lineNum">    1078 </span>            :                 case GF_ISOM_BOX_TYPE_HEV2:
+<span class="lineNum">    1079 </span>            :                 case GF_ISOM_BOX_TYPE_LHE1:
+<span class="lineNum">    1080 </span>            :                 case GF_ISOM_BOX_TYPE_LHV1:
+<span class="lineNum">    1081 </span>            :                 case GF_ISOM_BOX_TYPE_HVT1:
+<span class="lineNum">    1082 </span><span class="lineCov">        101 :                         e = AVC_HEVC_UpdateESD((GF_MPEGVisualSampleEntryBox*)entry, esd);</span>
+<span class="lineNum">    1083 </span><span class="lineCov">        101 :                         if (e) return e;</span>
+<span class="lineNum">    1084 </span>            :                         break;
+<span class="lineNum">    1085 </span>            :                 case GF_ISOM_BOX_TYPE_LSR1:
+<span class="lineNum">    1086 </span><span class="lineCov">        393 :                         e = LSR_UpdateESD((GF_LASeRSampleEntryBox*)entry, esd);</span>
+<span class="lineNum">    1087 </span><span class="lineCov">        393 :                         if (e) return e;</span>
+<span class="lineNum">    1088 </span>            :                         break;
+<span class="lineNum">    1089 </span>            :                 case GF_ISOM_BOX_TYPE_STXT:
+<span class="lineNum">    1090 </span>            :                 case GF_ISOM_BOX_TYPE_WVTT:
+<span class="lineNum">    1091 </span>            :                 case GF_ISOM_BOX_TYPE_STPP:
+<span class="lineNum">    1092 </span>            :                         /* TODO */
+<span class="lineNum">    1093 </span>            :                         assert(0);
+<span class="lineNum">    1094 </span>            :                         break;
+<span class="lineNum">    1095 </span>            : 
+<span class="lineNum">    1096 </span>            :                 default:
+<span class="lineNum">    1097 </span>            :                         //gf_odf_desc_del((GF_Descriptor *) esd);
+<span class="lineNum">    1098 </span>            :                         break;
+<span class="lineNum">    1099 </span>            :                 }
+<span class="lineNum">    1100 </span>            :         } else {
+<span class="lineNum">    1101 </span>            :                 //need to check we're not in URL mode where only ONE description is allowed...
+<span class="lineNum">    1102 </span><span class="lineCov">       1412 :                 StreamDescriptionIndex = gf_list_count(trak-&gt;Media-&gt;information-&gt;sampleTable-&gt;SampleDescription-&gt;other_boxes);</span>
+<span class="lineNum">    1103 </span><span class="lineCov">       1412 :                 if (StreamDescriptionIndex) {</span>
+<span class="lineNum">    1104 </span><span class="lineNoCov">          0 :                         entry = (GF_MPEGSampleEntryBox*)gf_list_get(trak-&gt;Media-&gt;information-&gt;sampleTable-&gt;SampleDescription-&gt;other_boxes, StreamDescriptionIndex - 1);</span>
+<span class="lineNum">    1105 </span><span class="lineNoCov">          0 :                         if (!entry) return GF_ISOM_INVALID_FILE;</span>
+<span class="lineNum">    1106 </span><span class="lineNoCov">          0 :                         if (entry-&gt;esd &amp;&amp; entry-&gt;esd-&gt;desc-&gt;URLString) return GF_BAD_PARAM;</span>
+<span class="lineNum">    1107 </span>            :                 }
+<span class="lineNum">    1108 </span>            : 
+<span class="lineNum">    1109 </span>            :                 //OK, check the handler and create the entry
+<span class="lineNum">    1110 </span><span class="lineCov">       1412 :                 switch (trak-&gt;Media-&gt;handler-&gt;handlerType) {</span>
+<span class="lineNum">    1111 </span>            :                 case GF_ISOM_MEDIA_VISUAL:
+<span class="lineNum">    1112 </span><span class="lineCov">        310 :                         if ((esd-&gt;decoderConfig-&gt;objectTypeIndication==GPAC_OTI_VIDEO_AVC) || (esd-&gt;decoderConfig-&gt;objectTypeIndication==GPAC_OTI_VIDEO_SVC)) {</span>
+<span class="lineNum">    1113 </span><span class="lineNoCov">          0 :                                 entry_v = (GF_MPEGVisualSampleEntryBox *) gf_isom_box_new(GF_ISOM_BOX_TYPE_AVC1);</span>
+<span class="lineNum">    1114 </span><span class="lineNoCov">          0 :                                 if (!entry_v) return GF_OUT_OF_MEM;</span>
+<span class="lineNum">    1115 </span><span class="lineNoCov">          0 :                                 e = AVC_HEVC_UpdateESD((GF_MPEGVisualSampleEntryBox*)entry_v, esd);</span>
+<span class="lineNum">    1116 </span><span class="lineNoCov">          0 :                                 if (e) return  e;</span>
+<span class="lineNum">    1117 </span><span class="lineCov">        155 :                         } else if (esd-&gt;decoderConfig-&gt;objectTypeIndication==GPAC_OTI_VIDEO_HEVC) {</span>
+<span class="lineNum">    1118 </span><span class="lineNoCov">          0 :                                 entry_v = (GF_MPEGVisualSampleEntryBox *) gf_isom_box_new(GF_ISOM_BOX_TYPE_HVC1);</span>
+<span class="lineNum">    1119 </span><span class="lineNoCov">          0 :                                 if (!entry_v) return GF_OUT_OF_MEM;</span>
+<span class="lineNum">    1120 </span><span class="lineNoCov">          0 :                                 e = AVC_HEVC_UpdateESD((GF_MPEGVisualSampleEntryBox*)entry_v, esd);</span>
+<span class="lineNum">    1121 </span><span class="lineNoCov">          0 :                                 if (e) return  e;</span>
+<span class="lineNum">    1122 </span>            :                         } else {
+<span class="lineNum">    1123 </span><span class="lineCov">        155 :                                 entry_v = (GF_MPEGVisualSampleEntryBox *) gf_isom_box_new(GF_ISOM_BOX_TYPE_MP4V);</span>
+<span class="lineNum">    1124 </span><span class="lineCov">        155 :                                 if (!entry_v) return GF_OUT_OF_MEM;</span>
+<span class="lineNum">    1125 </span><span class="lineCov">        155 :                                 entry_v-&gt;esd = (GF_ESDBox *) gf_isom_box_new(GF_ISOM_BOX_TYPE_ESDS);</span>
+<span class="lineNum">    1126 </span><span class="lineCov">        155 :                                 entry_v-&gt;esd-&gt;desc = esd;</span>
+<span class="lineNum">    1127 </span>            :                         }
+<span class="lineNum">    1128 </span>            : 
+<span class="lineNum">    1129 </span>            :                         //type cast possible now
+<span class="lineNum">    1130 </span><span class="lineCov">        155 :                         entry = (GF_MPEGSampleEntryBox*) entry_v;</span>
+<span class="lineNum">    1131 </span><span class="lineCov">        155 :                         break;</span>
+<span class="lineNum">    1132 </span>            :                 case GF_ISOM_MEDIA_AUDIO:
+<span class="lineNum">    1133 </span><span class="lineCov">         45 :                         if (esd-&gt;decoderConfig-&gt;objectTypeIndication==GPAC_OTI_AUDIO_AC3) {</span>
+<span class="lineNum">    1134 </span><span class="lineNoCov">          0 :                                 GF_AC3SampleEntryBox *ac3 = (GF_AC3SampleEntryBox *) gf_isom_box_new(GF_ISOM_BOX_TYPE_AC3);</span>
+<span class="lineNum">    1135 </span><span class="lineNoCov">          0 :                                 if (!ac3) return GF_OUT_OF_MEM;</span>
+<span class="lineNum">    1136 </span><span class="lineNoCov">          0 :                                 ac3-&gt;info = (GF_AC3ConfigBox *) gf_isom_box_new(GF_ISOM_BOX_TYPE_DAC3);</span>
+<span class="lineNum">    1137 </span><span class="lineNoCov">          0 :                                 entry = (GF_MPEGSampleEntryBox*) ac3;</span>
+<span class="lineNum">    1138 </span><span class="lineNoCov">          0 :                         } else {</span>
+<span class="lineNum">    1139 </span><span class="lineCov">         45 :                                 entry_a = (GF_MPEGAudioSampleEntryBox *) gf_isom_box_new(GF_ISOM_BOX_TYPE_MP4A);</span>
+<span class="lineNum">    1140 </span><span class="lineCov">         45 :                                 if (!entry_a) return GF_OUT_OF_MEM;</span>
+<span class="lineNum">    1141 </span><span class="lineCov">         45 :                                 entry_a-&gt;samplerate_hi = trak-&gt;Media-&gt;mediaHeader-&gt;timeScale;</span>
+<span class="lineNum">    1142 </span><span class="lineCov">         45 :                                 entry_a-&gt;esd = (GF_ESDBox *) gf_isom_box_new(GF_ISOM_BOX_TYPE_ESDS);</span>
+<span class="lineNum">    1143 </span><span class="lineCov">         45 :                                 entry_a-&gt;esd-&gt;desc = esd;</span>
+<span class="lineNum">    1144 </span>            :                                 //type cast possible now
+<span class="lineNum">    1145 </span><span class="lineCov">         45 :                                 entry = (GF_MPEGSampleEntryBox*) entry_a;</span>
+<span class="lineNum">    1146 </span>            :                         }
+<span class="lineNum">    1147 </span>            :                         break;
+<span class="lineNum">    1148 </span>            :                 default:
+<span class="lineNum">    1149 </span><span class="lineCov">       2213 :                         if ((esd-&gt;decoderConfig-&gt;streamType==0x03) &amp;&amp; (esd-&gt;decoderConfig-&gt;objectTypeIndication==0x09)) {</span>
+<span class="lineNum">    1150 </span><span class="lineCov">        393 :                                 entry = (GF_MPEGSampleEntryBox *) gf_isom_box_new(GF_ISOM_BOX_TYPE_LSR1);</span>
+<span class="lineNum">    1151 </span><span class="lineCov">        393 :                                 if (!entry) return GF_OUT_OF_MEM;</span>
+<span class="lineNum">    1152 </span><span class="lineCov">        393 :                                 e = LSR_UpdateESD((GF_LASeRSampleEntryBox*)entry, esd);</span>
+<span class="lineNum">    1153 </span><span class="lineCov">        393 :                                 if (e) return  e;</span>
+<span class="lineNum">    1154 </span>            :                         } else {
+<span class="lineNum">    1155 </span><span class="lineCov">        819 :                                 entry = (GF_MPEGSampleEntryBox *) gf_isom_box_new(GF_ISOM_BOX_TYPE_MP4S);</span>
+<span class="lineNum">    1156 </span><span class="lineCov">        819 :                                 entry-&gt;esd = (GF_ESDBox *) gf_isom_box_new(GF_ISOM_BOX_TYPE_ESDS);</span>
+<span class="lineNum">    1157 </span><span class="lineCov">        819 :                                 entry-&gt;esd-&gt;desc = esd;</span>
+<span class="lineNum">    1158 </span>            :                         }
+<span class="lineNum">    1159 </span>            :                         break;
+<span class="lineNum">    1160 </span>            :                 }
+<span class="lineNum">    1161 </span><span class="lineCov">       1412 :                 entry-&gt;dataReferenceIndex = DataReferenceIndex;</span>
+<span class="lineNum">    1162 </span>            : 
+<span class="lineNum">    1163 </span>            :                 //and add the entry to our table...
+<span class="lineNum">    1164 </span><span class="lineCov">       1412 :                 e = stsd_AddBox(trak-&gt;Media-&gt;information-&gt;sampleTable-&gt;SampleDescription, (GF_Box *) entry);</span>
+<span class="lineNum">    1165 </span><span class="lineCov">       1412 :                 if (e) return e;</span>
+<span class="lineNum">    1166 </span><span class="lineCov">       2824 :                 if(outStreamIndex) *outStreamIndex = gf_list_count(trak-&gt;Media-&gt;information-&gt;sampleTable-&gt;SampleDescription-&gt;other_boxes);</span>
+<span class="lineNum">    1167 </span>            :         }
+<span class="lineNum">    1168 </span><span class="lineCov">       2859 :         return GF_OK;</span>
+<span class="lineNum">    1169 </span><span class="lineCov">       2862 : }</span>
+<span class="lineNum">    1170 </span>            : 
+<span class="lineNum">    1171 </span>            : #endif  /*GPAC_DISABLE_ISOM_WRITE*/
+<span class="lineNum">    1172 </span>            : 
+<span class="lineNum">    1173 </span>            : #endif /*GPAC_DISABLE_ISOM*/
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

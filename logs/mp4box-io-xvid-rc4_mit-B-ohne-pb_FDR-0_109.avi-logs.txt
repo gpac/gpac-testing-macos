@@ -1,0 +1,52 @@
+*** mp4box-io-xvid-rc4_mit-B-ohne-pb_FDR-0_109.avi logs (GPAC version 0.6.2-DEV-revUNKNOWN-HEAD ) - test date 14/05/2017 22:27:53 ***
+
+
+*** Subtest "RawMediaInfo": executing "MP4Box -noprog -for-test  -mem-track -info /Users/travis/build/gpac/gpac/tests/external_media/import/xvid-rc4_mit-B-ohne-pb_FDR-0_109.avi" ***
+[32mNo audio track found
+[0mImport probing results for /Users/travis/build/gpac/gpac/tests/external_media/import/xvid-rc4_mit-B-ohne-pb_FDR-0_109.avi:
+File has 1 tracks
+	Track 1 type: Video (XVID)
+
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "MediaImport": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/external_media/import/xvid-rc4_mit-B-ohne-pb_FDR-0_109.avi -new /Users/travis/build/gpac/gpac/tests/results/temp/xvid-rc4_mit-B-ohne-pb_FDR-0_109.avi.mp4" ***
+[32mNo audio track found
+[0m[32mAVI XVID video import - 352 x 192 @ 25.0000 FPS - 109 Frames
+Indicated Profile: Advanced Simple Profile @ Level 5
+[0m[32mHas B-Frames (2 max consecutive B-VOPs)
+[0m[32mImport results: 109 VOPs (2 Is - 39 Ps - 68 Bs)
+[0mSaving /Users/travis/build/gpac/gpac/tests/results/temp/xvid-rc4_mit-B-ohne-pb_FDR-0_109.avi.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m
+
+*** Subtest "MediaInfo": executing "MP4Box -noprog -for-test  -mem-track -info /Users/travis/build/gpac/gpac/tests/results/temp/xvid-rc4_mit-B-ohne-pb_FDR-0_109.avi.mp4" ***
+Error opening file /Users/travis/build/gpac/gpac/tests/results/temp/xvid-rc4_mit-B-ohne-pb_FDR-0_109.avi.mp4: Requested URL is not valid or cannot be found
+
+
+*** Subtest "MediaTime": executing "MP4Box -noprog -for-test  -mem-track -dts /Users/travis/build/gpac/gpac/tests/results/temp/xvid-rc4_mit-B-ohne-pb_FDR-0_109.avi.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/xvid-rc4_mit-B-ohne-pb_FDR-0_109.avi.2.tmp" ***
+Error opening file /Users/travis/build/gpac/gpac/tests/results/temp/xvid-rc4_mit-B-ohne-pb_FDR-0_109.avi.mp4: Requested URL is not valid or cannot be found
+
+
+*** Subtest "RTPHint": executing "MP4Box -noprog -for-test  -mem-track -hint /Users/travis/build/gpac/gpac/tests/results/temp/xvid-rc4_mit-B-ohne-pb_FDR-0_109.avi.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/xvid-rc4_mit-B-ohne-pb_FDR-0_109.avi.mp4.hint" ***
+Error opening file /Users/travis/build/gpac/gpac/tests/results/temp/xvid-rc4_mit-B-ohne-pb_FDR-0_109.avi.mp4: Requested URL is not valid or cannot be found
+
+
+*** Subtest "XMDDump": executing "MP4Box -noprog -for-test  -mem-track -diso /Users/travis/build/gpac/gpac/tests/results/temp/xvid-rc4_mit-B-ohne-pb_FDR-0_109.avi.mp4 -out /Users/travis/build/gpac/gpac/tests/results/temp/xvid-rc4_mit-B-ohne-pb_FDR-0_109.avi.1.tmp" ***
+Error opening file /Users/travis/build/gpac/gpac/tests/results/temp/xvid-rc4_mit-B-ohne-pb_FDR-0_109.avi.mp4: Requested URL is not valid or cannot be found
+
+
+*** Subtest "RTPDump": executing "MP4Box -noprog -for-test  -mem-track -drtp /Users/travis/build/gpac/gpac/tests/results/temp/xvid-rc4_mit-B-ohne-pb_FDR-0_109.avi.mp4.hint -out /Users/travis/build/gpac/gpac/tests/results/temp/xvid-rc4_mit-B-ohne-pb_FDR-0_109.avi.mp4.tmp" ***
+Error creating file /Users/travis/build/gpac/gpac/tests/results/temp/xvid-rc4_mit-B-ohne-pb_FDR-0_109.avi.mp4.hint: Requested URL is not valid or cannot be found
+
+
+*** Subtest "RTPUnhint": executing "MP4Box -noprog -for-test  -mem-track -unhint /Users/travis/build/gpac/gpac/tests/results/temp/xvid-rc4_mit-B-ohne-pb_FDR-0_109.avi.mp4.hint" ***
+Saving to /Users/travis/build/gpac/gpac/tests/results/temp/xvid-rc4_mit-B-ohne-pb_FDR-0_109.avi.mp4.hint: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m

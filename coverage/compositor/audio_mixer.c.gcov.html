@@ -1,0 +1,889 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - compositor/audio_mixer.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">compositor</a> - audio_mixer.c<span style="font-size: 80%;"> (source / <a href="audio_mixer.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">38</td>
+            <td class="headerCovTableEntry">421</td>
+            <td class="headerCovTableEntryLo">9.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-05-14 22:31:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntry">20</td>
+            <td class="headerCovTableEntryLo">30.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *                      GPAC - Multimedia Framework C SDK
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *                      Authors: Jean Le Feuvre
+<span class="lineNum">       5 </span>            :  *                      Copyright (c) Telecom ParisTech 2000-2012
+<span class="lineNum">       6 </span>            :  *                                      All rights reserved
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  *  This file is part of GPAC / Scene Compositor sub-project
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  *  GPAC is free software; you can redistribute it and/or modify
+<span class="lineNum">      11 </span>            :  *  it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">      12 </span>            :  *  the Free Software Foundation; either version 2, or (at your option)
+<span class="lineNum">      13 </span>            :  *  any later version.
+<span class="lineNum">      14 </span>            :  *
+<span class="lineNum">      15 </span>            :  *  GPAC is distributed in the hope that it will be useful,
+<span class="lineNum">      16 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      17 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      18 </span>            :  *  GNU Lesser General Public License for more details.
+<span class="lineNum">      19 </span>            :  *
+<span class="lineNum">      20 </span>            :  *  You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      21 </span>            :  *  License along with this library; see the file COPYING.  If not, write to
+<span class="lineNum">      22 </span>            :  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+<span class="lineNum">      23 </span>            :  *
+<span class="lineNum">      24 </span>            :  */
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : #include &lt;gpac/internal/compositor_dev.h&gt;
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span>            : /*max number of channels we support in mixer*/
+<span class="lineNum">      29 </span>            : #define GF_SR_MAX_CHANNELS      16
+<span class="lineNum">      30 </span>            : 
+<span class="lineNum">      31 </span>            : /*
+<span class="lineNum">      32 </span>            :         Notes about the mixer:
+<span class="lineNum">      33 </span>            :         1- spatialization is out of scope for the mixer (eg that's the sound node responsability)
+<span class="lineNum">      34 </span>            :         2- mixing is performed by resampling input source &amp; deinterleaving its channels into dedicated buffer.
+<span class="lineNum">      35 </span>            :         We could directly deinterleave in the main mixer ouput buffer, but this would prevent any future
+<span class="lineNum">      36 </span>            :         gain correction.
+<span class="lineNum">      37 </span>            : */
+<span class="lineNum">      38 </span>            : typedef struct
+<span class="lineNum">      39 </span>            : {
+<span class="lineNum">      40 </span>            :         GF_AudioInterface *src;
+<span class="lineNum">      41 </span>            : 
+<span class="lineNum">      42 </span>            :         s32 *ch_buf[GF_SR_MAX_CHANNELS];
+<span class="lineNum">      43 </span>            :         /*resampled buffer*/
+<span class="lineNum">      44 </span>            :         u32 buffer_size;
+<span class="lineNum">      45 </span>            : 
+<span class="lineNum">      46 </span>            :         u32 bytes_per_sec;
+<span class="lineNum">      47 </span>            : 
+<span class="lineNum">      48 </span>            :         Bool has_prev;
+<span class="lineNum">      49 </span>            :         s32 last_channels[GF_SR_MAX_CHANNELS];
+<span class="lineNum">      50 </span>            : 
+<span class="lineNum">      51 </span>            :         u32 in_bytes_used, out_samples_written, out_samples_to_write;
+<span class="lineNum">      52 </span>            : 
+<span class="lineNum">      53 </span>            :         Fixed speed;
+<span class="lineNum">      54 </span>            :         Fixed pan[6];
+<span class="lineNum">      55 </span>            : 
+<span class="lineNum">      56 </span>            :         Bool muted;
+<span class="lineNum">      57 </span>            : } MixerInput;
+<span class="lineNum">      58 </span>            : 
+<span class="lineNum">      59 </span>            : struct __audiomix
+<span class="lineNum">      60 </span>            : {
+<span class="lineNum">      61 </span>            :         /*src*/
+<span class="lineNum">      62 </span>            :         GF_List *sources;
+<span class="lineNum">      63 </span>            :         /*output config*/
+<span class="lineNum">      64 </span>            :         u32 sample_rate;
+<span class="lineNum">      65 </span>            :         u32 nb_channels;
+<span class="lineNum">      66 </span>            :         u32 bits_per_sample;
+<span class="lineNum">      67 </span>            :         u32 channel_cfg;
+<span class="lineNum">      68 </span>            :         GF_Mutex *mx;
+<span class="lineNum">      69 </span>            :         /*if set forces stereo/mono*/
+<span class="lineNum">      70 </span>            :         Bool force_channel_out;
+<span class="lineNum">      71 </span>            :         /*set to true by mixer when detecting an audio config change*/
+<span class="lineNum">      72 </span>            :         Bool must_reconfig;
+<span class="lineNum">      73 </span>            :         Bool isEmpty;
+<span class="lineNum">      74 </span>            :         /*set to non null if this outputs directly to the driver, in which case audio formats have to be checked*/
+<span class="lineNum">      75 </span>            :         struct _audio_render *ar;
+<span class="lineNum">      76 </span>            : 
+<span class="lineNum">      77 </span>            :         s32 *output;
+<span class="lineNum">      78 </span>            :         u32 output_size;
+<span class="lineNum">      79 </span>            : };
+<a name="80"><span class="lineNum">      80 </span>            : </a>
+<span class="lineNum">      81 </span>            : GF_EXPORT
+<span class="lineNum">      82 </span>            : GF_AudioMixer *gf_mixer_new(struct _audio_render *ar)
+<span class="lineNum">      83 </span>            : {
+<span class="lineNum">      84 </span>            :         GF_AudioMixer *am;
+<span class="lineNum">      85 </span><span class="lineCov">          2 :         am = (GF_AudioMixer *) gf_malloc(sizeof(GF_AudioMixer));</span>
+<span class="lineNum">      86 </span><span class="lineCov">          1 :         if (!am) return NULL;</span>
+<span class="lineNum">      87 </span><span class="lineCov">          1 :         memset(am, 0, sizeof(GF_AudioMixer));</span>
+<span class="lineNum">      88 </span><span class="lineCov">          1 :         am-&gt;mx = gf_mx_new(&quot;AudioMix&quot;);</span>
+<span class="lineNum">      89 </span><span class="lineCov">          1 :         am-&gt;sources = gf_list_new();</span>
+<span class="lineNum">      90 </span><span class="lineCov">          1 :         am-&gt;isEmpty = GF_TRUE;</span>
+<span class="lineNum">      91 </span><span class="lineCov">          1 :         am-&gt;ar = ar;</span>
+<span class="lineNum">      92 </span><span class="lineCov">          1 :         am-&gt;sample_rate = 44100;</span>
+<span class="lineNum">      93 </span><span class="lineCov">          1 :         am-&gt;bits_per_sample = 16;</span>
+<span class="lineNum">      94 </span><span class="lineCov">          1 :         am-&gt;nb_channels = 2;</span>
+<span class="lineNum">      95 </span><span class="lineCov">          1 :         am-&gt;output = NULL;</span>
+<span class="lineNum">      96 </span><span class="lineCov">          1 :         am-&gt;output_size = 0;</span>
+<span class="lineNum">      97 </span><span class="lineCov">          1 :         return am;</span>
+<a name="98"><span class="lineNum">      98 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">      99 </span>            : 
+<span class="lineNum">     100 </span>            : Bool gf_mixer_must_reconfig(GF_AudioMixer *am)
+<span class="lineNum">     101 </span>            : {
+<span class="lineNum">     102 </span><span class="lineNoCov">          0 :         return am-&gt;must_reconfig;</span>
+<a name="103"><span class="lineNum">     103 </span>            : }</a>
+<span class="lineNum">     104 </span>            : 
+<span class="lineNum">     105 </span>            : void gf_mixer_del(GF_AudioMixer *am)
+<span class="lineNum">     106 </span>            : {
+<span class="lineNum">     107 </span><span class="lineCov">          2 :         gf_mixer_remove_all(am);</span>
+<span class="lineNum">     108 </span><span class="lineCov">          1 :         gf_list_del(am-&gt;sources);</span>
+<span class="lineNum">     109 </span><span class="lineCov">          1 :         gf_mx_del(am-&gt;mx);</span>
+<span class="lineNum">     110 </span><span class="lineCov">          1 :         if (am-&gt;output) gf_free(am-&gt;output);</span>
+<span class="lineNum">     111 </span><span class="lineCov">          1 :         gf_free(am);</span>
+<a name="112"><span class="lineNum">     112 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     113 </span>            : 
+<span class="lineNum">     114 </span>            : void gf_mixer_remove_all(GF_AudioMixer *am)
+<span class="lineNum">     115 </span>            : {
+<span class="lineNum">     116 </span>            :         u32 j;
+<span class="lineNum">     117 </span><span class="lineCov">          6 :         gf_mixer_lock(am, GF_TRUE);</span>
+<span class="lineNum">     118 </span><span class="lineCov">          6 :         while (gf_list_count(am-&gt;sources)) {</span>
+<span class="lineNum">     119 </span><span class="lineNoCov">          0 :                 MixerInput *in = (MixerInput *)gf_list_get(am-&gt;sources, 0);</span>
+<span class="lineNum">     120 </span><span class="lineNoCov">          0 :                 gf_list_rem(am-&gt;sources, 0);</span>
+<span class="lineNum">     121 </span><span class="lineNoCov">          0 :                 for (j=0; j&lt;GF_SR_MAX_CHANNELS; j++) {</span>
+<span class="lineNum">     122 </span><span class="lineNoCov">          0 :                         if (in-&gt;ch_buf[j]) gf_free(in-&gt;ch_buf[j]);</span>
+<span class="lineNum">     123 </span>            :                 }
+<span class="lineNum">     124 </span><span class="lineNoCov">          0 :                 gf_free(in);</span>
+<span class="lineNum">     125 </span>            :         }
+<span class="lineNum">     126 </span><span class="lineCov">          3 :         am-&gt;isEmpty = GF_TRUE;</span>
+<span class="lineNum">     127 </span><span class="lineCov">          3 :         gf_mixer_lock(am, GF_FALSE);</span>
+<a name="128"><span class="lineNum">     128 </span><span class="lineCov">          3 : }</span></a>
+<span class="lineNum">     129 </span>            : 
+<span class="lineNum">     130 </span>            : Bool gf_mixer_is_src_present(GF_AudioMixer *am, GF_AudioInterface *ifce)
+<span class="lineNum">     131 </span>            : {
+<span class="lineNum">     132 </span>            :         MixerInput *in;
+<span class="lineNum">     133 </span><span class="lineNoCov">          0 :         u32 i = 0;</span>
+<span class="lineNum">     134 </span><span class="lineNoCov">          0 :         while ((in = (MixerInput *)gf_list_enum(am-&gt;sources, &amp;i))) {</span>
+<span class="lineNum">     135 </span><span class="lineNoCov">          0 :                 if (in-&gt;src == ifce) return GF_TRUE;</span>
+<span class="lineNum">     136 </span>            :         }
+<a name="137"><span class="lineNum">     137 </span><span class="lineNoCov">          0 :         return GF_FALSE;</span></a>
+<span class="lineNum">     138 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     139 </span>            : u32 gf_mixer_get_src_count(GF_AudioMixer *am)
+<span class="lineNum">     140 </span>            : {
+<span class="lineNum">     141 </span><span class="lineNoCov">          0 :         return gf_list_count(am-&gt;sources);</span>
+<a name="142"><span class="lineNum">     142 </span>            : }</a>
+<span class="lineNum">     143 </span>            : 
+<span class="lineNum">     144 </span>            : void gf_mixer_force_chanel_out(GF_AudioMixer *am, u32 num_channels)
+<span class="lineNum">     145 </span>            : {
+<span class="lineNum">     146 </span><span class="lineNoCov">          0 :         am-&gt;force_channel_out = GF_TRUE;</span>
+<span class="lineNum">     147 </span><span class="lineNoCov">          0 :         am-&gt;nb_channels = num_channels;</span>
+<a name="148"><span class="lineNum">     148 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     149 </span>            : 
+<span class="lineNum">     150 </span>            : u32 gf_mixer_get_block_align(GF_AudioMixer *am)
+<span class="lineNum">     151 </span>            : {
+<span class="lineNum">     152 </span><span class="lineNoCov">          0 :         return am-&gt;nb_channels*am-&gt;bits_per_sample/8;</span>
+<span class="lineNum">     153 </span>            : }
+<a name="154"><span class="lineNum">     154 </span>            : </a>
+<span class="lineNum">     155 </span>            : GF_EXPORT
+<span class="lineNum">     156 </span>            : void gf_mixer_lock(GF_AudioMixer *am, Bool lockIt)
+<span class="lineNum">     157 </span>            : {
+<span class="lineNum">     158 </span>            :         //GF_LOG(GF_LOG_DEBUG, GF_LOG_CORE, (&quot;[AudioMixer] Thread ID %d is %s the audio mixer\n&quot;, gf_th_id(), lockIt ? &quot;locking&quot; : &quot;unlocking&quot; ));
+<span class="lineNum">     159 </span><span class="lineCov">         24 :         if (lockIt) {</span>
+<span class="lineNum">     160 </span><span class="lineCov">         12 :                 gf_mx_p(am-&gt;mx);</span>
+<span class="lineNum">     161 </span><span class="lineCov">          4 :         } else {</span>
+<span class="lineNum">     162 </span><span class="lineCov">          4 :                 gf_mx_v(am-&gt;mx);</span>
+<span class="lineNum">     163 </span>            :         }
+<span class="lineNum">     164 </span><span class="lineCov">          8 : }</span>
+<a name="165"><span class="lineNum">     165 </span>            : </a>
+<span class="lineNum">     166 </span>            : GF_EXPORT
+<span class="lineNum">     167 </span>            : Bool gf_mixer_empty(GF_AudioMixer *am)
+<span class="lineNum">     168 </span>            : {
+<span class="lineNum">     169 </span><span class="lineNoCov">          0 :         return am-&gt;isEmpty;</span>
+<span class="lineNum">     170 </span>            : }
+<a name="171"><span class="lineNum">     171 </span>            : </a>
+<span class="lineNum">     172 </span>            : GF_EXPORT
+<span class="lineNum">     173 </span>            : void gf_mixer_add_input(GF_AudioMixer *am, GF_AudioInterface *src)
+<span class="lineNum">     174 </span>            : {
+<span class="lineNum">     175 </span>            :         MixerInput *in;
+<span class="lineNum">     176 </span><span class="lineNoCov">          0 :         if (gf_mixer_is_src_present(am, src)) return;</span>
+<span class="lineNum">     177 </span><span class="lineNoCov">          0 :         gf_mixer_lock(am, GF_TRUE);</span>
+<span class="lineNum">     178 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(in, MixerInput);</span>
+<span class="lineNum">     179 </span><span class="lineNoCov">          0 :         if (!in) {</span>
+<span class="lineNum">     180 </span><span class="lineNoCov">          0 :                 gf_mixer_lock(am, GF_FALSE);</span>
+<span class="lineNum">     181 </span><span class="lineNoCov">          0 :                 GF_LOG(GF_LOG_ERROR, GF_LOG_AUDIO, (&quot;[AudioMixer] Cannot allocate input source\n&quot;));</span>
+<span class="lineNum">     182 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     183 </span>            :         }
+<span class="lineNum">     184 </span><span class="lineNoCov">          0 :         in-&gt;src = src;</span>
+<span class="lineNum">     185 </span><span class="lineNoCov">          0 :         gf_list_add(am-&gt;sources, in);</span>
+<span class="lineNum">     186 </span><span class="lineNoCov">          0 :         am-&gt;must_reconfig = GF_TRUE;</span>
+<span class="lineNum">     187 </span><span class="lineNoCov">          0 :         am-&gt;isEmpty = GF_FALSE;</span>
+<span class="lineNum">     188 </span><span class="lineNoCov">          0 :         gf_mixer_lock(am, GF_FALSE);</span>
+<a name="189"><span class="lineNum">     189 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     190 </span>            : 
+<span class="lineNum">     191 </span>            : void gf_mixer_remove_input(GF_AudioMixer *am, GF_AudioInterface *src)
+<span class="lineNum">     192 </span>            : {
+<span class="lineNum">     193 </span>            :         u32 i, j, count;
+<span class="lineNum">     194 </span><span class="lineNoCov">          0 :         if (am-&gt;isEmpty) return;</span>
+<span class="lineNum">     195 </span><span class="lineNoCov">          0 :         gf_mixer_lock(am, GF_TRUE);</span>
+<span class="lineNum">     196 </span><span class="lineNoCov">          0 :         count = gf_list_count(am-&gt;sources);</span>
+<span class="lineNum">     197 </span><span class="lineNoCov">          0 :         for (i=0; i&lt;count; i++) {</span>
+<span class="lineNum">     198 </span><span class="lineNoCov">          0 :                 MixerInput *in = (MixerInput *)gf_list_get(am-&gt;sources, i);</span>
+<span class="lineNum">     199 </span><span class="lineNoCov">          0 :                 if (in-&gt;src != src) continue;</span>
+<span class="lineNum">     200 </span><span class="lineNoCov">          0 :                 gf_list_rem(am-&gt;sources, i);</span>
+<span class="lineNum">     201 </span><span class="lineNoCov">          0 :                 for (j=0; j&lt;GF_SR_MAX_CHANNELS; j++) {</span>
+<span class="lineNum">     202 </span><span class="lineNoCov">          0 :                         if (in-&gt;ch_buf[j]) gf_free(in-&gt;ch_buf[j]);</span>
+<span class="lineNum">     203 </span>            :                 }
+<span class="lineNum">     204 </span><span class="lineNoCov">          0 :                 gf_free(in);</span>
+<span class="lineNum">     205 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     206 </span>            :         }
+<span class="lineNum">     207 </span><span class="lineNoCov">          0 :         am-&gt;isEmpty = gf_list_count(am-&gt;sources) ? GF_FALSE : GF_TRUE;</span>
+<span class="lineNum">     208 </span>            :         /*we don't ask for reconfig when removing a node*/
+<span class="lineNum">     209 </span><span class="lineNoCov">          0 :         gf_mixer_lock(am, GF_FALSE);</span>
+<span class="lineNum">     210 </span><span class="lineNoCov">          0 : }</span>
+<a name="211"><span class="lineNum">     211 </span>            : </a>
+<span class="lineNum">     212 </span>            : 
+<span class="lineNum">     213 </span>            : static GF_Err get_best_samplerate(GF_AudioMixer *am, u32 *out_sr, u32 *out_ch, u32 *out_bps)
+<span class="lineNum">     214 </span>            : {
+<span class="lineNum">     215 </span><span class="lineNoCov">          0 :         if (!am-&gt;ar) return GF_OK;</span>
+<span class="lineNum">     216 </span><span class="lineNoCov">          0 :         if (!am-&gt;ar-&gt;audio_out || !am-&gt;ar-&gt;audio_out-&gt;QueryOutputSampleRate) return GF_OK;</span>
+<span class="lineNum">     217 </span><span class="lineNoCov">          0 :         return am-&gt;ar-&gt;audio_out-&gt;QueryOutputSampleRate(am-&gt;ar-&gt;audio_out, out_sr, out_ch, out_bps);</span>
+<span class="lineNum">     218 </span><span class="lineNoCov">          0 : }</span>
+<a name="219"><span class="lineNum">     219 </span>            : </a>
+<span class="lineNum">     220 </span>            : GF_EXPORT
+<span class="lineNum">     221 </span>            : void gf_mixer_get_config(GF_AudioMixer *am, u32 *outSR, u32 *outCH, u32 *outBPS, u32 *outChCfg)
+<span class="lineNum">     222 </span>            : {
+<span class="lineNum">     223 </span><span class="lineCov">          2 :         (*outBPS) = am-&gt;bits_per_sample;</span>
+<span class="lineNum">     224 </span><span class="lineCov">          1 :         (*outCH) = am-&gt;nb_channels;</span>
+<span class="lineNum">     225 </span><span class="lineCov">          1 :         (*outSR) = am-&gt;sample_rate;</span>
+<span class="lineNum">     226 </span><span class="lineCov">          1 :         (*outChCfg) = am-&gt;channel_cfg;</span>
+<span class="lineNum">     227 </span><span class="lineCov">          1 : }</span>
+<a name="228"><span class="lineNum">     228 </span>            : </a>
+<span class="lineNum">     229 </span>            : GF_EXPORT
+<span class="lineNum">     230 </span>            : void gf_mixer_set_config(GF_AudioMixer *am, u32 outSR, u32 outCH, u32 outBPS, u32 outChCfg)
+<span class="lineNum">     231 </span>            : {
+<span class="lineNum">     232 </span><span class="lineCov">          3 :         if ((am-&gt;bits_per_sample == outBPS) &amp;&amp; (am-&gt;nb_channels == outCH)</span>
+<span class="lineNum">     233 </span><span class="lineCov">          3 :                 &amp;&amp; (am-&gt;sample_rate==outSR) &amp;&amp; (am-&gt;channel_cfg == outChCfg)) return;</span>
+<span class="lineNum">     234 </span>            : 
+<span class="lineNum">     235 </span><span class="lineNoCov">          0 :         gf_mixer_lock(am, GF_TRUE);</span>
+<span class="lineNum">     236 </span><span class="lineNoCov">          0 :         am-&gt;bits_per_sample = outBPS;</span>
+<span class="lineNum">     237 </span><span class="lineNoCov">          0 :         if (!am-&gt;force_channel_out) am-&gt;nb_channels = outCH;</span>
+<span class="lineNum">     238 </span><span class="lineNoCov">          0 :         if (get_best_samplerate(am, &amp;outSR, &amp;outCH, &amp;outBPS) == GF_OK) {</span>
+<span class="lineNum">     239 </span><span class="lineNoCov">          0 :                 am-&gt;sample_rate = outSR;</span>
+<span class="lineNum">     240 </span><span class="lineNoCov">          0 :                 if (outCH&gt;2) am-&gt;channel_cfg = outChCfg;</span>
+<span class="lineNum">     241 </span><span class="lineNoCov">          0 :                 else if (outCH==2) am-&gt;channel_cfg = GF_AUDIO_CH_FRONT_LEFT | GF_AUDIO_CH_FRONT_RIGHT;</span>
+<span class="lineNum">     242 </span><span class="lineNoCov">          0 :                 else am-&gt;channel_cfg = GF_AUDIO_CH_FRONT_LEFT;</span>
+<span class="lineNum">     243 </span>            :         }
+<span class="lineNum">     244 </span>            :         /*if main mixer recfg output*/
+<span class="lineNum">     245 </span><span class="lineNoCov">          0 :         if (am-&gt;ar)  am-&gt;ar-&gt;need_reconfig = GF_TRUE;</span>
+<span class="lineNum">     246 </span><span class="lineNoCov">          0 :         gf_mixer_lock(am, GF_FALSE);</span>
+<span class="lineNum">     247 </span><span class="lineCov">          1 : }</span>
+<a name="248"><span class="lineNum">     248 </span>            : </a>
+<span class="lineNum">     249 </span>            : GF_EXPORT
+<span class="lineNum">     250 </span>            : Bool gf_mixer_reconfig(GF_AudioMixer *am)
+<span class="lineNum">     251 </span>            : {
+<span class="lineNum">     252 </span>            :         u32 i, count, numInit, max_sample_rate, max_channels, max_bps, cfg_changed, ch_cfg;
+<span class="lineNum">     253 </span><span class="lineNoCov">          0 :         gf_mixer_lock(am, GF_TRUE);</span>
+<span class="lineNum">     254 </span><span class="lineNoCov">          0 :         if (am-&gt;isEmpty || !am-&gt;must_reconfig) {</span>
+<span class="lineNum">     255 </span><span class="lineNoCov">          0 :                 gf_mixer_lock(am, GF_FALSE);</span>
+<span class="lineNum">     256 </span><span class="lineNoCov">          0 :                 return GF_FALSE;</span>
+<span class="lineNum">     257 </span>            :         }
+<span class="lineNum">     258 </span>            : 
+<span class="lineNum">     259 </span><span class="lineNoCov">          0 :         if (am-&gt;ar &amp;&amp; am-&gt;ar-&gt;config_forced) {</span>
+<span class="lineNum">     260 </span><span class="lineNoCov">          0 :                 am-&gt;must_reconfig = GF_FALSE;</span>
+<span class="lineNum">     261 </span><span class="lineNoCov">          0 :                 gf_mixer_lock(am, GF_FALSE);</span>
+<span class="lineNum">     262 </span><span class="lineNoCov">          0 :                 return GF_FALSE;</span>
+<span class="lineNum">     263 </span>            :         }
+<span class="lineNum">     264 </span>            : 
+<span class="lineNum">     265 </span>            :         numInit = 0;
+<span class="lineNum">     266 </span><span class="lineNoCov">          0 :         max_channels = am-&gt;nb_channels;</span>
+<span class="lineNum">     267 </span><span class="lineNoCov">          0 :         max_bps = am-&gt;bits_per_sample;</span>
+<span class="lineNum">     268 </span>            :         cfg_changed = 0;
+<span class="lineNum">     269 </span>            : //      max_sample_rate = am-&gt;sample_rate;
+<span class="lineNum">     270 </span>            :         max_sample_rate = 0,
+<span class="lineNum">     271 </span>            : 
+<span class="lineNum">     272 </span>            :         ch_cfg = 0;
+<span class="lineNum">     273 </span>            : 
+<span class="lineNum">     274 </span><span class="lineNoCov">          0 :         count = gf_list_count(am-&gt;sources);</span>
+<span class="lineNum">     275 </span>            :         assert(count);
+<span class="lineNum">     276 </span><span class="lineNoCov">          0 :         for (i=0; i&lt;count; i++) {</span>
+<span class="lineNum">     277 </span>            :                 Bool has_cfg;
+<span class="lineNum">     278 </span><span class="lineNoCov">          0 :                 MixerInput *in = (MixerInput *) gf_list_get(am-&gt;sources, i);</span>
+<span class="lineNum">     279 </span><span class="lineNoCov">          0 :                 has_cfg = in-&gt;src-&gt;GetConfig(in-&gt;src, GF_TRUE);</span>
+<span class="lineNum">     280 </span><span class="lineNoCov">          0 :                 if (has_cfg) {</span>
+<span class="lineNum">     281 </span>            :                         /*check same cfg...*/
+<span class="lineNum">     282 </span><span class="lineNoCov">          0 :                         if (in-&gt;src-&gt;samplerate * in-&gt;src-&gt;chan * in-&gt;src-&gt;bps == 8*in-&gt;bytes_per_sec) {</span>
+<span class="lineNum">     283 </span><span class="lineNoCov">          0 :                                 numInit++;</span>
+<span class="lineNum">     284 </span><span class="lineNoCov">          0 :                                 continue;</span>
+<span class="lineNum">     285 </span>            :                         }
+<span class="lineNum">     286 </span><span class="lineNoCov">          0 :                 } else continue;</span>
+<span class="lineNum">     287 </span>            :                 /*update out cfg*/
+<span class="lineNum">     288 </span><span class="lineNoCov">          0 :                 if ((count==1) &amp;&amp; (max_sample_rate != in-&gt;src-&gt;samplerate)) {</span>
+<span class="lineNum">     289 </span>            : //                      cfg_changed = 1;
+<span class="lineNum">     290 </span>            :                         max_sample_rate = in-&gt;src-&gt;samplerate;
+<span class="lineNum">     291 </span><span class="lineNoCov">          0 :                 } else if (max_sample_rate&lt;in-&gt;src-&gt;samplerate) {</span>
+<span class="lineNum">     292 </span>            : //                      cfg_changed = 1;
+<span class="lineNum">     293 </span>            :                         max_sample_rate = in-&gt;src-&gt;samplerate;
+<span class="lineNum">     294 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     295 </span><span class="lineNoCov">          0 :                 if ((count==1) &amp;&amp; (max_bps!=in-&gt;src-&gt;bps)) {</span>
+<span class="lineNum">     296 </span>            :                         cfg_changed = 1;
+<span class="lineNum">     297 </span>            :                         max_bps = in-&gt;src-&gt;bps;
+<span class="lineNum">     298 </span><span class="lineNoCov">          0 :                 } else if (max_bps&lt;in-&gt;src-&gt;bps) {</span>
+<span class="lineNum">     299 </span>            :                         cfg_changed = 1;
+<span class="lineNum">     300 </span>            :                         max_bps = in-&gt;src-&gt;bps;
+<span class="lineNum">     301 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     302 </span><span class="lineNoCov">          0 :                 if (!am-&gt;force_channel_out) {</span>
+<span class="lineNum">     303 </span><span class="lineNoCov">          0 :                         if ((count==1) &amp;&amp; (max_channels!=in-&gt;src-&gt;chan)) {</span>
+<span class="lineNum">     304 </span>            :                                 cfg_changed = 1;
+<span class="lineNum">     305 </span>            :                                 max_channels = in-&gt;src-&gt;chan;
+<span class="lineNum">     306 </span><span class="lineNoCov">          0 :                                 if (in-&gt;src-&gt;chan&gt;2) ch_cfg |= in-&gt;src-&gt;ch_cfg;</span>
+<span class="lineNum">     307 </span><span class="lineNoCov">          0 :                         } else if (max_channels &lt; in-&gt;src-&gt;chan) {</span>
+<span class="lineNum">     308 </span>            :                                 cfg_changed = 1;
+<span class="lineNum">     309 </span>            :                                 max_channels = in-&gt;src-&gt;chan;
+<span class="lineNum">     310 </span><span class="lineNoCov">          0 :                                 if (in-&gt;src-&gt;chan&gt;2) ch_cfg |= in-&gt;src-&gt;ch_cfg;</span>
+<span class="lineNum">     311 </span>            :                         }
+<span class="lineNum">     312 </span>            :                 }
+<span class="lineNum">     313 </span>            : 
+<span class="lineNum">     314 </span><span class="lineNoCov">          0 :                 numInit++;</span>
+<span class="lineNum">     315 </span><span class="lineNoCov">          0 :                 in-&gt;bytes_per_sec = in-&gt;src-&gt;samplerate * in-&gt;src-&gt;chan * in-&gt;src-&gt;bps / 8;</span>
+<span class="lineNum">     316 </span>            :                 /*cfg has changed, we must reconfig everything*/
+<span class="lineNum">     317 </span><span class="lineNoCov">          0 :                 if (cfg_changed || (max_sample_rate != am-&gt;sample_rate) ) {</span>
+<span class="lineNum">     318 </span><span class="lineNoCov">          0 :                         in-&gt;has_prev = GF_FALSE;</span>
+<span class="lineNum">     319 </span><span class="lineNoCov">          0 :                         memset(&amp;in-&gt;last_channels, 0, sizeof(s16)*GF_SR_MAX_CHANNELS);</span>
+<span class="lineNum">     320 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     321 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     322 </span>            : 
+<span class="lineNum">     323 </span><span class="lineNoCov">          0 :         if (cfg_changed || (max_sample_rate &amp;&amp; (max_sample_rate != am-&gt;sample_rate)) ) {</span>
+<span class="lineNum">     324 </span><span class="lineNoCov">          0 :                 if (max_channels&gt;2) {</span>
+<span class="lineNum">     325 </span><span class="lineNoCov">          0 :                         if (ch_cfg != am-&gt;channel_cfg) {</span>
+<span class="lineNum">     326 </span>            :                                 /*recompute num channel based on all input channels*/
+<span class="lineNum">     327 </span>            :                                 max_channels = 0;
+<span class="lineNum">     328 </span><span class="lineNoCov">          0 :                                 if (ch_cfg &amp; GF_AUDIO_CH_FRONT_LEFT) max_channels ++;</span>
+<span class="lineNum">     329 </span><span class="lineNoCov">          0 :                                 if (ch_cfg &amp; GF_AUDIO_CH_FRONT_RIGHT) max_channels ++;</span>
+<span class="lineNum">     330 </span><span class="lineNoCov">          0 :                                 if (ch_cfg &amp; GF_AUDIO_CH_FRONT_CENTER) max_channels ++;</span>
+<span class="lineNum">     331 </span><span class="lineNoCov">          0 :                                 if (ch_cfg &amp; GF_AUDIO_CH_LFE) max_channels ++;</span>
+<span class="lineNum">     332 </span><span class="lineNoCov">          0 :                                 if (ch_cfg &amp; GF_AUDIO_CH_BACK_LEFT) max_channels ++;</span>
+<span class="lineNum">     333 </span><span class="lineNoCov">          0 :                                 if (ch_cfg &amp; GF_AUDIO_CH_BACK_RIGHT) max_channels ++;</span>
+<span class="lineNum">     334 </span><span class="lineNoCov">          0 :                                 if (ch_cfg &amp; GF_AUDIO_CH_BACK_CENTER) max_channels ++;</span>
+<span class="lineNum">     335 </span><span class="lineNoCov">          0 :                                 if (ch_cfg &amp; GF_AUDIO_CH_SIDE_LEFT) max_channels ++;</span>
+<span class="lineNum">     336 </span><span class="lineNoCov">          0 :                                 if (ch_cfg &amp; GF_AUDIO_CH_SIDE_RIGHT) max_channels ++;</span>
+<span class="lineNum">     337 </span>            :                         }
+<span class="lineNum">     338 </span>            :                 } else {
+<span class="lineNum">     339 </span>            :                         ch_cfg = GF_AUDIO_CH_FRONT_LEFT;
+<span class="lineNum">     340 </span><span class="lineNoCov">          0 :                         if (max_channels==2) ch_cfg |= GF_AUDIO_CH_FRONT_RIGHT;</span>
+<span class="lineNum">     341 </span>            :                 }
+<span class="lineNum">     342 </span><span class="lineNoCov">          0 :                 gf_mixer_set_config(am, max_sample_rate, max_channels, max_bps, ch_cfg);</span>
+<span class="lineNum">     343 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     344 </span>            : 
+<span class="lineNum">     345 </span><span class="lineNoCov">          0 :         if (numInit == count) am-&gt;must_reconfig = GF_FALSE;</span>
+<span class="lineNum">     346 </span><span class="lineNoCov">          0 :         if (am-&gt;ar) cfg_changed = 1;</span>
+<span class="lineNum">     347 </span>            : 
+<span class="lineNum">     348 </span><span class="lineNoCov">          0 :         gf_mixer_lock(am, GF_FALSE);</span>
+<span class="lineNum">     349 </span><span class="lineNoCov">          0 :         return cfg_changed;</span>
+<a name="350"><span class="lineNum">     350 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     351 </span>            : 
+<span class="lineNum">     352 </span>            : static GFINLINE u32 get_channel_out_pos(u32 in_ch, u32 out_cfg)
+<span class="lineNum">     353 </span>            : {
+<span class="lineNum">     354 </span>            :         u32 i, cfg, pos;
+<span class="lineNum">     355 </span>            :         pos = 0;
+<span class="lineNum">     356 </span><span class="lineNoCov">          0 :         for (i=0; i&lt;9; i++) {</span>
+<span class="lineNum">     357 </span><span class="lineNoCov">          0 :                 cfg = 1&lt;&lt;(i);</span>
+<span class="lineNum">     358 </span><span class="lineNoCov">          0 :                 if (out_cfg &amp; cfg) {</span>
+<span class="lineNum">     359 </span><span class="lineNoCov">          0 :                         if (cfg == in_ch) return pos;</span>
+<span class="lineNum">     360 </span><span class="lineNoCov">          0 :                         pos++;</span>
+<span class="lineNum">     361 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     362 </span>            :         }
+<span class="lineNum">     363 </span><span class="lineNoCov">          0 :         return GF_SR_MAX_CHANNELS;</span>
+<span class="lineNum">     364 </span><span class="lineNoCov">          0 : }</span>
+<a name="365"><span class="lineNum">     365 </span>            : </a>
+<span class="lineNum">     366 </span>            : /*this is crude, we'd need a matrix or something*/
+<span class="lineNum">     367 </span>            : static GFINLINE void gf_mixer_map_channels(s32 *inChan, u32 nb_in, u32 in_cfg, u32 nb_out, u32 out_cfg)
+<span class="lineNum">     368 </span>            : {
+<span class="lineNum">     369 </span>            :         u32 i;
+<span class="lineNum">     370 </span><span class="lineNoCov">          0 :         if (nb_in==1) {</span>
+<span class="lineNum">     371 </span>            :                 /*mono to stereo*/
+<span class="lineNum">     372 </span><span class="lineNoCov">          0 :                 if (nb_out==2) {</span>
+<span class="lineNum">     373 </span><span class="lineNoCov">          0 :                         inChan[1] = inChan[0];</span>
+<span class="lineNum">     374 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     375 </span><span class="lineNoCov">          0 :                 else if (nb_out&gt;2) {</span>
+<span class="lineNum">     376 </span>            :                         /*if center channel use it (we assume we always have stereo channels)*/
+<span class="lineNum">     377 </span><span class="lineNoCov">          0 :                         if (out_cfg &amp; GF_AUDIO_CH_FRONT_CENTER) {</span>
+<span class="lineNum">     378 </span><span class="lineNoCov">          0 :                                 inChan[2] = inChan[0];</span>
+<span class="lineNum">     379 </span><span class="lineNoCov">          0 :                                 inChan[0] = 0;</span>
+<span class="lineNum">     380 </span><span class="lineNoCov">          0 :                                 for (i=3; i&lt;nb_out; i++) inChan[i] = 0;</span>
+<span class="lineNum">     381 </span>            :                         } else {
+<span class="lineNum">     382 </span>            :                                 /*mono to stereo*/
+<span class="lineNum">     383 </span><span class="lineNoCov">          0 :                                 inChan[1] = inChan[0];</span>
+<span class="lineNum">     384 </span><span class="lineNoCov">          0 :                                 for (i=2; i&lt;nb_out; i++) inChan[i] = 0;</span>
+<span class="lineNum">     385 </span>            :                         }
+<span class="lineNum">     386 </span>            :                 }
+<span class="lineNum">     387 </span><span class="lineNoCov">          0 :         } else if (nb_in==2) {</span>
+<span class="lineNum">     388 </span><span class="lineNoCov">          0 :                 if (nb_out==1) {</span>
+<span class="lineNum">     389 </span><span class="lineNoCov">          0 :                         inChan[0] = (inChan[0]+inChan[1])/2;</span>
+<span class="lineNum">     390 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     391 </span><span class="lineNoCov">          0 :                         for (i=2; i&lt;nb_out; i++) inChan[i] = 0;</span>
+<span class="lineNum">     392 </span>            :                 }
+<span class="lineNum">     393 </span>            :         }
+<span class="lineNum">     394 </span>            :         /*same output than input channels, nothing to reorder*/
+<span class="lineNum">     395 </span>            : 
+<span class="lineNum">     396 </span>            :         /*more output than input channels*/
+<span class="lineNum">     397 </span><span class="lineNoCov">          0 :         else if (nb_in&lt;nb_out) {</span>
+<span class="lineNum">     398 </span><span class="lineNoCov">          0 :                 s32 bckup[GF_SR_MAX_CHANNELS];</span>
+<span class="lineNum">     399 </span>            :                 u32 pos;
+<span class="lineNum">     400 </span>            :                 u32 cfg = in_cfg;
+<span class="lineNum">     401 </span>            :                 u32 ch = 0;
+<span class="lineNum">     402 </span><span class="lineNoCov">          0 :                 memcpy(bckup, inChan, sizeof(s32)*nb_in);</span>
+<span class="lineNum">     403 </span><span class="lineNoCov">          0 :                 for (i=0; i&lt;nb_in; i++) {</span>
+<span class="lineNum">     404 </span>            :                         /*get first in channel*/
+<span class="lineNum">     405 </span><span class="lineNoCov">          0 :                         while (! (cfg &amp; 1)) {</span>
+<span class="lineNum">     406 </span><span class="lineNoCov">          0 :                                 ch++;</span>
+<span class="lineNum">     407 </span><span class="lineNoCov">          0 :                                 cfg&gt;&gt;=1;</span>
+<span class="lineNum">     408 </span>            :                                 /*done*/
+<span class="lineNum">     409 </span><span class="lineNoCov">          0 :                                 if (ch==10) return;</span>
+<span class="lineNum">     410 </span>            :                         }
+<span class="lineNum">     411 </span><span class="lineNoCov">          0 :                         pos = get_channel_out_pos((1&lt;&lt;ch), out_cfg);</span>
+<span class="lineNum">     412 </span>            :                         assert(pos != GF_SR_MAX_CHANNELS);
+<span class="lineNum">     413 </span><span class="lineNoCov">          0 :                         inChan[pos] = bckup[i];</span>
+<span class="lineNum">     414 </span><span class="lineNoCov">          0 :                         ch++;</span>
+<span class="lineNum">     415 </span><span class="lineNoCov">          0 :                         cfg&gt;&gt;=1;</span>
+<span class="lineNum">     416 </span>            :                 }
+<span class="lineNum">     417 </span><span class="lineNoCov">          0 :                 for (i=nb_in; i&lt;nb_out; i++) inChan[i] = 0;</span>
+<span class="lineNum">     418 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     419 </span>            :         /*less output than input channels (eg sound card doesn't support requested format*/
+<span class="lineNum">     420 </span><span class="lineNoCov">          0 :         else if (nb_in&gt;nb_out) {</span>
+<span class="lineNum">     421 </span><span class="lineNoCov">          0 :                 s32 bckup[GF_SR_MAX_CHANNELS];</span>
+<span class="lineNum">     422 </span>            :                 u32 pos;
+<span class="lineNum">     423 </span>            :                 u32 cfg = in_cfg;
+<span class="lineNum">     424 </span>            :                 u32 ch = 0;
+<span class="lineNum">     425 </span><span class="lineNoCov">          0 :                 memcpy(bckup, inChan, sizeof(s32)*nb_in);</span>
+<span class="lineNum">     426 </span><span class="lineNoCov">          0 :                 for (i=0; i&lt;nb_in; i++) {</span>
+<span class="lineNum">     427 </span>            :                         /*get first in channel*/
+<span class="lineNum">     428 </span><span class="lineNoCov">          0 :                         while (! (cfg &amp; 1)) {</span>
+<span class="lineNum">     429 </span><span class="lineNoCov">          0 :                                 ch++;</span>
+<span class="lineNum">     430 </span><span class="lineNoCov">          0 :                                 cfg&gt;&gt;=1;</span>
+<span class="lineNum">     431 </span>            :                                 /*done*/
+<span class="lineNum">     432 </span><span class="lineNoCov">          0 :                                 if (ch==10) return;</span>
+<span class="lineNum">     433 </span>            :                         }
+<span class="lineNum">     434 </span><span class="lineNoCov">          0 :                         pos = get_channel_out_pos( (1&lt;&lt;ch), out_cfg);</span>
+<span class="lineNum">     435 </span>            :                         /*this channel is present in output, copy over*/
+<span class="lineNum">     436 </span><span class="lineNoCov">          0 :                         if (pos &lt; GF_SR_MAX_CHANNELS) {</span>
+<span class="lineNum">     437 </span><span class="lineNoCov">          0 :                                 inChan[pos] = bckup[i];</span>
+<span class="lineNum">     438 </span><span class="lineNoCov">          0 :                         } else {</span>
+<span class="lineNum">     439 </span>            :                                 /*map to stereo (we assume that the driver cannot handle ANY multichannel cfg)*/
+<span class="lineNum">     440 </span><span class="lineNoCov">          0 :                                 switch (1&lt;&lt;ch) {</span>
+<span class="lineNum">     441 </span>            :                                 case GF_AUDIO_CH_FRONT_CENTER:
+<span class="lineNum">     442 </span>            :                                 case GF_AUDIO_CH_LFE:
+<span class="lineNum">     443 </span>            :                                 case GF_AUDIO_CH_BACK_CENTER:
+<span class="lineNum">     444 </span><span class="lineNoCov">          0 :                                         inChan[0] += bckup[i]/2;</span>
+<span class="lineNum">     445 </span><span class="lineNoCov">          0 :                                         inChan[1] += bckup[i]/2;</span>
+<span class="lineNum">     446 </span><span class="lineNoCov">          0 :                                         break;</span>
+<span class="lineNum">     447 </span>            :                                 case GF_AUDIO_CH_BACK_LEFT:
+<span class="lineNum">     448 </span>            :                                 case GF_AUDIO_CH_SIDE_LEFT:
+<span class="lineNum">     449 </span><span class="lineNoCov">          0 :                                         inChan[0] += bckup[i];</span>
+<span class="lineNum">     450 </span><span class="lineNoCov">          0 :                                         break;</span>
+<span class="lineNum">     451 </span>            :                                 case GF_AUDIO_CH_BACK_RIGHT:
+<span class="lineNum">     452 </span>            :                                 case GF_AUDIO_CH_SIDE_RIGHT:
+<span class="lineNum">     453 </span><span class="lineNoCov">          0 :                                         inChan[1] += bckup[i];</span>
+<span class="lineNum">     454 </span><span class="lineNoCov">          0 :                                         break;</span>
+<span class="lineNum">     455 </span>            :                                 }
+<span class="lineNum">     456 </span>            :                         }
+<span class="lineNum">     457 </span><span class="lineNoCov">          0 :                         ch++;</span>
+<span class="lineNum">     458 </span><span class="lineNoCov">          0 :                         cfg&gt;&gt;=1;</span>
+<span class="lineNum">     459 </span>            :                 }
+<span class="lineNum">     460 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     461 </span><span class="lineNoCov">          0 : }</span>
+<a name="462"><span class="lineNum">     462 </span>            : </a>
+<span class="lineNum">     463 </span>            : 
+<span class="lineNum">     464 </span>            : static void gf_mixer_fetch_input(GF_AudioMixer *am, MixerInput *in, u32 audio_delay)
+<span class="lineNum">     465 </span>            : {
+<span class="lineNum">     466 </span><span class="lineNoCov">          0 :         u32 i, j, in_ch, out_ch, prev, next, src_samp, ratio, src_size;</span>
+<span class="lineNum">     467 </span>            :         Bool use_prev;
+<span class="lineNum">     468 </span>            :         s16 *in_s16;
+<span class="lineNum">     469 </span>            :         s8 *in_s8;
+<span class="lineNum">     470 </span><span class="lineNoCov">          0 :         s32 frac, inChan[GF_SR_MAX_CHANNELS], inChanNext[GF_SR_MAX_CHANNELS];</span>
+<span class="lineNum">     471 </span>            : 
+<span class="lineNum">     472 </span><span class="lineNoCov">          0 :         in_s8 = (s8 *) in-&gt;src-&gt;FetchFrame(in-&gt;src-&gt;callback, &amp;src_size, audio_delay);</span>
+<span class="lineNum">     473 </span><span class="lineNoCov">          0 :         if (!in_s8 || !src_size) {</span>
+<span class="lineNum">     474 </span><span class="lineNoCov">          0 :                 in-&gt;has_prev = GF_FALSE;</span>
+<span class="lineNum">     475 </span>            :                 /*done, stop fill*/
+<span class="lineNum">     476 </span><span class="lineNoCov">          0 :                 in-&gt;out_samples_to_write = 0;</span>
+<span class="lineNum">     477 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     478 </span>            :         }
+<span class="lineNum">     479 </span>            : 
+<span class="lineNum">     480 </span><span class="lineNoCov">          0 :         ratio = (u32) (in-&gt;src-&gt;samplerate * FIX2INT(255*in-&gt;speed) / am-&gt;sample_rate);</span>
+<span class="lineNum">     481 </span><span class="lineNoCov">          0 :         src_samp = (u32) (src_size * 8 / in-&gt;src-&gt;bps / in-&gt;src-&gt;chan);</span>
+<span class="lineNum">     482 </span>            :         in_ch = in-&gt;src-&gt;chan;
+<span class="lineNum">     483 </span><span class="lineNoCov">          0 :         out_ch = am-&gt;nb_channels;</span>
+<span class="lineNum">     484 </span><span class="lineNoCov">          0 :         if (in-&gt;src-&gt;bps == 8) {</span>
+<span class="lineNum">     485 </span>            :                 in_s16 = NULL;
+<span class="lineNum">     486 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     487 </span><span class="lineNoCov">          0 :                 in_s16 = (s16 *) in_s8;</span>
+<span class="lineNum">     488 </span>            :                 in_s8 = NULL;
+<span class="lineNum">     489 </span>            :         }
+<span class="lineNum">     490 </span>            : 
+<span class="lineNum">     491 </span>            :         /*just in case, if only 1 sample available in src, copy over and discard frame since we cannot
+<span class="lineNum">     492 </span>            :         interpolate audio*/
+<span class="lineNum">     493 </span><span class="lineNoCov">          0 :         if (src_samp==1) {</span>
+<span class="lineNum">     494 </span><span class="lineNoCov">          0 :                 in-&gt;has_prev = GF_TRUE;</span>
+<span class="lineNum">     495 </span><span class="lineNoCov">          0 :                 for (j=0; j&lt;in_ch; j++) in-&gt;last_channels[j] = in_s16 ? in_s16[j] : in_s8[j];</span>
+<span class="lineNum">     496 </span><span class="lineNoCov">          0 :                 in-&gt;in_bytes_used = src_size;</span>
+<span class="lineNum">     497 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     498 </span>            :         }
+<span class="lineNum">     499 </span>            : 
+<span class="lineNum">     500 </span>            :         /*while space to fill and input data, convert*/
+<span class="lineNum">     501 </span><span class="lineNoCov">          0 :         use_prev = in-&gt;has_prev;</span>
+<span class="lineNum">     502 </span><span class="lineNoCov">          0 :         memset(inChanNext, 0, sizeof(s32)*GF_SR_MAX_CHANNELS);</span>
+<span class="lineNum">     503 </span>            :         i = 0;
+<span class="lineNum">     504 </span>            :         next = prev = 0;
+<span class="lineNum">     505 </span><span class="lineNoCov">          0 :         while (1) {</span>
+<span class="lineNum">     506 </span><span class="lineNoCov">          0 :                 prev = (u32) (i*ratio) / 255;</span>
+<span class="lineNum">     507 </span><span class="lineNoCov">          0 :                 if (prev&gt;=src_samp) break;</span>
+<span class="lineNum">     508 </span>            : 
+<span class="lineNum">     509 </span><span class="lineNoCov">          0 :                 next = prev+1;</span>
+<span class="lineNum">     510 </span><span class="lineNoCov">          0 :                 frac = (i*ratio) - 255*prev;</span>
+<span class="lineNum">     511 </span><span class="lineNoCov">          0 :                 if (frac &amp;&amp; (next==src_samp)) break;</span>
+<span class="lineNum">     512 </span><span class="lineNoCov">          0 :                 if (use_prev &amp;&amp; prev)</span>
+<span class="lineNum">     513 </span><span class="lineNoCov">          0 :                         use_prev = GF_FALSE;</span>
+<span class="lineNum">     514 </span>            : 
+<span class="lineNum">     515 </span><span class="lineNoCov">          0 :                 if (in_s16) {</span>
+<span class="lineNum">     516 </span><span class="lineNoCov">          0 :                         for (j=0; j&lt;in_ch; j++) {</span>
+<span class="lineNum">     517 </span><span class="lineNoCov">          0 :                                 inChan[j] = use_prev ? in-&gt;last_channels[j] : in_s16[in_ch*prev + j];</span>
+<span class="lineNum">     518 </span><span class="lineNoCov">          0 :                                 inChanNext[j] = in_s16[in_ch*next + j];</span>
+<span class="lineNum">     519 </span><span class="lineNoCov">          0 :                                 inChan[j] = (frac*inChanNext[j] + (255-frac)*inChan[j]) / 255;</span>
+<span class="lineNum">     520 </span>            :                         }
+<span class="lineNum">     521 </span>            :                 } else {
+<span class="lineNum">     522 </span><span class="lineNoCov">          0 :                         for (j=0; j&lt;in_ch; j++) {</span>
+<span class="lineNum">     523 </span><span class="lineNoCov">          0 :                                 inChan[j] = use_prev ? in-&gt;last_channels[j] : in_s8[in_ch*prev + j];</span>
+<span class="lineNum">     524 </span><span class="lineNoCov">          0 :                                 inChanNext[j] = in_s8[in_ch*next + j];</span>
+<span class="lineNum">     525 </span><span class="lineNoCov">          0 :                                 inChan[j] = (frac*inChanNext[j] + (255-frac)*inChan[j]) / 255;</span>
+<span class="lineNum">     526 </span>            :                         }
+<span class="lineNum">     527 </span>            :                 }
+<span class="lineNum">     528 </span>            : 
+<span class="lineNum">     529 </span><span class="lineNoCov">          0 :                 gf_mixer_map_channels(inChan, in_ch, in-&gt;src-&gt;ch_cfg, out_ch, am-&gt;channel_cfg);</span>
+<span class="lineNum">     530 </span>            :                 //Fixe me - we nee to uderstand how to map pan from N channels to K channels ...
+<span class="lineNum">     531 </span><span class="lineNoCov">          0 :                 for (j=0; j&lt;out_ch ; j++) {</span>
+<span class="lineNum">     532 </span><span class="lineNoCov">          0 :                         *(in-&gt;ch_buf[j] + in-&gt;out_samples_written) = (s32) (inChan[j] * FIX2INT(100*in-&gt;pan[j]) / 100 );</span>
+<span class="lineNum">     533 </span>            :                 }
+<span class="lineNum">     534 </span>            : 
+<span class="lineNum">     535 </span><span class="lineNoCov">          0 :                 in-&gt;out_samples_written ++;</span>
+<span class="lineNum">     536 </span><span class="lineNoCov">          0 :                 if (in-&gt;out_samples_written == in-&gt;out_samples_to_write) break;</span>
+<span class="lineNum">     537 </span><span class="lineNoCov">          0 :                 i++;</span>
+<span class="lineNum">     538 </span>            :         }
+<span class="lineNum">     539 </span>            : 
+<span class="lineNum">     540 </span><span class="lineNoCov">          0 :         if (!(ratio%255)) {</span>
+<span class="lineNum">     541 </span><span class="lineNoCov">          0 :                 in-&gt;has_prev = GF_FALSE;</span>
+<span class="lineNum">     542 </span><span class="lineNoCov">          0 :                 if (next==src_samp) {</span>
+<span class="lineNum">     543 </span><span class="lineNoCov">          0 :                         in-&gt;in_bytes_used = src_size;</span>
+<span class="lineNum">     544 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     545 </span><span class="lineNoCov">          0 :                         in-&gt;in_bytes_used = MIN(src_size, prev*in-&gt;src-&gt;bps * in-&gt;src-&gt;chan / 8);</span>
+<span class="lineNum">     546 </span>            :                 }
+<span class="lineNum">     547 </span>            :         } else {
+<span class="lineNum">     548 </span><span class="lineNoCov">          0 :                 in-&gt;has_prev = GF_TRUE;</span>
+<span class="lineNum">     549 </span><span class="lineNoCov">          0 :                 if (next==src_samp) {</span>
+<span class="lineNum">     550 </span><span class="lineNoCov">          0 :                         for (j=0; j&lt;in_ch; j++) in-&gt;last_channels[j] = inChanNext[j];</span>
+<span class="lineNum">     551 </span><span class="lineNoCov">          0 :                         in-&gt;in_bytes_used = src_size;</span>
+<span class="lineNum">     552 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     553 </span><span class="lineNoCov">          0 :                         in-&gt;in_bytes_used = prev*in-&gt;src-&gt;bps * in-&gt;src-&gt;chan / 8;</span>
+<span class="lineNum">     554 </span><span class="lineNoCov">          0 :                         if (in-&gt;in_bytes_used&gt;src_size) {</span>
+<span class="lineNum">     555 </span><span class="lineNoCov">          0 :                                 in-&gt;in_bytes_used = src_size;</span>
+<span class="lineNum">     556 </span><span class="lineNoCov">          0 :                                 for (j=0; j&lt;in_ch; j++) in-&gt;last_channels[j] = inChanNext[j];</span>
+<span class="lineNum">     557 </span>            :                         } else {
+<span class="lineNum">     558 </span>            :                                 u32 idx;
+<span class="lineNum">     559 </span><span class="lineNoCov">          0 :                                 idx = (prev&gt;=src_samp) ? in_ch*(src_samp-1) : in_ch*prev;</span>
+<span class="lineNum">     560 </span><span class="lineNoCov">          0 :                                 for (j=0; j&lt;in_ch; j++) {</span>
+<span class="lineNum">     561 </span>            :                                         assert(idx + j &lt; src_size/2);
+<span class="lineNum">     562 </span><span class="lineNoCov">          0 :                                         in-&gt;last_channels[j] = in_s16 ? in_s16[idx + j] : in_s8[idx + j];</span>
+<span class="lineNum">     563 </span>            :                                 }
+<span class="lineNum">     564 </span>            :                         }
+<span class="lineNum">     565 </span>            :                 }
+<span class="lineNum">     566 </span>            :         }
+<span class="lineNum">     567 </span>            :         /*cf below, make sure we call release*/
+<span class="lineNum">     568 </span><span class="lineNoCov">          0 :         in-&gt;in_bytes_used += 1;</span>
+<span class="lineNum">     569 </span><span class="lineNoCov">          0 : }</span>
+<a name="570"><span class="lineNum">     570 </span>            : </a>
+<span class="lineNum">     571 </span>            : GF_EXPORT
+<span class="lineNum">     572 </span>            : u32 gf_mixer_get_output(GF_AudioMixer *am, void *buffer, u32 buffer_size, u32 delay)
+<span class="lineNum">     573 </span>            : {
+<span class="lineNum">     574 </span>            :         MixerInput *in, *single_source;
+<span class="lineNum">     575 </span><span class="lineNoCov">          0 :         Fixed pan[6];</span>
+<span class="lineNum">     576 </span>            :         Bool is_muted, force_mix;
+<span class="lineNum">     577 </span><span class="lineNoCov">          0 :         u32 i, j, count, size, in_size, nb_samples, nb_written;</span>
+<span class="lineNum">     578 </span>            :         s32 *out_mix, nb_act_src;
+<span class="lineNum">     579 </span>            :         char *data, *ptr;
+<span class="lineNum">     580 </span>            : 
+<span class="lineNum">     581 </span>            :         //reset buffer whatever the state of the mixer is
+<span class="lineNum">     582 </span><span class="lineNoCov">          0 :         memset(buffer, 0, buffer_size);</span>
+<span class="lineNum">     583 </span>            : 
+<span class="lineNum">     584 </span>            :         /*the config has changed we don't write to output since settings change*/
+<span class="lineNum">     585 </span><span class="lineNoCov">          0 :         if (gf_mixer_reconfig(am)) return 0;</span>
+<span class="lineNum">     586 </span>            : 
+<span class="lineNum">     587 </span><span class="lineNoCov">          0 :         gf_mixer_lock(am, GF_TRUE);</span>
+<span class="lineNum">     588 </span><span class="lineNoCov">          0 :         count = gf_list_count(am-&gt;sources);</span>
+<span class="lineNum">     589 </span><span class="lineNoCov">          0 :         if (!count) {</span>
+<span class="lineNum">     590 </span><span class="lineNoCov">          0 :                 gf_mixer_lock(am, GF_FALSE);</span>
+<span class="lineNum">     591 </span><span class="lineNoCov">          0 :                 return 0;</span>
+<span class="lineNum">     592 </span>            :         }
+<span class="lineNum">     593 </span>            : 
+<span class="lineNum">     594 </span><span class="lineNoCov">          0 :         size=0;</span>
+<span class="lineNum">     595 </span>            :         single_source = NULL;
+<span class="lineNum">     596 </span><span class="lineNoCov">          0 :         if (count!=1) goto do_mix;</span>
+<span class="lineNum">     597 </span><span class="lineNoCov">          0 :         if (am-&gt;force_channel_out) goto do_mix;</span>
+<span class="lineNum">     598 </span><span class="lineNoCov">          0 :         single_source = (MixerInput *) gf_list_get(am-&gt;sources, 0);</span>
+<span class="lineNum">     599 </span>            :         /*if cfg changed or unknown, reconfigure the mixer if the audio renderer is attached. Otherwise,  the mixer config never changes internally*/
+<span class="lineNum">     600 </span><span class="lineNoCov">          0 :         if (!single_source-&gt;src-&gt;GetConfig(single_source-&gt;src, GF_FALSE)) {</span>
+<span class="lineNum">     601 </span><span class="lineNoCov">          0 :                 if (am-&gt;ar) {</span>
+<span class="lineNum">     602 </span><span class="lineNoCov">          0 :                         am-&gt;must_reconfig = GF_TRUE;</span>
+<span class="lineNum">     603 </span><span class="lineNoCov">          0 :                         gf_mixer_reconfig(am);</span>
+<span class="lineNum">     604 </span><span class="lineNoCov">          0 :                         gf_mixer_lock(am, GF_FALSE);</span>
+<span class="lineNum">     605 </span><span class="lineNoCov">          0 :                         return 0;</span>
+<span class="lineNum">     606 </span>            :                 }
+<span class="lineNum">     607 </span>            :         }
+<span class="lineNum">     608 </span>            : 
+<span class="lineNum">     609 </span><span class="lineNoCov">          0 :         single_source-&gt;muted = single_source-&gt;src-&gt;IsMuted(single_source-&gt;src-&gt;callback);</span>
+<span class="lineNum">     610 </span>            :         /*this happens if input SR cannot be mapped to output audio hardware*/
+<span class="lineNum">     611 </span><span class="lineNoCov">          0 :         if (single_source-&gt;src-&gt;samplerate != am-&gt;sample_rate) goto do_mix;</span>
+<span class="lineNum">     612 </span>            :         /*note we don't check output cfg: if the number of channel is the same then the channel cfg is the
+<span class="lineNum">     613 </span>            :         same*/
+<span class="lineNum">     614 </span><span class="lineNoCov">          0 :         if (single_source-&gt;src-&gt;chan != am-&gt;nb_channels) goto do_mix;</span>
+<span class="lineNum">     615 </span><span class="lineNoCov">          0 :         if (single_source-&gt;src-&gt;GetSpeed(single_source-&gt;src-&gt;callback)!=FIX_ONE) goto do_mix;</span>
+<span class="lineNum">     616 </span><span class="lineNoCov">          0 :         if (single_source-&gt;src-&gt;GetChannelVolume(single_source-&gt;src-&gt;callback, pan)) goto do_mix;</span>
+<span class="lineNum">     617 </span>            : 
+<span class="lineNum">     618 </span>            : single_source_mix:
+<span class="lineNum">     619 </span>            : 
+<span class="lineNum">     620 </span>            :         ptr = (char *)buffer;
+<span class="lineNum">     621 </span>            :         in_size = buffer_size;
+<span class="lineNum">     622 </span><span class="lineNoCov">          0 :         is_muted = single_source-&gt;muted;</span>
+<span class="lineNum">     623 </span>            : 
+<span class="lineNum">     624 </span><span class="lineNoCov">          0 :         while (buffer_size) {</span>
+<span class="lineNum">     625 </span><span class="lineNoCov">          0 :                 size = 0;</span>
+<span class="lineNum">     626 </span><span class="lineNoCov">          0 :                 data = single_source-&gt;src-&gt;FetchFrame(single_source-&gt;src-&gt;callback, &amp;size, delay);</span>
+<span class="lineNum">     627 </span><span class="lineNoCov">          0 :                 if (!data || !size) break;</span>
+<span class="lineNum">     628 </span>            :                 /*don't copy more than possible*/
+<span class="lineNum">     629 </span><span class="lineNoCov">          0 :                 if (size &gt; buffer_size) size = buffer_size;</span>
+<span class="lineNum">     630 </span><span class="lineNoCov">          0 :                 if (!is_muted) {</span>
+<span class="lineNum">     631 </span><span class="lineNoCov">          0 :                         memcpy(ptr, data, size);</span>
+<span class="lineNum">     632 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     633 </span><span class="lineNoCov">          0 :                 buffer_size -= size;</span>
+<span class="lineNum">     634 </span><span class="lineNoCov">          0 :                 ptr += size;</span>
+<span class="lineNum">     635 </span><span class="lineNoCov">          0 :                 single_source-&gt;src-&gt;ReleaseFrame(single_source-&gt;src-&gt;callback, size);</span>
+<span class="lineNum">     636 </span><span class="lineNoCov">          0 :                 delay += size * 8000 / am-&gt;bits_per_sample / am-&gt;sample_rate / am-&gt;nb_channels;</span>
+<span class="lineNum">     637 </span>            :         }
+<span class="lineNum">     638 </span>            : 
+<span class="lineNum">     639 </span>            :         /*not completely filled*/
+<span class="lineNum">     640 </span><span class="lineNoCov">          0 :         if (!size || !buffer_size) {</span>
+<span class="lineNum">     641 </span><span class="lineNoCov">          0 :                 if (buffer_size) {</span>
+<span class="lineNum">     642 </span><span class="lineNoCov">          0 :                         if (!data) {</span>
+<span class="lineNum">     643 </span><span class="lineNoCov">          0 :                                 GF_LOG(GF_LOG_DEBUG, GF_LOG_AUDIO, (&quot;[AudioMixer] not enough input data (%d still to fill)\n&quot;, buffer_size));</span>
+<span class="lineNum">     644 </span>            :                         }
+<span class="lineNum">     645 </span>            :                 }
+<span class="lineNum">     646 </span><span class="lineNoCov">          0 :                 gf_mixer_lock(am, GF_FALSE);</span>
+<span class="lineNum">     647 </span><span class="lineNoCov">          0 :                 return (in_size - buffer_size);</span>
+<span class="lineNum">     648 </span>            :         }
+<span class="lineNum">     649 </span>            : 
+<span class="lineNum">     650 </span>            :         //otherwise, we do have some data but we had a change in config while writing the sample - fallthrough to full mix mode
+<span class="lineNum">     651 </span><span class="lineNoCov">          0 :         buffer = ptr;</span>
+<span class="lineNum">     652 </span>            : 
+<span class="lineNum">     653 </span>            : 
+<span class="lineNum">     654 </span>            : do_mix:
+<span class="lineNum">     655 </span>            :         nb_act_src = 0;
+<span class="lineNum">     656 </span><span class="lineNoCov">          0 :         nb_samples = buffer_size / (am-&gt;nb_channels * am-&gt;bits_per_sample / 8);</span>
+<span class="lineNum">     657 </span>            :         /*step 1, cfg*/
+<span class="lineNum">     658 </span><span class="lineNoCov">          0 :         if (am-&gt;output_size&lt;buffer_size) {</span>
+<span class="lineNum">     659 </span><span class="lineNoCov">          0 :                 if (am-&gt;output) gf_free(am-&gt;output);</span>
+<span class="lineNum">     660 </span><span class="lineNoCov">          0 :                 am-&gt;output = (s32*)gf_malloc(sizeof(s32) * buffer_size);</span>
+<span class="lineNum">     661 </span><span class="lineNoCov">          0 :                 am-&gt;output_size = buffer_size;</span>
+<span class="lineNum">     662 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     663 </span>            : 
+<span class="lineNum">     664 </span>            :         single_source = NULL;
+<span class="lineNum">     665 </span>            :         force_mix = GF_FALSE;
+<span class="lineNum">     666 </span><span class="lineNoCov">          0 :         for (i=0; i&lt;count; i++) {</span>
+<span class="lineNum">     667 </span><span class="lineNoCov">          0 :                 in = (MixerInput *)gf_list_get(am-&gt;sources, i);</span>
+<span class="lineNum">     668 </span><span class="lineNoCov">          0 :                 in-&gt;muted = in-&gt;src-&gt;IsMuted(in-&gt;src-&gt;callback);</span>
+<span class="lineNum">     669 </span><span class="lineNoCov">          0 :                 if (in-&gt;muted) continue;</span>
+<span class="lineNum">     670 </span>            : 
+<span class="lineNum">     671 </span><span class="lineNoCov">          0 :                 if (in-&gt;buffer_size &lt; nb_samples) {</span>
+<span class="lineNum">     672 </span><span class="lineNoCov">          0 :                         for (j=0; j&lt;GF_SR_MAX_CHANNELS; j++) {</span>
+<span class="lineNum">     673 </span><span class="lineNoCov">          0 :                                 if (in-&gt;ch_buf[j]) gf_free(in-&gt;ch_buf[j]);</span>
+<span class="lineNum">     674 </span><span class="lineNoCov">          0 :                                 in-&gt;ch_buf[j] = (s32 *) gf_malloc(sizeof(s32) * nb_samples);</span>
+<span class="lineNum">     675 </span>            :                         }
+<span class="lineNum">     676 </span><span class="lineNoCov">          0 :                         in-&gt;buffer_size = nb_samples;</span>
+<span class="lineNum">     677 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     678 </span><span class="lineNoCov">          0 :                 in-&gt;speed = in-&gt;src-&gt;GetSpeed(in-&gt;src-&gt;callback);</span>
+<span class="lineNum">     679 </span><span class="lineNoCov">          0 :                 if (in-&gt;speed&lt;0) in-&gt;speed *= -1;</span>
+<span class="lineNum">     680 </span>            : 
+<span class="lineNum">     681 </span><span class="lineNoCov">          0 :                 in-&gt;out_samples_written = 0;</span>
+<span class="lineNum">     682 </span><span class="lineNoCov">          0 :                 in-&gt;in_bytes_used = 0;</span>
+<span class="lineNum">     683 </span>            : 
+<span class="lineNum">     684 </span>            :                 /*if cfg unknown or changed (AudioBuffer child...) invalidate cfg settings*/
+<span class="lineNum">     685 </span><span class="lineNoCov">          0 :                 if (!in-&gt;src-&gt;GetConfig(in-&gt;src, GF_FALSE)) {</span>
+<span class="lineNum">     686 </span><span class="lineNoCov">          0 :                         if (am-&gt;ar) {</span>
+<span class="lineNum">     687 </span><span class="lineNoCov">          0 :                                 if (!am-&gt;must_reconfig) {</span>
+<span class="lineNum">     688 </span><span class="lineNoCov">          0 :                                         am-&gt;must_reconfig = GF_TRUE;</span>
+<span class="lineNum">     689 </span>            :                                         /*if main mixer reconfig asap*/
+<span class="lineNum">     690 </span><span class="lineNoCov">          0 :                                         gf_mixer_reconfig(am);</span>
+<span class="lineNum">     691 </span><span class="lineNoCov">          0 :                                 }</span>
+<span class="lineNum">     692 </span><span class="lineNoCov">          0 :                                 in-&gt;muted = GF_TRUE;</span>
+<span class="lineNum">     693 </span><span class="lineNoCov">          0 :                                 continue;</span>
+<span class="lineNum">     694 </span>            :                         }
+<span class="lineNum">     695 </span>            :                         //otherwise fallthrou, mixer keeps the same config
+<span class="lineNum">     696 </span>            :                         force_mix = GF_TRUE;
+<span class="lineNum">     697 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     698 </span>            : 
+<span class="lineNum">     699 </span><span class="lineNoCov">          0 :                 if (in-&gt;speed==0) {</span>
+<span class="lineNum">     700 </span><span class="lineNoCov">          0 :                         in-&gt;out_samples_to_write = 0;</span>
+<span class="lineNum">     701 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">     702 </span>            :                         assert(in-&gt;src-&gt;samplerate);
+<span class="lineNum">     703 </span><span class="lineNoCov">          0 :                         in-&gt;out_samples_to_write = nb_samples;</span>
+<span class="lineNum">     704 </span><span class="lineNoCov">          0 :                         if (in-&gt;src-&gt;IsMuted(in-&gt;src-&gt;callback)) {</span>
+<span class="lineNum">     705 </span><span class="lineNoCov">          0 :                                 memset(in-&gt;pan, 0, sizeof(Fixed)*6);</span>
+<span class="lineNum">     706 </span><span class="lineNoCov">          0 :                         } else {</span>
+<span class="lineNum">     707 </span><span class="lineNoCov">          0 :                                 if (!force_mix  &amp;&amp; !in-&gt;src-&gt;GetChannelVolume(in-&gt;src-&gt;callback, in-&gt;pan)) {</span>
+<span class="lineNum">     708 </span>            :                                         /*track first active source with same cfg as mixer*/
+<span class="lineNum">     709 </span><span class="lineNoCov">          0 :                                         if (!single_source &amp;&amp; (in-&gt;src-&gt;samplerate == am-&gt;sample_rate)</span>
+<span class="lineNum">     710 </span><span class="lineNoCov">          0 :                                                 &amp;&amp; (in-&gt;src-&gt;chan == am-&gt;nb_channels) &amp;&amp; (in-&gt;speed == FIX_ONE)</span>
+<span class="lineNum">     711 </span>            :                                            )
+<span class="lineNum">     712 </span><span class="lineNoCov">          0 :                                                 single_source = in;</span>
+<span class="lineNum">     713 </span>            :                                 }
+<span class="lineNum">     714 </span>            :                         }
+<span class="lineNum">     715 </span><span class="lineNoCov">          0 :                         nb_act_src ++;</span>
+<span class="lineNum">     716 </span>            :                 }
+<span class="lineNum">     717 </span>            :         }
+<span class="lineNum">     718 </span><span class="lineNoCov">          0 :         if (!nb_act_src) {</span>
+<span class="lineNum">     719 </span><span class="lineNoCov">          0 :                 gf_mixer_lock(am, GF_FALSE);</span>
+<span class="lineNum">     720 </span><span class="lineNoCov">          0 :                 return 0;</span>
+<span class="lineNum">     721 </span>            :         }
+<span class="lineNum">     722 </span>            : 
+<span class="lineNum">     723 </span>            :         /*if only one active source in native format, process as single source (direct copy)
+<span class="lineNum">     724 </span>            :         this is needed because mediaControl on an audio object doesn't deactivate it (eg the audio
+<span class="lineNum">     725 </span>            :         object is still present in the mixer). this opt is typically useful for language selection
+<span class="lineNum">     726 </span>            :         content (cf mp4menu)*/
+<span class="lineNum">     727 </span><span class="lineNoCov">          0 :         if ((nb_act_src==1) &amp;&amp; single_source) goto single_source_mix;</span>
+<span class="lineNum">     728 </span>            : 
+<span class="lineNum">     729 </span>            :         /*step 2, fill all buffers*/
+<span class="lineNum">     730 </span><span class="lineNoCov">          0 :         while (nb_act_src) {</span>
+<span class="lineNum">     731 </span>            :                 u32 nb_to_fill = 0;
+<span class="lineNum">     732 </span>            :                 /*fill*/
+<span class="lineNum">     733 </span><span class="lineNoCov">          0 :                 for (i=0; i&lt;count; i++) {</span>
+<span class="lineNum">     734 </span><span class="lineNoCov">          0 :                         in = (MixerInput *)gf_list_get(am-&gt;sources, i);</span>
+<span class="lineNum">     735 </span><span class="lineNoCov">          0 :                         if (in-&gt;muted) {</span>
+<span class="lineNum">     736 </span><span class="lineNoCov">          0 :                                 in-&gt;out_samples_to_write = 0;</span>
+<span class="lineNum">     737 </span><span class="lineNoCov">          0 :                                 continue;</span>
+<span class="lineNum">     738 </span>            :                         }
+<span class="lineNum">     739 </span><span class="lineNoCov">          0 :                         if (in-&gt;out_samples_to_write &gt; in-&gt;out_samples_written) {</span>
+<span class="lineNum">     740 </span><span class="lineNoCov">          0 :                                 gf_mixer_fetch_input(am, in, delay /*+ 8000 * i / am-&gt;bits_per_sample / am-&gt;sample_rate / am-&gt;nb_channels*/ );</span>
+<span class="lineNum">     741 </span><span class="lineNoCov">          0 :                                 if (in-&gt;out_samples_to_write &gt; in-&gt;out_samples_written) nb_to_fill++;</span>
+<span class="lineNum">     742 </span>            :                         }
+<span class="lineNum">     743 </span>            :                 }
+<span class="lineNum">     744 </span>            :                 /*release - this is done in 2 steps in case 2 audio object use the same source...*/
+<span class="lineNum">     745 </span><span class="lineNoCov">          0 :                 for (i=0; i&lt;count; i++) {</span>
+<span class="lineNum">     746 </span><span class="lineNoCov">          0 :                         in = (MixerInput *)gf_list_get(am-&gt;sources, i);</span>
+<span class="lineNum">     747 </span><span class="lineNoCov">          0 :                         if (in-&gt;muted) continue;</span>
+<span class="lineNum">     748 </span><span class="lineNoCov">          0 :                         if (in-&gt;in_bytes_used) in-&gt;src-&gt;ReleaseFrame(in-&gt;src-&gt;callback, in-&gt;in_bytes_used-1);</span>
+<span class="lineNum">     749 </span><span class="lineNoCov">          0 :                         in-&gt;in_bytes_used = 0;</span>
+<span class="lineNum">     750 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     751 </span><span class="lineNoCov">          0 :                 if (!nb_to_fill) break;</span>
+<span class="lineNum">     752 </span>            :                 //only resync on the first fill
+<span class="lineNum">     753 </span>            :                 delay=0;
+<span class="lineNum">     754 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     755 </span>            :         /*step 3, mix the final buffer*/
+<span class="lineNum">     756 </span><span class="lineNoCov">          0 :         memset(am-&gt;output, 0, sizeof(s32) * buffer_size);</span>
+<span class="lineNum">     757 </span>            : 
+<span class="lineNum">     758 </span>            :         nb_written = 0;
+<span class="lineNum">     759 </span><span class="lineNoCov">          0 :         for (i=0; i&lt;count; i++) {</span>
+<span class="lineNum">     760 </span><span class="lineNoCov">          0 :                 out_mix = am-&gt;output;</span>
+<span class="lineNum">     761 </span><span class="lineNoCov">          0 :                 in = (MixerInput *)gf_list_get(am-&gt;sources, i);</span>
+<span class="lineNum">     762 </span><span class="lineNoCov">          0 :                 if (!in-&gt;out_samples_to_write) continue;</span>
+<span class="lineNum">     763 </span>            :                 /*only write what has been filled in the source buffer (may be less than output size)*/
+<span class="lineNum">     764 </span><span class="lineNoCov">          0 :                 for (j=0; j&lt;in-&gt;out_samples_written; j++) {</span>
+<span class="lineNum">     765 </span>            :                         u32 k;
+<span class="lineNum">     766 </span><span class="lineNoCov">          0 :                         for (k=0; k&lt;am-&gt;nb_channels; k++) {</span>
+<span class="lineNum">     767 </span><span class="lineNoCov">          0 :                                 (*out_mix) += * (in-&gt;ch_buf[k] + j);</span>
+<span class="lineNum">     768 </span><span class="lineNoCov">          0 :                                 out_mix += 1;</span>
+<span class="lineNum">     769 </span>            :                         }
+<span class="lineNum">     770 </span>            :                 }
+<span class="lineNum">     771 </span><span class="lineNoCov">          0 :                 if (nb_written &lt; in-&gt;out_samples_written) nb_written = in-&gt;out_samples_written;</span>
+<span class="lineNum">     772 </span>            :         }
+<span class="lineNum">     773 </span>            : 
+<span class="lineNum">     774 </span><span class="lineNoCov">          0 :         if (!nb_written) {</span>
+<span class="lineNum">     775 </span><span class="lineNoCov">          0 :                 gf_mixer_lock(am, GF_FALSE);</span>
+<span class="lineNum">     776 </span><span class="lineNoCov">          0 :                 return 0;</span>
+<span class="lineNum">     777 </span>            :         }
+<span class="lineNum">     778 </span>            : 
+<span class="lineNum">     779 </span>            :         //we do not re-normalize based on the numbner of input, this is the author's responsability
+<span class="lineNum">     780 </span><span class="lineNoCov">          0 :         out_mix = am-&gt;output;</span>
+<span class="lineNum">     781 </span><span class="lineNoCov">          0 :         if (am-&gt;bits_per_sample==16) {</span>
+<span class="lineNum">     782 </span><span class="lineNoCov">          0 :                 s16 *out_s16 = (s16 *) buffer;</span>
+<span class="lineNum">     783 </span><span class="lineNoCov">          0 :                 for (i=0; i&lt;nb_written; i++) {</span>
+<span class="lineNum">     784 </span><span class="lineNoCov">          0 :                         for (j=0; j&lt;am-&gt;nb_channels; j++) {</span>
+<span class="lineNum">     785 </span><span class="lineNoCov">          0 :                                 s32 samp = (*out_mix );</span>
+<span class="lineNum">     786 </span><span class="lineNoCov">          0 :                                 if (samp &gt; GF_SHORT_MAX) samp = GF_SHORT_MAX;</span>
+<span class="lineNum">     787 </span><span class="lineNoCov">          0 :                                 else if (samp &lt; GF_SHORT_MIN) samp = GF_SHORT_MIN;</span>
+<span class="lineNum">     788 </span><span class="lineNoCov">          0 :                                 (*out_s16) = samp;</span>
+<span class="lineNum">     789 </span><span class="lineNoCov">          0 :                                 out_s16 += 1;</span>
+<span class="lineNum">     790 </span><span class="lineNoCov">          0 :                                 out_mix += 1;</span>
+<span class="lineNum">     791 </span>            :                         }
+<span class="lineNum">     792 </span>            :                 }
+<span class="lineNum">     793 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     794 </span>            :                 s8 *out_s8 = (s8 *) buffer;
+<span class="lineNum">     795 </span><span class="lineNoCov">          0 :                 for (i=0; i&lt;nb_written; i++) {</span>
+<span class="lineNum">     796 </span><span class="lineNoCov">          0 :                         for (j=0; j&lt;am-&gt;nb_channels; j++) {</span>
+<span class="lineNum">     797 </span><span class="lineNoCov">          0 :                                 s32 samp = (*out_mix ) / 255;</span>
+<span class="lineNum">     798 </span><span class="lineNoCov">          0 :                                 if (samp &gt; 127) samp = 127;</span>
+<span class="lineNum">     799 </span><span class="lineNoCov">          0 :                                 else if (samp &lt; -128) samp = -128;</span>
+<span class="lineNum">     800 </span><span class="lineNoCov">          0 :                                 (*out_s8) = samp;</span>
+<span class="lineNum">     801 </span><span class="lineNoCov">          0 :                                 out_s8 += 1;</span>
+<span class="lineNum">     802 </span><span class="lineNoCov">          0 :                                 out_mix += 1;</span>
+<span class="lineNum">     803 </span>            :                         }
+<span class="lineNum">     804 </span>            :                 }
+<span class="lineNum">     805 </span>            :         }
+<span class="lineNum">     806 </span>            : 
+<span class="lineNum">     807 </span><span class="lineNoCov">          0 :         nb_written *= am-&gt;nb_channels*am-&gt;bits_per_sample/8;</span>
+<span class="lineNum">     808 </span>            : 
+<span class="lineNum">     809 </span><span class="lineNoCov">          0 :         gf_mixer_lock(am, GF_FALSE);</span>
+<span class="lineNum">     810 </span><span class="lineNoCov">          0 :         return nb_written;</span>
+<span class="lineNum">     811 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     812 </span>            : 
+<span class="lineNum">     813 </span>            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

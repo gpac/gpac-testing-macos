@@ -1,0 +1,12 @@
+*** avc-422-8bit logs (GPAC version 0.6.2-DEV-revUNKNOWN-HEAD ) - test date 14/05/2017 22:29:17 ***
+
+
+*** Subtest "import": executing "MP4Box -noprog -for-test  -mem-track -add /Users/travis/build/gpac/gpac/tests/external_media/rext/counter-bifs-10min-320x180-bipbop_422.h264 -new /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4" ***
+[32mAVC-H264 import - frame size 320 x 180 at 25.000 FPS
+[0m[32mAVC Import results: 15000 samples (15003 NALUs) - Slices: 625 I 4475 P 9900 B - 1 SEI - 625 IDR
+[0m[32mStream uses forward prediction - stream CTS offset: 2 frames
+[0mSaving /Users/travis/build/gpac/gpac/tests/results/temp/test.mp4: 0.500 secs Interleaving
+[32m
+[MemTracker] Printing the current state of allocations (0 open file handles) :
+[0m[32m[MemTracker] Total: 0 bytes allocated in 0 blocks
+[0m

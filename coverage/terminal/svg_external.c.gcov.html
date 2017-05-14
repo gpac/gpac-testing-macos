@@ -1,0 +1,307 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - terminal/svg_external.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">terminal</a> - svg_external.c<span style="font-size: 80%;"> (source / <a href="svg_external.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">103</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-05-14 22:31:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *                      GPAC - Multimedia Framework C SDK
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *                      Authors: Cyril Concolato - Jean le Feuvre
+<span class="lineNum">       5 </span>            :  *                      Copyright (c) Telecom ParisTech 2005-2012
+<span class="lineNum">       6 </span>            :  *                                      All rights reserved
+<span class="lineNum">       7 </span>            :  *
+<span class="lineNum">       8 </span>            :  *  This file is part of GPAC / SVG Rendering sub-project
+<span class="lineNum">       9 </span>            :  *
+<span class="lineNum">      10 </span>            :  *  GPAC is free software; you can redistribute it and/or modify
+<span class="lineNum">      11 </span>            :  *  it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">      12 </span>            :  *  the Free Software Foundation; either version 2, or (at your option)
+<span class="lineNum">      13 </span>            :  *  any later version.
+<span class="lineNum">      14 </span>            :  *
+<span class="lineNum">      15 </span>            :  *  GPAC is distributed in the hope that it will be useful,
+<span class="lineNum">      16 </span>            :  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      17 </span>            :  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      18 </span>            :  *  GNU Lesser General Public License for more details.
+<span class="lineNum">      19 </span>            :  *
+<span class="lineNum">      20 </span>            :  *  You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      21 </span>            :  *  License along with this library; see the file COPYING.  If not, write to
+<span class="lineNum">      22 </span>            :  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+<span class="lineNum">      23 </span>            :  *
+<span class="lineNum">      24 </span>            :  */
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : #include &lt;gpac/constants.h&gt;
+<span class="lineNum">      27 </span>            : #include &lt;gpac/internal/terminal_dev.h&gt;
+<span class="lineNum">      28 </span>            : #include &lt;gpac/mediaobject.h&gt;
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : #ifndef GPAC_DISABLE_SVG
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            : #include &lt;gpac/internal/scenegraph_dev.h&gt;
+<span class="lineNum">      33 </span>            : #include &lt;gpac/nodes_svg.h&gt;
+<span class="lineNum">      34 </span>            : #include &lt;gpac/compositor.h&gt;
+<span class="lineNum">      35 </span>            : #include &lt;gpac/network.h&gt;
+<a name="36"><span class="lineNum">      36 </span>            : </a>
+<span class="lineNum">      37 </span>            : 
+<span class="lineNum">      38 </span>            : char *gf_term_resolve_xlink(GF_Node *node, char *the_url)
+<span class="lineNum">      39 </span>            : {
+<span class="lineNum">      40 </span>            :         char *url;
+<span class="lineNum">      41 </span><span class="lineNoCov">          0 :         GF_Scene *scene = gf_sg_get_private(gf_node_get_graph(node));</span>
+<span class="lineNum">      42 </span><span class="lineNoCov">          0 :         if (!scene) return NULL;</span>
+<span class="lineNum">      43 </span>            : 
+<span class="lineNum">      44 </span><span class="lineNoCov">          0 :         url = gf_strdup(the_url);</span>
+<span class="lineNum">      45 </span>            :         /*apply XML:base*/
+<span class="lineNum">      46 </span><span class="lineNoCov">          0 :         while (node) {</span>
+<span class="lineNum">      47 </span><span class="lineNoCov">          0 :                 GF_FieldInfo info;</span>
+<span class="lineNum">      48 </span><span class="lineNoCov">          0 :                 if (gf_node_get_attribute_by_tag(node, TAG_XML_ATT_base, 0, 0, &amp;info)==GF_OK) {</span>
+<span class="lineNum">      49 </span><span class="lineNoCov">          0 :                         char *new_url = gf_url_concatenate( ((XMLRI*)info.far_ptr)-&gt;string, url);</span>
+<span class="lineNum">      50 </span><span class="lineNoCov">          0 :                         if (new_url) {</span>
+<span class="lineNum">      51 </span><span class="lineNoCov">          0 :                                 gf_free(url);</span>
+<span class="lineNum">      52 </span>            :                                 url = new_url;
+<span class="lineNum">      53 </span><span class="lineNoCov">          0 :                         }</span>
+<span class="lineNum">      54 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">      55 </span><span class="lineNoCov">          0 :                 node = gf_node_get_parent(node, 0);</span>
+<span class="lineNum">      56 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">      57 </span>            : 
+<span class="lineNum">      58 </span>            :         /*if this is a fragment and no XML:BASE was found, this is a fragment of the current document*/
+<span class="lineNum">      59 </span><span class="lineNoCov">          0 :         if (url[0]=='#') return url;</span>
+<span class="lineNum">      60 </span>            : 
+<span class="lineNum">      61 </span><span class="lineNoCov">          0 :         if (scene) {</span>
+<span class="lineNum">      62 </span>            :                 char *the_url;
+<span class="lineNum">      63 </span><span class="lineNoCov">          0 :                 if (scene-&gt;redirect_xml_base) {</span>
+<span class="lineNum">      64 </span><span class="lineNoCov">          0 :                         the_url = gf_url_concatenate(scene-&gt;redirect_xml_base, url);</span>
+<span class="lineNum">      65 </span><span class="lineNoCov">          0 :                 } else {</span>
+<span class="lineNum">      66 </span>            : //                      the_url = gf_url_concatenate(is-&gt;root_od-&gt;net_service-&gt;url, url);
+<span class="lineNum">      67 </span>            :                         /*the root url of a document should be &quot;.&quot; if not specified, so that the final URL resolve happens only once
+<span class="lineNum">      68 </span>            :                         at the service level*/
+<span class="lineNum">      69 </span><span class="lineNoCov">          0 :                         the_url = gf_strdup(url);</span>
+<span class="lineNum">      70 </span>            :                 }
+<span class="lineNum">      71 </span><span class="lineNoCov">          0 :                 gf_free(url);</span>
+<span class="lineNum">      72 </span>            :                 return the_url;
+<span class="lineNum">      73 </span>            :         }
+<span class="lineNum">      74 </span><span class="lineNoCov">          0 :         return url;</span>
+<span class="lineNum">      75 </span><span class="lineNoCov">          0 : }</span>
+<a name="76"><span class="lineNum">      76 </span>            : </a>
+<span class="lineNum">      77 </span>            : GF_EXPORT
+<span class="lineNum">      78 </span>            : GF_Err gf_term_get_mfurl_from_xlink(GF_Node *node, MFURL *mfurl)
+<span class="lineNum">      79 </span>            : {
+<span class="lineNum">      80 </span>            :         u32 stream_id = 0;
+<span class="lineNum">      81 </span>            :         GF_Err e = GF_OK;
+<span class="lineNum">      82 </span>            :         SFURL *sfurl = NULL;
+<span class="lineNum">      83 </span><span class="lineNoCov">          0 :         GF_FieldInfo info;</span>
+<span class="lineNum">      84 </span>            :         XMLRI *iri;
+<span class="lineNum">      85 </span><span class="lineNoCov">          0 :         GF_Scene *scene = gf_sg_get_private(gf_node_get_graph(node));</span>
+<span class="lineNum">      86 </span><span class="lineNoCov">          0 :         if (!scene) return GF_BAD_PARAM;</span>
+<span class="lineNum">      87 </span>            : 
+<span class="lineNum">      88 </span><span class="lineNoCov">          0 :         gf_sg_vrml_mf_reset(mfurl, GF_SG_VRML_MFURL);</span>
+<span class="lineNum">      89 </span>            : 
+<span class="lineNum">      90 </span><span class="lineNoCov">          0 :         e = gf_node_get_attribute_by_tag(node, TAG_XLINK_ATT_href, 0, 0, &amp;info);</span>
+<span class="lineNum">      91 </span><span class="lineNoCov">          0 :         if (e) return e;</span>
+<span class="lineNum">      92 </span>            : 
+<span class="lineNum">      93 </span><span class="lineNoCov">          0 :         iri = (XMLRI*)info.far_ptr;</span>
+<span class="lineNum">      94 </span>            : 
+<span class="lineNum">      95 </span><span class="lineNoCov">          0 :         if (iri-&gt;type==XMLRI_STREAMID) {</span>
+<span class="lineNum">      96 </span><span class="lineNoCov">          0 :                 stream_id = iri-&gt;lsr_stream_id;</span>
+<span class="lineNum">      97 </span><span class="lineNoCov">          0 :         } else if (!iri-&gt;string) return GF_OK;</span>
+<span class="lineNum">      98 </span>            : 
+<span class="lineNum">      99 </span><span class="lineNoCov">          0 :         mfurl-&gt;count = 1;</span>
+<span class="lineNum">     100 </span><span class="lineNoCov">          0 :         GF_SAFEALLOC(mfurl-&gt;vals, SFURL)</span>
+<span class="lineNum">     101 </span><span class="lineNoCov">          0 :         sfurl = mfurl-&gt;vals;</span>
+<span class="lineNum">     102 </span><span class="lineNoCov">          0 :         if (!sfurl) return GF_BAD_PARAM;</span>
+<span class="lineNum">     103 </span><span class="lineNoCov">          0 :         sfurl-&gt;OD_ID = stream_id;</span>
+<span class="lineNum">     104 </span><span class="lineNoCov">          0 :         if (stream_id) return GF_OK;</span>
+<span class="lineNum">     105 </span>            : 
+<span class="lineNum">     106 </span><span class="lineNoCov">          0 :         if (!strncmp(iri-&gt;string, &quot;data:&quot;, 5)) {</span>
+<span class="lineNum">     107 </span><span class="lineNoCov">          0 :                 const char *cache_dir = gf_cfg_get_key(scene-&gt;root_od-&gt;term-&gt;user-&gt;config, &quot;General&quot;, &quot;CacheDirectory&quot;);</span>
+<span class="lineNum">     108 </span><span class="lineNoCov">          0 :                 e = gf_node_store_embedded_data(iri, cache_dir, &quot;embedded_&quot;);</span>
+<span class="lineNum">     109 </span><span class="lineNoCov">          0 :                 if (e) return e;</span>
+<span class="lineNum">     110 </span><span class="lineNoCov">          0 :                 sfurl-&gt;url = gf_strdup(iri-&gt;string);</span>
+<span class="lineNum">     111 </span><span class="lineNoCov">          0 :                 return GF_OK;</span>
+<span class="lineNum">     112 </span>            :         }
+<span class="lineNum">     113 </span><span class="lineNoCov">          0 :         sfurl-&gt;url = gf_term_resolve_xlink(node, iri-&gt;string);</span>
+<span class="lineNum">     114 </span><span class="lineNoCov">          0 :         return e;</span>
+<span class="lineNum">     115 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     116 </span>            : 
+<a name="117"><span class="lineNum">     117 </span>            : </a>
+<span class="lineNum">     118 </span>            : /* Creates a subscene from the xlink:href */
+<span class="lineNum">     119 </span>            : static GF_Scene *gf_svg_get_subscene(GF_Node *elt, XLinkAttributesPointers *xlinkp, SMILSyncAttributesPointers *syncp, Bool use_sync, Bool primary_resource)
+<span class="lineNum">     120 </span>            : {
+<span class="lineNum">     121 </span><span class="lineNoCov">          0 :         MFURL url;</span>
+<span class="lineNum">     122 </span>            :         Bool lock_timelines = 0;
+<span class="lineNum">     123 </span>            :         GF_MediaObject *mo;
+<span class="lineNum">     124 </span><span class="lineNoCov">          0 :         GF_SceneGraph *graph = gf_node_get_graph(elt);</span>
+<span class="lineNum">     125 </span><span class="lineNoCov">          0 :         GF_Scene *scene = (GF_Scene *)gf_sg_get_private(graph);</span>
+<span class="lineNum">     126 </span><span class="lineNoCov">          0 :         if (!scene) return NULL;</span>
+<span class="lineNum">     127 </span>            : 
+<span class="lineNum">     128 </span><span class="lineNoCov">          0 :         if (use_sync &amp;&amp; syncp) {</span>
+<span class="lineNum">     129 </span><span class="lineNoCov">          0 :                 switch ((syncp-&gt;syncBehavior?*syncp-&gt;syncBehavior:SMIL_SYNCBEHAVIOR_DEFAULT)) {</span>
+<span class="lineNum">     130 </span>            :                 case SMIL_SYNCBEHAVIOR_LOCKED:
+<span class="lineNum">     131 </span>            :                 case SMIL_SYNCBEHAVIOR_CANSLIP:
+<span class="lineNum">     132 </span>            :                         lock_timelines = 1;
+<span class="lineNum">     133 </span><span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     134 </span>            :                 case SMIL_SYNCBEHAVIOR_DEFAULT:
+<span class="lineNum">     135 </span>            :                 {
+<span class="lineNum">     136 </span>            : #if 0
+<span class="lineNum">     137 </span>            :                         if (svg &amp;&amp; syncp) {
+<span class="lineNum">     138 </span>            :                                 switch ((syncp-&gt;syncBehaviorDefault ? *syncp-&gt;syncBehaviorDefault : SMIL_SYNCBEHAVIOR_LOCKED)) {
+<span class="lineNum">     139 </span>            :                                 case SMIL_SYNCBEHAVIOR_LOCKED:
+<span class="lineNum">     140 </span>            :                                 case SMIL_SYNCBEHAVIOR_CANSLIP:
+<span class="lineNum">     141 </span>            :                                         lock_timelines = 1;
+<span class="lineNum">     142 </span>            :                                         break;
+<span class="lineNum">     143 </span>            :                                 default:
+<span class="lineNum">     144 </span>            :                                         break;
+<span class="lineNum">     145 </span>            :                                 }
+<span class="lineNum">     146 </span>            :                         }
+<span class="lineNum">     147 </span>            : #endif
+<span class="lineNum">     148 </span>            :                 }
+<span class="lineNum">     149 </span>            :                 default:
+<span class="lineNum">     150 </span>            :                         break;
+<span class="lineNum">     151 </span>            :                 }
+<span class="lineNum">     152 </span>            :         }
+<span class="lineNum">     153 </span><span class="lineNoCov">          0 :         memset(&amp;url, 0, sizeof(MFURL));</span>
+<span class="lineNum">     154 </span><span class="lineNoCov">          0 :         if (!xlinkp-&gt;href) return NULL;</span>
+<span class="lineNum">     155 </span>            : 
+<span class="lineNum">     156 </span><span class="lineNoCov">          0 :         gf_term_get_mfurl_from_xlink(elt, &amp;url);</span>
+<span class="lineNum">     157 </span>            : 
+<span class="lineNum">     158 </span><span class="lineNoCov">          0 :         while (scene-&gt;secondary_resource &amp;&amp; scene-&gt;root_od-&gt;parentscene)</span>
+<span class="lineNum">     159 </span><span class="lineNoCov">          0 :                 scene = scene-&gt;root_od-&gt;parentscene;</span>
+<span class="lineNum">     160 </span>            : 
+<span class="lineNum">     161 </span><span class="lineNoCov">          0 :         mo = gf_scene_get_media_object_ex(scene, &amp;url, GF_MEDIA_OBJECT_SCENE, lock_timelines, NULL, primary_resource, elt);</span>
+<span class="lineNum">     162 </span><span class="lineNoCov">          0 :         gf_sg_vrml_mf_reset(&amp;url, GF_SG_VRML_MFURL);</span>
+<span class="lineNum">     163 </span>            : 
+<span class="lineNum">     164 </span><span class="lineNoCov">          0 :         if (!mo || !mo-&gt;odm) return NULL;</span>
+<span class="lineNum">     165 </span><span class="lineNoCov">          0 :         mo-&gt;odm-&gt;subscene-&gt;secondary_resource = primary_resource ? 0 : 1;</span>
+<span class="lineNum">     166 </span><span class="lineNoCov">          0 :         return mo-&gt;odm-&gt;subscene;</span>
+<span class="lineNum">     167 </span><span class="lineNoCov">          0 : }</span>
+<a name="168"><span class="lineNum">     168 </span>            : </a>
+<span class="lineNum">     169 </span>            : 
+<span class="lineNum">     170 </span>            : GF_MediaObject *gf_mo_load_xlink_resource(GF_Node *node, Bool primary_resource, Double clipBegin, Double clipEnd)
+<span class="lineNum">     171 </span>            : {
+<span class="lineNum">     172 </span>            :         GF_Scene *new_resource;
+<span class="lineNum">     173 </span><span class="lineNoCov">          0 :         SVGAllAttributes all_atts;</span>
+<span class="lineNum">     174 </span><span class="lineNoCov">          0 :         XLinkAttributesPointers xlinkp;</span>
+<span class="lineNum">     175 </span><span class="lineNoCov">          0 :         SMILSyncAttributesPointers syncp;</span>
+<span class="lineNum">     176 </span><span class="lineNoCov">          0 :         GF_Scene *scene = gf_sg_get_private(gf_node_get_graph(node));</span>
+<span class="lineNum">     177 </span><span class="lineNoCov">          0 :         if (!scene) return NULL;</span>
+<span class="lineNum">     178 </span>            : 
+<span class="lineNum">     179 </span><span class="lineNoCov">          0 :         gf_svg_flatten_attributes((SVG_Element *)node, &amp;all_atts);</span>
+<span class="lineNum">     180 </span><span class="lineNoCov">          0 :         xlinkp.actuate = all_atts.xlink_actuate;</span>
+<span class="lineNum">     181 </span><span class="lineNoCov">          0 :         xlinkp.arcrole = all_atts.xlink_arcrole;</span>
+<span class="lineNum">     182 </span><span class="lineNoCov">          0 :         xlinkp.href = all_atts.xlink_href;</span>
+<span class="lineNum">     183 </span><span class="lineNoCov">          0 :         xlinkp.role = all_atts.xlink_role;</span>
+<span class="lineNum">     184 </span><span class="lineNoCov">          0 :         xlinkp.show = all_atts.xlink_show;</span>
+<span class="lineNum">     185 </span><span class="lineNoCov">          0 :         xlinkp.title = all_atts.xlink_title;</span>
+<span class="lineNum">     186 </span><span class="lineNoCov">          0 :         xlinkp.type = all_atts.xlink_type;</span>
+<span class="lineNum">     187 </span><span class="lineNoCov">          0 :         syncp.syncBehavior = all_atts.syncBehavior;</span>
+<span class="lineNum">     188 </span><span class="lineNoCov">          0 :         syncp.syncBehaviorDefault = all_atts.syncBehaviorDefault;</span>
+<span class="lineNum">     189 </span><span class="lineNoCov">          0 :         syncp.syncMaster = all_atts.syncMaster;</span>
+<span class="lineNum">     190 </span><span class="lineNoCov">          0 :         syncp.syncReference = all_atts.syncReference;</span>
+<span class="lineNum">     191 </span><span class="lineNoCov">          0 :         syncp.syncTolerance = all_atts.syncTolerance;</span>
+<span class="lineNum">     192 </span><span class="lineNoCov">          0 :         syncp.syncToleranceDefault = all_atts.syncToleranceDefault;</span>
+<span class="lineNum">     193 </span>            : 
+<span class="lineNum">     194 </span><span class="lineNoCov">          0 :         if (!xlinkp.href) return NULL;</span>
+<span class="lineNum">     195 </span>            : 
+<span class="lineNum">     196 </span><span class="lineNoCov">          0 :         if (xlinkp.href-&gt;type == XMLRI_ELEMENTID) return NULL;</span>
+<span class="lineNum">     197 </span>            : //      else if (xlinkp.href-&gt;string &amp;&amp; (xlinkp.href-&gt;string[0]=='#')) return NULL;
+<span class="lineNum">     198 </span>            : 
+<span class="lineNum">     199 </span><span class="lineNoCov">          0 :         new_resource = gf_svg_get_subscene(node, &amp;xlinkp, &amp;syncp, primary_resource ? 1 : 0, primary_resource);</span>
+<span class="lineNum">     200 </span><span class="lineNoCov">          0 :         if (!new_resource) return NULL;</span>
+<span class="lineNum">     201 </span>            : 
+<span class="lineNum">     202 </span>            :         /*play*/
+<span class="lineNum">     203 </span><span class="lineNoCov">          0 :         gf_mo_play(new_resource-&gt;root_od-&gt;mo, 0, -1, 0);</span>
+<span class="lineNum">     204 </span>            : 
+<span class="lineNum">     205 </span><span class="lineNoCov">          0 :         return new_resource-&gt;root_od-&gt;mo;</span>
+<a name="206"><span class="lineNum">     206 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     207 </span>            : 
+<span class="lineNum">     208 </span>            : void gf_mo_unload_xlink_resource(GF_Node *node, GF_MediaObject *mo)
+<span class="lineNum">     209 </span>            : {
+<span class="lineNum">     210 </span><span class="lineNoCov">          0 :         if (!mo) return;</span>
+<span class="lineNum">     211 </span><span class="lineNoCov">          0 :         if (!gf_odm_lock_mo(mo)) return;</span>
+<span class="lineNum">     212 </span><span class="lineNoCov">          0 :         if (!mo-&gt;odm-&gt;subscene) {</span>
+<span class="lineNum">     213 </span><span class="lineNoCov">          0 :                 gf_odm_lock(mo-&gt;odm, 0);</span>
+<span class="lineNum">     214 </span><span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     215 </span>            :         }
+<span class="lineNum">     216 </span><span class="lineNoCov">          0 :         if (mo-&gt;num_open) {</span>
+<span class="lineNum">     217 </span><span class="lineNoCov">          0 :                 mo-&gt;num_open--;</span>
+<span class="lineNum">     218 </span><span class="lineNoCov">          0 :                 if (!mo-&gt;num_open) {</span>
+<span class="lineNum">     219 </span>            :                         /*do we simply stop the associated document or unload it??? to check*/
+<span class="lineNum">     220 </span>            : //                      gf_mo_stop(mo);
+<span class="lineNum">     221 </span><span class="lineNoCov">          0 :                         gf_odm_disconnect(mo-&gt;odm, 2);</span>
+<span class="lineNum">     222 </span><span class="lineNoCov">          0 :                         return;</span>
+<span class="lineNum">     223 </span>            :                 }
+<span class="lineNum">     224 </span>            :         }
+<span class="lineNum">     225 </span>            : 
+<span class="lineNum">     226 </span>            :         /*ODM may be destroyed at this point !!*/
+<span class="lineNum">     227 </span><span class="lineNoCov">          0 :         if (mo-&gt;odm) gf_odm_lock(mo-&gt;odm, 0);</span>
+<span class="lineNum">     228 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     229 </span>            : 
+<span class="lineNum">     230 </span>            : #endif //GPAC_DISABLE_SVG
+<span class="lineNum">     231 </span>            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
